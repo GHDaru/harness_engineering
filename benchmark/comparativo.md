@@ -24,21 +24,21 @@
 
 ## Categoria: agentes pessoais self-hosted
 
-| # | Dimensão | **OpenClaw** | **Hermes** | **IronClaw** | (ohmo/OpenHarness¹) |
+| # | Dimensão | **OpenClaw** | **Hermes** | **IronClaw** | **ohmo¹** |
 |---|---|:---:|:---:|:---:|:---:|
-| 1–5 | Loop/Contexto/Compact./Tools/MCP | 3,3,3,3,3 | 3,3,3,3,3 | 3,3,3,3,3 | — |
-| 6 | Permissões/sandbox | 3 | 3 | **3⭐⭐** | — |
-| 7 | Memória/estado | 3 | 3 | 3 | — |
-| 8 | Planejamento | 3 | 2 | 2 | — |
-| 9 | Subagentes | 3 | 3 | 2² | — |
-| 10 | Verificação/evals | 3 | 3 | 3 | — |
-| 11 | Extensibilidade | 3 | 3 | 3 | — |
-| 12 | Interfaces | 3 | 3 | 3 | — |
-| | **Total (1–12)** | **36** | **35** | **34** | — |
-| 13 | **Aprendizado** (supl.) | 1 | **3⭐⭐** | 2 | — |
-| 14 | **Proatividade** (supl.) | 3 | 2 | 3 | — |
+| 1–5 | Loop/Contexto/Compact./Tools/MCP | 3,3,3,3,3 | 3,3,3,3,3 | 3,3,3,3,3 | 3,3,3,3,3 |
+| 6 | Permissões/sandbox | 3 | 3 | **3⭐⭐** | 2 |
+| 7 | Memória/estado | 3 | 3 | 3 | 3 |
+| 8 | Planejamento | 3 | 2 | 2 | 2 |
+| 9 | Subagentes | 3 | 3 | 2² | 3 |
+| 10 | Verificação/evals | 3 | 3 | 3 | 3 |
+| 11 | Extensibilidade | 3 | 3 | 3 | 3 |
+| 12 | Interfaces | 3 | 3 | 3 | 3 |
+| | **Total (1–12)** | **36** | **35** | **34** | **34** |
+| 13 | **Aprendizado** (supl.) | 1 | **3⭐⭐** | 2 | 2 |
+| 14 | **Proatividade** (supl.) | 3 | 2 | 3 | 3 |
 
-¹ o ohmo foi avaliado dentro do OpenHarness (rodada 1) antes da categoria existir; reavaliação dedicada pendente. ² design nota-3, mas `spawn_subagent` está desabilitado em produção.
+¹ avaliação dedicada (2026-07-24) do app pessoal do OpenHarness — gap concentrado na dim. 6 (config de permissão/sandbox do gateway é código morto; sem dial entre nega-tudo e full_auto). ² design nota-3, mas `spawn_subagent` está desabilitado em produção.
 
 ## Categoria: harnesses embutidos
 

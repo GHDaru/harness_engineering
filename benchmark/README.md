@@ -48,6 +48,7 @@ Regras de calibração:
 | OpenClaw | [avaliacoes/openclaw.md](avaliacoes/openclaw.md) | 36 | 1 | 3 |
 | Hermes Agent | [avaliacoes/hermes-agent.md](avaliacoes/hermes-agent.md) | 35 | **3** | 2 |
 | IronClaw | [avaliacoes/ironclaw.md](avaliacoes/ironclaw.md) | 34 | 2 | 3 |
+| ohmo | [avaliacoes/ohmo.md](avaliacoes/ohmo.md) | 34 | 2 | 3 |
 
 **Categoria harnesses embutidos** (rodada 2):
 
@@ -71,7 +72,7 @@ O benchmark se organiza em **categorias** — harnesses só são ranqueados cont
 - ✅ Rodada 2 concluída: OpenClaw (36), Hermes (35 + aprendizado 3), IronClaw (34 + novo paradigma de segurança).
 - A **dimensão 13 (Aprendizado)** foi promovida a suplementar do template pela evidência do Hermes; a **14 (Proatividade)** é obrigatória nesta categoria.
 - ✅ **Retro dim. 13 na rodada 1 concluída** (2026-07-24): gemini-cli **3** (Auto Memory + skill extraction com inbox humana — segundo design nível 3), OpenHarness 1 (auto-fatos com staleness), opencode 0. Ver capítulo 16.
-- **Próximo:** avaliação dedicada do ohmo (em andamento).
+- ✅ **Avaliação dedicada do ohmo concluída** (34/36 — 3º da categoria; gap na dim. 6 com conserto de alavancagem identificado para o upstream).
 
 **Categoria: harnesses embutidos**
 - ✅ n8n avaliado (29/36; tese da categoria confirmada — as dimensões fracas são as que o ambiente dispensa). Primos candidatos: Zapier Agents, Make, Dify, Flowise.
