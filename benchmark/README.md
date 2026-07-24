@@ -39,9 +39,23 @@ Regras de calibração:
 
 ## Fila de avaliação
 
-**Lote 2 (confirmado, aguardando forks):** Codex CLI (OpenAI, Rust — deve puxar a régua de sandboxing), Goose (Block, Rust — MCP-nativo), Aider (Python — arquétipo context-first: repo-map via tree-sitter), OpenHands (Python — event-stream + cultura de eval acadêmica).
+O benchmark se organiza em **categorias** — harnesses só são ranqueados contra pares do mesmo arquétipo (as notas 0–3 continuam comparáveis; a leitura de "referência" é por categoria).
 
-**Lote 3 (candidatos):** Cline ou Roo Code (harness dentro do IDE), SWE-agent / mini-swe-agent (arquétipo pesquisa; harness mínimo), Crush (Go/TUI), smolagents (code-as-action).
+**Categoria: harnesses de código**
+- **Lote 2 (confirmado, aguardando forks):** Codex CLI (OpenAI, Rust — hipótese: novo teto em sandboxing), Goose (Block, Rust — hipótese: novo teto em MCP), Aider (Python — arquétipo context-first: repo-map via tree-sitter), OpenHands (Python — hipótese: novo teto em evals).
+- **Lote 3 (candidatos):** Cline ou Roo Code (harness dentro do IDE), SWE-agent / mini-swe-agent (arquétipo pesquisa; harness mínimo), Crush (Go/TUI), smolagents (code-as-action).
+
+**Categoria: agentes pessoais self-hosted** (ver [nota de pesquisa](../estudos/2026-07-24-panorama-agentes-pessoais.md))
+- Candidatos: **OpenClaw** (Node.js, MIT, ~329k estrelas), **Hermes Agent** (Nous Research, Python — loop de aprendizado auto-evolutivo de skills), **IronClaw** (NEAR AI, Rust — reimplementação security-first) como ângulo de segurança.
+- O **ohmo** (OpenHarness, rodada 1) pertence a esta categoria e será relido contra estes pares.
+- Possível 13ª dimensão emergente: "Aprendizado / auto-melhoria" (skills escritas pelo próprio agente).
+
+**Categoria: harnesses embutidos** (o harness dentro de um motor de workflow)
+- Candidato: **n8n** (nó AI Agent sobre LangChain JS + MCP Client Tool; fair-code/Sustainable Use License — registrar coluna de licença). A pergunta da categoria não é "quanto scaffolding tem", e sim "o que o ambiente dispensa de scaffolding". Primos: Zapier Agents, Make, Dify, Flowise.
+
+**Fora do benchmark — harnesses fechados** (estudo via documentação, no livro, sem notas por falta de evidência de código): Antigravity (Google), Claude Code (Anthropic), Cursor.
+
+**Watchlist** (a observar antes de virar candidato): HoloDesktop (HCompany), Buzz (Dorsey), Omnigent (Databricks), Kilo Code, metaharness (ruvnet).
 
 ## Limitações conhecidas
 
