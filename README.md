@@ -63,6 +63,10 @@ Seção empírica do livro: avaliação padronizada de harnesses de código aber
 
 Referencial teórico: [awesome-harness-engineering](https://github.com/ai-boost/awesome-harness-engineering) (~426 recursos curados, taxonomia por problema).
 
+## Ferramentas (`scripts/`)
+
+- [`sync-forks.ps1`](scripts/sync-forks.ps1) — script PowerShell para rodar **localmente** e manter todos os forks do projeto sincronizados com seus upstreams (clona se faltar, `fetch upstream` + merge fast-forward-only + push para o fork). Uso: `.\scripts\sync-forks.ps1` (opções: `-BaseDir`, `-Only repo1,repo2`, `-NoPush`). O merge é ff-only de propósito: commits locais divergentes geram aviso, nunca sobrescrita.
+
 ## Como contribuir
 
 O livro cresce por estudo: cada novo harness avaliado alimenta os capítulos com novos padrões de implementação. Avaliações seguem o [template](benchmark/template/HARNESS_EVAL.md) — afirmações sobre um harness exigem evidência (caminho de arquivo no código-fonte).
