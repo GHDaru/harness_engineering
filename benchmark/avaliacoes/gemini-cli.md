@@ -47,6 +47,9 @@ Quatro suítes: `evals/` (~45 testes com **juiz LLM** — frugalidade, plan mode
 ### 12. Interfaces — Nota: 3
 TUI React/Ink com ~40 slash commands; **headless de primeira classe** (`-p` + `--output-format stream-json` NDJSON); VS Code companion (diffs, arquivos abertos); GitHub Action oficial; **ACP + A2A server**; SDK embutível.
 
+### 13. Aprendizado / auto-melhoria (suplementar; retro 2026-07-24) — Nota: 3 ⭐
+"Auto Memory" (experimental, off por default): no boot da sessão, com gates de elegibilidade (sessão ociosa ≥3h, ≥10 mensagens, throttle 30min, lock), o agente `skill-extraction-agent.ts` (~490 linhas, quase tudo prompt curatorial: "Default to NO SKILL", 5 perguntas de bloqueio, anti-padrões explícitos) lê transcrições passadas e produz **SKILL.md completos** + patches de memória em unified-diff — que caem numa **inbox** e só são aplicados com promoção humana (`/memory inbox`). Dedupe contra skills existentes, sandbox de escrita, dois evals dedicados. Design distinto do Hermes: curadoria autônoma, aplicação humana.
+
 ## Síntese
 
 | # | Dimensão | Nota |

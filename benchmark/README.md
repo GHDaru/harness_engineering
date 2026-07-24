@@ -70,12 +70,17 @@ O benchmark se organiza em **categorias** — harnesses só são ranqueados cont
 **Categoria: agentes pessoais self-hosted** (ver [nota de pesquisa](../estudos/2026-07-24-panorama-agentes-pessoais.md))
 - ✅ Rodada 2 concluída: OpenClaw (36), Hermes (35 + aprendizado 3), IronClaw (34 + novo paradigma de segurança).
 - A **dimensão 13 (Aprendizado)** foi promovida a suplementar do template pela evidência do Hermes; a **14 (Proatividade)** é obrigatória nesta categoria.
-- **Próximos:** reavaliação dedicada do ohmo; reavaliação retroativa da dim. 13 na rodada 1.
+- ✅ **Retro dim. 13 na rodada 1 concluída** (2026-07-24): gemini-cli **3** (Auto Memory + skill extraction com inbox humana — segundo design nível 3), OpenHarness 1 (auto-fatos com staleness), opencode 0. Ver capítulo 16.
+- **Próximo:** avaliação dedicada do ohmo (em andamento).
 
 **Categoria: harnesses embutidos**
 - ✅ n8n avaliado (29/36; tese da categoria confirmada — as dimensões fracas são as que o ambiente dispensa). Primos candidatos: Zapier Agents, Make, Dify, Flowise.
 
-**Categoria: frameworks de harness** (template adaptado a definir — "o que impõe vs. o que deixa aberto"): LangGraph, CrewAI, AutoGen, OpenAI Agents SDK, Claude Agent SDK, Mastra, Pydantic AI.
+**Categoria: frameworks de harness** (ver [nota de pesquisa](../estudos/2026-07-24-panorama-frameworks.md); template adaptado pronto: [FRAMEWORK_EVAL](template/FRAMEWORK_EVAL.md))
+- **Lote frameworks-1 (aguardando forks):** LangGraph (`langchain-ai/langgraph`), OpenAI Agents SDK (`openai/openai-agents-python`), Claude Agent SDK (`anthropics/claude-agent-sdk-python`), CrewAI (`crewAIInc/crewAI`).
+- **Lote frameworks-2:** Microsoft Agent Framework, Pydantic AI, Mastra, smolagents.
+
+**Camada de protocolos** (MCP, A2A, ACP, agentskills.io, AGENTS.md): não recebe notas 0–3 — é avaliada por **adoção medida** (matriz no [capítulo 17](../livro/capitulos/17-protocolos.md), extraída das avaliações deste benchmark) e saúde de governança. A matriz é atualizada a cada rodada.
 
 **Fora do benchmark — harnesses fechados** (estudo via documentação, no livro, sem notas por falta de evidência de código): Antigravity (Google), Claude Code (Anthropic), Cursor.
 

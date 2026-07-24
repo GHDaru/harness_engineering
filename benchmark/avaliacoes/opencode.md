@@ -47,6 +47,9 @@ Plugins = funções → `Hooks` com ~15 pontos, incluindo raros (transform de me
 ### 12. Interfaces — Nota: 3
 Sete superfícies sobre a API HTTP tipada: TUI (SolidJS), **desktop Electron**, VS Code, GitHub Action, Slack, web/console, ACP (Zed). Sessões compartilháveis por link.
 
+### 13. Aprendizado / auto-melhoria (suplementar; retro 2026-07-24) — Nota: 0
+Ausente: o sistema de skills é puramente consumo/distribuição (`skill/index.ts`, `discovery.ts:pull`); nenhum código escreve SKILL.md; sem tool de memória (só `TodoWrite`, efêmero). O `/init` gera AGENTS.md a pedido do usuário, a partir do código — não da experiência.
+
 ## Síntese
 
 | # | Dimensão | Nota |

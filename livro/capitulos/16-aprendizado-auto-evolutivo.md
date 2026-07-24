@@ -26,15 +26,18 @@ O mecanismo, verificado no código do fork avaliado:
 
 | Harness | Nota 13 | O que tem |
 |---|---|---|
-| **Hermes** | **3** | O ciclo fechado acima — único |
+| **Hermes** | **3** | O ciclo fechado acima, com aplicação autônoma |
+| **gemini-cli** | **3** (retro) | Auto Memory: agente extrator com gates anti-ruído ("Default to NO SKILL", 5 perguntas de bloqueio) produzindo SKILL.md + patches de memória — mas com **promoção humana via inbox** (`/memory inbox`); dedupe, sandbox de escrita, evals dedicados |
 | IronClaw | 2 | Extração automática de skills (`learning.rs`) com métricas de uso/confiança e versionamento |
 | OpenClaw | 1 | Dreaming (consolidação autônoma de memória); Skill Workshop com fila de propostas |
+| OpenHarness | 1 (retro) | Auto-extração de fatos por turno, com staleness por uso (60 dias) — fatos, não procedimentos |
 | Codex CLI | 1 | Memórias automáticas com pruning (fatos, não procedimentos) |
 | Goose | 1 | chatrecall (recall semântico de conversas passadas) |
-| gemini-cli | (retro pendente) | `skill-extraction-agent` — candidato a 2 |
-| demais | 0 | — |
+| opencode, demais | 0 (retro) | Skills são consumo/distribuição; nada é escrito pela experiência |
 
 A escada é nítida: **memória de fatos** (nível 1) → **extração de procedimentos** (nível 2) → **ciclo curado com anti-padrões e manutenção** (nível 3). O que separa o nível 3 não é capturar mais — é a engenharia de *não* capturar errado e de podar o que envelheceu.
+
+E o nível 3 já tem **dois designs concorrentes**, com a divergência exatamente onde importa: *quem aplica o que foi aprendido*. O Hermes aplica autonomamente (com o curador limpando depois); o gemini-cli exige promoção humana (inbox — nada entra no contexto sem `/memory inbox`). É o trade-off clássico autonomia × controle do capítulo 07, reaparecendo na dimensão mais nova: o Hermes aposta que anti-padrões bastam para prevenir aprendizado ruim; o gemini-cli aposta que não. As próximas rodadas dirão qual escala melhor.
 
 ## Por que isso muda a tese do livro
 

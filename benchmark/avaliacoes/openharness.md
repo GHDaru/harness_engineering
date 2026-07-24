@@ -47,6 +47,9 @@ Estratégia de **interoperabilidade**: skills no layout `SKILL.md` (carrega de `
 ### 12. Interfaces — Nota: 2
 CLI Typer (`oh`) com headless (`-p`, `text|json|stream-json`) e `--dry-run`; duas TUIs (React/Ink + Textual); dashboard web do autopilot; e o distintivo **ohmo**: agente pessoal em **Telegram, Slack, Discord e Feishu** (`channels/`, `ohmo/gateway/`). Sem IDE, sem protocolos de agente.
 
+### 13. Aprendizado / auto-melhoria (suplementar; retro 2026-07-24) — Nota: 1
+Auto-memória de **fatos** ao fim de cada turno (`services/memory_extract`, máx. 3 registros JSON tipados/escopados, com redação de segredos em escopo team, manifesto compacto para reencontro e envelhecimento por uso — `STALE_UNUSED_DAYS=60`). Mas o agente não cria skills: `skills/loader.py` só carrega, e a `skill-creator` é guia invocada pelo usuário.
+
 ## Síntese
 
 | # | Dimensão | Nota |

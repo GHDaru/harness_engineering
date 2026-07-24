@@ -31,7 +31,8 @@ O método do livro é empírico: em vez de teorizar no abstrato, lemos o código
 | [13 — Interfaces](livro/capitulos/13-interfaces.md) | TUI, headless, IDE, CI, chat |
 | [14 — Convergências e Tendências](livro/14-convergencias.md) | O que a indústria já padronizou e a "cláusula de expiração" |
 | [15 — O Harness Embutido](livro/capitulos/15-harness-embutido.md) | Agentes dentro de motores de workflow (n8n): o harness invertido |
-| [16 — Aprendizado e Auto-melhoria](livro/capitulos/16-aprendizado-auto-evolutivo.md) | O harness que se escreve: o learning loop do Hermes e a 13ª dimensão |
+| [16 — Aprendizado e Auto-melhoria](livro/capitulos/16-aprendizado-auto-evolutivo.md) | O harness que se escreve: dois designs nível 3 (Hermes autônomo × gemini-cli inbox) |
+| [17 — A Camada de Protocolos](livro/capitulos/17-protocolos.md) | MCP, A2A, ACP, agentskills.io, AGENTS.md — com matriz de adoção medida no código |
 
 ### O Benchmark (`benchmark/`)
 

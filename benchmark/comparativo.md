@@ -74,7 +74,7 @@
 | Verificação | gemini-cli (4 suítes) e IronClaw (isolamento cross-tenant) | Aider (benchmark guiando design), Goose (leaderboard) |
 | Extensibilidade | empate amplo — virou commodity | OpenClaw (ClawHub c/ scan), Goose (providers JSON) |
 | Interfaces | OpenClaw (23 canais + voz + apps) | Codex (1 core → CLI/IDE/desktop/cloud) |
-| **Aprendizado (13)** | **Hermes** (único ciclo fechado) | IronClaw (extração automática) |
+| **Aprendizado (13)** | **Hermes** (autônomo) e **gemini-cli** (inbox humana) — dois designs nível 3 | IronClaw (extração automática) |
 | **Proatividade (14)** | OpenClaw (heartbeat c/ contexto leve) | IronClaw (routines engine) |
 
 ## Achados transversais da rodada 2
