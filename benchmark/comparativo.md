@@ -1,54 +1,92 @@
-# Comparativo Consolidado — Rodada 1
+# Comparativo Consolidado — Rodadas 1 e 2
 
-> Três harnesses avaliados por leitura sistemática de código, 12 dimensões, escala 0–3 (ver [metodologia](README.md)). Data: 2026-07-24. Notas comparáveis apenas dentro desta rodada.
+> 11 harnesses avaliados por leitura sistemática de código, 12 dimensões (0–3) + 2 suplementares. Rodada 1: 2026-07-24 (opencode, gemini-cli, OpenHarness). Rodada 2: 2026-07-24 (Codex CLI, Goose, Aider, OpenHands, OpenClaw, Hermes, IronClaw, n8n). Ver [metodologia](README.md).
 
-## Tabela de notas
+## Categoria: harnesses de código
 
-| # | Dimensão | opencode | gemini-cli | OpenHarness |
-|---|---|:---:|:---:|:---:|
-| 1 | Loop do agente | 3 | 3 | 2 |
-| 2 | Entrega de contexto | 3 | 3 | 2 |
-| 3 | Compactação | 3 | 3 | 3 |
-| 4 | Ferramentas | 2 | 3 | 3 |
-| 5 | MCP | 3 | 3 | 2 |
-| 6 | Permissões/sandbox | 2 | 3 | 2 |
-| 7 | Memória/estado | 3 | 3 | 3 |
-| 8 | Planejamento | 2 | 3 | 2 |
-| 9 | Subagentes | 2 | 3 | 3 |
-| 10 | Verificação/evals | 2 | 3 | 2 |
-| 11 | Extensibilidade | 3 | 3 | 3 |
-| 12 | Interfaces | 3 | 3 | 2 |
-| | **Total (0–36)** | **31** | **36** | **29** |
+| # | Dimensão | opencode | gemini-cli | OpenHarness | **Codex CLI** | **Goose** | **Aider** | **OpenHands*** |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | Loop | 3 | 3 | 2 | 3 | 3 | 2 | 2 |
+| 2 | Contexto | 3 | 3 | 2 | 3 | 3 | **3** | 3 |
+| 3 | Compactação | 3 | 3 | 3 | 3 | 3 | 2 | 2 |
+| 4 | Ferramentas | 2 | 3 | 3 | 3 | 3 | 3 | 2 |
+| 5 | MCP | 3 | 3 | 2 | 3 | 3 | **0** | 3 |
+| 6 | Permissões/sandbox | 2 | 3 | 2 | **3⭐** | 2 | 2 | 3 |
+| 7 | Memória/estado | 3 | 3 | 3 | 3 | 3 | 3 | 3 |
+| 8 | Planejamento | 2 | 3 | 2 | 2 | 2 | 2 | 1 |
+| 9 | Subagentes | 2 | 3 | 3 | 3 | 3 | 2 | 2 |
+| 10 | Verificação/evals | 2 | 3 | 2 | 3 | 3 | 3 | 0* |
+| 11 | Extensibilidade | 3 | 3 | 3 | 3 | 3 | 3 | 3 |
+| 12 | Interfaces | 3 | 3 | 2 | 3 | 3 | 3 | 3 |
+| | **Total** | **31** | **36** | **29** | **35** | **34** | **28** | **27*** |
 
-## Leitura executiva
+\* OpenHands: o repo avaliado é o control-plane (Agent Canvas); o núcleo (loop, condenser, evals SWE-bench) migrou para `software-agent-sdk` — o total subestima o projeto completo. O SDK entra na fila.
 
-**gemini-cli** lidera a rodada sem dimensão fraca. Suas vantagens estruturais estão em *controle* (policy engine com parsing de shell + sandbox de SO + trusted folders) e *verificação* (quatro suítes, juiz LLM, baselines nightly) — as duas dimensões mais caras de construir e mais raras no mercado. Nota metodológica: um 36/36 na primeira rodada também mede a régua, não só o harness — espera-se que notas caiam quando entrarem concorrentes fortes por dimensão (Codex CLI em sandbox, Aider em contexto).
+## Categoria: agentes pessoais self-hosted
 
-**opencode** (31) é o segundo colocado com um perfil claro: referência em *arquitetura de contexto e estado* (Context Epochs, SQLite com eventos replayáveis) e *neutralidade de provedor* (~26 loaders + models.dev). Sua lacuna consequente é uma só: contenção — política de permissões elegante, mas sem sandbox de SO no core.
+| # | Dimensão | **OpenClaw** | **Hermes** | **IronClaw** | (ohmo/OpenHarness¹) |
+|---|---|:---:|:---:|:---:|:---:|
+| 1–5 | Loop/Contexto/Compact./Tools/MCP | 3,3,3,3,3 | 3,3,3,3,3 | 3,3,3,3,3 | — |
+| 6 | Permissões/sandbox | 3 | 3 | **3⭐⭐** | — |
+| 7 | Memória/estado | 3 | 3 | 3 | — |
+| 8 | Planejamento | 3 | 2 | 2 | — |
+| 9 | Subagentes | 3 | 3 | 2² | — |
+| 10 | Verificação/evals | 3 | 3 | 3 | — |
+| 11 | Extensibilidade | 3 | 3 | 3 | — |
+| 12 | Interfaces | 3 | 3 | 3 | — |
+| | **Total (1–12)** | **36** | **35** | **34** | — |
+| 13 | **Aprendizado** (supl.) | 1 | **3⭐⭐** | 2 | — |
+| 14 | **Proatividade** (supl.) | 3 | 2 | 3 | — |
 
-**OpenHarness** (29) tem o perfil mais irregular — e é o mais valioso por unidade de código para quem quer *aprender*: o port fiel da compactação do Claude Code, a defesa de paths sensíveis indesligável, e a aposta mais ambiciosa da coorte em multi-agente (Swarm: times, mailbox, worktrees). Paga o preço da juventude (v0.1.9) nas dimensões de robustez.
+¹ o ohmo foi avaliado dentro do OpenHarness (rodada 1) antes da categoria existir; reavaliação dedicada pendente. ² design nota-3, mas `spawn_subagent` está desabilitado em produção.
 
-## Campeões por dimensão
+## Categoria: harnesses embutidos
 
-| Dimensão | Referência da rodada | Por quê |
+| n8n (nó AI Agent) | Total 1–12: **29/36** | Fortes: tools 3 (`$fromAI`→Zod sobre 400+ integrações), MCP 3 (client+server), memória 3, subagentes 3, interfaces 3 · Fracas **por design do ambiente**: compactação 1, planejamento 1, contexto 2, permissões 2 (estrutural/topológica) |
 |---|---|---|
-| Loop | empate opencode/gemini-cli | durabilidade (opencode) vs. next-speaker + anti-loop (gemini) |
-| Contexto | empate opencode/gemini-cli | Context Epochs vs. hierarquia com @imports |
-| Compactação | empate triplo | convergência total — o padrão está consolidado |
-| Ferramentas | gemini-cli / OpenHarness | declarativas por família vs. maior arsenal |
-| MCP | opencode | superfície de protocolo mais completa |
-| Permissões/sandbox | **gemini-cli** | o único com política + contenção obrigatórias |
-| Memória/estado | três campeões parciais | sessão (opencode), workspace (gemini), longo prazo (OpenHarness) |
-| Planejamento | **gemini-cli** | read-only imposto + plano persistido + aprovação gatekeeper |
-| Subagentes | gemini-cli / OpenHarness | serviço com A2A vs. times com mailbox |
-| Verificação | **gemini-cli** | comportamento sob regressão contínua |
-| Extensibilidade | empate triplo | profundidade (opencode), empacotamento (gemini), interoperabilidade (OH) |
-| Interfaces | opencode / gemini-cli | superfície de produto vs. plataforma (SDK/A2A) |
 
-## O harness ideal (exercício de síntese)
+## Leitura executiva da rodada 2
 
-Se pudéssemos montar um harness com o melhor de cada avaliado: o **contexto e estado** do opencode (epochs, eventos replayáveis, prompts por modelo), a **contenção e verificação** do gemini-cli (policy engine, sandbox, evals, checkpoint git), o **multi-agente e a interoperabilidade** do OpenHarness (swarm, formatos portáveis de skill/plugin), e três detalhes baratos: paths sensíveis indesligáveis (OH), paralelismo read-only (OH), truncamento que move para arquivo em vez de descartar (opencode).
+**As hipóteses registradas na rodada 1 foram confrontadas — 3 confirmadas, 1 surpresa:**
 
-## Próxima rodada
+1. ✅ **Codex CLI = novo teto em contenção** (35/36): Seatbelt + bubblewrap/seccomp + Landlock + execpolicy Starlark + network-proxy — três camadas independentes. O gemini-cli deixa de ser o único "3 de referência" na dimensão 6.
+2. ✅ **Goose = MCP-nativo confirmado** (34/36): até as tools internas são servidores MCP reais servidos in-process. O empate técnico Codex/Goose/gemini-cli no topo da categoria código indica que a fronteira de produto está convergindo.
+3. ✅ **Aider = o caminho alternativo em contexto** (28/36): repo-map (tree-sitter + PageRank) é referência em entrega de contexto sem loop de agente — e o primeiro **0** do benchmark (MCP) mostra o custo da filosofia.
+4. ⚠️ **OpenHands = surpresa metodológica** (27/36*): o repo virou control-plane; o núcleo está num SDK externo. Lição: a unidade de avaliação precisa acompanhar a decomposição dos projetos.
 
-Aguardando forks: **Codex CLI** (hipótese: novo teto em permissões/sandbox), **Goose** (hipótese: novo teto em MCP), **Aider** (hipótese: caminho alternativo em contexto — repo-map estático vs. exploração por agente), **OpenHands** (hipótese: novo teto em evals acadêmicos/event-stream). Cada hipótese está registrada aqui para ser confrontada com o código — é assim que o benchmark deixa de ser amador: prevendo antes de medir.
+**A categoria agentes pessoais estreou com nível inesperadamente alto**: OpenClaw (36) é o "gemini-cli da categoria"; Hermes (35) traz a única implementação fechada de **aprendizado auto-evolutivo** (dimensão 13 promovida a suplementar do template por causa dele); IronClaw (34) redefine o teto conceitual de segurança — o loop estruturalmente incapaz de agir sem o kernel (trust class inforjável por tipos, aprovações como leases por invocação, WASM fail-closed) — algo que **nenhum harness de código avaliado tem**.
+
+**O harness embutido confirmou a tese da categoria**: as dimensões fracas do n8n são exatamente as que o motor de workflow dispensa (execuções curtas → sem compactação; o plano é o grafo desenhado; permissão é topologia). E a V3 revelou movimento inverso ao esperado: o n8n está *reinternalizando* o loop de execução do LangChain para o próprio engine.
+
+## Campeões por dimensão (geral, rodadas 1+2)
+
+| Dimensão | Referência atual | Menção |
+|---|---|---|
+| Loop | IronClaw (loop ≠ perímetro de segurança) | opencode (durabilidade), gemini-cli (next-speaker) |
+| Contexto | Aider (repo-map) e opencode (epochs) | Codex (server-driven por modelo), Hermes (3 camadas cache-aware) |
+| Compactação | Codex (remota v2) e Goose (3 técnicas) | IronClaw (circuit-breaker de efetividade) |
+| Ferramentas | Goose (MCP-uniforme) e IronClaw (capabilities tipadas) | n8n (`$fromAI`), Aider (edit formats por eval) |
+| MCP | Codex e OpenClaw (client+server completos) | Goose (in-process) |
+| **Permissões/sandbox** | **IronClaw** (kernel de autoridade) | Codex (3 camadas de SO), OpenClaw (pairing) |
+| Memória | Hermes (multicamada + FTS5) | gemini-cli (git checkpoint), OpenClaw (Dreaming) |
+| Planejamento | gemini-cli e OpenClaw (goals/task flow) | — dimensão mais fraca da indústria inteira |
+| Subagentes | OpenClaw (push-based + ACP de terceiros) | Codex (graph store), OpenHarness (swarm) |
+| Verificação | gemini-cli (4 suítes) e IronClaw (isolamento cross-tenant) | Aider (benchmark guiando design), Goose (leaderboard) |
+| Extensibilidade | empate amplo — virou commodity | OpenClaw (ClawHub c/ scan), Goose (providers JSON) |
+| Interfaces | OpenClaw (23 canais + voz + apps) | Codex (1 core → CLI/IDE/desktop/cloud) |
+| **Aprendizado (13)** | **Hermes** (único ciclo fechado) | IronClaw (extração automática) |
+| **Proatividade (14)** | OpenClaw (heartbeat c/ contexto leve) | IronClaw (routines engine) |
+
+## Achados transversais da rodada 2
+
+1. **Planejamento é a dimensão mais fraca da indústria**: nenhum harness novo atingiu 3; a média geral da dimensão 8 é a menor do benchmark. Todo mundo tem todo-list; quase ninguém tem plan→approve→execute imposto.
+2. **MCP client+server virou o padrão dos maduros**: Codex, OpenClaw, Hermes, OpenHands, n8n e IronClaw expõem-se como servidores — na rodada 1, nenhum dos três fazia isso no core. O harness como *serviço consumível* consolidou em meses.
+3. **ACP emergiu como protocolo de orquestração de harnesses**: OpenClaw, OpenHands e Goose orquestram/integram outros harnesses (Claude Code, Codex, Gemini CLI, opencode) via ACP — a predição do cap. 14 sobre "agente-como-serviço" se confirmou por outra via.
+4. **A cláusula de expiração ganhou um caso invertido**: o learning loop do Hermes não espera o modelo melhorar — o par modelo+harness escreve o próprio scaffolding (skills). Auto-expansão em vez de expiração.
+5. **Segurança tem agora dois paradigmas distintos**: contenção por SO (Codex — o processo não consegue) e arquitetura de autoridade (IronClaw — o loop não alcança). São complementares, e nenhum harness combina os dois ainda.
+
+## Próximos passos registrados
+
+- **Reavaliações retroativas**: dimensão 13 nos harnesses da rodada 1 (o `skill-extraction-agent` do gemini-cli é candidato a 2); ohmo como entrada dedicada na categoria pessoal.
+- **Fila**: `OpenHands/software-agent-sdk` (o núcleo que faltou), frameworks (LangGraph, CrewAI, Agents SDK — template adaptado), Cline/Roo (IDE), mini-swe-agent (harness mínimo), Crush, smolagents.
+- **Evolução metodológica**: do estático ao comportamental — rodar os harnesses em tarefas padronizadas (o Harbor do Goose e o Benchmark Pack do OpenClaw são modelos a estudar).

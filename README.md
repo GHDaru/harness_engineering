@@ -30,25 +30,35 @@ O método do livro é empírico: em vez de teorizar no abstrato, lemos o código
 | [12 — Extensibilidade](livro/capitulos/12-extensibilidade.md) | Hooks, plugins, skills, provedores de modelo |
 | [13 — Interfaces](livro/capitulos/13-interfaces.md) | TUI, headless, IDE, CI, chat |
 | [14 — Convergências e Tendências](livro/14-convergencias.md) | O que a indústria já padronizou e a "cláusula de expiração" |
+| [15 — O Harness Embutido](livro/capitulos/15-harness-embutido.md) | Agentes dentro de motores de workflow (n8n): o harness invertido |
+| [16 — Aprendizado e Auto-melhoria](livro/capitulos/16-aprendizado-auto-evolutivo.md) | O harness que se escreve: o learning loop do Hermes e a 13ª dimensão |
 
 ### O Benchmark (`benchmark/`)
 
 Seção empírica do livro: avaliação padronizada de harnesses de código aberto, por dimensão, com escala 0–3 e exigência de evidência no código-fonte.
 
-- [Metodologia](benchmark/README.md) — escala, regras de evidência, status do projeto
-- [Template de avaliação](benchmark/template/HARNESS_EVAL.md) — o instrumento aplicado a cada harness
-- Avaliações: [opencode](benchmark/avaliacoes/opencode.md) · [gemini-cli](benchmark/avaliacoes/gemini-cli.md) · [OpenHarness](benchmark/avaliacoes/openharness.md)
-- [Comparativo consolidado](benchmark/comparativo.md) — tabela de notas e leitura executiva
+- [Metodologia](benchmark/README.md) — escala, regras de evidência, categorias, fila
+- [Template de avaliação](benchmark/template/HARNESS_EVAL.md) — 12 dimensões + 2 suplementares
+- [Comparativo consolidado](benchmark/comparativo.md) — tabelas por categoria, campeões por dimensão, achados transversais
+- Avaliações — **código**: [gemini-cli](benchmark/avaliacoes/gemini-cli.md) (36) · [Codex CLI](benchmark/avaliacoes/codex-cli.md) (35) · [Goose](benchmark/avaliacoes/goose.md) (34) · [opencode](benchmark/avaliacoes/opencode.md) (31) · [OpenHarness](benchmark/avaliacoes/openharness.md) (29) · [Aider](benchmark/avaliacoes/aider.md) (28) · [OpenHands](benchmark/avaliacoes/openhands.md) (27*) — **agentes pessoais**: [OpenClaw](benchmark/avaliacoes/openclaw.md) (36) · [Hermes](benchmark/avaliacoes/hermes-agent.md) (35) · [IronClaw](benchmark/avaliacoes/ironclaw.md) (34) — **embutidos**: [n8n](benchmark/avaliacoes/n8n.md) (29)
 
-> **Status**: exploratório. As três primeiras avaliações foram feitas por leitura assistida de código; as notas são provisórias e serão refinadas conforme o método amadurece e novos harnesses entram (próximos: Codex CLI, Goose, Aider, OpenHands).
+> **Status**: exploratório, rodada 2 concluída (11 harnesses, 3 categorias). Notas provisórias, por leitura assistida de código com evidência por arquivo.
 
 ## Harnesses estudados até agora
 
-| Harness | Stack | Arquétipo |
+| Harness | Stack | Categoria / arquétipo |
 |---|---|---|
-| [opencode](https://github.com/anomalyco/opencode) | TypeScript + Effect-TS | Produto cliente-servidor, provider-agnostic |
-| [gemini-cli](https://github.com/google-gemini/gemini-cli) | TypeScript | Produto Google, controle e verificação fortes |
-| [OpenHarness](https://github.com/HKUDS/OpenHarness) | Python | Port didático do Claude Code + plataforma multi-agente |
+| [gemini-cli](https://github.com/google-gemini/gemini-cli) | TypeScript | Código — controle e verificação |
+| [Codex CLI](https://github.com/openai/codex) | Rust (97 crates) | Código — contenção de SO em 3 camadas |
+| [Goose](https://github.com/block/goose) | Rust | Código — MCP-nativo |
+| [opencode](https://github.com/anomalyco/opencode) | TypeScript + Effect-TS | Código — arquitetura de contexto/estado |
+| [OpenHarness](https://github.com/HKUDS/OpenHarness) | Python | Código — port didático + swarm |
+| [Aider](https://github.com/Aider-AI/aider) | Python | Código — context-first (repo-map) |
+| [OpenHands](https://github.com/All-Hands-AI/OpenHands) | Python + React | Código — control-plane multi-harness |
+| [OpenClaw](https://github.com/openclaw/openclaw) | Node.js/TS | Pessoal — plataforma completa (23 canais) |
+| [Hermes Agent](https://github.com/NousResearch/hermes-agent) | Python | Pessoal — aprendizado auto-evolutivo |
+| [IronClaw](https://github.com/nearai/ironclaw) | Rust (63 crates) | Pessoal — kernel de autoridade zero-trust |
+| [n8n](https://github.com/n8n-io/n8n) (nó AI Agent) | TypeScript/LangChain | Embutido — o harness invertido |
 
 Referencial teórico: [awesome-harness-engineering](https://github.com/ai-boost/awesome-harness-engineering) (~426 recursos curados, taxonomia por problema).
 

@@ -67,6 +67,18 @@ Segurança do código de extensão?
 TUI? Headless com saída estruturada (JSON/NDJSON)? IDE? CI (Actions)? Protocolos de agente
 (ACP/A2A)? Chat? SDK embutível?
 
+## Dimensões suplementares (não entram no total 0–36; reportar sempre que houver evidência)
+
+### 13. Aprendizado / auto-melhoria — Nota: _
+O agente escreve skills/procedimentos reutilizáveis a partir da própria experiência? Quem
+decide capturar (gatilho autônomo)? Onde salva (formato — SKILL.md/agentskills.io)? Como
+reencontra (índice/busca)? Há curadoria/manutenção (consolidação, poda, anti-padrões)?
+(Dimensão promovida pela evidência do Hermes Agent; suplementar até haver massa crítica.)
+
+### 14. Proatividade / agendamento — Nota: _ (obrigatória na categoria agentes pessoais)
+Heartbeat/turnos periódicos? Cron/rotinas persistentes? Wake por eventos externos (webhooks,
+e-mail)? Controle de custo da proatividade (contexto leve, activeHours)?
+
 ## Síntese
 
 ### Tabela de notas

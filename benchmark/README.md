@@ -27,13 +27,35 @@ Regras de calibração:
 - A nota julga o que **está no código na data da avaliação** (versão/commit registrados nos metadados), não o roadmap.
 - Empates são esperados e não devem ser desfeitos artificialmente.
 
-## Avaliações desta rodada
+## Avaliações realizadas
+
+**Categoria código** (rodadas 1–2):
 
 | Harness | Avaliação | Total (0–36) |
 |---|---|---|
 | gemini-cli | [avaliacoes/gemini-cli.md](avaliacoes/gemini-cli.md) | 36 |
+| Codex CLI | [avaliacoes/codex-cli.md](avaliacoes/codex-cli.md) | 35 |
+| Goose | [avaliacoes/goose.md](avaliacoes/goose.md) | 34 |
 | opencode | [avaliacoes/opencode.md](avaliacoes/opencode.md) | 31 |
 | OpenHarness | [avaliacoes/openharness.md](avaliacoes/openharness.md) | 29 |
+| Aider | [avaliacoes/aider.md](avaliacoes/aider.md) | 28 |
+| OpenHands (Canvas)* | [avaliacoes/openhands.md](avaliacoes/openhands.md) | 27* |
+
+**Categoria agentes pessoais** (rodada 2; + dims suplementares 13/14):
+
+| Harness | Avaliação | Total (0–36) | Aprendizado | Proatividade |
+|---|---|---|---|---|
+| OpenClaw | [avaliacoes/openclaw.md](avaliacoes/openclaw.md) | 36 | 1 | 3 |
+| Hermes Agent | [avaliacoes/hermes-agent.md](avaliacoes/hermes-agent.md) | 35 | **3** | 2 |
+| IronClaw | [avaliacoes/ironclaw.md](avaliacoes/ironclaw.md) | 34 | 2 | 3 |
+
+**Categoria harnesses embutidos** (rodada 2):
+
+| Harness | Avaliação | Total (0–36) |
+|---|---|---|
+| n8n (nó AI Agent) | [avaliacoes/n8n.md](avaliacoes/n8n.md) | 29 (não comparável aos dedicados) |
+
+\* OpenHands: mede só o control-plane — o núcleo migrou para `software-agent-sdk` (na fila).
 
 > O total é um resumo grosseiro — a leitura útil é o **perfil** por dimensão (em que o harness é referência, onde é básico) e o arquétipo. Ver o [comparativo](comparativo.md).
 
@@ -42,20 +64,22 @@ Regras de calibração:
 O benchmark se organiza em **categorias** — harnesses só são ranqueados contra pares do mesmo arquétipo (as notas 0–3 continuam comparáveis; a leitura de "referência" é por categoria).
 
 **Categoria: harnesses de código**
-- **Lote 2 (confirmado, aguardando forks):** Codex CLI (OpenAI, Rust — hipótese: novo teto em sandboxing), Goose (Block, Rust — hipótese: novo teto em MCP), Aider (Python — arquétipo context-first: repo-map via tree-sitter), OpenHands (Python — hipótese: novo teto em evals).
-- **Lote 3 (candidatos):** Cline ou Roo Code (harness dentro do IDE), SWE-agent / mini-swe-agent (arquétipo pesquisa; harness mínimo), Crush (Go/TUI), smolagents (code-as-action).
+- ✅ Rodada 2 concluída: Codex CLI (hipótese de sandboxing **confirmada**), Goose (MCP-nativo **confirmado**), Aider (context-first **confirmado**), OpenHands (hipótese de evals **refutada para o repo** — núcleo migrou para SDK).
+- **Próximos:** `OpenHands/software-agent-sdk` (o núcleo que faltou), Cline ou Roo Code (IDE), SWE-agent / mini-swe-agent (harness mínimo), Crush (Go/TUI), smolagents (code-as-action).
 
 **Categoria: agentes pessoais self-hosted** (ver [nota de pesquisa](../estudos/2026-07-24-panorama-agentes-pessoais.md))
-- Candidatos: **OpenClaw** (Node.js, MIT, ~329k estrelas), **Hermes Agent** (Nous Research, Python — loop de aprendizado auto-evolutivo de skills), **IronClaw** (NEAR AI, Rust — reimplementação security-first) como ângulo de segurança.
-- O **ohmo** (OpenHarness, rodada 1) pertence a esta categoria e será relido contra estes pares.
-- Possível 13ª dimensão emergente: "Aprendizado / auto-melhoria" (skills escritas pelo próprio agente).
+- ✅ Rodada 2 concluída: OpenClaw (36), Hermes (35 + aprendizado 3), IronClaw (34 + novo paradigma de segurança).
+- A **dimensão 13 (Aprendizado)** foi promovida a suplementar do template pela evidência do Hermes; a **14 (Proatividade)** é obrigatória nesta categoria.
+- **Próximos:** reavaliação dedicada do ohmo; reavaliação retroativa da dim. 13 na rodada 1.
 
-**Categoria: harnesses embutidos** (o harness dentro de um motor de workflow)
-- Candidato: **n8n** (nó AI Agent sobre LangChain JS + MCP Client Tool; fair-code/Sustainable Use License — registrar coluna de licença). A pergunta da categoria não é "quanto scaffolding tem", e sim "o que o ambiente dispensa de scaffolding". Primos: Zapier Agents, Make, Dify, Flowise.
+**Categoria: harnesses embutidos**
+- ✅ n8n avaliado (29/36; tese da categoria confirmada — as dimensões fracas são as que o ambiente dispensa). Primos candidatos: Zapier Agents, Make, Dify, Flowise.
+
+**Categoria: frameworks de harness** (template adaptado a definir — "o que impõe vs. o que deixa aberto"): LangGraph, CrewAI, AutoGen, OpenAI Agents SDK, Claude Agent SDK, Mastra, Pydantic AI.
 
 **Fora do benchmark — harnesses fechados** (estudo via documentação, no livro, sem notas por falta de evidência de código): Antigravity (Google), Claude Code (Anthropic), Cursor.
 
-**Watchlist** (a observar antes de virar candidato): HoloDesktop (HCompany), Buzz (Dorsey), Omnigent (Databricks), Kilo Code, metaharness (ruvnet).
+**Watchlist**: HoloDesktop (HCompany), Buzz (Dorsey), Omnigent (Databricks), Kilo Code, metaharness (ruvnet).
 
 ## Limitações conhecidas
 
