@@ -45,6 +45,30 @@
 | n8n (nó AI Agent) | Total 1–12: **29/36** | Fortes: tools 3 (`$fromAI`→Zod sobre 400+ integrações), MCP 3 (client+server), memória 3, subagentes 3, interfaces 3 · Fracas **por design do ambiente**: compactação 1, planejamento 1, contexto 2, permissões 2 (estrutural/topológica) |
 |---|---|---|
 
+## Categoria: frameworks de harness (rodada frameworks-1, template FRAMEWORK_EVAL)
+
+| Eixo | **LangGraph** | **OpenAI Agents SDK** | **CrewAI** | **software-agent-sdk** |
+|---|:---:|:---:|:---:|:---:|
+| A1 Loop/orquestração | 3 | 3 | 3 | 3 |
+| A2 Estado/durabilidade | **3⭐⭐** | 3 | 3 | 3 |
+| A3 Tools/schemas | 2 | 3 | 3 | 3 |
+| A4 Multi-agente | 2 | 3 | 3 | 3 |
+| A5 Human-in-the-loop | 3 | **3⭐** | 3 | 3 |
+| A6 Streaming/eventos | 3 | 3 | 3 | 3 |
+| **Total A (0–18)** | **16** | **18** | **18** | **18** |
+| D1 Observabilidade | 2 | 2 | 2 | 2 |
+| D2 Testes/evals | 3 | 3 | 3 | 3 |
+| D3 Ergonomia | 2 | 3 | 3 | 3 |
+| D4 Ecossistema | 3 | 3 | 3 | 3 |
+| **Total D (0–12)** | **10** | **11** | **11** | **11** |
+
+**Leitura da rodada frameworks-1:**
+1. **As primitivas viraram commodity** (A quase todo 3) — a diferenciação real está nos eixos B (fronteiras) e C (protocolos), que são descritivos: LangGraph impõe BSP e deixa contexto/permissões totalmente abertos; Agents SDK impõe o vocabulário Responses; CrewAI impõe a ontologia papel/tarefa; o SDK da OpenHands impõe o modelo de eventos inteiro.
+2. **Nenhum framework tem observabilidade aberta first-class** (D1=2 em todos): cada um gravita para sua plataforma (LangSmith, OpenAI, AMP, Laminar) — o espaço do "OTel de agentes" segue vago.
+3. **Protocolos separam os campos**: CrewAI (MCP obrigatório + **A2A client/server** + skills + AGENTS.md auto-gerado) e software-agent-sdk (MCP OAuth + **ACP** + agentskills) são os poliglotas; o Agents SDK fala só MCP; **LangGraph fala zero** — protocolos são feature do servidor pago.
+4. **A previsão dos "dois movimentos" confirmou-se no código**: o software-agent-sdk é o harness-virando-framework mais avançado (tudo virou ABC plugável, e seu `ACPAgent` orquestra Claude Code/Gemini/Codex como motores); o LangGraph faz o movimento oposto — **esvaziando-se** da camada de agente (create_react_agent deprecado rumo ao pacote langchain) para ser só runtime durável.
+5. **Compactação continua sendo a linha divisória harness/framework**: só o software-agent-sdk a entrega pronta (condenser com tombstones — o melhor medido no benchmark inteiro); LangGraph/Agents SDK/CrewAI deixam a janela de contexto por conta do usuário (Agents SDK tem apenas uma session de compactação; CrewAI nada).
+
 ## Leitura executiva da rodada 2
 
 **As hipóteses registradas na rodada 1 foram confrontadas — 3 confirmadas, 1 surpresa:**

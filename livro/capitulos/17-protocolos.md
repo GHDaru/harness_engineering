@@ -35,13 +35,18 @@ O diferencial deste capítulo: cruzamos os protocolos com as **11 avaliações d
 | Hermes | ✅ | ✅ | ✅ | — | ✅ (núcleo do learning) | ✅ AGENTS.md + SOUL.md |
 | IronClaw | ✅ | — | — | — | ✅ (compat OpenClaw) | identity files |
 | n8n | ✅ | ✅ (Trigger) | — | — | — | — |
+| *frameworks:* | | | | | | |
+| LangGraph | ❌ | ❌ (só no servidor pago) | ❌ | ❌ | ❌ | — |
+| OpenAI Agents SDK | ✅ | — | ❌ | — | parcial | só sandbox agents |
+| CrewAI | ✅ (obrigatório) | — | ✅ **client+server** | — | ✅ | ✅ **auto-gerado** |
+| software-agent-sdk | ✅ (OAuth) | — | ❌ | ✅ (usa harnesses como motor) | ✅ (spec) | ✅ |
 
 **Leituras da matriz:**
 
 1. **MCP venceu de fato**: 10 de 11 (a exceção, Aider, é escolha filosófica). E entre as rodadas 1 e 2, o padrão migrou de "cliente" para "cliente+servidor" — o harness como serviço consumível.
 2. **agentskills.io é a padronização mais rápida que já medimos**: spec de dezembro/2025, 8 dos nossos 11 compatíveis em julho/2026. A previsão do cap. 12 ("um MCP da extensibilidade está se formando") se cumpriu — e com um detalhe estrutural: skills são markdown portável, então a mesma skill roda no Claude Code, no Hermes e no IronClaw. O aprendizado auto-evolutivo (cap. 16) escreve *nesse* formato — o conhecimento que um agente aprende é, em tese, transferível a outro.
 3. **ACP é o protocolo silencioso mais importante da coorte**: 6 de 11 o falam, e três harnesses (OpenClaw, OpenHands, Goose) o usam para **orquestrar outros harnesses** como subagentes — Claude Code, Codex, Gemini CLI e opencode viram peças intercambiáveis. O que era "agente↔editor" virou, na prática, o barramento de composição entre harnesses.
-4. **A2A ainda é aposta de um só**: apenas o gemini-cli implementa (client e server). A governança na Linux Foundation e a absorção do ACP-IBM sugerem que é o candidato à fronteira inter-organizacional — mas no código dos harnesses avaliados, essa fronteira ainda quase não existe.
+4. **A2A saiu do "aposta de um só"** *(atualizado na rodada frameworks-1)*: o gemini-cli foi o único harness a implementá-lo, mas o **CrewAI** entrou com client E server nativos (AgentCard completo, JWS, gRPC/REST) — o segundo implementador medido, e o primeiro framework. A governança na Linux Foundation e a absorção do ACP-IBM seguem apontando o A2A como o candidato à fronteira inter-organizacional; nos harnesses de produto, porém, essa fronteira ainda quase não existe.
 5. **AGENTS.md consolidou como padrão neutro**: a fragmentação AGENTS/CLAUDE/GEMINI.md do cap. 03 está se resolvendo — Codex, Goose, opencode, OpenClaw e Hermes já convergiram para AGENTS.md (agora sob a Agentic AI Foundation), com os arquivos proprietários virando alias.
 
 ## O empilhamento: como os protocolos compõem

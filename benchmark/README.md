@@ -77,9 +77,18 @@ O benchmark se organiza em **categorias** — harnesses só são ranqueados cont
 **Categoria: harnesses embutidos**
 - ✅ n8n avaliado (29/36; tese da categoria confirmada — as dimensões fracas são as que o ambiente dispensa). Primos candidatos: Zapier Agents, Make, Dify, Flowise.
 
-**Categoria: frameworks de harness** (ver [nota de pesquisa](../estudos/2026-07-24-panorama-frameworks.md); template adaptado pronto: [FRAMEWORK_EVAL](template/FRAMEWORK_EVAL.md))
-- **Lote frameworks-1 (aguardando forks):** LangGraph (`langchain-ai/langgraph`), OpenAI Agents SDK (`openai/openai-agents-python`), Claude Agent SDK (`anthropics/claude-agent-sdk-python`), CrewAI (`crewAIInc/crewAI`).
-- **Lote frameworks-2:** Microsoft Agent Framework, Pydantic AI, Mastra, smolagents.
+**Categoria: frameworks de harness** (ver [nota de pesquisa](../estudos/2026-07-24-panorama-frameworks.md); template: [FRAMEWORK_EVAL](template/FRAMEWORK_EVAL.md))
+- ✅ **Rodada frameworks-1 concluída** (2026-07-24):
+
+| Framework | Avaliação | A (0–18) | D (0–12) |
+|---|---|---|---|
+| OpenAI Agents SDK | [avaliacoes/openai-agents-sdk.md](avaliacoes/openai-agents-sdk.md) | 18 | 11 |
+| CrewAI | [avaliacoes/crewai.md](avaliacoes/crewai.md) | 18 | 11 |
+| software-agent-sdk* | [avaliacoes/software-agent-sdk.md](avaliacoes/software-agent-sdk.md) | 18 | 11 |
+| LangGraph | [avaliacoes/langgraph.md](avaliacoes/langgraph.md) | 16 | 10 |
+
+\* avaliação dupla — também completa as dimensões de harness do OpenHands (H 14/15: loop 3, condenser 3⭐, tools 3, evals 2, segurança 3).
+- **Pendentes do lote 1:** Claude Agent SDK (aguardando fork). **Lote frameworks-2:** Microsoft Agent Framework, Pydantic AI, Mastra, smolagents.
 
 **Camada de protocolos** (MCP, A2A, ACP, agentskills.io, AGENTS.md): não recebe notas 0–3 — é avaliada por **adoção medida** (matriz no [capítulo 17](../livro/capitulos/17-protocolos.md), extraída das avaliações deste benchmark) e saúde de governança. A matriz é atualizada a cada rodada.
 
