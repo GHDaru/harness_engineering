@@ -35,9 +35,10 @@ jobs:
       - name: Gerar o site (Markdown -> docs/)
         run: npm run build
         working-directory: publicar
+      # Requer que o Pages esteja habilitado uma vez no repositório
+      # (Settings → Pages → Source: GitHub Actions). O token do Actions não
+      # tem permissão para criar o site sozinho — é a única etapa manual.
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs
