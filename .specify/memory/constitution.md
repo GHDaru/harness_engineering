@@ -27,6 +27,11 @@ Nenhum segredo (chave de API, token) entra em arquivo, commit ou texto publicado
 ### VI. Neutralidade e acessibilidade
 A análise é vendor-agnóstica: notas 0–3 comparam apenas dentro da mesma categoria do benchmark; nenhum harness é favorecido por marca. O livro é acessível — a trilha prática roda a custo zero (endpoint gratuito documentado, com créditos ao provedor). Prosa em português; termos técnicos consagrados (harness, loop, tool, prompt) sem tradução.
 
+### VII. Spec-driven e branch-per-melhoria (NÃO-NEGOCIÁVEL)
+**Toda melhoria — inclusive as pedagógicas e editoriais — passa pelo spec-kit: `spec` → `plan` → `tasks` → `implement`, cada uma em sua própria branch.** Não há "só editar direto no main": um capítulo novo, um refinamento de método, uma etapa do harness-zero, uma feature de infraestrutura — todos nascem de um spec (`specs/NNN-nome/spec.md`), ganham um plano e uma lista de tarefas, e só então são implementados, na branch `NNN-nome`. O merge para `main` acontece quando a melhoria está coerente e verificada. Isso torna a evolução do livro rastreável e profissional — o próprio processo do livro é um exemplo de harness bem-instrumentado.
+- **Exceção única**: emendas a *esta constituição* (governança) podem ser feitas diretamente, pois são o meta-nível que habilita a própria regra — mas são registradas aqui e no `HISTORICO.md`.
+- Correções triviais (typo, link quebrado, ajuste de uma linha) podem ir direto ao main com commit descritivo; a regra vale para *melhorias*, não para consertos pontuais.
+
 ## Restrições da construção (harness-zero)
 1. **DDD leve** — linguagem ubíqua = glossário do livro; padrão tático só onde paga; DDD como consequência nomeada no código, não teoria.
 2. **Arquitetura hexagonal por refatoração** — cada porta nasce da dor do capítulo correspondente; nunca estrutura antecipada.
@@ -34,7 +39,7 @@ A análise é vendor-agnóstica: notas 0–3 comparam apenas dentro da mesma cat
 4. **Chat congelado** — HTML+JS servido pelo backend; só evolui quando uma dimensão exigir superfície nova. Stack: Python + FastAPI.
 
 ## Fluxo de trabalho e portões de qualidade
-- Trabalho estruturado (etapa nova, capítulo, seção grande) pode usar o spec-kit: `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement` (com `/speckit-clarify` quando ambíguo). Os planos devem respeitar esta constituição.
+- Toda melhoria usa o spec-kit (princípio VII): `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement` (com `/speckit-clarify` quando ambíguo), em branch `NNN-nome`. Os planos devem respeitar esta constituição.
 - Pesquisa científica segue a skill `academic-research` (localizar → validar → registrar → integrar).
 - Antes de publicar (commit/push): evidência presente (I), fonte-base respeitada (II), esqueleto/método aplicado (III), datação e histórico atualizados quando o estado da arte mudou (IV), sem segredos (V).
 - Commits descrevem o "porquê"; o repositório é o registro. Push só quando o trabalho está coerente.
@@ -42,4 +47,4 @@ A análise é vendor-agnóstica: notas 0–3 comparam apenas dentro da mesma cat
 ## Governança
 Esta constituição prevalece sobre preferências pontuais. Emendas são registradas aqui e no `livro/HISTORICO.md`. O `CLAUDE.md` da raiz aponta para este documento como fonte de autoridade.
 
-**Versão**: 1.0.0 | **Ratificada**: 2026-07-25 | **Última emenda**: 2026-07-25
+**Versão**: 1.1.0 | **Ratificada**: 2026-07-25 | **Última emenda**: 2026-07-25 (add. Princípio VII — spec-driven e branch-per-melhoria)

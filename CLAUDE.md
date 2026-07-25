@@ -14,6 +14,7 @@ Resumo do que a constituição exige (leia-a por inteiro antes de contribuir):
 4. **Livro vivo** — datar a captura no cabeçalho do capítulo; atualizar `livro/HISTORICO.md` (incluindo o registro de expiração) sempre que o estado da arte mudar.
 5. **Segurança** — nenhum segredo em arquivo/commit/texto; credenciais só em `.env` gitignored.
 6. **Neutralidade e acessibilidade** — vendor-agnóstico; trilha prática a custo zero; português com termos técnicos sem tradução.
+7. **Spec-driven e branch-per-melhoria (NÃO-NEGOCIÁVEL)** — toda melhoria (inclusive pedagógica/editorial) passa por spec-kit (`spec → plan → tasks → implement`) em sua própria branch `NNN-nome`. Exceção: emendas à constituição e correções triviais (typo/link) podem ir direto ao main.
 
 ## Mapa do repositório
 
