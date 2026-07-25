@@ -33,6 +33,11 @@ O método do livro é empírico: em vez de teorizar no abstrato, lemos o código
 | [15 — O Harness Embutido](livro/capitulos/15-harness-embutido.md) | Agentes dentro de motores de workflow (n8n): o harness invertido |
 | [16 — Aprendizado e Auto-melhoria](livro/capitulos/16-aprendizado-auto-evolutivo.md) | O harness que se escreve: dois designs nível 3 (Hermes autônomo × gemini-cli inbox) |
 | [17 — A Camada de Protocolos](livro/capitulos/17-protocolos.md) | MCP, A2A, ACP, agentskills.io, AGENTS.md — com matriz de adoção medida no código |
+| [Bibliografia](livro/bibliografia.md) | Referências científicas por capítulo, com status de validação |
+
+### A Construção (`harness-zero/`)
+
+Trilha prática do livro: um harness completo construído do zero, uma etapa por capítulo (Python + FastAPI + chat mínimo), com arquitetura hexagonal **por refatoração** e DDD leve. Método pedagógico: Backward Design + 4C/ID + Diátaxis + Carga Cognitiva (ver [parecer editorial](estudos/2026-07-25-parecer-editorial-plano-pedagogico.md)). Etapas 0 (chat + porta LLM) e 1 (o loop) prontas e testadas — [mapa completo](harness-zero/README.md).
 
 ### O Benchmark (`benchmark/`)
 

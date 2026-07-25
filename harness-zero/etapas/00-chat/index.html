@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>harness-zero · etapa 0</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  #log { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; min-height: 300px; }
+  .user { text-align: right; color: #1a4f8b; margin: .4rem 0; }
+  .assistant { text-align: left; color: #222; margin: .4rem 0; white-space: pre-wrap; }
+  form { display: flex; gap: .5rem; margin-top: .75rem; }
+  input { flex: 1; padding: .5rem; font: inherit; }
+</style>
+<h3>harness-zero · etapa 0 — um chat e uma porta</h3>
+<div id="log"></div>
+<form id="f"><input id="m" autofocus placeholder="diga algo..."><button>enviar</button></form>
+<script>
+  const log = document.getElementById("log");
+  const add = (cls, text) => { const d = document.createElement("div"); d.className = cls; d.textContent = text; log.appendChild(d); d.scrollIntoView(); };
+  document.getElementById("f").onsubmit = async (e) => {
+    e.preventDefault();
+    const input = document.getElementById("m");
+    const text = input.value.trim(); if (!text) return;
+    add("user", text); input.value = "";
+    const r = await fetch("/chat", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({message: text}) });
+    add("assistant", (await r.json()).reply);
+  };
+</script>
