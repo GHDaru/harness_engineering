@@ -1,0 +1,42 @@
+{
+  "titulo": "Engenharia de Harness",
+  "subtitulo": "Um livro vivo sobre o scaffolding que envolve agentes de IA",
+  "partes": [
+    {
+      "nome": "Abertura",
+      "itens": [
+        { "arquivo": "livro/00-introducao.md", "titulo": "00 — Introdução" },
+        { "arquivo": "livro/01-fundamentos.md", "titulo": "01 — Fundamentos" }
+      ]
+    },
+    {
+      "nome": "Capítulos por funcionalidade",
+      "itens": [
+        { "arquivo": "livro/capitulos/02-loop-do-agente.md", "titulo": "02 — Loop do Agente" },
+        { "arquivo": "livro/capitulos/03-entrega-de-contexto.md", "titulo": "03 — Entrega de Contexto" },
+        { "arquivo": "livro/capitulos/04-compactacao.md", "titulo": "04 — Compactação" },
+        { "arquivo": "livro/capitulos/05-ferramentas.md", "titulo": "05 — Design de Ferramentas" },
+        { "arquivo": "livro/capitulos/06-mcp.md", "titulo": "06 — MCP" },
+        { "arquivo": "livro/capitulos/07-permissoes-sandbox.md", "titulo": "07 — Permissões e Sandboxing" },
+        { "arquivo": "livro/capitulos/08-memoria-estado.md", "titulo": "08 — Memória e Estado" },
+        { "arquivo": "livro/capitulos/09-planejamento.md", "titulo": "09 — Planejamento" },
+        { "arquivo": "livro/capitulos/10-subagentes-orquestracao.md", "titulo": "10 — Subagentes e Orquestração" },
+        { "arquivo": "livro/capitulos/11-verificacao-evals.md", "titulo": "11 — Verificação e Evals" },
+        { "arquivo": "livro/capitulos/12-extensibilidade.md", "titulo": "12 — Extensibilidade" },
+        { "arquivo": "livro/capitulos/13-interfaces.md", "titulo": "13 — Interfaces" },
+        { "arquivo": "livro/14-convergencias.md", "titulo": "14 — Convergências e Tendências" },
+        { "arquivo": "livro/capitulos/15-harness-embutido.md", "titulo": "15 — O Harness Embutido" },
+        { "arquivo": "livro/capitulos/16-aprendizado-auto-evolutivo.md", "titulo": "16 — Aprendizado e Auto-melhoria" },
+        { "arquivo": "livro/capitulos/17-protocolos.md", "titulo": "17 — A Camada de Protocolos" }
+      ]
+    },
+    {
+      "nome": "Aparato do livro",
+      "itens": [
+        { "arquivo": "livro/bibliografia.md", "titulo": "Bibliografia" },
+        { "arquivo": "livro/HISTORICO.md", "titulo": "Histórico e Registro de Expiração" },
+        { "arquivo": "livro/GUIA-EDITORIAL.md", "titulo": "Guia Editorial" }
+      ]
+    }
+  ]
+}
