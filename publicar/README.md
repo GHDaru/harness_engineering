@@ -4,6 +4,9 @@ App próprio (não framework) que gera o site navegável do livro a partir do
 **Markdown** em `livro/`. Coerente com a tese do livro (portas-e-adaptadores):
 a fonte é única; a publicação é um adapter sobre ela.
 
+**Site publicado:** https://ghdaru.github.io/harness_engineering/ — deploy
+automático a cada push no `main` que toque `livro/` ou `publicar/`.
+
 ## Uso
 
 ```bash
