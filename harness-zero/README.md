@@ -22,9 +22,34 @@ Configuração por variáveis de ambiente:
 | Variável | Default | Efeito |
 |---|---|---|
 | `LLM_ADAPTER` | `echo` | `echo` (sem rede, para estudar o fluxo) ou `openai` (qualquer API OpenAI-compatible) |
-| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | troque para Ollama, OpenRouter, etc. |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | troque para NVIDIA NIM, Ollama, OpenRouter, etc. |
 | `OPENAI_API_KEY` | — | chave do provedor |
 | `LLM_MODEL` | `gpt-5.4-mini` | o modelo (qualquer um que o endpoint aceite) |
+
+Copie `.env.example` para `.env` e preencha com a sua chave. **Nunca** comite a `.env` (já está no `.gitignore`).
+
+## Modelo gratuito para acompanhar o livro (NVIDIA NIM) 🙏
+
+Você não precisa pagar nada para rodar o harness-zero. A **NVIDIA** oferece um endpoint gratuito, OpenAI-compatible, com modelos capazes de tool-calling e reasoning — o que cobre todas as etapas deste livro. Agradecemos à NVIDIA por disponibilizar essa camada gratuita, que torna o livro acessível a qualquer pessoa.
+
+**Como obter sua chave gratuita (leva ~2 minutos):**
+1. Crie uma conta em **[build.nvidia.com](https://build.nvidia.com)** (o NVIDIA API Catalog).
+2. Escolha um modelo com o rótulo **Agent / Function Calling** (o catálogo em [build.nvidia.com/models](https://build.nvidia.com/models) lista os disponíveis).
+3. Em **"Get API Key"**, gere uma chave `nvapi-...` — é a sua, pessoal e intransferível.
+4. Configure o harness-zero:
+
+```bash
+export LLM_ADAPTER=openai
+export OPENAI_BASE_URL=https://integrate.api.nvidia.com/v1
+export OPENAI_API_KEY=nvapi-SUA_CHAVE_AQUI     # NUNCA comite esta chave
+export LLM_MODEL=nvidia/nemotron-3-ultra-550b-a55b   # ou outro modelo com Function Calling
+```
+
+> **Segurança**: uma chave de API é uma credencial. Não a coloque em código, em commits, nem a compartilhe em chats/issues. Se vazar, revogue-a em build.nvidia.com e gere outra. O harness-zero lê a chave **só** de variável de ambiente / `.env` (gitignored) — nunca a embuta no `app.py`.
+>
+> **Nota sobre reasoning**: modelos de reasoning da NVIDIA aceitam parâmetros extras (`extra_body={"chat_template_kwargs":{"enable_thinking":true}, "reasoning_budget":N}`). O adapter mínimo do harness-zero não os envia por padrão (o loop funciona sem eles); a partir da etapa em que isso importa, mostramos como passá-los pela porta `LLMPort`.
+
+Créditos: modelos e endpoint gratuito cortesia da **NVIDIA** — [NVIDIA API Catalog (build.nvidia.com)](https://build.nvidia.com). Este livro não é afiliado à NVIDIA; apenas usa e credita a camada gratuita que ela oferece à comunidade.
 
 ## Mapa das etapas
 

@@ -30,6 +30,23 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
+
+def _load_dotenv() -> None:
+    """Carrega um .env vizinho para os.environ (a chave de API vive só aqui
+    ou no ambiente — nunca no código; ver cap. 07). Sem dependência externa."""
+    for parent in (Path(__file__).parent, *Path(__file__).parents):
+        env = parent / ".env"
+        if env.exists():
+            for line in env.read_text().splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, _, val = line.partition("=")
+                    os.environ.setdefault(key.strip(), val.strip())
+            return
+
+
+_load_dotenv()
+
 Message = dict
 MAX_TURNS = 8  # o freio de mão: sem isso, um modelo confuso roda para sempre
 

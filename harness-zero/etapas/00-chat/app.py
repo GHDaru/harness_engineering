@@ -22,6 +22,24 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
+
+def _load_dotenv() -> None:
+    """Carrega um .env vizinho para os.environ, sem dependência externa.
+    A chave de API vive SÓ aqui (arquivo gitignored) ou no ambiente — nunca
+    no código. É a regra de ouro do cap. 07: credencial não entra no repo."""
+    for parent in (Path(__file__).parent, *Path(__file__).parents):
+        env = parent / ".env"
+        if env.exists():
+            for line in env.read_text().splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, _, val = line.partition("=")
+                    os.environ.setdefault(key.strip(), val.strip())
+            return
+
+
+_load_dotenv()
+
 # ---------------------------------------------------------------- a porta
 
 Message = dict  # {"role": "user"|"assistant"|"system", "content": str}
