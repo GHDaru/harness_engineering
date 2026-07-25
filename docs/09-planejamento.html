@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 — Planejamento · Engenharia de Harness</title>
+<link rel="stylesheet" href="assets/estilo.css">
+</head><body>
+<button id="alt-tema" aria-label="Alternar tema">◐</button>
+<div class="layout">
+  <aside class="sidebar">
+    <a class="marca" href="index.html">Engenharia de Harness</a>
+    <div class="nav-parte">Abertura</div><ul><li><a href="00-introducao.html">00 — Introdução</a></li><li><a href="01-fundamentos.html">01 — Fundamentos</a></li></ul><div class="nav-parte">Capítulos por funcionalidade</div><ul><li><a href="02-loop-do-agente.html">02 — Loop do Agente</a></li><li><a href="03-entrega-de-contexto.html">03 — Entrega de Contexto</a></li><li><a href="04-compactacao.html">04 — Compactação</a></li><li><a href="05-ferramentas.html">05 — Design de Ferramentas</a></li><li><a href="06-mcp.html">06 — MCP</a></li><li><a href="07-permissoes-sandbox.html">07 — Permissões e Sandboxing</a></li><li><a href="08-memoria-estado.html">08 — Memória e Estado</a></li><li><a class="ativo" href="09-planejamento.html">09 — Planejamento</a></li><li><a href="10-subagentes-orquestracao.html">10 — Subagentes e Orquestração</a></li><li><a href="11-verificacao-evals.html">11 — Verificação e Evals</a></li><li><a href="12-extensibilidade.html">12 — Extensibilidade</a></li><li><a href="13-interfaces.html">13 — Interfaces</a></li><li><a href="14-convergencias.html">14 — Convergências e Tendências</a></li><li><a href="15-harness-embutido.html">15 — O Harness Embutido</a></li><li><a href="16-aprendizado-auto-evolutivo.html">16 — Aprendizado e Auto-melhoria</a></li><li><a href="17-protocolos.html">17 — A Camada de Protocolos</a></li></ul><div class="nav-parte">Aparato do livro</div><ul><li><a href="bibliografia.html">Bibliografia</a></li><li><a href="historico.html">Histórico e Registro de Expiração</a></li><li><a href="guia-editorial.html">Guia Editorial</a></li></ul>
+  </aside>
+  <main class="conteudo">
+    
+    <article class="markdown"><h1 id="09-planejamento" tabindex="-1">09 — Planejamento <a class="header-anchor" href="#09-planejamento" aria-hidden="true">#</a></h1>
+<h2 id="o-problema" tabindex="-1">O problema <a class="header-anchor" href="#o-problema" aria-hidden="true">#</a></h2>
+<p>Modelos tendem a agir precipitadamente: editam antes de entender, &quot;resolvem&quot; antes de mapear o problema. Os artefatos de planejamento forçam uma fase de leitura e desenho antes da fase de escrita — e dão ao humano um ponto de aprovação barato (revisar um plano custa menos que revisar um diff).</p>
+<p>Três instrumentos distintos, frequentemente confundidos:</p>
+<ol>
+<li><strong>Plan mode</strong> — um <em>estado</em> do harness em que escrever é proibido; o agente só pesquisa e propõe.</li>
+<li><strong>Todo list</strong> — memória de trabalho da tarefa em andamento: o que falta, o que está feito.</li>
+<li><strong>Decomposição</strong> — quebrar trabalho grande em subtarefas rastreáveis, possivelmente com dependências.</li>
+</ol>
+<h2 id="a-convergencia-plan-mode-modo-de-permissao" tabindex="-1">A convergência: plan mode = modo de permissão <a class="header-anchor" href="#a-convergencia-plan-mode-modo-de-permissao" aria-hidden="true">#</a></h2>
+<p>A descoberta mais interessante da primeira rodada do benchmark: os três harnesses implementam plan mode <strong>como um caso especial do sistema de permissões</strong> (cap. 07), não como um subsistema próprio. Entrar em plan mode = trocar para um ruleset que nega escritas. Sair = restaurar. É elegante: reutiliza um mecanismo que já existe e ganha de graça a garantia de que o &quot;modo de planejar&quot; é <em>imposto</em>, não sugerido ao modelo.</p>
+<h2 id="como-os-harnesses-estudados-implementam" tabindex="-1">Como os harnesses estudados implementam <a class="header-anchor" href="#como-os-harnesses-estudados-implementam" aria-hidden="true">#</a></h2>
+<h3 id="opencode-plan-como-agente" tabindex="-1">opencode — plan como agente <a class="header-anchor" href="#opencode-plan-como-agente" aria-hidden="true">#</a></h3>
+<p>O plan mode é um <strong>agente built-in <code>plan</code></strong> com ruleset read-only (nega edições, pede confirmação para bash) — planejar é trocar de agente, não só de modo. A tool <code>plan_exit</code> (<code>tool/plan.ts</code>) fecha o ciclo: pergunta ao usuário se aprova, <strong>escreve o plano em arquivo</strong> e faz a transição para o agente <code>build</code> implementar. Prompts dedicados (<code>prompt/plan-mode.txt</code>, <code>plan-reminder-anthropic.txt</code> — inclusive lembretes específicos por família de modelo). Todos por sessão via tool <code>todowrite</code> (<code>session/todo.ts</code>).</p>
+<h3 id="gemini-cli-plan-com-gatekeeping-e-decomposicao-opcional" tabindex="-1">gemini-cli — plan com gatekeeping e decomposição opcional <a class="header-anchor" href="#gemini-cli-plan-com-gatekeeping-e-decomposicao-opcional" aria-hidden="true">#</a></h3>
+<p><code>ApprovalMode.PLAN</code> (<code>policy/types.ts</code>) com tools <code>enter-plan-mode</code>/<code>exit-plan-mode</code>: estado read-only em que o prompt lista explicitamente as tools disponíveis (<code>planModeToolsList</code>), e <code>getApprovedPlanPath()</code> <strong>gatekeepa a execução</strong> — só se implementa plano aprovado. Todos via <code>WriteTodosTool</code>. E o instrumento que os outros não têm: o <strong>tracker</strong> opcional (<code>trackerTools.ts</code> + <code>trackerService.ts</code>) — tarefas com dependências (<code>tracker_add_dependency</code>) e visualização em grafo (<code>tracker_visualize</code>), decomposição de verdade para trabalho grande. Plan mode tem eval comportamental própria (<code>evals/plan_mode.eval.ts</code>).</p>
+<h3 id="openharness-a-versao-minima-e-correta" tabindex="-1">OpenHarness — a versão mínima e correta <a class="header-anchor" href="#openharness-a-versao-minima-e-correta" aria-hidden="true">#</a></h3>
+<p><code>EnterPlanModeTool</code> simplesmente seta <code>settings.permission.mode = PLAN</code> (que bloqueia todas as escritas); <code>ExitPlanModeTool</code> restaura — a implementação mais direta da equivalência plan-mode-é-permissão. Todos em arquivo <code>TODO.md</code> via <code>TodoWriteTool</code> (persistente e legível, menos estruturado que os equivalentes em memória). Uma skill bundled <code>plan</code> orienta o desenho do plano, e a decomposição pesada aparece no subsistema autopilot (fila de <code>RepoTaskCard</code> com journal).</p>
+<h2 id="sintese" tabindex="-1">Síntese <a class="header-anchor" href="#sintese" aria-hidden="true">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>opencode</th>
+<th>gemini-cli</th>
+<th>OpenHarness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plan mode</td>
+<td>agente <code>plan</code> dedicado</td>
+<td><code>ApprovalMode.PLAN</code></td>
+<td>modo de permissão</td>
+</tr>
+<tr>
+<td>Artefato de plano</td>
+<td>arquivo escrito ao sair</td>
+<td>plano aprovado gatekeepa execução</td>
+<td>skill orientadora</td>
+</tr>
+<tr>
+<td>Todo list</td>
+<td>por sessão (estruturada)</td>
+<td><code>write-todos</code></td>
+<td>arquivo <code>TODO.md</code></td>
+</tr>
+<tr>
+<td>Decomposição c/ dependências</td>
+<td>—</td>
+<td>tracker (grafo)</td>
+<td>autopilot (fila de cards)</td>
+</tr>
+<tr>
+<td>Transição plan→build</td>
+<td>pergunta + troca de agente</td>
+<td>aprovação de plano</td>
+<td>troca de modo</td>
+</tr>
+</tbody>
+</table>
+<p>O padrão maduro combina três garantias: read-only <strong>imposto</strong> (não pedido), plano como <strong>artefato persistido</strong> (não só texto na conversa), e <strong>aprovação explícita</strong> antes de executar. O gemini-cli é o único que fecha as três; o opencode fecha duas com a elegância extra de planejar com um agente (que pode ter até modelo diferente); o OpenHarness prova que o essencial cabe em duas tools e um enum. A fronteira aberta é a decomposição com dependências — só o tracker do gemini-cli a tem como instrumento nativo, e ainda atrás de feature flag.</p>
+</article>
+    <nav class="paginacao"><a class="nav-prev" href="08-memoria-estado.html">← 08 — Memória e Estado</a><a class="nav-next" href="10-subagentes-orquestracao.html">10 — Subagentes e Orquestração →</a></nav>
+    <footer class="rodape">Livro vivo · gerado do Markdown pelo motor próprio · <a href="https://github.com/GHDaru/harness_engineering">fonte no GitHub</a></footer>
+  </main>
+</div>
+<script src="assets/app.js"></script>
+</body></html>

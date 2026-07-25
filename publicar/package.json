@@ -1,0 +1,9 @@
+{
+  "name": "motor-do-livro",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Motor de publicação do livro Engenharia de Harness (Markdown -> HTML navegável + PDF).",
+  "scripts": { "build": "node build.mjs" },
+  "dependencies": { "markdown-it": "^14.1.0", "markdown-it-anchor": "^9.2.0" }
+}

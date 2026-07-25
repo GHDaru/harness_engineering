@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 — Verificação e Evals · Engenharia de Harness</title>
+<link rel="stylesheet" href="assets/estilo.css">
+</head><body>
+<button id="alt-tema" aria-label="Alternar tema">◐</button>
+<div class="layout">
+  <aside class="sidebar">
+    <a class="marca" href="index.html">Engenharia de Harness</a>
+    <div class="nav-parte">Abertura</div><ul><li><a href="00-introducao.html">00 — Introdução</a></li><li><a href="01-fundamentos.html">01 — Fundamentos</a></li></ul><div class="nav-parte">Capítulos por funcionalidade</div><ul><li><a href="02-loop-do-agente.html">02 — Loop do Agente</a></li><li><a href="03-entrega-de-contexto.html">03 — Entrega de Contexto</a></li><li><a href="04-compactacao.html">04 — Compactação</a></li><li><a href="05-ferramentas.html">05 — Design de Ferramentas</a></li><li><a href="06-mcp.html">06 — MCP</a></li><li><a href="07-permissoes-sandbox.html">07 — Permissões e Sandboxing</a></li><li><a href="08-memoria-estado.html">08 — Memória e Estado</a></li><li><a href="09-planejamento.html">09 — Planejamento</a></li><li><a href="10-subagentes-orquestracao.html">10 — Subagentes e Orquestração</a></li><li><a class="ativo" href="11-verificacao-evals.html">11 — Verificação e Evals</a></li><li><a href="12-extensibilidade.html">12 — Extensibilidade</a></li><li><a href="13-interfaces.html">13 — Interfaces</a></li><li><a href="14-convergencias.html">14 — Convergências e Tendências</a></li><li><a href="15-harness-embutido.html">15 — O Harness Embutido</a></li><li><a href="16-aprendizado-auto-evolutivo.html">16 — Aprendizado e Auto-melhoria</a></li><li><a href="17-protocolos.html">17 — A Camada de Protocolos</a></li></ul><div class="nav-parte">Aparato do livro</div><ul><li><a href="bibliografia.html">Bibliografia</a></li><li><a href="historico.html">Histórico e Registro de Expiração</a></li><li><a href="guia-editorial.html">Guia Editorial</a></li></ul>
+  </aside>
+  <main class="conteudo">
+    
+    <article class="markdown"><h1 id="11-verificacao-e-evals" tabindex="-1">11 — Verificação e Evals <a class="header-anchor" href="#11-verificacao-e-evals" aria-hidden="true">#</a></h1>
+<h2 id="o-problema" tabindex="-1">O problema <a class="header-anchor" href="#o-problema" aria-hidden="true">#</a></h2>
+<p>Como saber se o agente funciona? A pergunta se desdobra em três, com respostas técnicas diferentes:</p>
+<ol>
+<li><strong>O harness funciona?</strong> — testes de software clássicos sobre o código do harness (loop, tools, permissões).</li>
+<li><strong>O agente se comporta bem?</strong> — evals: o comportamento emergente (usa as tools certas? é frugal? respeita o plan mode? resiste a injection?) sob teste de regressão.</li>
+<li><strong>O trabalho do agente está certo?</strong> — verificação em runtime: sinais (LSP, testes, lint) realimentados ao modelo durante a tarefa.</li>
+</ol>
+<p>A segunda é a mais difícil e a mais negligenciada: comportamento de agente é estocástico, caro de testar e muda silenciosamente a cada troca de modelo ou de prompt.</p>
+<h2 id="padroes-de-implementacao" tabindex="-1">Padrões de implementação <a class="header-anchor" href="#padroes-de-implementacao" aria-hidden="true">#</a></h2>
+<ul>
+<li><strong>Testes determinísticos com respostas gravadas</strong> — gravar as respostas do LLM e replay em CI: E2E barato e estável.</li>
+<li><strong>Evals com juiz LLM</strong> — um modelo avalia se o comportamento do agente atende critérios qualitativos.</li>
+<li><strong>Baselines de regressão</strong> — memória/CPU/startup comparados contra valores de referência versionados, em execução nightly.</li>
+<li><strong>Verificação em runtime via LSP</strong> — diagnósticos de linguagem após cada edição, devolvidos ao modelo no mesmo turno.</li>
+<li><strong>Política anti-mock</strong> — testar contra o comportamento real (APIs, filesystem), não contra dublês que mentem.</li>
+</ul>
+<h2 id="como-os-harnesses-estudados-implementam" tabindex="-1">Como os harnesses estudados implementam <a class="header-anchor" href="#como-os-harnesses-estudados-implementam" aria-hidden="true">#</a></h2>
+<h3 id="gemini-cli-comportamento-sob-regressao-continua" tabindex="-1">gemini-cli — comportamento sob regressão contínua <a class="header-anchor" href="#gemini-cli-comportamento-sob-regressao-continua" aria-hidden="true">#</a></h3>
+<p>O regime mais rigoroso dos três, com <strong>quatro suítes separadas</strong>: (1) <code>evals/</code> — ~45 testes comportamentais com <strong>juiz LLM</strong> (<code>llm-judge.ts</code>) cobrindo frugalidade de leitura, memória hierárquica, plan mode, delegação a subagentes, segurança de shell, <strong>prompt injection via MCP</strong> e recuperação de sandbox; (2) <code>integration-tests/</code> — E2E determinísticos que reproduzem <strong>respostas gravadas</strong> (arquivos <code>.responses</code>); (3) <code>memory-tests/</code> — regressão de uso de memória contra <code>baselines.json</code>, nightly; (4) <code>perf-tests/</code> — regressão de CPU/startup (cold-startup, idle-cpu, long-chat), nightly. O comportamento do agente é tratado como superfície de regressão de primeira classe — nenhum outro harness estudado faz isso.</p>
+<h3 id="opencode-verificacao-durante-a-tarefa" tabindex="-1">opencode — verificação durante a tarefa <a class="header-anchor" href="#opencode-verificacao-durante-a-tarefa" aria-hidden="true">#</a></h3>
+<p>Dois diferenciais. Primeiro, <strong>LSP em runtime</strong> (<code>packages/opencode/src/lsp/</code>): mapeia dezenas de linguagens a servidores (typescript, pyright...), e <strong>edições disparam diagnósticos realimentados ao modelo</strong> — o agente descobre que quebrou a tipagem no turno seguinte, não no CI. Segundo, cultura de teste com <strong>política anti-mock</strong> explícita (o <code>AGENTS.md</code> de <code>packages/opencode/test/</code> proíbe mocks) e um <code>http-recorder</code> que grava/replaya chamadas HTTP para testar provedores reais com determinismo. Typecheck obrigatório (<code>bun typecheck</code>); guard impedindo rodar testes da raiz.</p>
+<h3 id="openharness-e2e-com-modelo-real" tabindex="-1">OpenHarness — E2E com modelo real <a class="header-anchor" href="#openharness-e2e-com-modelo-real" aria-hidden="true">#</a></h3>
+<p>121 arquivos de teste em <code>tests/</code>, ~31 subpastas espelhando cada subsistema (engine, tools, mcp, permissions, swarm, memory, sandbox, hooks...). O traço próprio: suítes E2E com <strong>chamadas reais de modelo</strong> (<code>scripts/test_harness_features.py</code> valida retry, skills, paralelismo e permissões contra API de verdade) e testes contra artefatos reais do ecossistema (<code>test_real_skills_plugins.py</code> roda skills do anthropics/skills e plugins do claude-code) — a compatibilidade declarada com o ecossistema Claude Code é testada, não só prometida. Uma skill <code>harness-eval</code> empacota a validação E2E como comando.</p>
+<h2 id="sintese" tabindex="-1">Síntese <a class="header-anchor" href="#sintese" aria-hidden="true">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>opencode</th>
+<th>gemini-cli</th>
+<th>OpenHarness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Testes do harness</td>
+<td>anti-mock + http-recorder</td>
+<td>preflight + integração gravada</td>
+<td>121 arquivos por subsistema</td>
+</tr>
+<tr>
+<td>Evals comportamentais</td>
+<td>—</td>
+<td>~45 c/ juiz LLM</td>
+<td>E2E com modelo real</td>
+</tr>
+<tr>
+<td>Baselines de regressão</td>
+<td>e2e de performance</td>
+<td>memória + perf, nightly</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Verificação em runtime</td>
+<td><strong>LSP → diagnósticos ao modelo</strong></td>
+<td>—</td>
+<td>tool <code>lsp</code></td>
+</tr>
+<tr>
+<td>Segurança testada</td>
+<td>—</td>
+<td>injection via MCP, shell safety</td>
+<td>permissões em E2E</td>
+</tr>
+</tbody>
+</table>
+<p>As três respostas do problema receberam três campeões: OpenHarness testa melhor <em>o harness</em> (cobertura por subsistema), gemini-cli testa melhor <em>o agente</em> (evals + baselines), opencode verifica melhor <em>o trabalho</em> (LSP em runtime). A lacuna comum é reveladora: só um dos três testa comportamento sob ataque. À medida que harnesses ganham autonomia (cap. 10), evals comportamentais deixam de ser luxo — um harness sem evals não sabe o que perdeu no último ajuste de prompt.</p>
+</article>
+    <nav class="paginacao"><a class="nav-prev" href="10-subagentes-orquestracao.html">← 10 — Subagentes e Orquestração</a><a class="nav-next" href="12-extensibilidade.html">12 — Extensibilidade →</a></nav>
+    <footer class="rodape">Livro vivo · gerado do Markdown pelo motor próprio · <a href="https://github.com/GHDaru/harness_engineering">fonte no GitHub</a></footer>
+  </main>
+</div>
+<script src="assets/app.js"></script>
+</body></html>

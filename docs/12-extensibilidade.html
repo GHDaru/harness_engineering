@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12 — Extensibilidade · Engenharia de Harness</title>
+<link rel="stylesheet" href="assets/estilo.css">
+</head><body>
+<button id="alt-tema" aria-label="Alternar tema">◐</button>
+<div class="layout">
+  <aside class="sidebar">
+    <a class="marca" href="index.html">Engenharia de Harness</a>
+    <div class="nav-parte">Abertura</div><ul><li><a href="00-introducao.html">00 — Introdução</a></li><li><a href="01-fundamentos.html">01 — Fundamentos</a></li></ul><div class="nav-parte">Capítulos por funcionalidade</div><ul><li><a href="02-loop-do-agente.html">02 — Loop do Agente</a></li><li><a href="03-entrega-de-contexto.html">03 — Entrega de Contexto</a></li><li><a href="04-compactacao.html">04 — Compactação</a></li><li><a href="05-ferramentas.html">05 — Design de Ferramentas</a></li><li><a href="06-mcp.html">06 — MCP</a></li><li><a href="07-permissoes-sandbox.html">07 — Permissões e Sandboxing</a></li><li><a href="08-memoria-estado.html">08 — Memória e Estado</a></li><li><a href="09-planejamento.html">09 — Planejamento</a></li><li><a href="10-subagentes-orquestracao.html">10 — Subagentes e Orquestração</a></li><li><a href="11-verificacao-evals.html">11 — Verificação e Evals</a></li><li><a class="ativo" href="12-extensibilidade.html">12 — Extensibilidade</a></li><li><a href="13-interfaces.html">13 — Interfaces</a></li><li><a href="14-convergencias.html">14 — Convergências e Tendências</a></li><li><a href="15-harness-embutido.html">15 — O Harness Embutido</a></li><li><a href="16-aprendizado-auto-evolutivo.html">16 — Aprendizado e Auto-melhoria</a></li><li><a href="17-protocolos.html">17 — A Camada de Protocolos</a></li></ul><div class="nav-parte">Aparato do livro</div><ul><li><a href="bibliografia.html">Bibliografia</a></li><li><a href="historico.html">Histórico e Registro de Expiração</a></li><li><a href="guia-editorial.html">Guia Editorial</a></li></ul>
+  </aside>
+  <main class="conteudo">
+    
+    <article class="markdown"><h1 id="12-extensibilidade" tabindex="-1">12 — Extensibilidade <a class="header-anchor" href="#12-extensibilidade" aria-hidden="true">#</a></h1>
+<h2 id="o-problema" tabindex="-1">O problema <a class="header-anchor" href="#o-problema" aria-hidden="true">#</a></h2>
+<p>Nenhum harness cobre todos os fluxos de trabalho; a extensibilidade decide se o usuário adapta o harness ou o abandona. Os eixos consagrados:</p>
+<ol>
+<li><strong>Hooks</strong> — código do usuário interceptando o ciclo de vida (antes/depois de tool, compactação, sessão).</li>
+<li><strong>Skills / comandos custom</strong> — capacidades empacotadas como markdown/config, carregadas sob demanda.</li>
+<li><strong>Plugins / extensions</strong> — pacotes distribuíveis agregando tools, comandos, hooks e config.</li>
+<li><strong>Provedores de modelo</strong> — a extensão mais estratégica: o harness funciona com qualquer modelo, ou é vitrine de um?</li>
+</ol>
+<h2 id="como-os-harnesses-estudados-implementam" tabindex="-1">Como os harnesses estudados implementam <a class="header-anchor" href="#como-os-harnesses-estudados-implementam" aria-hidden="true">#</a></h2>
+<h3 id="opencode-hooks-profundos-e-agnosticismo-radical-de-provedor" tabindex="-1">opencode — hooks profundos e agnosticismo radical de provedor <a class="header-anchor" href="#opencode-hooks-profundos-e-agnosticismo-radical-de-provedor" aria-hidden="true">#</a></h3>
+<p>Plugins são funções que retornam <code>Hooks</code> (<code>packages/plugin/</code>): <strong>~15 pontos de interceptação</strong>, incluindo alguns raros — transformar mensagens e system prompt antes do envio (<code>experimental.chat.messages.transform</code>), interceptar decisões de permissão (<code>permission.ask</code>), customizar compactação (<code>experimental.session.compacting</code>) e <strong>registrar provedores de autenticação</strong> (<code>auth</code>). Tools custom do usuário são auto-carregadas de <code>tool/</code> do projeto. E o eixo estratégico: <strong>~26 loaders de provedor</strong> (<code>provider/provider.ts</code> — Anthropic, OpenAI, Google, Bedrock, Azure, Groq, Mistral, OpenRouter, Copilot...) mais <strong>centenas de modelos via models.dev</strong>, sobre o Vercel AI SDK. É o harness mais agnóstico de modelo em produção.</p>
+<h3 id="gemini-cli-o-pacote-tudo-em-um" tabindex="-1">gemini-cli — o pacote tudo-em-um <a class="header-anchor" href="#gemini-cli-o-pacote-tudo-em-um" aria-hidden="true">#</a></h3>
+<p><strong>Extensions</strong> (<code>gemini-extension.json</code>): um único pacote instalável (de git ou local, com <code>/extensions install/enable/link</code>) pode agregar MCP servers, comandos custom, hooks, <strong>políticas de permissão</strong>, skills e temas — o modelo de distribuição mais completo. Comandos custom em <strong>TOML</strong> (<code>FileCommandLoader</code>) viram slash commands. Hooks formam um subsistema próprio (<code>packages/core/src/hooks/</code>: registry, planner, aggregator) com <strong>gate de confiança</strong> (<code>trustedHooks.ts</code> — hooks só rodam em pastas confiáveis, amarrando extensibilidade à segurança do cap. 07). Skills dinâmicas via tool <code>activate-skill</code>. Provedores: ecossistema Google — extensível em integração, ancorado em modelo.</p>
+<h3 id="openharness-compatibilidade-como-estrategia" tabindex="-1">OpenHarness — compatibilidade como estratégia <a class="header-anchor" href="#openharness-compatibilidade-como-estrategia" aria-hidden="true">#</a></h3>
+<p>A aposta: <strong>ser extensível com o ecossistema dos outros</strong>. Skills são markdown com frontmatter carregadas também de <code>~/.claude/skills</code> e <code>~/.agents/skills</code> (layout <code>SKILL.md</code> do anthropics/skills); plugins usam o formato <code>.claude-plugin/plugin.json</code> do Claude Code (12 plugins reais testados); hooks cobrem <strong>10 eventos de ciclo de vida</strong> (<code>HookEvent</code>: SESSION_START/END, PRE/POST_COMPACT, PRE/POST_TOOL_USE, USER_PROMPT_SUBMIT, STOP, SUBAGENT_STOP...) com <strong>hot-reload</strong>. Provedores como &quot;workflows&quot; nomeados: Anthropic-compatible, OpenAI-compatible, Copilot (OAuth device flow), Kimi, GLM, Ollama e outros.</p>
+<h2 id="sintese" tabindex="-1">Síntese <a class="header-anchor" href="#sintese" aria-hidden="true">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>opencode</th>
+<th>gemini-cli</th>
+<th>OpenHarness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hooks</td>
+<td>~15, os mais profundos (transform de mensagens, auth)</td>
+<td>subsistema c/ gate de confiança</td>
+<td>10 eventos + hot-reload</td>
+</tr>
+<tr>
+<td>Skills/comandos</td>
+<td>comandos markdown + tools auto-carregadas</td>
+<td>TOML + skills dinâmicas</td>
+<td>compat. <code>SKILL.md</code> Claude</td>
+</tr>
+<tr>
+<td>Plugins</td>
+<td>funções → Hooks + tools</td>
+<td><strong>extensions tudo-em-um</strong></td>
+<td>formato <code>.claude-plugin</code></td>
+</tr>
+<tr>
+<td>Provedores</td>
+<td><strong>~26 + models.dev</strong></td>
+<td>Google</td>
+<td>~10 formatos/backends</td>
+</tr>
+<tr>
+<td>Segurança da extensão</td>
+<td>permissões normais</td>
+<td>trusted folders p/ hooks</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>Três estratégias de ecossistema: <strong>profundidade</strong> (opencode — os hooks alcançam pontos que os outros não expõem, e qualquer modelo serve), <strong>empacotamento</strong> (gemini-cli — a extension como unidade de distribuição completa, com confiança gerenciada) e <strong>interoperabilidade</strong> (OpenHarness — adotar os formatos do líder em vez de inventar os próprios). A última é a mais subestimada: skills e plugins em markdown/JSON estão virando <em>formatos portáveis entre harnesses</em> — o embrião de um padrão que faria pela extensibilidade o que o MCP fez pela integração. O ponto cego comum: só o gemini-cli trata código de extensão como superfície de ataque.</p>
+</article>
+    <nav class="paginacao"><a class="nav-prev" href="11-verificacao-evals.html">← 11 — Verificação e Evals</a><a class="nav-next" href="13-interfaces.html">13 — Interfaces →</a></nav>
+    <footer class="rodape">Livro vivo · gerado do Markdown pelo motor próprio · <a href="https://github.com/GHDaru/harness_engineering">fonte no GitHub</a></footer>
+  </main>
+</div>
+<script src="assets/app.js"></script>
+</body></html>

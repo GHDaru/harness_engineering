@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .venv/
 .env
+
+# motor do livro (node)
+publicar/node_modules/

@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>17 — A Camada de Protocolos · Engenharia de Harness</title>
+<link rel="stylesheet" href="assets/estilo.css">
+</head><body>
+<button id="alt-tema" aria-label="Alternar tema">◐</button>
+<div class="layout">
+  <aside class="sidebar">
+    <a class="marca" href="index.html">Engenharia de Harness</a>
+    <div class="nav-parte">Abertura</div><ul><li><a href="00-introducao.html">00 — Introdução</a></li><li><a href="01-fundamentos.html">01 — Fundamentos</a></li></ul><div class="nav-parte">Capítulos por funcionalidade</div><ul><li><a href="02-loop-do-agente.html">02 — Loop do Agente</a></li><li><a href="03-entrega-de-contexto.html">03 — Entrega de Contexto</a></li><li><a href="04-compactacao.html">04 — Compactação</a></li><li><a href="05-ferramentas.html">05 — Design de Ferramentas</a></li><li><a href="06-mcp.html">06 — MCP</a></li><li><a href="07-permissoes-sandbox.html">07 — Permissões e Sandboxing</a></li><li><a href="08-memoria-estado.html">08 — Memória e Estado</a></li><li><a href="09-planejamento.html">09 — Planejamento</a></li><li><a href="10-subagentes-orquestracao.html">10 — Subagentes e Orquestração</a></li><li><a href="11-verificacao-evals.html">11 — Verificação e Evals</a></li><li><a href="12-extensibilidade.html">12 — Extensibilidade</a></li><li><a href="13-interfaces.html">13 — Interfaces</a></li><li><a href="14-convergencias.html">14 — Convergências e Tendências</a></li><li><a href="15-harness-embutido.html">15 — O Harness Embutido</a></li><li><a href="16-aprendizado-auto-evolutivo.html">16 — Aprendizado e Auto-melhoria</a></li><li><a class="ativo" href="17-protocolos.html">17 — A Camada de Protocolos</a></li></ul><div class="nav-parte">Aparato do livro</div><ul><li><a href="bibliografia.html">Bibliografia</a></li><li><a href="historico.html">Histórico e Registro de Expiração</a></li><li><a href="guia-editorial.html">Guia Editorial</a></li></ul>
+  </aside>
+  <main class="conteudo">
+    
+    <article class="markdown"><h1 id="17-a-camada-de-protocolos-o-tecido-conjuntivo-entre-harnesses" tabindex="-1">17 — A Camada de Protocolos: o tecido conjuntivo entre harnesses <a class="header-anchor" href="#17-a-camada-de-protocolos-o-tecido-conjuntivo-entre-harnesses" aria-hidden="true">#</a></h1>
+<h2 id="onde-os-protocolos-entram" tabindex="-1">Onde os protocolos entram <a class="header-anchor" href="#onde-os-protocolos-entram" aria-hidden="true">#</a></h2>
+<p>Os capítulos 02–16 tratam do que acontece <em>dentro</em> de um harness. Este capítulo trata do que acontece <em>entre</em> eles — e entre harnesses e o resto do mundo. A camada de protocolos é o que transforma um mercado de silos em um ecossistema: cada protocolo padroniza uma fronteira diferente do harness.</p>
+<p>O mapa, organizado pela fronteira que cada um resolve:</p>
+<table>
+<thead>
+<tr>
+<th>Protocolo</th>
+<th>Fronteira</th>
+<th>Origem / governança</th>
+<th>Estado (2026)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MCP</strong> (Model Context Protocol)</td>
+<td>agente ↔ <strong>ferramentas/dados</strong></td>
+<td>Anthropic → adoção universal (OpenAI, Google, Microsoft)</td>
+<td>maduro; ~97M downloads</td>
+</tr>
+<tr>
+<td><strong>A2A</strong> (Agent-to-Agent)</td>
+<td>agente ↔ <strong>agente</strong> (delegação entre organizações)</td>
+<td>Google → <strong>Linux Foundation</strong> (v1.0 em 2026)</td>
+<td>consolidando; absorveu o ACP da IBM</td>
+</tr>
+<tr>
+<td><strong>ACP</strong> (Agent Client Protocol)</td>
+<td>agente ↔ <strong>editor/cliente</strong></td>
+<td>Zed</td>
+<td>adoção rápida entre harnesses de código</td>
+</tr>
+<tr>
+<td><strong>agentskills.io</strong> (Agent Skills / SKILL.md)</td>
+<td><strong>conhecimento procedural</strong> portável</td>
+<td>Anthropic (spec aberta, dez/2025)</td>
+<td>~40 produtos compatíveis em 6 meses</td>
+</tr>
+<tr>
+<td><strong>AGENTS.md</strong></td>
+<td><strong>instruções de projeto</strong> portáveis</td>
+<td>comunidade → <strong>Agentic AI Foundation</strong> (Linux Foundation)</td>
+<td>60.000+ repositórios; 20+ ferramentas leem nativamente</td>
+</tr>
+<tr>
+<td>AG-UI</td>
+<td>agente ↔ <strong>interface de usuário</strong></td>
+<td>comunidade (CopilotKit)</td>
+<td>emergente</td>
+</tr>
+<tr>
+<td>ACP-IBM (Agent Communication Protocol)</td>
+<td>agente ↔ agente</td>
+<td>IBM</td>
+<td><strong>encerrado</strong> — fundido ao A2A (ago/2025)</td>
+</tr>
+</tbody>
+</table>
+<p>Duas confusões a desfazer: (1) &quot;ACP&quot; designa dois protocolos distintos — o da IBM (comunicação agente-agente, descontinuado em favor do A2A) e o da Zed (agente-editor, vivo e em expansão); neste livro, ACP = Zed. (2) MCP e A2A não competem: MCP é a conexão <em>vertical</em> (agente→ferramenta), A2A é a <em>horizontal</em> (agente→agente peer) — um sistema real usa os dois.</p>
+<h2 id="a-matriz-de-adocao-medida-no-codigo-nao-no-marketing" tabindex="-1">A matriz de adoção — medida no código, não no marketing <a class="header-anchor" href="#a-matriz-de-adocao-medida-no-codigo-nao-no-marketing" aria-hidden="true">#</a></h2>
+<p>O diferencial deste capítulo: cruzamos os protocolos com as <strong>11 avaliações do benchmark</strong> (evidência por arquivo, ver <code>benchmark/avaliacoes/</code>). Nenhum comparativo externo tem esta coluna de verdade:</p>
+<table>
+<thead>
+<tr>
+<th>Harness</th>
+<th style="text-align:center">MCP client</th>
+<th style="text-align:center">MCP server</th>
+<th style="text-align:center">ACP</th>
+<th style="text-align:center">A2A</th>
+<th style="text-align:center">SKILL.md / agentskills</th>
+<th style="text-align:center">AGENTS.md (ou equiv.)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>opencode</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅ (Zed)</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">parcial</td>
+<td style="text-align:center">✅ AGENTS.md</td>
+</tr>
+<tr>
+<td>gemini-cli</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅ <strong>client+server</strong></td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">GEMINI.md</td>
+</tr>
+<tr>
+<td>OpenHarness</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅ (formato Claude)</td>
+<td style="text-align:center">CLAUDE.md</td>
+</tr>
+<tr>
+<td>Codex CLI</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅ AGENTS.md</td>
+</tr>
+<tr>
+<td>Goose</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅ (<code>goose mcp</code>)</td>
+<td style="text-align:center">✅ (desktop inteiro)</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅ AGENTS.md + .goosehints</td>
+</tr>
+<tr>
+<td>Aider</td>
+<td style="text-align:center">❌</td>
+<td style="text-align:center">❌</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅ (leitura)</td>
+</tr>
+<tr>
+<td>OpenHands</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅ (FastMCP)</td>
+<td style="text-align:center">✅ (perfis)</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅ (repos org)</td>
+<td style="text-align:center">microagents</td>
+</tr>
+<tr>
+<td>OpenClaw</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅ (orquestra terceiros)</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅ (52 bundled)</td>
+<td style="text-align:center">✅ AGENTS.md + SOUL.md</td>
+</tr>
+<tr>
+<td>Hermes</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅ (núcleo do learning)</td>
+<td style="text-align:center">✅ AGENTS.md + SOUL.md</td>
+</tr>
+<tr>
+<td>IronClaw</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅ (compat OpenClaw)</td>
+<td style="text-align:center">identity files</td>
+</tr>
+<tr>
+<td>n8n</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅ (Trigger)</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td><em>frameworks:</em></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td>LangGraph</td>
+<td style="text-align:center">❌</td>
+<td style="text-align:center">❌ (só no servidor pago)</td>
+<td style="text-align:center">❌</td>
+<td style="text-align:center">❌</td>
+<td style="text-align:center">❌</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td>OpenAI Agents SDK</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">❌</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">parcial</td>
+<td style="text-align:center">só sandbox agents</td>
+</tr>
+<tr>
+<td>CrewAI</td>
+<td style="text-align:center">✅ (obrigatório)</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅ <strong>client+server</strong></td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅ <strong>auto-gerado</strong></td>
+</tr>
+<tr>
+<td>software-agent-sdk</td>
+<td style="text-align:center">✅ (OAuth)</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">❌</td>
+<td style="text-align:center">✅ (usa harnesses como motor)</td>
+<td style="text-align:center">✅ (spec)</td>
+<td style="text-align:center">✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Leituras da matriz:</strong></p>
+<ol>
+<li><strong>MCP venceu de fato</strong>: 10 de 11 (a exceção, Aider, é escolha filosófica). E entre as rodadas 1 e 2, o padrão migrou de &quot;cliente&quot; para &quot;cliente+servidor&quot; — o harness como serviço consumível.</li>
+<li><strong>agentskills.io é a padronização mais rápida que já medimos</strong>: spec de dezembro/2025, 8 dos nossos 11 compatíveis em julho/2026. A previsão do cap. 12 (&quot;um MCP da extensibilidade está se formando&quot;) se cumpriu — e com um detalhe estrutural: skills são markdown portável, então a mesma skill roda no Claude Code, no Hermes e no IronClaw. O aprendizado auto-evolutivo (cap. 16) escreve <em>nesse</em> formato — o conhecimento que um agente aprende é, em tese, transferível a outro.</li>
+<li><strong>ACP é o protocolo silencioso mais importante da coorte</strong>: 6 de 11 o falam, e três harnesses (OpenClaw, OpenHands, Goose) o usam para <strong>orquestrar outros harnesses</strong> como subagentes — Claude Code, Codex, Gemini CLI e opencode viram peças intercambiáveis. O que era &quot;agente↔editor&quot; virou, na prática, o barramento de composição entre harnesses.</li>
+<li><strong>A2A saiu do &quot;aposta de um só&quot;</strong> <em>(atualizado na rodada frameworks-1)</em>: o gemini-cli foi o único harness a implementá-lo, mas o <strong>CrewAI</strong> entrou com client E server nativos (AgentCard completo, JWS, gRPC/REST) — o segundo implementador medido, e o primeiro framework. A governança na Linux Foundation e a absorção do ACP-IBM seguem apontando o A2A como o candidato à fronteira inter-organizacional; nos harnesses de produto, porém, essa fronteira ainda quase não existe.</li>
+<li><strong>AGENTS.md consolidou como padrão neutro</strong>: a fragmentação AGENTS/CLAUDE/GEMINI.md do cap. 03 está se resolvendo — Codex, Goose, opencode, OpenClaw e Hermes já convergiram para AGENTS.md (agora sob a Agentic AI Foundation), com os arquivos proprietários virando alias.</li>
+</ol>
+<h2 id="o-empilhamento-como-os-protocolos-compoem" tabindex="-1">O empilhamento: como os protocolos compõem <a class="header-anchor" href="#o-empilhamento-como-os-protocolos-compoem" aria-hidden="true">#</a></h2>
+<p>Um sistema agêntico completo em 2026 usa a pilha inteira, uma camada por fronteira:</p>
+<pre><code>[usuário]
+   │  AG-UI / canais de chat / TUI          (interface)
+[harness A]
+   │  ACP                                    (composição: A dirige B como subagente)
+[harness B]
+   │  A2A                                    (delegação a agente de outra organização)
+[agente remoto]
+   │  MCP                                    (cada agente alcança suas ferramentas)
+[ferramentas/dados]
+
+transversais: AGENTS.md (instruções por projeto) · SKILL.md (procedimentos portáveis)
+</code></pre>
+<h2 id="implicacoes-para-a-engenharia-de-harness" tabindex="-1">Implicações para a engenharia de harness <a class="header-anchor" href="#implicacoes-para-a-engenharia-de-harness" aria-hidden="true">#</a></h2>
+<ol>
+<li><strong>Protocolo é dimensão de sobrevivência, não de feature</strong>: o Aider, referência técnica em três dimensões, está fora do ecossistema de composição inteiro por não falar MCP/ACP. Em um mercado que compõe harnesses, não falar os protocolos é ficar de fora das arquiteturas dos outros.</li>
+<li><strong>A cláusula de expiração não se aplica aqui</strong> (cap. 14): protocolos são fronteira com o mundo — o scaffolding que <em>resta</em> quando os modelos melhoram. Investir em protocolo é o investimento de harness com maior meia-vida.</li>
+<li><strong>Para o benchmark</strong>: a matriz acima vira seção permanente do comparativo, atualizada a cada rodada. Protocolos não recebem nota 0–3 como harnesses — são avaliados por <strong>adoção medida</strong> (a matriz) e <strong>saúde de governança</strong> (fundação neutra &gt; vendor único).</li>
+</ol>
+<p><em>Fontes externas: <a href="https://www.digitalapplied.com/blog/ai-agent-protocol-ecosystem-map-2026-mcp-a2a-acp-ucp">ecosystem map 2026</a> · <a href="https://zylos.ai/research/2026-03-26-agent-interoperability-protocols-mcp-a2a-acp-convergence/">Zylos: convergência MCP/A2A/ACP</a> · <a href="https://zuplo.com/blog/agent-protocol-stack-mcp-a2a-acp-2026">Zuplo: onde foi parar o ACP</a> · <a href="https://atlan.com/know/ai-agent/ai-agent-skills/what-are-agent-skills/">Agent Skills: formato e adoção</a> · <a href="https://codersera.com/blog/agents-md-complete-guide-2026/">AGENTS.md guide 2026</a> · <a href="https://tessl.io/blog/zed-debuts-agent-client-protocol-to-connect-ai-coding-agents-to-any-editor/">Zed ACP</a>. Matriz de adoção: evidência própria do benchmark.</em></p>
+</article>
+    <nav class="paginacao"><a class="nav-prev" href="16-aprendizado-auto-evolutivo.html">← 16 — Aprendizado e Auto-melhoria</a><a class="nav-next" href="bibliografia.html">Bibliografia →</a></nav>
+    <footer class="rodape">Livro vivo · gerado do Markdown pelo motor próprio · <a href="https://github.com/GHDaru/harness_engineering">fonte no GitHub</a></footer>
+  </main>
+</div>
+<script src="assets/app.js"></script>
+</body></html>

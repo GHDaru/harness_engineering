@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 — Fundamentos · Engenharia de Harness</title>
+<link rel="stylesheet" href="assets/estilo.css">
+</head><body>
+<button id="alt-tema" aria-label="Alternar tema">◐</button>
+<div class="layout">
+  <aside class="sidebar">
+    <a class="marca" href="index.html">Engenharia de Harness</a>
+    <div class="nav-parte">Abertura</div><ul><li><a href="00-introducao.html">00 — Introdução</a></li><li><a class="ativo" href="01-fundamentos.html">01 — Fundamentos</a></li></ul><div class="nav-parte">Capítulos por funcionalidade</div><ul><li><a href="02-loop-do-agente.html">02 — Loop do Agente</a></li><li><a href="03-entrega-de-contexto.html">03 — Entrega de Contexto</a></li><li><a href="04-compactacao.html">04 — Compactação</a></li><li><a href="05-ferramentas.html">05 — Design de Ferramentas</a></li><li><a href="06-mcp.html">06 — MCP</a></li><li><a href="07-permissoes-sandbox.html">07 — Permissões e Sandboxing</a></li><li><a href="08-memoria-estado.html">08 — Memória e Estado</a></li><li><a href="09-planejamento.html">09 — Planejamento</a></li><li><a href="10-subagentes-orquestracao.html">10 — Subagentes e Orquestração</a></li><li><a href="11-verificacao-evals.html">11 — Verificação e Evals</a></li><li><a href="12-extensibilidade.html">12 — Extensibilidade</a></li><li><a href="13-interfaces.html">13 — Interfaces</a></li><li><a href="14-convergencias.html">14 — Convergências e Tendências</a></li><li><a href="15-harness-embutido.html">15 — O Harness Embutido</a></li><li><a href="16-aprendizado-auto-evolutivo.html">16 — Aprendizado e Auto-melhoria</a></li><li><a href="17-protocolos.html">17 — A Camada de Protocolos</a></li></ul><div class="nav-parte">Aparato do livro</div><ul><li><a href="bibliografia.html">Bibliografia</a></li><li><a href="historico.html">Histórico e Registro de Expiração</a></li><li><a href="guia-editorial.html">Guia Editorial</a></li></ul>
+  </aside>
+  <main class="conteudo">
+    
+    <article class="markdown"><h1 id="01-fundamentos" tabindex="-1">01 — Fundamentos <a class="header-anchor" href="#01-fundamentos" aria-hidden="true">#</a></h1>
+<h2 id="1-definicao" tabindex="-1">1. Definição <a class="header-anchor" href="#1-definicao" aria-hidden="true">#</a></h2>
+<p>A definição de trabalho deste livro vem da lista curada <a href="https://github.com/ai-boost/awesome-harness-engineering">awesome-harness-engineering</a>:</p>
+<blockquote>
+<p><strong>Harness engineering</strong> é a disciplina de projetar o scaffolding — entrega de contexto, interfaces de ferramentas, artefatos de planejamento, loops de verificação, sistemas de memória e sandboxes — que envolve um agente de IA e determina se ele tem sucesso ou falha em tarefas reais.</p>
+</blockquote>
+<p>Com o princípio orientador:</p>
+<blockquote>
+<p>O foco é o <em>harness</em>, não o modelo. Cada componente existe porque o modelo não consegue fazê-lo sozinho — e os melhores harnesses são projetados sabendo que esses componentes se tornarão desnecessários conforme os modelos melhoram.</p>
+</blockquote>
+<h2 id="2-a-definicao-constitutiva-os-quatro-elementos" tabindex="-1">2. A definição constitutiva: os quatro elementos <a class="header-anchor" href="#2-a-definicao-constitutiva-os-quatro-elementos" aria-hidden="true">#</a></h2>
+<p>O paper de referência citado na literatura (&quot;What makes a harness a harness&quot;) define o harness como uma <strong>camada de runtime</strong> com quatro elementos necessários e suficientes:</p>
+<ol>
+<li><strong>Agent loop</strong> — o ciclo que alterna entre invocar o modelo e executar o que ele decidiu, até um critério de parada.</li>
+<li><strong>Tool interface</strong> — o contrato pelo qual o modelo age sobre o mundo (ler arquivos, rodar comandos, chamar APIs).</li>
+<li><strong>Context management</strong> — a montagem, priorização e compressão do que o modelo enxerga a cada chamada.</li>
+<li><strong>Control mechanisms</strong> — permissões, aprovações, sandboxes e limites que restringem o que o agente pode fazer.</li>
+</ol>
+<p>Um sistema sem qualquer um dos quatro não é um harness completo: um chatbot com tools mas sem loop é um &quot;function caller&quot;; um loop sem controle é um risco operacional; tools sem gestão de contexto colapsam em tarefas longas.</p>
+<h2 id="3-taxonomia-por-problema" tabindex="-1">3. Taxonomia por problema <a class="header-anchor" href="#3-taxonomia-por-problema" aria-hidden="true">#</a></h2>
+<p>Uma convenção importante herdada do referencial: organizar a disciplina <strong>pelo problema resolvido, não por fabricante ou modelo</strong>. É a taxonomia que estrutura os capítulos deste livro:</p>
+<table>
+<thead>
+<tr>
+<th>Problema</th>
+<th>Capítulo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Como o ciclo de decisão-ação funciona e quando para</td>
+<td>02 — Loop do Agente</td>
+</tr>
+<tr>
+<td>O que o modelo enxerga e como isso é montado</td>
+<td>03 — Entrega de Contexto</td>
+</tr>
+<tr>
+<td>O que fazer quando a janela de contexto acaba</td>
+<td>04 — Compactação</td>
+</tr>
+<tr>
+<td>Como o modelo age sobre o mundo</td>
+<td>05 — Design de Ferramentas</td>
+</tr>
+<tr>
+<td>Como integrar capacidades externas de forma padronizada</td>
+<td>06 — MCP</td>
+</tr>
+<tr>
+<td>O que o agente pode fazer, e onde</td>
+<td>07 — Permissões e Sandboxing</td>
+</tr>
+<tr>
+<td>O que persiste entre turnos e entre sessões</td>
+<td>08 — Memória e Estado</td>
+</tr>
+<tr>
+<td>Como trabalho grande vira passos verificáveis</td>
+<td>09 — Planejamento</td>
+</tr>
+<tr>
+<td>Como distribuir trabalho entre múltiplos agentes</td>
+<td>10 — Subagentes e Orquestração</td>
+</tr>
+<tr>
+<td>Como saber se o agente (e o harness) funcionam</td>
+<td>11 — Verificação e Evals</td>
+</tr>
+<tr>
+<td>Como terceiros estendem o harness</td>
+<td>12 — Extensibilidade</td>
+</tr>
+<tr>
+<td>Por onde humanos e sistemas usam o agente</td>
+<td>13 — Interfaces</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-artigos-e-fontes-canonicas" tabindex="-1">4. Artigos e fontes canônicas <a class="header-anchor" href="#4-artigos-e-fontes-canonicas" aria-hidden="true">#</a></h2>
+<p>O campo tem um cânone curto e recente. As fontes que mais aparecem nas referências da disciplina:</p>
+<ul>
+<li><strong>&quot;Building Effective Agents&quot;</strong> (Anthropic) — o texto que popularizou a distinção entre <em>workflows</em> (orquestração determinística) e <em>agentes</em> (o modelo dirige o próprio processo), e o princípio de começar simples.</li>
+<li><strong>&quot;Harness Engineering&quot;</strong> (OpenAI) — nomeia a disciplina e descreve a prática interna de construir scaffolding em volta de modelos para tarefas longas.</li>
+<li><strong>Martin Fowler sobre agentes</strong> — a leitura de engenharia de software clássica: padrões, trade-offs, e ceticismo saudável sobre autonomia sem verificação.</li>
+<li><strong>&quot;Anatomy of an Agent Harness&quot;</strong> (LangChain) — decomposição estrutural dos componentes de um harness moderno.</li>
+<li><strong>&quot;What makes a harness a harness&quot;</strong> (arXiv) — a definição constitutiva dos quatro elementos (§2).</li>
+<li><strong>Model Context Protocol</strong> (spec) — o padrão aberto que virou a lingua franca de integração de ferramentas (capítulo 06).</li>
+</ul>
+<p>(A lista completa, com ~426 recursos anotados e organizados pela mesma taxonomia, está no referencial awesome-harness-engineering.)</p>
+<h2 id="5-a-clausula-de-expiracao" tabindex="-1">5. A cláusula de expiração <a class="header-anchor" href="#5-a-clausula-de-expiracao" aria-hidden="true">#</a></h2>
+<p>A tese mais importante — e menos praticada — da disciplina: <strong>todo componente de harness é uma prótese temporária</strong>. A compactação existe porque janelas de contexto são finitas; o plan mode existe porque modelos agem precipitadamente; o policy engine existe porque modelos não são confiáveis com comandos destrutivos. Cada uma dessas premissas tem prazo de validade.</p>
+<p>O corolário prático (materializado no <code>HARNESS_CHECKLIST.md</code> do referencial): todo componente deveria documentar <strong>qual melhoria de capacidade do modelo o tornaria desnecessário</strong>. Harnesses que não fazem isso acumulam scaffolding morto — complexidade que sobrevive à limitação que a justificava. Voltamos a isso no capítulo 14.</p>
+<h2 id="6-artefatos-operacionais" tabindex="-1">6. Artefatos operacionais <a class="header-anchor" href="#6-artefatos-operacionais" aria-hidden="true">#</a></h2>
+<p>A disciplina produziu um conjunto pequeno de artefatos-padrão que aparecem, com variações, em quase todos os harnesses estudados:</p>
+<ul>
+<li><strong>Arquivo de instruções de projeto</strong> (<code>AGENTS.md</code> / <code>CLAUDE.md</code> / <code>GEMINI.md</code>): regras, convenções e limites que o agente lê antes de qualquer tarefa. Fronteiras claras superam restrições vagas.</li>
+<li><strong>Artefato de plano</strong> (<code>PLAN.md</code>): criado no início da tarefa e atualizado durante a execução, com milestones verificáveis e fronteiras de escopo.</li>
+<li><strong>Log de implementação</strong> (<code>IMPLEMENT.md</code>): registro append-only de decisões e desvios do plano.</li>
+<li><strong>Checklist de harness</strong> (<code>HARNESS_CHECKLIST.md</code>): revisão pré-produção cobrindo instruções, tools, contexto, planejamento, permissões e verificação — com a tabela de expiração do §5.</li>
+</ul>
+<p>Esses quatro artefatos são o embrião do nosso instrumento de avaliação (ver <code>benchmark/template/HARNESS_EVAL.md</code>).</p>
+</article>
+    <nav class="paginacao"><a class="nav-prev" href="00-introducao.html">← 00 — Introdução</a><a class="nav-next" href="02-loop-do-agente.html">02 — Loop do Agente →</a></nav>
+    <footer class="rodape">Livro vivo · gerado do Markdown pelo motor próprio · <a href="https://github.com/GHDaru/harness_engineering">fonte no GitHub</a></footer>
+  </main>
+</div>
+<script src="assets/app.js"></script>
+</body></html>

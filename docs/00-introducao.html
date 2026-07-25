@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>00 — Introdução · Engenharia de Harness</title>
+<link rel="stylesheet" href="assets/estilo.css">
+</head><body>
+<button id="alt-tema" aria-label="Alternar tema">◐</button>
+<div class="layout">
+  <aside class="sidebar">
+    <a class="marca" href="index.html">Engenharia de Harness</a>
+    <div class="nav-parte">Abertura</div><ul><li><a class="ativo" href="00-introducao.html">00 — Introdução</a></li><li><a href="01-fundamentos.html">01 — Fundamentos</a></li></ul><div class="nav-parte">Capítulos por funcionalidade</div><ul><li><a href="02-loop-do-agente.html">02 — Loop do Agente</a></li><li><a href="03-entrega-de-contexto.html">03 — Entrega de Contexto</a></li><li><a href="04-compactacao.html">04 — Compactação</a></li><li><a href="05-ferramentas.html">05 — Design de Ferramentas</a></li><li><a href="06-mcp.html">06 — MCP</a></li><li><a href="07-permissoes-sandbox.html">07 — Permissões e Sandboxing</a></li><li><a href="08-memoria-estado.html">08 — Memória e Estado</a></li><li><a href="09-planejamento.html">09 — Planejamento</a></li><li><a href="10-subagentes-orquestracao.html">10 — Subagentes e Orquestração</a></li><li><a href="11-verificacao-evals.html">11 — Verificação e Evals</a></li><li><a href="12-extensibilidade.html">12 — Extensibilidade</a></li><li><a href="13-interfaces.html">13 — Interfaces</a></li><li><a href="14-convergencias.html">14 — Convergências e Tendências</a></li><li><a href="15-harness-embutido.html">15 — O Harness Embutido</a></li><li><a href="16-aprendizado-auto-evolutivo.html">16 — Aprendizado e Auto-melhoria</a></li><li><a href="17-protocolos.html">17 — A Camada de Protocolos</a></li></ul><div class="nav-parte">Aparato do livro</div><ul><li><a href="bibliografia.html">Bibliografia</a></li><li><a href="historico.html">Histórico e Registro de Expiração</a></li><li><a href="guia-editorial.html">Guia Editorial</a></li></ul>
+  </aside>
+  <main class="conteudo">
+    
+    <article class="markdown"><h1 id="00-introducao" tabindex="-1">00 — Introdução <a class="header-anchor" href="#00-introducao" aria-hidden="true">#</a></h1>
+<h2 id="agente-modelo-harness" tabindex="-1">Agente = modelo + harness <a class="header-anchor" href="#agente-modelo-harness" aria-hidden="true">#</a></h2>
+<p>Quando um agente de IA resolve uma tarefa real — corrigir um bug, migrar um módulo, responder com base em dezenas de arquivos — duas coisas distintas estão trabalhando. A primeira é o <strong>modelo</strong>: a rede que lê contexto e decide o próximo passo. A segunda é tudo o que está em volta dele: quem monta o contexto que ele lê, quem executa as ferramentas que ele invoca, quem decide o que ele pode ou não fazer, quem lembra o que aconteceu ontem, quem verifica se o resultado está certo. Esse &quot;tudo em volta&quot; é o <strong>harness</strong> — em tradução livre, o arreio, o andaime, o <em>scaffolding</em>.</p>
+<p>A fórmula que organiza este livro é simples:</p>
+<blockquote>
+<p><strong>agente = modelo + harness</strong></p>
+</blockquote>
+<p>O modelo é intercambiável e melhora a cada geração. O harness é engenharia de software clássica — e é nele que a maioria dos agentes falha ou tem sucesso. Dois produtos usando exatamente o mesmo modelo entregam resultados radicalmente diferentes conforme a qualidade do harness: como o contexto chega ao modelo, quais ferramentas ele tem, como os erros retornam, o que acontece quando a janela de contexto acaba.</p>
+<p><strong>Engenharia de harness</strong> é a disciplina de projetar esse scaffolding: entrega de contexto, interfaces de ferramentas, artefatos de planejamento, loops de verificação, sistemas de memória e sandboxes.</p>
+<h2 id="por-que-um-livro-e-por-que-agora" tabindex="-1">Por que um livro — e por que agora <a class="header-anchor" href="#por-que-um-livro-e-por-que-agora" aria-hidden="true">#</a></h2>
+<p>Entre 2024 e 2026, os harnesses de agentes de código deixaram de ser experimentos e viraram uma categoria de produto: Claude Code, Codex CLI, Gemini CLI, opencode, Aider, Cline, Goose, OpenHands e dezenas de outros. O mais notável não é a quantidade, mas a <strong>convergência</strong>: projetos independentes, em linguagens diferentes, chegaram às mesmas soluções — arquivos de contexto hierárquicos, compactação em camadas, plan mode como modo de permissão, hooks de ciclo de vida, MCP como padrão de integração.</p>
+<p>Quando implementações independentes convergem, existe uma disciplina por trás. Este livro documenta essa disciplina.</p>
+<h2 id="o-metodo-ler-codigo-nao-marketing" tabindex="-1">O método: ler código, não marketing <a class="header-anchor" href="#o-metodo-ler-codigo-nao-marketing" aria-hidden="true">#</a></h2>
+<p>Este livro é empírico. Cada capítulo trata de uma funcionalidade do harness (o loop, o contexto, a compactação, as permissões...) e é escrito a partir da leitura do código-fonte de harnesses reais de código aberto. A regra editorial mais importante do projeto:</p>
+<blockquote>
+<p>Afirmações sobre um harness exigem <strong>evidência</strong>: o caminho do arquivo no código-fonte onde a funcionalidade está implementada.</p>
+</blockquote>
+<p>READMEs prometem; código entrega. Vários projetos anunciam dimensões que o código não tem — a exigência de evidência é o que separa avaliação de marketing.</p>
+<h2 id="estrutura-do-livro" tabindex="-1">Estrutura do livro <a class="header-anchor" href="#estrutura-do-livro" aria-hidden="true">#</a></h2>
+<ul>
+<li><strong>Fundamentos</strong> (capítulo 01): as definições formais, os artigos canônicos e a taxonomia de problemas que organiza tudo o que vem depois.</li>
+<li><strong>Capítulos 02–13</strong>: uma funcionalidade por capítulo. Cada um define o problema, apresenta os padrões de implementação conhecidos e mostra, com evidência, como cada harness estudado implementa.</li>
+<li><strong>Convergências e tendências</strong> (capítulo 14): o que a indústria já padronizou, onde ainda há divergência real, e a &quot;cláusula de expiração&quot; — a tese de que todo componente de harness existe porque o modelo ainda não faz aquilo sozinho, e deve ser desenhado sabendo que um dia será desnecessário.</li>
+<li><strong>Benchmark</strong> (<code>benchmark/</code>): a seção empírica — avaliações padronizadas, por dimensão, com notas 0–3 e evidência, de cada harness estudado, mais o comparativo consolidado.</li>
+</ul>
+<h2 id="os-harnesses-da-primeira-rodada" tabindex="-1">Os harnesses da primeira rodada <a class="header-anchor" href="#os-harnesses-da-primeira-rodada" aria-hidden="true">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Harness</th>
+<th>Stack</th>
+<th>Por que foi escolhido</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>opencode</strong></td>
+<td>TypeScript + Effect-TS</td>
+<td>Produto maduro, cliente-servidor, o mais agnóstico de provedor (~26 loaders + centenas de modelos)</td>
+</tr>
+<tr>
+<td><strong>gemini-cli</strong></td>
+<td>TypeScript (Google)</td>
+<td>Produto de big tech com o regime de controle (policy engine, sandbox) e verificação (4 suítes de eval) mais rigoroso</td>
+</tr>
+<tr>
+<td><strong>OpenHarness</strong></td>
+<td>Python</td>
+<td>Port declarado e legível do Claude Code — expõe os mecanismos que os produtos escondem — mais um subsistema multi-agente ambicioso</td>
+</tr>
+</tbody>
+</table>
+<p>E, como referencial teórico, a lista curada <strong>awesome-harness-engineering</strong> (~426 recursos organizados por problema), de onde vem a definição de harness usada no capítulo 01 e a taxonomia que estrutura os capítulos.</p>
+<p>As próximas rodadas incorporam Codex CLI (Rust, sandbox-first), Goose (Rust, MCP-nativo), Aider (Python, context-first) e OpenHands (Python, event-stream + cultura de eval acadêmica) — cada um escolhido por representar um <em>arquétipo</em> diferente de harness.</p>
+</article>
+    <nav class="paginacao"><span></span><a class="nav-next" href="01-fundamentos.html">01 — Fundamentos →</a></nav>
+    <footer class="rodape">Livro vivo · gerado do Markdown pelo motor próprio · <a href="https://github.com/GHDaru/harness_engineering">fonte no GitHub</a></footer>
+  </main>
+</div>
+<script src="assets/app.js"></script>
+</body></html>

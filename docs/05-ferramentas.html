@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 — Design de Ferramentas · Engenharia de Harness</title>
+<link rel="stylesheet" href="assets/estilo.css">
+</head><body>
+<button id="alt-tema" aria-label="Alternar tema">◐</button>
+<div class="layout">
+  <aside class="sidebar">
+    <a class="marca" href="index.html">Engenharia de Harness</a>
+    <div class="nav-parte">Abertura</div><ul><li><a href="00-introducao.html">00 — Introdução</a></li><li><a href="01-fundamentos.html">01 — Fundamentos</a></li></ul><div class="nav-parte">Capítulos por funcionalidade</div><ul><li><a href="02-loop-do-agente.html">02 — Loop do Agente</a></li><li><a href="03-entrega-de-contexto.html">03 — Entrega de Contexto</a></li><li><a href="04-compactacao.html">04 — Compactação</a></li><li><a class="ativo" href="05-ferramentas.html">05 — Design de Ferramentas</a></li><li><a href="06-mcp.html">06 — MCP</a></li><li><a href="07-permissoes-sandbox.html">07 — Permissões e Sandboxing</a></li><li><a href="08-memoria-estado.html">08 — Memória e Estado</a></li><li><a href="09-planejamento.html">09 — Planejamento</a></li><li><a href="10-subagentes-orquestracao.html">10 — Subagentes e Orquestração</a></li><li><a href="11-verificacao-evals.html">11 — Verificação e Evals</a></li><li><a href="12-extensibilidade.html">12 — Extensibilidade</a></li><li><a href="13-interfaces.html">13 — Interfaces</a></li><li><a href="14-convergencias.html">14 — Convergências e Tendências</a></li><li><a href="15-harness-embutido.html">15 — O Harness Embutido</a></li><li><a href="16-aprendizado-auto-evolutivo.html">16 — Aprendizado e Auto-melhoria</a></li><li><a href="17-protocolos.html">17 — A Camada de Protocolos</a></li></ul><div class="nav-parte">Aparato do livro</div><ul><li><a href="bibliografia.html">Bibliografia</a></li><li><a href="historico.html">Histórico e Registro de Expiração</a></li><li><a href="guia-editorial.html">Guia Editorial</a></li></ul>
+  </aside>
+  <main class="conteudo">
+    <div class="selo-data" title="Livro vivo — ver Histórico">🕒 Estado da arte capturado em 2026-07 · última revisão 2026-07-25</div>
+    <article class="markdown"><h1 id="05-design-de-ferramentas" tabindex="-1">05 — Design de Ferramentas <a class="header-anchor" href="#05-design-de-ferramentas" aria-hidden="true">#</a></h1>
+<blockquote>
+<p><strong>Estado da arte capturado em 2026-07</strong> · última revisão 2026-07-25 · <a href="historico.html">histórico e registro de expiração</a></p>
+<p>Esqueleto v3 — corpo com o estado da arte; tratamento por repositório no Apêndice A (complementação online).</p>
+</blockquote>
+<h2 id="objetivos-de-aprendizagem" tabindex="-1" data-callout="callout-objetivos">Objetivos de aprendizagem <a class="header-anchor" href="#objetivos-de-aprendizagem" aria-hidden="true">#</a></h2>
+<p>Ao final deste capítulo, você deve ser capaz de:</p>
+<ol>
+<li><strong>Explicar</strong> por que a descrição de uma tool é prompt engineering, não documentação de API;</li>
+<li><strong>Derivar</strong> o schema de uma tool a partir de tipos (e justificar por que ninguém mais escreve JSON Schema à mão);</li>
+<li><strong>Comparar</strong> os três regimes de escala — catálogo fixo, tool search com carregamento tardio, e code-as-action;</li>
+<li><strong>Implementar</strong> a <code>ToolPort</code> do harness-zero com schema derivado e erro-como-dado (etapa 2);</li>
+<li><strong>Avaliar</strong> quando usar tool calls individuais × código orquestrando tools em sandbox.</li>
+</ol>
+<h2 id="o-problema" tabindex="-1">O problema <a class="header-anchor" href="#o-problema" aria-hidden="true">#</a></h2>
+<p>As ferramentas são as &quot;mãos&quot; do agente: o contrato pelo qual o modelo age sobre o mundo. Design de ferramentas é decidir <strong>quais</strong> existem, <strong>como</strong> seus parâmetros são descritos ao modelo, <strong>como</strong> os resultados (e erros) retornam, e <strong>quando</strong> cada uma está disponível. Uma tool mal descrita gera chamadas erradas; um arsenal grande demais dilui a atenção do modelo <em>e</em> estoura o orçamento de contexto antes de qualquer trabalho útil; um arsenal pequeno demais força gambiarras via shell.</p>
+<h2 id="fundamentos-cientificos" tabindex="-1">Fundamentos científicos <a class="header-anchor" href="#fundamentos-cientificos" aria-hidden="true">#</a></h2>
+<ul>
+<li><strong>A evolução do uso de tools</strong> — <a href="https://arxiv.org/abs/2603.22862">arXiv 2603.22862</a> traça a trajetória de single-tool call a orquestração multi-tool, o pano de fundo do &quot;code-as-action&quot;.</li>
+<li><strong>Tool learning como campo</strong> — o survey de tool learning (<a href="https://github.com/quchangle1/LLM-Tool-Survey">repo</a>) organiza como agentes aprendem a selecionar e compor ferramentas.</li>
+</ul>
+<p>(Bibliografia completa: <code>livro/bibliografia.md</code>.)</p>
+<h2 id="fontes-da-industria" tabindex="-1">Fontes da indústria <a class="header-anchor" href="#fontes-da-industria" aria-hidden="true">#</a></h2>
+<ul>
+<li><strong><a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Writing effective tools for AI agents</a></strong> (Anthropic Engineering): a fonte canônica — tools são &quot;contratos entre sistemas determinísticos e agentes não-determinísticos&quot;; a descrição é prompt engineering (pequenos refinamentos → grandes ganhos de acerto), o retorno deve ser otimizado por <strong>densidade informacional por token</strong>, e o ciclo é <em>prototipar → avaliar → colaborar</em> (o próprio modelo reescreve as tools a partir das transcrições de eval).</li>
+<li><strong><a href="https://www.anthropic.com/engineering/code-execution-with-mcp">Code execution with MCP</a></strong> (Anthropic): carregar todas as definições e passar intermediários pelo contexto é o gargalo — expor cada tool como arquivo TypeScript que o agente orquestra via código levou um caso de <strong>~150.000 → ~2.000 tokens (−98,7%)</strong>.</li>
+<li><strong><a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool">Tool search tool</a></strong> + <strong><a href="https://www.anthropic.com/engineering/advanced-tool-use">Advanced tool use</a></strong> (docs + blog): descoberta dinâmica — envie tudo, marque o não-crítico com <code>defer_loading: true</code>, o modelo vê só a busca + as essenciais; um setup multi-servidor gasta ~55k tokens de definições antes de trabalhar, e o tool search corta isso em &gt;85%.</li>
+<li><strong><a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling">Programmatic tool calling</a></strong> (docs): o modelo escreve Python que chama as tools em sandbox e devolve só o destilado — ~38% menos tokens de input num benchmark com 75 tools; 20–40% típico em produção com 10–49 tools.</li>
+<li><strong><a href="https://blog.cloudflare.com/code-mode-mcp/">Code Mode</a></strong> (Cloudflare): a mesma tese, de um fornecedor de infra — o argumento é de <em>distribuição de treino</em>: LLMs escrevem código contra APIs conhecidas melhor do que preenchem schemas sintéticos. Convergência de indústria, não peculiaridade de um vendor.</li>
+<li><strong><a href="https://developers.openai.com/api/docs/guides/tools-apply-patch">Apply Patch</a></strong> + <strong><a href="https://openai.com/index/gpt-5-1-for-developers/">GPT-5.1 for developers</a></strong> (OpenAI): tool de edição <strong>treinada no modelo</strong> (formato V4A de diffs) — explica por que formatos ad-hoc de search/replace perdem para o formato que o modelo viu em treino.</li>
+</ul>
+<h2 id="o-estado-da-arte" tabindex="-1">O estado da arte <a class="header-anchor" href="#o-estado-da-arte" aria-hidden="true">#</a></h2>
+<h3 id="1-o-nucleo-consensual-e-schema-derivado-de-tipos-venceu" tabindex="-1">1. O núcleo consensual — e schema derivado de tipos venceu <a class="header-anchor" href="#1-o-nucleo-consensual-e-schema-derivado-de-tipos-venceu" aria-hidden="true">#</a></h3>
+<p>Os harnesses convergem num núcleo de ~10 tools (ler/escrever/editar arquivo, glob, grep, shell, web fetch/search, todo, delegar) — o kit mínimo de um agente de código. E ninguém escreve JSON Schema à mão: a fonte de verdade é o sistema de tipos (Pydantic no OpenHarness/Hermes, Effect Schema no opencode, classes declarativas no gemini-cli, dataclasses genéricas no software-agent-sdk). O refinamento moderno de qualidade: separar <strong>o que volta ao contexto do modelo do dado estruturado</strong> — o <code>Observation.to_llm_content</code> do software-agent-sdk é o design mais limpo (você controla exatamente a densidade informacional que a Anthropic prega).</p>
+<h3 id="2-contexto-de-tools-virou-recurso-escasso-tres-regimes-de-escala" tabindex="-1">2. Contexto de tools virou recurso escasso — três regimes de escala <a class="header-anchor" href="#2-contexto-de-tools-virou-recurso-escasso-tres-regimes-de-escala" aria-hidden="true">#</a></h3>
+<p>O default de &quot;despejar todas as definições no system prompt&quot; morreu. O estado da arte tem três regimes, e a escolha é por tamanho de catálogo:</p>
+<ul>
+<li><strong>catálogo fixo</strong> (dezenas de tools): ainda ok mandar tudo;</li>
+<li><strong>tool search / defer_loading</strong> (centenas de tools, muitos servidores MCP): mantém 3–5 tools quentes, carrega o resto sob demanda — presente como <code>tool_search</code>/<code>tool_discovery</code> no Codex, Tool Search no OpenClaw, <code>ToolSearch</code> no OpenHarness;</li>
+<li><strong>code-as-action</strong> (pipelines com dados volumosos): o modelo escreve código que orquestra as tools em sandbox e devolve o destilado — <code>code-mode</code> (opencode com V8 embutido, Codex idem), <code>execute_code</code> (Hermes chamando tools via RPC em &quot;turnos de custo-zero-contexto&quot;), Code Mode (Goose). A métrica que a indústria passou a reportar não é acurácia isolada, é <strong>acurácia por token de definição</strong>.</li>
+</ul>
+<h3 id="3-a-interface-de-edicao-e-treinada-nao-inventada" tabindex="-1">3. A interface de edição é treinada, não inventada <a class="header-anchor" href="#3-a-interface-de-edicao-e-treinada-nao-inventada" aria-hidden="true">#</a></h3>
+<p>A lição mais contraintuitiva: o melhor formato de edição de código não é o que você desenha, é o que o <strong>modelo viu em treino</strong>. Daí o <code>apply_patch</code> (V4A) ser tool nativa da OpenAI, o opencode dar <code>apply_patch</code> a modelos GPT em vez de <code>edit</code>/<code>write</code>, e o Aider medir empiricamente qual formato cada modelo aplica bem (<code>percent_cases_well_formed</code>). Corolário: a seleção de tools <strong>varia por família de modelo</strong> — reconhecimento explícito de que a interface ideal depende de quem está do outro lado. E erro de tool volta como <strong>dado</strong> (para o modelo se autocorrigir), não como exceção.</p>
+<h3 id="leitura-executiva" tabindex="-1">Leitura executiva <a class="header-anchor" href="#leitura-executiva" aria-hidden="true">#</a></h3>
+<p>O que está mais moderno: schema derivado de tipos com separação dado×contexto; os três regimes de escala (fixo → tool search → code-as-action) escolhidos por tamanho de catálogo; e a interface de edição como algo treinado. <strong>O que roubar:</strong> <code>to_llm_content</code> (controle de densidade por token); tool search com <code>defer_loading</code>; medir o formato de edição por modelo (o <code>percent_cases_well_formed</code> do Aider); erro-como-dado.</p>
+<h2 id="mao-na-massa-harness-zero-etapa-2" tabindex="-1" data-callout="callout-pratica">Mão na massa — harness-zero, etapa 2 <a class="header-anchor" href="#mao-na-massa-harness-zero-etapa-2" aria-hidden="true">#</a></h2>
+<p>A etapa 2 substitui os schemas escritos à mão da etapa 1 por uma <code>ToolPort</code>: uma tool é uma função tipada, e o schema é <strong>derivado das anotações</strong> (via <code>inspect</code> + Pydantic). Você adiciona <code>read/write/shell</code>, com o retorno separando dado estruturado do texto que vai ao modelo, e erros voltando como texto. Exercício de completude: o derivador de schema vem esqueletado para um parâmetro; você estende para tipos compostos.</p>
+<h2 id="verificacao" tabindex="-1" data-callout="callout-verificacao">Verificação <a class="header-anchor" href="#verificacao" aria-hidden="true">#</a></h2>
+<ol>
+<li>Por que a descrição de uma tool é prompt engineering e não documentação de API? (Densidade informacional; iterar sobre transcripts de eval.)</li>
+<li>Seu agente tem acesso a 8 servidores MCP (200+ tools) e gasta 55k tokens antes de agir. Qual regime de escala você adota, e o que ele carrega quente? (Tool search + defer_loading.)</li>
+<li>Por que dar <code>apply_patch</code> a um modelo pode superar um formato search/replace que você desenhou cuidadosamente? (Distribuição de treino.)</li>
+</ol>
+<hr>
+<h2 id="apendice-a-como-cada-repositorio-trata-as-ferramentas" tabindex="-1" data-callout="callout-apendice">Apêndice A — Como cada repositório trata as ferramentas <a class="header-anchor" href="#apendice-a-como-cada-repositorio-trata-as-ferramentas" aria-hidden="true">#</a></h2>
+<blockquote>
+<p>Evidência por harness, com paths — complementação online, expandida a cada rodada.</p>
+</blockquote>
+<h3 id="opencode-rodada-1" tabindex="-1">opencode (rodada 1) <a class="header-anchor" href="#opencode-rodada-1" aria-hidden="true">#</a></h3>
+<p>~14 tools + 3 experimentais (<code>tool/</code>), Effect Schema, descrições <code>.txt</code> separadas; <strong>seleção por modelo</strong> (<code>registry.ts</code>: GPT recebe <code>apply_patch</code> em vez de <code>edit</code>/<code>write</code>); ripgrep embutido; experimentais <code>lsp</code>, <code>plan_exit</code>, <code>code-mode</code> (V8).</p>
+<h3 id="gemini-cli-rodada-1" tabindex="-1">gemini-cli (rodada 1) <a class="header-anchor" href="#gemini-cli-rodada-1" aria-hidden="true">#</a></h3>
+<p>~20–25 tools como classes declarativas (<code>BaseDeclarativeTool</code> + <code>Invocation</code>), registro filtrado (<code>maybeRegister</code>), declarações por família de modelo; shell com processos em background, web search com grounding, tracker opcional (6 tools).</p>
+<h3 id="openharness-rodada-1" tabindex="-1">OpenHarness (rodada 1) <a class="header-anchor" href="#openharness-rodada-1" aria-hidden="true">#</a></h3>
+<p><strong>43+ tools</strong> (<code>tools/</code>, <code>BaseTool</code> + <code>input_model</code> Pydantic → <code>to_api_schema()</code>); <code>is_read_only()</code> alimenta o paralelismo do loop; multimodal, cron, times, <code>tool_search</code>.</p>
+<h3 id="codex-cli-rodada-2" tabindex="-1">Codex CLI (rodada 2) <a class="header-anchor" href="#codex-cli-rodada-2" aria-hidden="true">#</a></h3>
+<p>Crate <code>tools/</code> com schemas tipados; <code>unified_exec</code> (shell persistente com stdin); <strong><code>apply_patch</code> de primeira classe</strong> (parser streaming + gramática <code>apply_patch.lark</code>, variando por modelo); <code>tool_search</code>/<code>tool_discovery</code>; <strong>code-mode com V8 embutido</strong>.</p>
+<h3 id="goose-rodada-2-mcp-nativo" tabindex="-1">Goose (rodada 2) ⭐ MCP-nativo <a class="header-anchor" href="#goose-rodada-2-mcp-nativo" aria-hidden="true">#</a></h3>
+<p>Toda tool é MCP: built-ins de <code>goose-mcp</code> são <code>rmcp::ServerHandler</code> servidos in-process sobre <code>DuplexStream</code>; até developer/shell/edit são &quot;platform extensions&quot; falando <code>McpClientTrait</code>.</p>
+<h3 id="openclaw-rodada-2" tabindex="-1">OpenClaw (rodada 2) <a class="header-anchor" href="#openclaw-rodada-2" aria-hidden="true">#</a></h3>
+<p>Suíte ampla (<code>openclaw-tools*.ts</code>): runtime/files/web/browser CDP/mídia; <strong>Tool Search</strong> e <strong>Code Mode</strong> (JS/TS sobre catálogo oculto); 52 AgentSkills injetadas como bloco compacto, lidas sob demanda.</p>
+<h3 id="hermes-rodada-2" tabindex="-1">Hermes (rodada 2) <a class="header-anchor" href="#hermes-rodada-2" aria-hidden="true">#</a></h3>
+<p>~40+ tools em <strong>toolsets componíveis</strong> com posturas dinâmicas; <code>execute_code</code> (Python chamando tools via RPC, &quot;turnos de custo-zero-contexto&quot;); <code>schema_sanitizer</code> por provider.</p>
+<h3 id="aider-rodada-2-edit-formats" tabindex="-1">Aider (rodada 2) ⭐ edit formats <a class="header-anchor" href="#aider-rodada-2-edit-formats" aria-hidden="true">#</a></h3>
+<p>Em vez de tools JSON, <strong>formatos de edição</strong> (<code>*_coder.py</code>): whole/diff (SEARCH-REPLACE fuzzy)/udiff/patch; seleção por modelo; <strong>validados por benchmark</strong> (<code>percent_cases_well_formed</code>).</p>
+<h3 id="software-agent-sdk-rodada-frameworks-dado-contexto" tabindex="-1">software-agent-sdk (rodada frameworks) ⭐ dado×contexto <a class="header-anchor" href="#software-agent-sdk-rodada-frameworks-dado-contexto" aria-hidden="true">#</a></h3>
+<p>Contrato Action/Observation/Executor; <code>Observation.to_llm_content</code> separa o que volta ao modelo do dado estruturado; toolsets (um <code>create</code> → várias tools); anotações MCP-style; <code>ClientToolSpec</code> (tool executa na máquina do cliente).</p>
+<h3 id="ironclaw-rodada-2" tabindex="-1">IronClaw (rodada 2) <a class="header-anchor" href="#ironclaw-rodada-2" aria-hidden="true">#</a></h3>
+<p>Tools como <strong>capabilities com descritores tipados</strong> declarando <code>EffectKind</code>, credenciais e política de rede; separação visibilidade × autoridade (capability oculta falha fechado); obligations (redação/limites) antes de qualquer efeito.</p>
+<h3 id="n8n-rodada-2" tabindex="-1">n8n (rodada 2) <a class="header-anchor" href="#n8n-rodada-2" aria-hidden="true">#</a></h3>
+<p><code>create-node-as-tool.ts</code>: <strong>qualquer nó <code>usableAsTool</code> vira tool</strong> via <code>$fromAI('chave','desc',tipo)</code> → schema Zod derivado; ToolWorkflow (sub-workflow como tool), ToolHttpRequest, ToolCode, ToolThink.</p>
+<h3 id="frameworks-rodada-frameworks" tabindex="-1">Frameworks (rodada frameworks) <a class="header-anchor" href="#frameworks-rodada-frameworks" aria-hidden="true">#</a></h3>
+<p>Agents SDK: <code>@function_tool</code> (Pydantic + griffe com auto-detecção de docstring), 13 tipos incl. hosted; LangGraph: herda <code>@tool</code> do langchain-core, adiciona <code>ToolNode</code> (execução, injeções); CrewAI: <code>BaseTool</code>/<code>@tool</code> Pydantic, catálogo <code>crewai-tools</code> com 79 diretórios.</p>
+</article>
+    <nav class="paginacao"><a class="nav-prev" href="04-compactacao.html">← 04 — Compactação</a><a class="nav-next" href="06-mcp.html">06 — MCP →</a></nav>
+    <footer class="rodape">Livro vivo · gerado do Markdown pelo motor próprio · <a href="https://github.com/GHDaru/harness_engineering">fonte no GitHub</a></footer>
+  </main>
+</div>
+<script src="assets/app.js"></script>
+</body></html>

@@ -2,7 +2,7 @@
 
 **Feature Branch**: `001-publicacao-latex-html`
 **Created**: 2026-07-25
-**Status**: Draft (aguarda `/speckit-clarify` → `/speckit-plan`)
+**Status**: Clarified → em Plan/Implement (branch `001`)
 **Input**: "Livro em LaTeX; criar HTML para navegação online em formato pedagógico; infra ok, com apêndice explicando a infra do livro."
 
 ## Clarifications
@@ -20,6 +20,12 @@ O ativo durável é o **conteúdo em Markdown** (`livro/`), que não muda com o 
 3. **Fronteira de build**: o toolchain fica atrás de um comando único (`make book`) — trocá-lo é trocar o adapter, não o conteúdo.
 
 Sob essas condições: **Quarto → app próprio** (ou vice-versa) custa refazer tema/template e limpar sintaxe específica — **nunca reescrever conteúdo**. As visualizações React são a única peça que independe da escolha e devem ser construídas assim desde o início.
+
+### Decisão D-002 — DEFINIDA (2026-07-25): app próprio + fonte Markdown
+- **App próprio** (não framework): construímos o "motor do livro" — no espírito do REAMAT (fonte única → HTML+PDF navegável, colaborativo no GitHub), mas com fonte **Markdown** (não LaTeX-source como o REAMAT, porque nosso conteúdo é prosa+código+dados, não matemática pesada — manter os 17 capítulos e a escrita leve).
+- "App próprio" usa **bibliotecas** de parsing (não reinventa o parser); o que construímos é o motor: navegação, tema, componentes de visualização, e o passo de PDF.
+- Aceito prazo maior ("mesmo que demore mais") em troca de controle total e coerência com a tese.
+- Plano em MVP-first (ver `plan.md`): P1 site navegável a partir do Markdown atual → P2 visualizações React → P3 PDF/LaTeX → P4 apêndice de infra.
 
 ## Contexto e restrição de fonte
 

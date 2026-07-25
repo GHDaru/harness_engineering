@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>14 — Convergências e Tendências · Engenharia de Harness</title>
+<link rel="stylesheet" href="assets/estilo.css">
+</head><body>
+<button id="alt-tema" aria-label="Alternar tema">◐</button>
+<div class="layout">
+  <aside class="sidebar">
+    <a class="marca" href="index.html">Engenharia de Harness</a>
+    <div class="nav-parte">Abertura</div><ul><li><a href="00-introducao.html">00 — Introdução</a></li><li><a href="01-fundamentos.html">01 — Fundamentos</a></li></ul><div class="nav-parte">Capítulos por funcionalidade</div><ul><li><a href="02-loop-do-agente.html">02 — Loop do Agente</a></li><li><a href="03-entrega-de-contexto.html">03 — Entrega de Contexto</a></li><li><a href="04-compactacao.html">04 — Compactação</a></li><li><a href="05-ferramentas.html">05 — Design de Ferramentas</a></li><li><a href="06-mcp.html">06 — MCP</a></li><li><a href="07-permissoes-sandbox.html">07 — Permissões e Sandboxing</a></li><li><a href="08-memoria-estado.html">08 — Memória e Estado</a></li><li><a href="09-planejamento.html">09 — Planejamento</a></li><li><a href="10-subagentes-orquestracao.html">10 — Subagentes e Orquestração</a></li><li><a href="11-verificacao-evals.html">11 — Verificação e Evals</a></li><li><a href="12-extensibilidade.html">12 — Extensibilidade</a></li><li><a href="13-interfaces.html">13 — Interfaces</a></li><li><a class="ativo" href="14-convergencias.html">14 — Convergências e Tendências</a></li><li><a href="15-harness-embutido.html">15 — O Harness Embutido</a></li><li><a href="16-aprendizado-auto-evolutivo.html">16 — Aprendizado e Auto-melhoria</a></li><li><a href="17-protocolos.html">17 — A Camada de Protocolos</a></li></ul><div class="nav-parte">Aparato do livro</div><ul><li><a href="bibliografia.html">Bibliografia</a></li><li><a href="historico.html">Histórico e Registro de Expiração</a></li><li><a href="guia-editorial.html">Guia Editorial</a></li></ul>
+  </aside>
+  <main class="conteudo">
+    
+    <article class="markdown"><h1 id="14-convergencias-e-tendencias" tabindex="-1">14 — Convergências e Tendências <a class="header-anchor" href="#14-convergencias-e-tendencias" aria-hidden="true">#</a></h1>
+<h2 id="o-achado-central-da-primeira-rodada" tabindex="-1">O achado central da primeira rodada <a class="header-anchor" href="#o-achado-central-da-primeira-rodada" aria-hidden="true">#</a></h2>
+<p>Três harnesses, três stacks (Effect-TS, TypeScript, Python), três origens (startup independente, big tech, academia/porta didática) — e uma convergência arquitetural notável. Sem coordenação, os três chegaram a:</p>
+<ol>
+<li><strong>Arquivo de contexto hierárquico na raiz do projeto</strong> — <code>AGENTS.md</code> / <code>GEMINI.md</code> / <code>CLAUDE.md</code>: o mesmo artefato com três nomes (cap. 03).</li>
+<li><strong>Compactação em escada</strong> — truncar tools → prune → sumarizar via LLM, com disparo automático por limiar (cap. 04).</li>
+<li><strong>Schema de tools derivado de tipos</strong> — Effect Schema, classes declarativas, Pydantic: ninguém escreve JSON Schema à mão (cap. 05).</li>
+<li><strong>MCP como integração padrão</strong> — três clientes completos sobre os SDKs oficiais (cap. 06).</li>
+<li><strong>Plan mode como modo de permissão</strong> — read-only imposto pelo sistema de permissões, não pedido ao modelo (cap. 09).</li>
+<li><strong>Hooks de ciclo de vida</strong> — before/after tool, compactação, sessão (cap. 12).</li>
+<li><strong>Headless com saída estruturada</strong> — <code>-p</code> + JSON/NDJSON para scripting e CI (cap. 13).</li>
+<li><strong>Parada por ausência de tool-call + limite de turnos</strong> — a mecânica universal do loop (cap. 02).</li>
+</ol>
+<p>Quando implementações independentes convergem assim, a anatomia está consolidada: <strong>isto é a disciplina</strong>, não mais um conjunto de escolhas idiossincráticas. Um harness novo que não implemente os oito itens acima precisa justificar cada ausência.</p>
+<h2 id="onde-ainda-ha-divergencia-real" tabindex="-1">Onde ainda há divergência real <a class="header-anchor" href="#onde-ainda-ha-divergencia-real" aria-hidden="true">#</a></h2>
+<p>As dimensões sem consenso são o mapa das apostas em aberto:</p>
+<ul>
+<li><strong>Contenção</strong> (cap. 07): política + sandbox de SO obrigatórios (gemini-cli), política + paths sensíveis fixos (OpenHarness), ou só política (opencode)? A divergência mais consequente — é a que define o risco operacional.</li>
+<li><strong>Multi-agente</strong> (cap. 10): ferramenta pontual, serviço com registry, ou time persistente com mailbox? Três filosofias incompatíveis; o vencedor depende de quão bons os modelos ficarão em coordenação.</li>
+<li><strong>Quem decide continuar</strong> (cap. 02): heurística estrutural ou uma inferência extra por turno (next-speaker check)?</li>
+<li><strong>Neutralidade de modelo</strong> (cap. 12): ~26 provedores (opencode) contra vitrine de um ecossistema (gemini-cli). Aposta comercial, não técnica — mas define quem sobrevive à comoditização dos modelos.</li>
+<li><strong>Evals comportamentais</strong> (cap. 11): só um dos três trata comportamento do agente como superfície de regressão. Previsão fácil: em dois anos, isso será tão obrigatório quanto CI.</li>
+</ul>
+<h2 id="a-clausula-de-expiracao-aplicada" tabindex="-1">A cláusula de expiração, aplicada <a class="header-anchor" href="#a-clausula-de-expiracao-aplicada" aria-hidden="true">#</a></h2>
+<p>Retomando a tese do capítulo 01 — todo componente de harness é uma prótese para uma limitação atual do modelo. O exercício que todo harness deveria fazer, aplicado ao que estudamos:</p>
+<table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Existe porque...</th>
+<th>Expira quando...</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compactação</td>
+<td>janelas são finitas e caras</td>
+<td>contexto longo ficar barato e confiável</td>
+</tr>
+<tr>
+<td>Plan mode</td>
+<td>modelos agem precipitadamente</td>
+<td>modelos planejarem espontaneamente sob risco</td>
+</tr>
+<tr>
+<td>Next-speaker check</td>
+<td>o modelo não sinaliza bem o fim do turno</td>
+<td>protocolos de turno nativos do modelo</td>
+</tr>
+<tr>
+<td>Policy engine / aprovações</td>
+<td>modelos não são confiáveis com ações destrutivas</td>
+<td>confiabilidade calibrada e verificável</td>
+</tr>
+<tr>
+<td>Prompt por família de modelo</td>
+<td>modelos respondem diferente a instruções</td>
+<td>convergência de instruction-following</td>
+</tr>
+<tr>
+<td>Subagente para exploração</td>
+<td>dumps de arquivos poluem o contexto</td>
+<td>contexto abundante + atenção robusta</td>
+</tr>
+<tr>
+<td>Repo-map / índices de código</td>
+<td>o modelo não &quot;carrega&quot; o repo inteiro</td>
+<td>contexto de milhões de tokens utilizável</td>
+</tr>
+</tbody>
+</table>
+<p>O que <strong>não</strong> expira: sandbox (contenção é sobre o mundo, não sobre a capacidade do modelo), interfaces, verificação do trabalho (testes/LSP — verdade externa ao modelo), e os protocolos de interoperabilidade (MCP, A2A, formatos de skill). A engenharia de harness de longo prazo mora aí: <strong>na fronteira entre o agente e o mundo, não na muleta para a limitação do modelo</strong>.</p>
+<h2 id="tendencias-a-acompanhar-nas-proximas-rodadas" tabindex="-1">Tendências a acompanhar nas próximas rodadas <a class="header-anchor" href="#tendencias-a-acompanhar-nas-proximas-rodadas" aria-hidden="true">#</a></h2>
+<ol>
+<li><strong>Padronização do arquivo de contexto</strong> — a pressão por <code>AGENTS.md</code> neutro cross-vendor.</li>
+<li><strong>Skills/plugins portáveis</strong> — o OpenHarness já carrega skills do formato Claude Code; um &quot;MCP da extensibilidade&quot; está se formando.</li>
+<li><strong>Agente-como-serviço</strong> — A2A server, agent cards, SDKs: harnesses expondo-se uns aos outros.</li>
+<li><strong>Segurança como dimensão de primeira classe</strong> — parsing de shell, trusted folders, evals de injection: hoje exceção, amanhã baseline (hipótese a testar no Codex CLI, próximo da fila).</li>
+<li><strong>Reversibilidade</strong> — checkpoint git com <code>/rewind</code>: quando desfazer é barato, a política pode ser mais frouxa; espere mais harnesses copiando.</li>
+<li><strong>O harness mínimo</strong> — na contramão da sofisticação, projetos como mini-swe-agent (~100 linhas) testam quanto do scaffolding o modelo moderno já dispensa. É a cláusula de expiração virando experimento.</li>
+</ol>
+<hr>
+<p><em>Este capítulo é vivo: cada nova rodada do benchmark (<code>benchmark/</code>) o atualiza — confirmando convergências, resolvendo divergências ou aposentando componentes expirados.</em></p>
+</article>
+    <nav class="paginacao"><a class="nav-prev" href="13-interfaces.html">← 13 — Interfaces</a><a class="nav-next" href="15-harness-embutido.html">15 — O Harness Embutido →</a></nav>
+    <footer class="rodape">Livro vivo · gerado do Markdown pelo motor próprio · <a href="https://github.com/GHDaru/harness_engineering">fonte no GitHub</a></footer>
+  </main>
+</div>
+<script src="assets/app.js"></script>
+</body></html>
