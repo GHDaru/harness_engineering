@@ -1,41 +1,94 @@
 # 02 — Loop do Agente
 
+> Esqueleto v3 — corpo com o estado da arte; tratamento por repositório no Apêndice A (complementação online).
+
+## Objetivos de aprendizagem
+
+1. **Explicar** o ciclo prompt→decisão→ferramenta→resultado e o critério de parada estrutural;
+2. **Comparar** os dois contratos de terminação da indústria (ausência de tool call × `output_type` satisfeito);
+3. **Implementar** um loop com freios (turnos, orçamento) e trace observável (etapa 1 do harness-zero);
+4. **Projetar** retry em duas camadas (dentro do passo × replay do loop) e reconhecer o que exige idempotência;
+5. **Avaliar** a durabilidade de um loop real (o que sobrevive a um crash?).
+
 ## O problema
 
-O loop é o coração do harness: o ciclo que envia o contexto ao modelo, recebe uma decisão (texto, tool-call ou ambos), executa as ferramentas solicitadas, realimenta os resultados e repete — até que alguém decida parar. As perguntas de projeto são poucas, mas cada uma tem consequências profundas:
+O loop é o coração do harness: envia contexto ao modelo, recebe uma decisão (texto e/ou tool calls), executa, realimenta e repete — até que alguém decida parar. As perguntas de projeto: quem decide parar? como os resultados e erros voltam? o que acontece quando dá errado? o loop sobrevive a um reinício?
 
-1. **Quem decide quando parar?** O modelo (deixou de chamar tools), uma heurística, um contador de turnos, ou outro modelo?
-2. **Como os resultados voltam?** Streaming ou blocos completos? Como erros de tool são apresentados?
-3. **O que acontece quando dá errado?** Retry, backoff, troca de provedor, detecção de loop repetitivo?
-4. **O loop é durável?** Sobrevive a reinício de processo, ou uma queda perde a tarefa?
+## Fundamentos científicos
 
-## Padrões de implementação
+- **ReAct** ([arXiv 2210.03629](https://arxiv.org/abs/2210.03629)) é o paper seminal: intercalar raciocínio e ação com feedback do ambiente supera raciocínio puro — é a justificativa científica de o loop existir.
+- O survey de **frameworks de raciocínio agêntico** ([arXiv 2508.17692](https://arxiv.org/abs/2508.17692)) sistematiza as variantes do ciclo (ReAct, plan-and-act, reflexão), útil como mapa do território.
+- A fronteira treinada: surveys de **agentic search com RL** ([arXiv 2510.16724](https://arxiv.org/abs/2510.16724)) mostram o loop deixando de ser só orquestração e virando objeto de treinamento — quando o modelo é treinado *no* loop, parte do harness migra para os pesos.
 
-- **Parada por ausência de tool-call** — o padrão universal: se a resposta do modelo não contém chamadas de ferramenta, o turno acabou.
-- **Limite de turnos/passos** — proteção contra runaway (contadores como `MAX_TURNS`).
-- **Next-speaker check** — um mini-prompt barato pergunta a um modelo "quem fala agora, usuário ou modelo?" para decidir se o agente continua sozinho.
-- **Detecção de loop** — identificar o agente repetindo a mesma ação e abortar/recuperar.
-- **Paralelismo seletivo** — executar em paralelo apenas tools sem efeito colateral (read-only), serializando as demais.
-- **Durabilidade** — persistir a admissão do prompt e os eventos do loop, permitindo replay e retomada.
+(Bibliografia completa: `livro/bibliografia.md`.)
 
-## Como os harnesses estudados implementam
+## Fontes da indústria
 
-### opencode — loop como stream, com durabilidade projetada
-O loop vive em `packages/opencode/src/session/processor.ts`: a resposta do LLM é consumida como um `Stream` do Effect-TS (`Stream.tap(handleEvent)` → `Stream.takeUntil(needsCompaction)` → `Stream.runDrain`), e cada evento (texto, tool-call, reasoning) passa por um handler que executa e realimenta. O loop retorna um veredito explícito — `continue | stop | compact` — integrando a compactação ao próprio ciclo. Há retry por provedor (`SessionRetry.policy`) e limite de passos. A arquitetura V2 (documentada em `CONTEXT.md`) formaliza o loop como "Session Drain": prompts entram numa inbox durável, eventos são persistidos e replayáveis com cursores — o loop sobrevive a reinício de processo.
+- **[How the agent loop works](https://code.claude.com/docs/en/agent-sdk/agent-loop)** (Claude Agent SDK, docs): o loop canônico em 5 estágios; "turno" termina **quando o modelo responde sem tool calls**; e o detalhe mais moderno — terminação como **estado tipado** (`success`, `error_max_turns`, `error_max_budget_usd`...): sucesso e esgotamento de limite são caminhos de código distintos e obrigatórios. Inclui `max_budget_usd` **propagado a subagentes** e a compactação como evento observável do loop (`compact_boundary`).
+- **[Loop engineering](https://claude.com/blog/getting-started-with-loops)** (Claude blog): o vendor batiza a disciplina e dá a taxonomia por eixos (como dispara, como para, que primitivo usa) — com a regra de projeto citável: *se você não consegue escrever a verificação, o loop não está pronto para existir*.
+- **[Building Effective AI Agents](https://www.anthropic.com/engineering/building-effective-agents)** (Anthropic): a distinção fundadora workflow × agente e o padrão **evaluator-optimizer** — parada semântica (qualidade atingida) com um juiz separado.
+- **[Running agents](https://openai.github.io/openai-agents-python/running_agents/)** (OpenAI Agents SDK): o contrato alternativo — parada quando o agente produz o **`output_type` declarado** (validável), com `MaxTurnsExceeded` tipado.
+- **[LoopAgent](https://google.github.io/adk-docs/agents/workflow-agents/loop-agents/)** (Google ADK): só duas formas de parar — `max_iterations` ou um sub-agente juiz emitindo `escalate=True` — o loop burro separado do juiz endereçável.
+- **[Durable AI Loops](https://www.restate.dev/blog/durable-ai-loops-fault-tolerance-across-frameworks-and-without-handcuffs)** (Restate) e [Inngest](https://www.inngest.com/blog/durable-execution-key-to-harnessing-ai-agents): o loop como **workflow de longa duração** — cada passo journalado, falha = replay do último passo concluído; retry vira duas categorias (backoff dentro do passo × replay do loop), com idempotência obrigatória em tools mutantes.
 
-### gemini-cli — o loop que sabe quando calar
-O loop está em `packages/core/src/core/client.ts` (com `MAX_TURNS = 100`) e cada turno é uma abstração própria (`core/turn.ts`). O diferencial é o **next-speaker check** (`utils/nextSpeakerChecker.ts`): após cada resposta, um mini-prompt com schema JSON `{reasoning, next_speaker: user|model}` decide se o modelo deve continuar automaticamente (ex.: a resposta termina em "Next, I will…") ou devolver o controle ao usuário — se `model`, o stream é re-invocado recursivamente. Complementa com um `LoopDetectionService` (`services/loopDetectionService.ts`) que aborta loops repetitivos. A separação é limpa: `packages/core` orquestra, `packages/cli` só renderiza.
+## O estado da arte
 
-### OpenHarness — loop legível com paralelismo read-only
-O loop é um `while` async explícito em `src/openharness/engine/query.py` (`run_query`, ~39 KB de código): faz streaming da API, encerra quando `final_message.tool_uses` está vazio, e respeita `max_turns`. O detalhe mais interessante: se **todas** as tools solicitadas no turno são read-only, executa em paralelo via `asyncio.gather`; qualquer tool com efeito colateral serializa o lote. Cada execução passa pela sequência PreToolUse hook → verificação de permissão → execução → PostToolUse hook. Por ser um port declarado do Claude Code em Python, é o melhor código para *estudar* a anatomia de um loop de produção.
+### 1. Parada virou contrato multi-eixo
 
-## Síntese
+O critério estrutural (sem tool call) continua universal, mas sozinho é ingênuo. O contrato moderno combina: limite de turnos; **teto de orçamento em dinheiro** (a novidade real de 2025–26, já propagando a subagentes); *subtype* tipado de terminação; e, no contrato alternativo do Agents SDK, **parada por tipo de saída** — que transforma "acabou?" em validação verificável. Sobre isso, dois refinamentos medidos no benchmark: o **next-speaker check** do gemini-cli (uma inferência barata decide se o modelo continua sozinho) e o veto de término — hooks `Stop` que podem **recusar o fim do turno** e reinjetar feedback (software-agent-sdk; o verify-on-stop do Hermes é o mesmo princípio como nudge).
 
-| Aspecto | opencode | gemini-cli | OpenHarness |
-|---|---|---|---|
-| Parada | sem tool-call + veredito `continue/stop/compact` | sem tool-call + next-speaker check (LLM) | sem tool-call + `max_turns` |
-| Anti-runaway | limite de passos, retry por provedor | `MAX_TURNS=100` + LoopDetectionService | `max_turns` + retry/backoff |
-| Paralelismo de tools | — (serial por evento de stream) | scheduler dedicado | paralelo se todas read-only |
-| Durabilidade | inbox durável + eventos replayáveis (V2) | sessão persistida (não replay de loop) | sessão persistida |
+### 2. Anti-runaway: do contador ao detector
 
-A divergência mais interessante é **quem decide continuar**: opencode usa o veredito estrutural do próprio loop, gemini-cli gasta uma chamada de modelo extra para decidir (next-speaker), e OpenHarness confia na convenção pura. É um trade-off custo × fluidez: o next-speaker check torna o agente mais "insistente" em terminar tarefas sem intervenção, ao custo de uma inferência por turno.
+Todo loop maduro tem `MAX_TURNS`; os melhores têm detecção de repetição — `LoopDetectionService` (gemini-cli), `RepetitionInspector` (Goose), stuck detector com estados `stalled/stuck` (software-agent-sdk, OpenClaw). A técnica de campo (hash de `tool+args` em janela deslizante) circula entre praticantes mas não tem doc de vendor — citável como prática, não como norma.
+
+### 3. Durabilidade virou propriedade do loop, não da infra
+
+O consenso 2026: journaling por passo + replay. No benchmark: rollouts jsonl recuperáveis (Codex), inbox durável de prompts com eventos replayáveis por cursor (opencode V2), event log append-only com retomada por diretório (software-agent-sdk) e — o desenho mais radical — o executor que **retorna apenas referências duráveis** e nunca muta estado, com um applier validando evidência antes de aplicar (IronClaw). Corolário para tools: idempotência deixa de ser virtude e vira requisito.
+
+### 4. O loop não é o perímetro
+
+A lição arquitetural mais importante da rodada 2 (IronClaw): *"the loop is intentionally not the security perimeter"* — o loop pede efeitos por portas; quem decide é o kernel. Mesmo fora do contexto de segurança, a separação política (quando parar/confirmar/desistir — `Conversation.run()`) × mecânica (view→LLM→dispatch — `Agent.step()`) do software-agent-sdk é o corte limpo que permite trocar o motor mantendo o loop.
+
+### Leitura executiva
+
+O que está mais moderno: terminação tipada com orçamento em dólares; juiz separado e endereçável (evaluator-optimizer/escalate) em vez de heurística no prompt; durabilidade por journaling/replay; e a separação política×mecânica. **O que roubar:** `ResultMessage.subtype` tipado; budget propagado a subagentes; hooks Stop com poder de veto; o LoopExit por referências duráveis.
+
+## Mão na massa — harness-zero, etapa 1
+
+A etapa 1 (`harness-zero/etapas/01-loop/`) implementa o núcleo em ~30 linhas: parada estrutural, `MAX_TURNS` como freio, erros de tool voltando **como texto** para o modelo decidir, e trace das ações visível no chat. Exercícios de extensão: (a) adicione um subtype de terminação (`success` × `max_turns`); (b) adicione um orçamento de custo estimado e o terceiro subtype.
+
+## Verificação
+
+1. Por que "o modelo respondeu sem tool calls" é um bom default de parada — e por que é insuficiente sozinho? (Contrato multi-eixo.)
+2. Seu agente chamou a mesma tool com os mesmos argumentos 5 vezes seguidas. Liste duas defesas de naturezas diferentes. (Detector de repetição × teto de orçamento.)
+3. O processo morreu no meio do turno 7. O que o seu loop precisa ter persistido para retomar sem repetir efeitos colaterais? (Journaling + idempotência.)
+
+---
+
+## Apêndice A — Como cada repositório trata o loop
+
+> Evidência por harness, com paths — complementação online, expandida a cada rodada.
+
+### opencode (rodada 1)
+`packages/opencode/src/session/processor.ts`: resposta consumida como `Stream` do Effect (`Stream.tap(handleEvent)` → `takeUntil(needsCompaction)` → `runDrain`); veredito explícito `continue | stop | compact`; retry por provedor (`SessionRetry.policy`); V2 (`CONTEXT.md`): inbox durável e eventos replayáveis com cursores.
+
+### gemini-cli (rodada 1)
+`packages/core/src/core/client.ts` (`MAX_TURNS=100`) + `turn.ts`; **next-speaker check** (`utils/nextSpeakerChecker.ts`: mini-prompt `{reasoning, next_speaker}` re-invoca o stream se `model`); `LoopDetectionService`; separação core/cli limpa.
+
+### OpenHarness (rodada 1)
+`src/openharness/engine/query.py` (`run_query`): `while` async até `max_turns` ou sem tool-uses; **paralelismo quando todas as tools do turno são read-only** (`asyncio.gather`); PreToolUse → permissão → execução → PostToolUse por chamada; retry com backoff e cost tracking.
+
+### Codex CLI (rodada 2)
+`core/src/session/turn.rs` (`run_turn`, 2.581 linhas) sobre `SessionTask` trait (Regular/Review/Compact/UserShell); streaming SSE **e WebSocket com fallback WS→HTTPS**; `CancellationToken` hierárquico; cada turno persistido em rollout jsonl; sem detector de repetição explícito (mitigado por budgets).
+
+### Goose (rodada 2)
+`crates/goose/src/agents/agent.rs` (`reply` → `BoxStream<AgentEvent>`): dois níveis de retry (transiente por provedor + `RetryManager` de recipe com `SuccessCheck` que reseta a conversa); `DEFAULT_MAX_TURNS=1000`; `RepetitionInspector`; `MAX_EMPTY_TURN_RETRIES=3`.
+
+### OpenClaw (rodada 2)
+`src/system-agent/agent-turn.ts` + `gateway/agent-*.ts`: runs serializados por *session lane* com write-lock file-based inter-processo; três streams de eventos (lifecycle/assistant/tool); watchdogs `stalled/stuck`; hooks duplos (Gateway + plugins).
+
+### Hermes (rodada 2)
+`agent/conversation_loop.py` (~6.5k linhas) com fases separadas (turn_context/tool_executor/turn_finalizer); `iteration_budget`; **interrupt-and-redirect** (`/steer` drenado pré-API e pós-tool); nudges para respostas vazias; reparo de alternância de papéis; **verify-on-stop nudge**.
+
+### IronClaw (rodada 2) ⭐
+`crates/ironclaw_agent_loop`: p
