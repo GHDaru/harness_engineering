@@ -8,7 +8,7 @@
 - [x] T105 — navegação anterior/próximo + reescrita de links `.md → .html`
 - [x] T106 — data de captura extraída e exibida no capítulo
 - [x] T107 — gerar `docs/` a partir do Markdown atual e verificar build sem erro
-- [ ] T108 — `docs/.nojekyll` + nota de configuração do GitHub Pages (main/docs)
+- [x] T108 — `docs/.nojekyll` + nota de configuração do GitHub Pages (main/docs)
 
 ## P2 — Visualizações React (islands)
 - [ ] T201 — componente: comparativo do benchmark (tabela sortável, notas por dimensão/categoria)
@@ -22,8 +22,8 @@
 - [ ] T303 — provisionar texlive na infra (apêndice) e no CI
 
 ## P4 — CI + apêndice de infra
-- [ ] T401 — GitHub Actions: build + publish `docs/` a cada push no main
-- [ ] T402 — portão de qualidade: link interno quebrado / capítulo que não compila falha o build
+- [x] T401 — GitHub Actions: build + publish `docs/` a cada push no main
+- [x] T402 — portão de qualidade: link interno quebrado / capítulo que não compila falha o build
 - [ ] T403 — `livro/apendices/infra.md`: apêndice que documenta o pipeline (o "harness de publicação")
 - [ ] T404 — `HISTORICO.md`: registrar a edição; `make book`/script único documentado
 

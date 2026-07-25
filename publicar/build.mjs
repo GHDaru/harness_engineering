@@ -11,6 +11,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync, rmSync } from "node:fs";
 import { dirname, resolve, basename } from "node:path";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import MarkdownIt from "markdown-it";
 import anchor from "markdown-it-anchor";
@@ -25,7 +26,8 @@ const sumario = JSON.parse(readFileSync(resolve(AQUI, "sumario.json"), "utf8"));
 const itens = sumario.partes.flatMap((p) => p.itens.map((i) => ({ ...i, parte: p.nome })));
 const slugDe = (arquivo) => basename(arquivo).replace(/\.md$/, "").toLowerCase();
 itens.forEach((i) => (i.slug = slugDe(i.arquivo)));
-const porArquivo = new Map(itens.map((i) => [i.arquivo, i]));
+const slugsPublicados = new Set(itens.map((i) => i.slug));
+const GITHUB_BASE = "https://github.com/GHDaru/harness_engineering/blob/main/";
 
 // linkify: false de propósito — num livro técnico, "AGENTS.md"/"app.py" no texto
 // não devem virar links. Links reais já são explícitos no Markdown.
@@ -34,16 +36,24 @@ const md = new MarkdownIt({ html: true, linkify: false, typographer: false }).us
   slugify: (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
 });
 
-// Reescreve links internos .md -> .html (resolvendo pelo basename, já que todos
-// os capítulos viram páginas no mesmo nível em docs/).
+// Reescrita de links internos, resolvida a partir do diretório do arquivo-fonte
+// (env.srcDir): página publicada -> .html local; qualquer outro alvo do repo
+// (estudos/, código, arquivos não publicados) -> fonte no GitHub. Assim nenhum
+// link interno fica quebrado e o que não é capítulo aponta para o código-fonte.
 const defaultLinkOpen = md.renderer.rules.link_open || ((t, i, o, e, s) => s.renderToken(t, i, o));
 md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   const href = tokens[idx].attrGet("href");
-  if (href && !/^https?:|^#|^mailto:/.test(href)) {
-    const alvo = href.split("#")[0];
-    const ancora = href.includes("#") ? "#" + href.split("#")[1] : "";
-    const base = basename(alvo).replace(/\.md$/i, "");
-    if (base) tokens[idx].attrSet("href", base.toLowerCase() + ".html" + ancora);
+  if (href && !/^https?:|^#|^mailto:|^\/\//.test(href)) {
+    const [alvo, hash] = href.split("#");
+    const ancora = hash ? "#" + hash : "";
+    const slug = basename(alvo).replace(/\.md$/i, "").toLowerCase();
+    if (/\.md$/i.test(alvo) && slugsPublicados.has(slug)) {
+      tokens[idx].attrSet("href", slug + ".html" + ancora);
+    } else {
+      // caminho relativo ao arquivo-fonte -> caminho relativo à raiz do repo
+      const repoRel = path.posix.normalize(path.posix.join(env.srcDir || ".", alvo)).replace(/^(\.\.\/)+/, "");
+      tokens[idx].attrSet("href", GITHUB_BASE + repoRel + ancora);
+    }
   }
   return defaultLinkOpen(tokens, idx, options, env, self);
 };
@@ -133,7 +143,7 @@ for (let k = 0; k < itens.length; k++) {
   }
   const bruto = readFileSync(caminho, "utf8");
   const data = extrairData(bruto);
-  const corpo = marcarCallouts(md.render(bruto));
+  const corpo = marcarCallouts(md.render(bruto, { srcDir: dirname(item.arquivo) }));
   const html = pagina({
     tituloLivro: sumario.titulo,
     tituloPagina: item.titulo,
@@ -175,4 +185,26 @@ writeFileSync(
   })
 );
 
-console.log(`✓ Livro gerado: ${gerados} capítulos + capa em docs/`);
+// Portão de qualidade (T402): todo link interno .html gerado deve apontar para
+// uma página que existe. Link quebrado FALHA o build (e, portanto, o CI).
+const paginas = new Set(itens.map((i) => `${i.slug}.html`).concat("index.html"));
+const quebrados = [];
+for (const i of [...itens, { slug: "index" }]) {
+  const arq = resolve(SAIDA, `${i.slug}.html`);
+  if (!existsSync(arq)) continue;
+  const html = readFileSync(arq, "utf8");
+  for (const m of html.matchAll(/href="([^"]+)"/g)) {
+    const href = m[1];
+    if (/^https?:|^#|^mailto:|^\/\//.test(href)) continue; // externos não são conferidos aqui
+    if (!/\.html(#|$)/.test(href)) continue;
+    const alvo = basename(href.split("#")[0]);
+    if (!paginas.has(alvo)) quebrados.push(`${i.slug}.html → ${href}`);
+  }
+}
+if (quebrados.length) {
+  console.error(`✗ ${quebrados.length} link(s) interno(s) quebrado(s):`);
+  quebrados.forEach((q) => console.error("   " + q));
+  process.exit(1);
+}
+
+console.log(`✓ Livro gerado: ${gerados} capítulos + capa em docs/ (links internos OK)`);

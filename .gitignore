@@ -5,3 +5,6 @@ __pycache__/
 
 # motor do livro (node)
 publicar/node_modules/
+
+# site gerado (o CI reconstrói e publica)
+docs/
