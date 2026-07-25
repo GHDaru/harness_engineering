@@ -1,5 +1,7 @@
 # 04 — Compactação
 
+> **Estado da arte capturado em 2026-07** · última revisão 2026-07-25 · [histórico e registro de expiração](../HISTORICO.md)
+>
 > **Capítulo-piloto do esqueleto v3** — corpo com o estado da arte; tratamento por repositório no Apêndice A (complementação online, atualizado a cada rodada do benchmark).
 
 ## Objetivos de aprendizagem

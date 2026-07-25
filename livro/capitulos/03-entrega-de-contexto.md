@@ -1,5 +1,7 @@
 # 03 — Entrega de Contexto
 
+> **Estado da arte capturado em 2026-07** · última revisão 2026-07-25 · [histórico e registro de expiração](../HISTORICO.md)
+>
 > Esqueleto v3 — corpo com o estado da arte; tratamento por repositório no Apêndice A (complementação online).
 
 ## Objetivos de aprendizagem

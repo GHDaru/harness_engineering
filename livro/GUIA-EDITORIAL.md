@@ -25,6 +25,16 @@
 8. **Verificação** — 2–3 perguntas que testam exatamente os objetivos do item 1
 9. **Apêndice A — Como cada repositório trata** — a evidência por harness com paths, expandida a cada rodada do benchmark (material de complementação online)
 
+## 2.1 Livro vivo: datação e histórico (obrigatório)
+
+Este é um **livro vivo** — coerência com a própria tese (a cláusula de expiração: o que descrevemos é temporário). Três regras:
+
+1. **Todo capítulo v3 declara a data de captura no cabeçalho**: `> **Estado da arte capturado em AAAA-MM** · última revisão AAAA-MM-DD · [histórico](../HISTORICO.md)`. Isso diz ao leitor se a seção "Estado da arte" está fresca — o que a data do *evento* (no corpo) não faz.
+2. **Distinguir três datas** (ver `HISTORICO.md`): data do evento (no corpo — fato histórico, imutável), data de captura (no cabeçalho — quando fotografamos), rodada do benchmark (nas avaliações — versão da foto de cada repo). Reavaliar = nova rodada, nunca sobrescrever.
+3. **Toda edição atualiza `livro/HISTORICO.md`**: o changelog de edições, a tabela de snapshot por capítulo, e — o mais importante — o **registro de expiração** (o placar das previsões: cada cláusula de expiração pontuada 🔵/🟡/🟢/🔴 contra a realidade, com evidência datada). Uma linha que muda de estado é a notícia mais importante de uma nova edição.
+
+Regra de escrita associada: quando uma afirmação for sensível ao tempo ("hoje", "ainda não", "o consenso de 2026"), ela está implicitamente sob a data de captura do cabeçalho — não precisa datar cada frase, mas evite absolutos atemporais ("nunca", "sempre") a menos que sejam do tipo não-expira (fronteira com o mundo).
+
 ## 3. Regras de escrita permanentes
 
 - **Evidência por caminho de arquivo** para qualquer afirmação sobre um harness; **status ✓** para qualquer citação científica (skill `academic-research` tem o fluxo).

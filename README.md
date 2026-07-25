@@ -34,6 +34,7 @@ O método do livro é empírico: em vez de teorizar no abstrato, lemos o código
 | [16 — Aprendizado e Auto-melhoria](livro/capitulos/16-aprendizado-auto-evolutivo.md) | O harness que se escreve: dois designs nível 3 (Hermes autônomo × gemini-cli inbox) |
 | [17 — A Camada de Protocolos](livro/capitulos/17-protocolos.md) | MCP, A2A, ACP, agentskills.io, AGENTS.md — com matriz de adoção medida no código |
 | [Bibliografia](livro/bibliografia.md) | Referências científicas por capítulo, com status de validação |
+| [Histórico](livro/HISTORICO.md) | Livro vivo: edições datadas, snapshot por capítulo e o **registro de expiração** (placar das previsões) |
 
 ### A Construção (`harness-zero/`)
 
