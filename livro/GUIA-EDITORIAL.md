@@ -11,16 +11,19 @@
 | **Diátaxis** | Quatro tipos de texto, nunca misturados na mesma seção: capítulo=explanation, harness-zero=tutorial, templates/benchmark=reference, "o que roubar"=how-to |
 | **Carga Cognitiva** | Worked examples antes de exercício; exercícios são "complete", não "crie do zero"; andaime diminui etapa a etapa; uma ideia nova por vez |
 
-## 2. Esqueleto v2 de capítulo (obrigatório; piloto: cap. 04)
+## 2. Esqueleto v3 de capítulo (obrigatório; piloto: cap. 04)
+
+**Regra de edição (v3):** ao abrir cada tema, buscar também **material comercial/industrial** (docs oficiais de vendors, blogs de engenharia, posts de praticantes) além do científico. A fonte-base continua sendo **o código dos repositórios**. O corpo do capítulo recebe **o estado da arte** (o que está mais moderno, sintetizado de todas as rodadas do benchmark + indústria); o tratamento detalhado **por repositório vai para o Apêndice do arquivo** — que fica na versão online como complementação e é atualizado a cada rodada.
 
 1. **Objetivos** — 3–5, verbos de Bloom (explicar, comparar, implementar, avaliar)
 2. **O problema** — por que a dimensão existe
-3. **Fundamentos científicos** — 2–4 papers *traduzidos para decisões* ("o paper mostrou X → por isso o padrão é Y"); ponteiro para `bibliografia.md`
-4. **Padrões de implementação** — o cardápio da indústria
-5. **Evidência do benchmark** — como os harnesses avaliados implementam, com paths
+3. **Fundamentos científicos** — 2–4 papers *traduzidos para decisões*; ponteiro para `bibliografia.md`
+4. **Fontes da indústria** — docs de vendor e posts de engenharia relevantes, com a mesma regra de tradução ("o vendor recomenda X porque Y")
+5. **O estado da arte** — o corpo principal: padrões consolidados + o que há de mais moderno, citando repositórios apenas como exemplos nominais (o detalhe fica no apêndice)
 6. **Mão na massa** — a etapa correspondente do harness-zero
-7. **Síntese + "o que roubar"** — tabela comparativa e ideias exportáveis
+7. **Síntese + "o que roubar"** — leitura executiva e ideias exportáveis
 8. **Verificação** — 2–3 perguntas que testam exatamente os objetivos do item 1
+9. **Apêndice A — Como cada repositório trata** — a evidência por harness com paths, expandida a cada rodada do benchmark (material de complementação online)
 
 ## 3. Regras de escrita permanentes
 

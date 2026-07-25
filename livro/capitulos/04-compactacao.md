@@ -1,19 +1,19 @@
 # 04 — Compactação
 
-> **Capítulo-piloto do esqueleto v2** (objetivos → problema → fundamentos → padrões → evidência → prática → verificação).
+> **Capítulo-piloto do esqueleto v3** — corpo com o estado da arte; tratamento por repositório no Apêndice A (complementação online, atualizado a cada rodada do benchmark).
 
 ## Objetivos de aprendizagem
 
 Ao final deste capítulo, você deve ser capaz de:
 1. **Explicar** por que a compactação existe e quais restrições ela equilibra (fidelidade × custo × cache);
 2. **Comparar** as quatro camadas da escada de agressividade e **justificar** a ordem entre elas;
-3. **Analisar** a implementação de compactação de um harness real e localizar suas escolhas na escada;
+3. **Analisar** a implementação de compactação de um harness real e localizar suas escolhas na escada (Apêndice A como gabarito);
 4. **Implementar** truncamento com preservação de bordas e sumarização com tail preservado (etapa 5 do harness-zero);
-5. **Avaliar** quando uma compactação falhou (perda de decisão, de estado de arquivo ou de objetivo).
+5. **Avaliar** quando uma compactação falhou (perda de decisão, de estado de arquivo ou de objetivo) — e **antecipar** o que muda quando o provedor compacta por você.
 
 ## O problema
 
-Toda conversa de agente cresce até não caber na janela de contexto do modelo. A compactação é o conjunto de estratégias para continuar trabalhando quando isso acontece — sem perder o que importa. É a dimensão onde os três harnesses estudados mais convergem: todos chegaram, independentemente, à mesma arquitetura em camadas.
+Toda conversa de agente cresce até não caber na janela de contexto do modelo. A compactação é o conjunto de estratégias para continuar trabalhando quando isso acontece — sem perder o que importa. É a dimensão onde os harnesses avaliados mais convergem: todos chegaram, independentemente, à mesma arquitetura em camadas.
 
 As restrições em tensão:
 - **Fidelidade**: o resumo não pode perder decisões, estado de arquivos ou o objetivo da tarefa.
@@ -22,45 +22,37 @@ As restrições em tensão:
 
 ## Fundamentos científicos
 
-Três resultados da pesquisa sustentam as decisões deste capítulo:
-
 - **A janela não é uniforme** — *Lost in the Middle* ([arXiv 2307.03172](https://arxiv.org/abs/2307.03172)) mostrou que modelos usam melhor o início e o fim do contexto e degradam no meio. É a base empírica de duas práticas da escada: preservar o *tail* recente intacto e truncar outputs mantendo início+fim.
-- **Contexto como memória virtual** — *MemGPT* ([arXiv 2310.08560](https://arxiv.org/abs/2310.08560)) formulou a analogia com sistemas operacionais: a janela é a "RAM", o armazenamento externo é o "disco", e o harness pagina entre eles. Toda a escada de agressividade é, nessa leitura, uma política de paginação — e trabalhos recentes levam a analogia ao limite literal (*demand paging* para janelas de contexto, [arXiv 2603.09023](https://arxiv.org/abs/2603.09023)).
-- **Compactar é uma decisão de orçamento** — *ContextBudget* ([arXiv 2604.01664](https://arxiv.org/abs/2604.01664)) trata a gestão de contexto de agentes de longa duração como alocação explícita de orçamento por tipo de conteúdo — o que os harnesses de produto implementam como limiares e budgets (50% da janela, 50k para function responses etc.).
+- **Contexto como memória virtual** — *MemGPT* ([arXiv 2310.08560](https://arxiv.org/abs/2310.08560)) formulou a analogia com sistemas operacionais: a janela é a "RAM", o armazenamento externo é o "disco", e o harness pagina entre eles. Trabalhos recentes levam a analogia ao limite literal (*demand paging*, [arXiv 2603.09023](https://arxiv.org/abs/2603.09023)).
+- **Compactar é decisão de orçamento** — *ContextBudget* ([arXiv 2604.01664](https://arxiv.org/abs/2604.01664)) trata a gestão de contexto como alocação explícita por tipo de conteúdo — o que os produtos implementam como limiares e budgets.
 
 (Bibliografia completa e status de validação: `livro/bibliografia.md`.)
 
-## O padrão universal: escada de agressividade
+## Fontes da indústria
 
-Os harnesses estudados aplicam as estratégias em escada, da mais barata à mais cara:
+- **[Compaction — Claude Platform Docs](https://platform.claude.com/docs/en/build-with-claude/compaction)** (Anthropic, oficial): a compactação chegou **ao nível da API** (beta `compact-2026-01-12`) — o provedor sumariza automaticamente ao atingir o limiar configurado e devolve um "compaction block". É a confirmação de vendor da tendência central deste capítulo (ver Estado da arte).
+- **Práticas de operação do Claude Code** ([CometAPI](https://www.cometapi.com/what-is-auto-compact-in-claude-code/), [okhlopkov](https://okhlopkov.com/claude-code-compaction-explained/), [hyperdev](https://hyperdev.matsuoka.com/p/how-claude-code-got-better-by-protecting)): a recomendação convergente dos praticantes é a mesma que os harnesses codificam — **o que precisa sobreviver à compactação não deve morar na conversa**: convenções vão para o arquivo de contexto (CLAUDE.md/AGENTS.md, reinjetado a cada sessão) e estado de progresso vai para arquivos que o agente relê depois do compact. A compactação define, por exclusão, o que merece persistência.
 
-1. **Truncar saídas de tools na origem** — limitar linhas/bytes do output antes mesmo de entrar no histórico, preservando início e fim.
-2. **Prune / microcompact** — apagar o *conteúdo* de resultados de tools antigas (o modelo raramente relê um `cat` de 30 turnos atrás), mantendo o registro de que a chamada existiu.
-3. **Sumarização via LLM (full compact)** — quando as anteriores não bastam, um modelo resume a porção antiga do histórico, preservando um "rabo" recente intacto.
-4. **Disparo automático por limiar** — tudo isso orquestrado por um gatilho de percentual da janela, mais um caminho reativo para quando a API devolve "prompt too long".
+## O estado da arte
 
-## Como os harnesses estudados implementam
+### O padrão consolidado: a escada de agressividade
 
-### opencode — três mecanismos + arquivos gerenciados
-Em `packages/opencode/src/session/compaction.ts` (+ `overflow.ts`, `summary.ts`): (a) sumarização automática em overflow, que seleciona um tail recente sob orçamento de tokens (`preserveRecentBudget`, 2k–8k) e gera o resumo com um **agente dedicado `compaction`**, iniciando um novo Context Epoch com auto-continue opcional; (b) **prune** que percorre o histórico de trás para frente e marca como `compacted` saídas de tools além de 40k tokens (`PRUNE_PROTECT`), protegendo skills; (c) truncamento de output (`tool/truncate.ts`) que preserva início+fim e move o texto completo para "Managed Tool Output Files" — o conteúdo não é perdido, vira arquivo referenciável.
+Os harnesses aplicam as estratégias em escada, da mais barata à mais cara — este é o consenso da indústria, verificado em todas as rodadas do benchmark:
 
-### gemini-cli — compressão + destilação + mascaramento
-`packages/core/src/context/chatCompressionService.ts` dispara quando os tokens excedem **50% do limite do modelo** (`DEFAULT_COMPRESSION_TOKEN_THRESHOLD = 0.5`), preserva os últimos ~30% do histórico (`COMPRESSION_PRESERVE_THRESHOLD = 0.3`) e sumariza o resto com um prompt dedicado — com orçamento específico para respostas de função (50k tokens) e salvamento de outputs truncados. Além da compressão clássica, há duas camadas que os outros não têm: **tool distillation** (`toolDistillationService.ts`) e **output masking** (`toolOutputMaskingService.ts`). Comando manual `/compress`, evento `ChatCompressed`, hooks `PreCompressTrigger`.
+1. **Truncar saídas de tools na origem** — limitar linhas/bytes antes de entrar no histórico, preservando início e fim (*Lost in the Middle* justifica as bordas). O refinamento moderno: **não descartar** — mover o conteúdo integral para arquivos referenciáveis (opencode) ou manter o bruto fora da view do modelo mas visível na UI (Goose).
+2. **Prune / microcompact** — apagar o *conteúdo* de resultados de tools antigas (o modelo raramente relê um `cat` de 30 turnos atrás), mantendo o registro da chamada. Camadas intermediárias mais novas: *tool distillation* e *output masking* (gemini-cli).
+3. **Sumarização via LLM (full compact)** — resumir a porção antiga preservando um tail intacto (tipicamente 20–30% ou um orçamento de 2k–20k tokens). O estado da arte tem três refinamentos: **resumo estruturado** com campos obrigatórios (intenção do usuário, tarefas pendentes, estado de código — Goose e software-agent-sdk), **modelo auxiliar barato** para o resumo (Hermes), e **flush de memória antes de compactar** — salvar notas duráveis antes de perder o contexto (OpenClaw).
+4. **Disparo automático + caminho reativo** — gatilho por percentual da janela (50–90% conforme o projeto) e, cobrindo a falha, compactação **reativa** ao erro "prompt too long" da API (OpenHarness, OpenClaw).
 
-### OpenHarness — a tradução fiel do Claude Code
-`src/openharness/services/compact/__init__.py` (1.725 linhas — o módulo mais denso do projeto) declara no docstring: "Faithfully translated from Claude Code's compaction system". Três estratégias: **microcompact** (limpa resultados de tools listadas em `COMPACTABLE_TOOLS`: read/bash/grep/glob/web/edit/write), **full compact** (resumo estruturado via LLM) e **auto-compact** (limiar `auto_compact_threshold_tokens`). Mais um quarto caminho que os outros tratam implicitamente: compactação **reativa** quando a API retorna erro de prompt too long (`_is_prompt_too_long_error`). Hooks `PRE_COMPACT`/`POST_COMPACT` em volta. Por ser um port comentado, é a melhor documentação viva de como o Claude Code compacta.
+### As duas fronteiras modernas
 
-## Síntese
+**1. Compactação auditável (tombstones).** A implementação mais avançada medida no benchmark (condenser do software-agent-sdk) não muta o histórico: o log é append-only e o esquecimento é um *evento* (`Condensation`) — um tombstone, como em Cassandra/Kafka. A view do modelo é derivada aplicando os tombstones; nada se perde para auditoria, e invariantes formais (pareamento tool_call/result, atomicidade de batch) são **código testável**, com a distinção *hard/soft trigger*: se compactar agora violaria uma invariante, o gatilho suave espera o próximo turno; o duro força um reset explícito. Refinamento correlato: o **circuit-breaker de efetividade** (IronClaw) — comparar a estimativa pós-compactação contra baseline e detectar compactações que não estão funcionando.
 
-| Aspecto | opencode | gemini-cli | OpenHarness |
-|---|---|---|---|
-| Truncamento na origem | sim (+ arquivos gerenciados) | sim (saved truncated output) | via microcompact |
-| Prune de tools antigas | sim (40k protect) | distillation + masking | microcompact |
-| Sumarização LLM | agente dedicado | prompt dedicado | full compact |
-| Disparo | overflow detectado | 50% da janela | limiar configurável + **reativo a erro** |
-| O que é preservado | tail 2k–8k tokens + skills | últimos 30% + orçamento p/ function responses | task state + logs de canal |
+**2. A compactação está migrando para o provedor.** Dois sinais independentes no mesmo ano: o Codex CLI implementa **compactação remota v2** (o backend compacta) e a Anthropic lançou **compaction na própria API** ([docs](https://platform.claude.com/docs/en/build-with-claude/compaction), beta `compact-2026-01-12`). É a cláusula de expiração em movimento — mas com uma inversão interessante: em vez de o componente desaparecer quando o modelo melhora, ele **muda de dono** (do harness para a plataforma). O que resta ao harness quando o provedor compacta: decidir *o que proteger* (skills, estado de tarefa, arquivos de memória), *quando confiar* (auditoria de qualidade do resumo — o modo `safeguard` do OpenClaw antecipou isso) e o caminho reativo para provedores que não oferecem o serviço.
 
-A convergência aqui é quase total — evidência de que a "escada de agressividade" já é o padrão da indústria. As diferenças que restam são refinamentos: o gemini-cli adiciona camadas intermediárias (destilação, mascaramento), o opencode nunca descarta conteúdo (move para arquivos), e o OpenHarness cobre o caso de borda reativo. Da rodada frameworks, o condenser do software-agent-sdk elevou a régua: esquecimento por *tombstones* sobre log append-only (auditável) com gatilhos hard/soft. Esta é também a dimensão com a **cláusula de expiração** mais clara do livro: se janelas de contexto crescerem ordens de magnitude com custo marginal baixo, boa parte deste capítulo vira história.
+### Leitura executiva
+
+A convergência na escada é quase total — o padrão está consolidado e um harness novo que não a implemente precisa justificar. As diferenças que restam são refinamentos de fidelidade (estruturar o resumo, auditar sua qualidade, nunca descartar) e a grande questão em aberto é de *arquitetura de mercado*: quanto da escada sobrevive no harness quando a plataforma oferece compaction como serviço. **O que roubar** hoje: tombstones sobre log append-only; memory-flush pré-compactação; resumo estruturado com IDs de tarefa preservados; circuit-breaker de efetividade.
 
 ## Mão na massa — harness-zero, etapa 5
 
@@ -69,5 +61,47 @@ Na etapa 5 do projeto (`harness-zero/`), você implementa a escada no seu própr
 ## Verificação
 
 1. Por que truncar outputs de tools **antes** de sumarizar via LLM, e não o contrário? (Custo e destrutividade — se precisar, releia a escada.)
-2. Um harness sumarizou o histórico e o agente, no turno seguinte, reescreveu um arquivo que já estava correto. Qual informação a compactação provavelmente perdeu, e qual mecanismo dos harnesses estudados previne isso? (Dica: prompt estruturado do condenser do software-agent-sdk — `CODE_STATE`/`CHANGES`.)
-3. Seu modelo passou a aceitar 10× mais contexto pelo mesmo preço. Quais camadas da escada você removeria primeiro, e qual provavelmente manteria mesmo assim? (Conecte com a cláusula de expiração e com *Lost in the Middle*.)
+2. Um harness sumarizou o histórico e o agente, no turno seguinte, reescreveu um arquivo que já estava correto. Qual informação a compactação provavelmente perdeu, e qual mecanismo do estado da arte previne isso? (Dica: resumo estruturado com `CODE_STATE`/`CHANGES`.)
+3. Seu provedor passou a oferecer compaction na API. Quais responsabilidades da escada você **transfere** e quais **mantém** no harness? (Conecte com "as duas fronteiras modernas".)
+
+---
+
+## Apêndice A — Como cada repositório trata a compactação
+
+> Evidência por harness, com paths — material de complementação (versão online), expandido a cada rodada do benchmark. Fonte-base do capítulo: o código destes repositórios.
+
+### opencode (rodada 1) — três mecanismos + arquivos gerenciados
+`packages/opencode/src/session/compaction.ts` (+ `overflow.ts`, `summary.ts`): (a) sumarização automática em overflow com **agente dedicado `compaction`**, tail sob orçamento (`preserveRecentBudget`, 2k–8k tokens), novo Context Epoch e auto-continue opcional; (b) **prune** de trás para frente marcando `compacted` saídas de tools além de 40k tokens (`PRUNE_PROTECT`), protegendo skills; (c) truncamento na origem (`tool/truncate.ts`) preservando início+fim e movendo o texto completo para "Managed Tool Output Files".
+
+### gemini-cli (rodada 1) — compressão + destilação + mascaramento
+`packages/core/src/context/chatCompressionService.ts`: dispara a 50% do limite (`DEFAULT_COMPRESSION_TOKEN_THRESHOLD = 0.5`), preserva os últimos 30% (`COMPRESSION_PRESERVE_THRESHOLD`), orçamento próprio para function responses (50k) e salvamento de outputs truncados. Camadas extras: `toolDistillationService.ts` e `toolOutputMaskingService.ts`. `/compress` manual, evento `ChatCompressed`, hooks `PreCompressTrigger`.
+
+### OpenHarness (rodada 1) — a tradução fiel do Claude Code
+`src/openharness/services/compact/__init__.py` (1.725 linhas; docstring: "Faithfully translated from Claude Code's compaction system"): **microcompact** (limpa `COMPACTABLE_TOOLS`), **full compact** (resumo LLM), **auto-compact** (limiar) e compactação **reativa** a "prompt too long" (`_is_prompt_too_long_error`). Hooks `PRE_COMPACT`/`POST_COMPACT`; preserva task state e logs de canal.
+
+### Codex CLI (rodada 2) — local + remota v1/v2
+`core/src/compact.rs`, `compact_remote_v2.rs`, `compact_token_budget.rs`: auto-compact a ~90% da janela; três estratégias — local (`SUMMARIZATION_PROMPT`) e **remota v1/v2** (o backend compacta, via `ResponsesStreamRequest::RemoteCompactionV2`, com retry próprio); janelas versionadas com prefill tracking; injeção controlada pré/mid-turn; `TruncationPolicy` para outputs.
+
+### Goose (rodada 2) — resumo estruturado + middle-out
+`crates/goose/src/context_mgmt/mod.rs`: limiar 0.8 da janela; `StructuredSummary` (user_intent, files, pending_tasks, current_work); se a sumarização estoura, **remoção progressiva "middle-out"** de tool-responses (0→100%); **sumarização incremental de pares tool-call/response** em batches de 10 protegendo os N últimos; metadados de visibilidade preservam o bruto na UI; respeita `provider.manages_own_context()`.
+
+### OpenClaw (rodada 2) — safeguard + memory flush
+`src/context-engine/` + `docs/concepts/compaction.md`: auto por limiar e reativa (reconhece dezenas de strings de erro de overflow de múltiplos provedores), split preservando pares tool-call/result; modo `safeguard` com **auditoria de qualidade do resumo**; **memory flush silencioso antes de compactar**; `keepRecentTokens` 20k; providers de compactação plugáveis; distinção compaction (semântica) × pruning (trim in-memory).
+
+### Hermes (rodada 2) — engine plugável + modelo auxiliar
+`agent/context_engine.py` (interface `should_compact`/`compress`/`prune`) + `trajectory_compressor.py` (~1.6k linhas): sumarização de tool-responses antigas via **modelo auxiliar barato** (default Gemini Flash, até 50 requisições concorrentes); `/compress` manual; `/usage` e `/insights` expõem a janela.
+
+### IronClaw (rodada 2) — política pura + circuit-breaker
+`crates/ironclaw_agent_loop/src/strategies/compaction.rs` (+ `active_task_compaction.rs`): a estratégia é **política pura** (retorna Skip ou o limite `drop_through_seq`; mutação só no host); `PromptContextTokenBudget` com `preserve_tail_tokens`; **circuit-breaker de efetividade** (compara estimativa pós-compactação contra `CompactionEffectivenessBaseline`); variante que preserva a tarefa ativa; o host rejeita compactar através de mensagens não-usuário.
+
+### software-agent-sdk (rodada frameworks) — tombstones + invariantes testáveis ⭐
+`openhands-sdk/openhands/sdk/context/condenser/`: esquecimento por **tombstones** (`Condensation` event) sobre log append-only; disparo por três razões (REQUEST/TOKENS/EVENTS) com **hard/soft** (`condensation_requirement`) e `hard_context_reset()` para o caso patológico; `keep_first` + re-sumarização recursiva de sumários; prompt estruturado (`summarizing_prompt.j2`: USER_CONTEXT, TASK_TRACKING com IDs exatos, CODE_STATE, TESTS, CHANGES); invariantes em `context/view/properties/` (tool_call_matching, batch_atomicity...) **testadas contra LLMs reais** (`tests/integration/tests/c01..c05`); `pipeline_condenser` para compor.
+
+### Aider (rodada 2) — sumarização clássica bem-feita
+`aider/history.py` (`ChatSummary`): mantém a cauda (~metade do orçamento), sumariza a cabeça via LLM com split após mensagem `assistant`, **recursivo** até profundidade 3, com lista de modelos com fallback.
+
+### n8n (rodada 2) — a ausência que confirma a categoria
+Sem compactação no loop (`contextWindowLength` dos memory sub-nodes + `maxTokensFromMemory` apenas) — coerente com execuções curtas acionadas por evento; é o teto da categoria "harness embutido" para tarefas longas.
+
+### LangGraph / OpenAI Agents SDK / CrewAI (rodada frameworks) — a linha divisória
+LangGraph: **zero suporte nativo** (uma docstring sugerindo `pre_model_hook`); Agents SDK: apenas `OpenAIResponsesCompactionSession` como session opcional; CrewAI: nada. A compactação é a dimensão que mais separa "framework" de "harness pronto".
