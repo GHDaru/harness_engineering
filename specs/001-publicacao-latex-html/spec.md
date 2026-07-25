@@ -5,6 +5,22 @@
 **Status**: Draft (aguarda `/speckit-clarify` → `/speckit-plan`)
 **Input**: "Livro em LaTeX; criar HTML para navegação online em formato pedagógico; infra ok, com apêndice explicando a infra do livro."
 
+## Clarifications
+
+### Sessão 2026-07-25
+- **Referência de inspiração** (validada pelo autor): **REAMAT / UFRGS-IME** — livros colaborativos de matemática, fonte única compilada para HTML + PDF, colaboração via GitHub, navegáveis online. Confirma o *conceito*; difere na fonte (REAMAT usa LaTeX-source; nós usamos Markdown-source).
+- **Hospedagem**: **GitHub Pages** (estático, grátis, CI a cada push).
+- **Fonte**: permanece **Markdown**; o LaTeX/PDF é *gerado*.
+- **Toolchain (reaberto pelo autor — "qual o impacto de mudar depois?")**: a decisão é de **baixo arrependimento e reversível**, desde que se respeite a arquitetura de portas do próprio livro (ver Decisão D-001 abaixo). Recomendação: **abordagem faseada** — Quarto agora (resultado em dias) + **componentes de visualização React independentes** (framework-agnósticos, sobrevivem a qualquer troca) + "app próprio" reservado para se/quando o Quarto for insuficiente. Pendente de confirmação do autor.
+
+### Decisão D-001 — o toolchain é um adapter, não o produto (impacto de mudança = BAIXO)
+O ativo durável é o **conteúdo em Markdown** (`livro/`), que não muda com o toolchain. A publicação é um **adapter sobre o conteúdo** — exatamente o padrão portas-e-adaptadores que o livro ensina (a tese do livro respondendo à infra do livro). Condições que mantêm a troca barata:
+1. **Markdown portável**: manter o conteúdo o mais próximo de CommonMark possível; sintaxe específica de um toolchain (callouts, cross-refs) fica numa camada fina/convenção, não espalhada nos capítulos.
+2. **Visualizações como componentes standalone**: as partes ricas em dados (comparativo do benchmark, registro de expiração, radar de notas) viram componentes **embutíveis e independentes** (web components / React montável), que sobrevivem a qualquer troca de motor.
+3. **Fronteira de build**: o toolchain fica atrás de um comando único (`make book`) — trocá-lo é trocar o adapter, não o conteúdo.
+
+Sob essas condições: **Quarto → app próprio** (ou vice-versa) custa refazer tema/template e limpar sintaxe específica — **nunca reescrever conteúdo**. As visualizações React são a única peça que independe da escolha e devem ser construídas assim desde o início.
+
 ## Contexto e restrição de fonte
 
 O livro hoje é **Markdown** (`livro/**/*.md`, 21 arquivos). Reescrever à mão em LaTeX seria custoso e frágil (dois formatos a manter em sincronia — viola o anti-apodrecimento da constituição). A abordagem proposta é **fonte única em Markdown → geração automática de LaTeX/PDF e HTML**. Isto preserva o fluxo de escrita atual e entrega os dois artefatos pedidos.
