@@ -11,10 +11,10 @@
 - [x] T108 — `docs/.nojekyll` + nota de configuração do GitHub Pages (main/docs)
 
 ## P2 — Visualizações React (islands)
-- [ ] T201 — componente: comparativo do benchmark (tabela sortável, notas por dimensão/categoria)
-- [ ] T202 — componente: registro de expiração (placar 🔵🟡🟢🔴 com filtro por estado)
-- [ ] T203 — componente: radar/heatmap de notas por harness
-- [ ] T204 — bundle e montagem como islands nas páginas geradas
+- [x] T201 — componente: comparativo do benchmark (tabela sortável, notas por dimensão/categoria) → `publicar/viz/BenchmarkTabela.jsx`
+- [x] T202 — componente: registro de expiração (placar 🔵🟡🟢🔴 com filtro por estado) → `publicar/viz/Expiracao.jsx`
+- [x] T203 — heatmap de notas por harness (células coloridas por nota 0–3, integradas à tabela sortável de T201)
+- [x] T204 — bundle (esbuild, IIFE) e montagem como islands `<div data-viz>` nas páginas geradas; dados canônicos em `benchmark/notas.json`
 
 ## P3 — PDF via LaTeX
 - [ ] T301 — passo de geração PDF (pandoc + template LaTeX) atrás do comando de build

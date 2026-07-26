@@ -15,6 +15,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import MarkdownIt from "markdown-it";
 import anchor from "markdown-it-anchor";
+import * as esbuild from "esbuild";
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const RAIZ = resolve(AQUI, "..");
@@ -106,6 +107,7 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
   </main>
 </div>
 <script src="${rel}assets/app.js"></script>
+<script src="${rel}assets/viz.js" defer></script>
 </body></html>`;
 }
 
@@ -132,6 +134,18 @@ mkdirSync(resolve(SAIDA, "assets"), { recursive: true });
 cpSync(resolve(AQUI, "tema/estilo.css"), resolve(SAIDA, "assets/estilo.css"));
 cpSync(resolve(AQUI, "tema/app.js"), resolve(SAIDA, "assets/app.js"));
 writeFileSync(resolve(SAIDA, ".nojekyll"), "");
+
+// Bundle das ilhas de visualização React (P2). Dados embutidos em build-time.
+await esbuild.build({
+  entryPoints: [resolve(AQUI, "viz/index.jsx")],
+  bundle: true,
+  minify: true,
+  format: "iife",
+  loader: { ".json": "json" },
+  jsx: "automatic",
+  outfile: resolve(SAIDA, "assets/viz.js"),
+  logLevel: "warning",
+});
 
 let gerados = 0;
 for (let k = 0; k < itens.length; k++) {

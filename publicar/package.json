@@ -4,6 +4,14 @@
   "type": "module",
   "private": true,
   "description": "Motor de publicação do livro Engenharia de Harness (Markdown -> HTML navegável + PDF).",
-  "scripts": { "build": "node build.mjs" },
-  "dependencies": { "markdown-it": "^14.1.0", "markdown-it-anchor": "^9.2.0" }
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "esbuild": "^0.28.1",
+    "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.2.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
 }

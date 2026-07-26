@@ -31,6 +31,12 @@
       ]
     },
     {
+      "nome": "Benchmark",
+      "itens": [
+        { "arquivo": "benchmark/comparativo.md", "titulo": "Comparativo dos Harnesses" }
+      ]
+    },
+    {
       "nome": "Aparato do livro",
       "itens": [
         { "arquivo": "livro/bibliografia.md", "titulo": "Bibliografia" },
