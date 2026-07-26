@@ -2,6 +2,8 @@
 
 > 11 harnesses avaliados por leitura sistemática de código, 12 dimensões (0–3) + 2 suplementares. Rodada 1: 2026-07-24 (opencode, gemini-cli, OpenHarness). Rodada 2: 2026-07-24 (Codex CLI, Goose, Aider, OpenHands, OpenClaw, Hermes, IronClaw, n8n). Ver [metodologia](README.md).
 
+<div data-viz="benchmark-codigo"></div>
+
 ## Categoria: harnesses de código
 
 | # | Dimensão | opencode | gemini-cli | OpenHarness | **Codex CLI** | **Goose** | **Aider** | **OpenHands*** |

@@ -9,6 +9,7 @@ on:
     paths:
       - "livro/**"
       - "publicar/**"
+      - "benchmark/**"
       - ".github/workflows/publicar.yml"
   workflow_dispatch:
 

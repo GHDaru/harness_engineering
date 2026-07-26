@@ -66,9 +66,37 @@ ul.sumario li a { display: block; padding: .3rem 0; border-bottom: 1px solid var
   border: 1px solid var(--line); color: var(--fg); border-radius: 8px; width: 2.2rem; height: 2.2rem;
   font-size: 1.1rem; cursor: pointer; }
 
-/* Ilha de visualização (P2): placeholder enquanto o componente React não hidrata. */
-[data-viz]:empty::before { content: "📊 visualização interativa (em construção)"; display: block;
+/* Ilha de visualização (P2): fallback enquanto o React não hidrata (ou sem JS). */
+[data-viz]:empty::before { content: "📊 carregando visualização interativa…"; display: block;
   color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; padding: 1rem; text-align: center; }
+
+/* --- Visualizações React (islands) --- */
+:root { --n0: #e57373; --n1: #e0a24a; --n2: #7cc47f; --n3: #2e9e5b; }
+:root[data-tema="escuro"] { --n0: #7a3b3b; --n1: #7a5c2a; --n2: #3d6b45; --n3: #2e7d4f; }
+.viz { border: 1px solid var(--line); border-radius: 10px; padding: 1rem; margin: 1.2rem 0; background: var(--sidebar); }
+.viz-titulo { font-weight: 700; margin-bottom: .6rem; }
+.viz-sub { font-weight: 400; color: var(--muted); font-size: .85rem; }
+.viz-scroll { overflow-x: auto; }
+table.viz-heat { border-collapse: collapse; width: 100%; font-size: .9rem; display: table; }
+.viz-heat th, .viz-heat td { border: 1px solid var(--bg); padding: .3rem .1rem; text-align: center; }
+.viz-heat th { background: rgba(127,127,127,.12); font-weight: 600; user-select: none; }
+.viz-heat th.viz-esq, .viz-heat td.viz-esq { text-align: left; padding-left: .6rem; white-space: nowrap; }
+.viz-cel { color: #101010; font-weight: 600; width: 2rem; }
+.viz-total { font-weight: 700; background: rgba(127,127,127,.14); }
+.viz-legenda { display: flex; flex-wrap: wrap; gap: .1rem .9rem; margin-top: .6rem; font-size: .78rem; color: var(--muted); }
+.viz-legenda b { color: var(--fg); }
+.viz-escala { margin-top: .5rem; font-size: .8rem; color: var(--muted); display: flex; align-items: center; gap: .3rem; }
+.viz-chip { display: inline-block; width: 1.4rem; text-align: center; color: #101010; font-weight: 600; border-radius: 4px; }
+.viz-filtros { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
+.viz-fbtn { background: var(--bg); border: 1px solid var(--line); color: var(--fg); border-radius: 999px; padding: .2rem .7rem; font-size: .82rem; cursor: pointer; }
+.viz-fbtn.ativo { background: var(--link); color: #fff; border-color: var(--link); }
+.viz-cards { display: grid; gap: .7rem; }
+.viz-card { border: 1px solid var(--line); border-radius: 8px; padding: .7rem .9rem; background: var(--bg); }
+.viz-card-top { display: flex; align-items: center; gap: .5rem; margin-bottom: .4rem; }
+.viz-emoji { font-size: 1.1rem; }
+.viz-card-linha { font-size: .88rem; margin: .15rem 0; }
+.viz-rot { display: inline-block; min-width: 8.5rem; color: var(--muted); font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+.viz-card-ev { font-size: .85rem; color: var(--muted); margin-top: .45rem; border-top: 1px dashed var(--line); padding-top: .45rem; }
 
 @media (max-width: 800px) {
   .layout { grid-template-columns: 1fr; }
