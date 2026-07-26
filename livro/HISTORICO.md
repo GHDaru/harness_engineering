@@ -16,10 +16,23 @@
 | 03 Contexto | 2026-07 | ✓ | 2026-07-25 |
 | 04 Compactação | 2026-07 | ✓ | 2026-07-25 |
 | 05 Ferramentas | 2026-07 | ✓ | 2026-07-25 |
+| 06 MCP | 2026-07 | ✓ | 2026-07-26 |
 | 07 Permissões/Segurança | 2026-07 | ✓ | 2026-07-25 |
-| 06, 08–17 | — (pré-v3) | pendente | — |
+| 08 Memória e Estado | 2026-07 | ✓ | 2026-07-26 |
+| 09 Planejamento | 2026-07 | ✓ | 2026-07-26 |
+| 10 Subagentes/Orquestração | 2026-07 | ✓ | 2026-07-26 |
+| 11 Verificação/Evals | 2026-07 | ✓ | 2026-07-26 |
+| 12 Extensibilidade | 2026-07 | ✓ | 2026-07-26 |
+| 13 Interfaces | 2026-07 | ✓ | 2026-07-26 |
+| 00–01, 14–17 | — (pré-v3) | pendente | — |
 
 ## Edições
+
+### Edição 0.5 — 2026-07-26 · visualizações React + unificação editorial v3
+- **P2 concluída** (spec 001, branch `002-visualizacoes-react`): ilhas de visualização React no motor do livro — heatmap sortável do benchmark e registro de expiração com filtro, como *islands* (progressive enhancement; sem JS, ficam as tabelas Markdown). Fonte canônica em `benchmark/notas.json`.
+- **Sete capítulos de funcionalidade trazidos ao esqueleto v3** (specs 003–009, um ciclo spec-kit por capítulo, branch `003-reescrita-editorial-v3`): 06 MCP, 08 Memória e Estado, 09 Planejamento, 10 Subagentes/Orquestração, 11 Verificação/Evals, 12 Extensibilidade, 13 Interfaces. Cada um ganhou objetivos de Bloom, **fundamentos científicos** (papers reais verificados por busca cruzada), **fontes da indústria** (docs de vendor/blogs), estado da arte no corpo, mão na massa, verificação e **Apêndice A** com as rodadas 2/frameworks.
+- **Lacunas de bibliografia preenchidas/registradas**: o cap. 06 (MCP) saiu de "lacuna" para literatura de segurança consolidada (SoK, MCPTox, auditorias); os caps. 12 (extensibilidade) e 13 (interfaces) — sem canon *agent-specific* — foram ancorados em SE clássica e HCI, respectivamente, com a lacuna registrada honestamente (Princípio I).
+- **Atualizações datadas (livro vivo)**: refutada a previsão de que "nenhum harness atua como *servidor* MCP no core" (rodada 2: Codex/Hermes/OpenClaw/OpenHands/n8n são cliente **e** servidor); o n8n **depreciou** seu Plan-and-Execute Agent (planejamento explícito recuando para trabalho longo); a verificação virou **adversarial** (reward hacking — o agente joga contra o verificador); e os formatos de extensão (SKILL.md/AGENTS.md) convergindo num padrão portável (o "MCP da extensibilidade").
 
 ### Edição 0.4 — 2026-07-25 · publicação (feature 001, em andamento)
 - **Primeira melhoria sob o Princípio VII** (spec-driven, branch `001-publicacao-latex-html`): spec → plan → tasks → implement.
@@ -54,10 +67,11 @@
 |---|---|---|---|---|
 | Compactação (cap. 04) | janelas são finitas e caras | contexto longo ficar barato e confiável | 🟡 em movimento | A compactação **mudou de dono** antes de expirar: Anthropic lançou compaction na API (beta `compact-2026-01-12`) e o Codex fez compactação remota v2 (2026). Não desapareceu — migrou do harness para a plataforma. |
 | Prompt por família de modelo (cap. 03) | modelos respondem diferente a instruções | instruction-following convergir | 🔵 aberta | Ainda divergente; Codex chegou a tornar o prompt server-driven por modelo (2026) — reforço, não expiração. |
-| Plan mode imposto (cap. 09) | modelos agem precipitadamente | modelos planejarem sob risco espontaneamente | 🔵 aberta | Planejamento seguiu como a dimensão mais fraca da indústria em todas as rodadas (2026-07). |
+| Plan mode imposto (cap. 09) | modelos agem precipitadamente | modelos planejarem sob risco espontaneamente | 🔵 aberta | Planejamento seguiu como a dimensão mais fraca da indústria em todas as rodadas (2026-07); o n8n **depreciou** seu Plan-and-Execute Agent — o plano explícito recuou para trabalho longo/humano-no-loop, não expirou. |
 | Policy engine / aprovações (cap. 07) | modelos não são confiáveis com ações destrutivas | confiabilidade calibrada e verificável | 🔵 aberta | Consenso 2026: injection tratada como não-resolvível; esforço migrou para blast radius, não para confiar no modelo. |
+| Verificação externa (cap. 11) | a auto-correção intrínseca não basta (o modelo não se conserta sozinho) | modelos verificarem o próprio trabalho de forma confiável | 🔵 aberta | Reforçada, não expirando: "LLMs Cannot Self-Correct Reasoning Yet" (2310.01798) e o *reward hacking* (o agente apaga asserts/patcha o pytest) empurraram a indústria para verificador **externo e imutável** (testes held-out, verify-on-stop) — 2026-07. |
 | Aprendizado auto-evolutivo (cap. 16) | — (cláusula invertida) | nunca — o harness *escreve* scaffolding em vez de esperar o modelo | 🔵 aberta | Hermes e gemini-cli fecharam o ciclo (2026-07); é auto-expansão, não expiração. |
 | Sandbox / contenção (cap. 07) | é sobre o mundo, não sobre o modelo | nunca (fronteira, não prótese) | 🔴 não-expira | Confirmado nas 3 rodadas; contenção é o scaffolding que resta quando o modelo melhora. |
-| Protocolos (MCP/A2A/ACP/AGENTS.md — cap. 17) | interoperabilidade entre sistemas | nunca (fronteira com o mundo) | 🔴 não-expira | AGENTS.md sob Linux Foundation; MCP em 10/11 harnesses (2026-07). |
+| Protocolos (MCP/A2A/ACP/AGENTS.md — cap. 17) | interoperabilidade entre sistemas | nunca (fronteira com o mundo) | 🔴 não-expira | MCP, goose e AGENTS.md doados à **Agentic AI Foundation / Linux Foundation** (dez/2025); MCP em 10/11 harnesses e o ACP fundido no A2A sob a LF (ago/2025) — a fronteira se institucionaliza, não desaparece (2026-07). |
 
 *Regra de manutenção: a cada rodada do benchmark e a cada edição, revisar esta tabela — promover 🔵→🟡→🟢 com a evidência datada que justifica. Uma linha que muda de estado é a notícia mais importante que uma nova edição pode trazer.*
