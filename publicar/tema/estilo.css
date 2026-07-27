@@ -127,3 +127,29 @@ table.viz-heat { border-collapse: collapse; width: 100%; font-size: .9rem; displ
   /* Na home, a capa vem antes da navegação no mobile (SC-001). */
   .pagina-index .conteudo { order: -1; }
 }
+
+/* Tela-capa (splash) full-screen — porta de entrada; sempre escura. */
+.splash-body { margin: 0; color: #eaeef6; min-height: 100svh;
+  background: radial-gradient(1100px 760px at 28% 18%, #0d1a30, #070d18 72%); }
+.splash { min-height: 100svh; display: grid; grid-template-columns: minmax(300px, 44%) 1fr;
+  align-items: center; gap: 3.4rem; max-width: 1180px; margin: 0 auto; padding: 3rem 2.5rem; box-sizing: border-box; }
+.splash-arte img { width: 100%; max-height: 82svh; object-fit: contain; display: block; margin-left: auto;
+  border-radius: 14px; box-shadow: 0 22px 64px rgba(0,0,0,.6); }
+.splash-texto h1 { font-size: clamp(2.4rem, 5vw, 3.6rem); line-height: 1.04; letter-spacing: -1px; margin: 0 0 .5rem; }
+.splash-sub { font-size: clamp(1.1rem, 2.1vw, 1.4rem); color: #9fb0c9; line-height: 1.35; margin: 0 0 1.2rem; }
+.splash-desc { color: #c4cfe0; max-width: 42ch; margin: 0 0 1.8rem; }
+.splash-ctas { display: flex; flex-wrap: wrap; gap: .7rem; margin-bottom: 1.8rem; }
+.btn-grande { padding: .8rem 1.4rem; font-size: 1.05rem; }
+.btn-escuro { background: transparent; color: #eaeef6; border-color: rgba(255,255,255,.28); }
+.btn-escuro:hover { background: rgba(255,255,255,.10); }
+.splash-creditos { font-size: .82rem; color: #7f8fa8; line-height: 1.7; margin: 0;
+  border-top: 1px solid rgba(255,255,255,.12); padding-top: .9rem; }
+.splash-creditos strong { color: #cdd7e6; font-weight: 600; }
+.link-capa { display: block; font-size: .78rem; color: var(--muted); text-decoration: none; margin: -.6rem 0 1rem; }
+.link-capa:hover { color: var(--link); }
+@media (max-width: 820px) {
+  .splash { grid-template-columns: 1fr; gap: 1.6rem; text-align: center; padding: 2.2rem 1.4rem; min-height: auto; }
+  .splash-arte img { max-height: 62svh; max-width: 340px; margin: 0 auto; }
+  .splash-desc { margin-left: auto; margin-right: auto; }
+  .splash-ctas { justify-content: center; }
+}

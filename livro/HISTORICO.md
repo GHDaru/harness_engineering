@@ -28,6 +28,10 @@
 
 ## Edições
 
+### Edição 0.9 — 2026-07-27 · tela-capa full-screen (splash)
+- **Feature spec-kit oficial `013-splash-capa-cheia`**: `index.html` virou uma **tela-capa full-screen** (capa grande + título + subtítulo + créditos + CTA "Entrar no livro"), sem sidebar; o índice migrou para **`sumario.html`** (com a navegação). A marca das páginas internas aponta para o sumário e há link discreto para a capa; paginação Sumário↔capítulos. Responsiva, `alt` descritivo, gate de link-check verde.
+- **IA (A3)**: agente **Claude Code (Anthropic)** — implementação; imagem por **GPT (OpenAI)**; curadoria humana.
+
 ### Edição 0.8 — 2026-07-27 · capa e landing (hero) no site
 - **Feature spec-kit oficial `012-landing-capa`**: a home (`index.html`) ganhou uma **hero de capa** com a imagem gerada (`capa.png`, 1024×1536), título, subtítulo, CTAs ("Começar a ler", Benchmark, Guia) e **créditos como texto** (Gilsiley Henrique Darú — edição/direção/orquestração; Claude/Anthropic — pesquisa/texto; GPT/OpenAI — imagem); o sumário permanece abaixo. Responsiva (empilha e vem antes da navegação no mobile), theme-aware, com `alt` descritivo.
 - **Preview social**: meta tags Open Graph + `capa-social.png` (1200×630, gerada via Chromium) para previews de link.
