@@ -28,6 +28,14 @@
 
 ## Edições
 
+### Edição 0.14 — 2026-07-27 · preparação de DOI e citação (Zenodo/DataCite)
+- **Feature spec-kit oficial `018-doi-citacao-zenodo`**: repositório preparado para receber um **DOI** via **Zenodo** (DataCite) — modelo de **concept DOI** (obra viva) + **DOI por versão** (cada edição), espelhando a cláusula de expiração.
+- **Licenciamento duplo**: `LICENSE` = **CC BY 4.0** (conteúdo) e `LICENSE-CODE` = **MIT** (código), com nota no README dizendo o que cada uma cobre.
+- **Metadados de citação**: `CITATION.cff` (o GitHub passa a mostrar "Cite this repository") e `.zenodo.json` (autor **Gilsiley Henrique Darú** + ORCID `0000-0002-8979-0461`, tipo = livro, licença, keywords, idioma, links para o site). A **co-autoria de IA** é declarada na descrição, **não** como creator (ICMJE/COPE, Guia §6).
+- **README**: seções "Como citar" (com espaço para o badge do DOI) e "Licença".
+- **Pendente (follow-up)**: o autor liga o Zenodo ao repo e publica um *release* → o DOI é emitido; então o **número/badge** é fixado no README e na capa/colofão do site.
+- **IA (A3)**: agente **Claude Code (Anthropic)** — preparação dos metadados; curadoria humana.
+
 ### Edição 0.13 — 2026-07-27 · chat-companion: widget no site
 - **Feature spec-kit oficial `017-widget-chat-companion`**: o **widget** do companion — um chat flutuante (launcher que abre/minimiza) presente em **todas as páginas, inclusive a capa**. JS/CSS puro injetado pelo motor `publicar/` (progressive enhancement; sem JS a página segue inteira).
 - **Cabeçalho de capacidades por capítulo**: o painel mostra "o que posso fazer agora (até o cap. N)" com as capacidades **ativas** (verdes) e as **bloqueadas** (🔒), conforme o capítulo da página e o modo (avançado × progressivo). O capítulo é derivado no build a partir do título; o mapa de capacidades é espelhado no build para render instantâneo — o **backend continua impondo** o gating no `/chat`.

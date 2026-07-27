@@ -1,0 +1,27 @@
+Engenharia de Harness — licença do CONTEÚDO
+Copyright (c) 2026 Gilsiley Henrique Darú
+
+O CONTEÚDO deste repositório — o texto do livro, figuras, capítulos e o
+material editorial (em `livro/`, `benchmark/`, `estudos/` e as páginas
+publicadas do site) — está licenciado sob a
+
+    Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Você é livre para COMPARTILHAR (copiar e redistribuir em qualquer meio ou
+formato) e ADAPTAR (remixar, transformar e criar a partir do material) para
+qualquer finalidade, inclusive comercial, desde que:
+
+  ATRIBUIÇÃO — dê o crédito apropriado a Gilsiley Henrique Darú, forneça um
+  link para esta licença e indique se mudanças foram feitas. Faça isso de
+  maneira razoável, sem sugerir que o licenciante endossa você ou seu uso.
+
+Resumo legível:      https://creativecommons.org/licenses/by/4.0/deed.pt-br
+Texto legal completo: https://creativecommons.org/licenses/by/4.0/legalcode.pt
+
+SPDX-License-Identifier: CC-BY-4.0
+
+------------------------------------------------------------------------------
+O CÓDIGO deste repositório (o software em `harness-zero/`, `publicar/`,
+`chat-companion/` e demais arquivos de programa) é licenciado SEPARADAMENTE
+sob a licença MIT — veja o arquivo LICENSE-CODE.
+------------------------------------------------------------------------------

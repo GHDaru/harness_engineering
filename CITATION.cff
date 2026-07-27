@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "Se você usar esta obra, por favor cite-a como abaixo."
+title: "Engenharia de Harness — Um livro vivo sobre o scaffolding que envolve agentes de IA"
+abstract: >-
+  Livro vivo, em português, sobre a disciplina de engenharia de harness: o
+  scaffolding (loop, ferramentas, contexto, memória, permissões, verificação,
+  orquestração) que envolve modelos de IA e os transforma em agentes. Escrito a
+  partir do estudo sistemático de harnesses de código aberto reais, com um
+  benchmark comparativo e uma construção prática do zero (harness-zero).
+  Obra co-produzida por humano e IA, sob responsabilidade e curadoria humanas
+  (ver a nota de co-autoria na introdução e o Guia Editorial §6).
+type: software
+authors:
+  - family-names: "Darú"
+    given-names: "Gilsiley Henrique"
+    orcid: "https://orcid.org/0000-0002-8979-0461"
+version: "0.13.0"
+date-released: "2026-07-27"
+url: "https://ghdaru.github.io/harness_engineering/"
+repository-code: "https://github.com/GHDaru/harness_engineering"
+license:
+  - CC-BY-4.0
+  - MIT
+keywords:
+  - "agentes de IA"
+  - "AI agents"
+  - "agent harness"
+  - "scaffolding"
+  - "LLM"
+  - "tool calling"
+  - "engenharia de harness"
+  - "livro vivo"
