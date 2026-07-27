@@ -28,6 +28,11 @@
 
 ## Edições
 
+### Edição 0.11 — 2026-07-27 · versão e data de atualização na tela-capa
+- **Feature spec-kit oficial `015-versao-data-capa`**: a tela-capa (splash) passa a exibir um selo discreto **`vX.Y.0 · atualizado em <data>`**. A **versão** é derivada automaticamente da **última edição deste histórico** (fonte única — `### Edição X.Y` → `vX.Y.0`), de modo que o placar de edições e a versão exibida nunca divergem. A **data** vem do **último commit** no momento do build (`git log -1`), fiel à última modificação de conteúdo; sem git, cai para a data do build. Fallbacks totais: o selo jamais quebra o build nem o gate de link-check.
+- **Coerência com a tese**: carimbar versão + data de atualização logo na entrada materializa a cláusula de expiração (livro vivo) na própria porta do site.
+- **IA (A3)**: agente **Claude Code (Anthropic)** — implementação; curadoria humana.
+
 ### Edição 0.10 — 2026-07-27 · página "Sobre o autor"
 - **Feature spec-kit oficial `014-pagina-sobre-autor`**: nova página de *back matter* **"Sobre o autor"** (`livro/autor.md` → `autor.html`), com a biografia acadêmica e profissional de **Gilsiley Henrique Darú** — formação (doutorado UFPR em andamento, mestrados USP e UFPR, especializações), atuação profissional (Neogrid: Head de Dados & IA e trajetória no laboratório de inovação; WEG, Malwee, Datasul), docência (professor universitário na UDESC e outras; coordenação de curso de Engenharia de Produção na FAMEG; pós-graduação em IA & Deep Learning) e produção acadêmica (artigos, anais, orientações), com perfis verificáveis.
 - **Navegação**: item entra no `sumario.json` (parte "Sobre"), aparecendo na sidebar e no sumário, com paginação padrão; o nome do autor nos **créditos da tela-capa** vira link para a página.
