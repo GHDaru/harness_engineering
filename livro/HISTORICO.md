@@ -28,6 +28,12 @@
 
 ## Edições
 
+### Edição 0.10 — 2026-07-27 · página "Sobre o autor"
+- **Feature spec-kit oficial `014-pagina-sobre-autor`**: nova página de *back matter* **"Sobre o autor"** (`livro/autor.md` → `autor.html`), com a biografia acadêmica e profissional de **Gilsiley Henrique Darú** — formação (doutorado UFPR em andamento, mestrados USP e UFPR, especializações), atuação profissional (Neogrid: Head de Dados & IA e trajetória no laboratório de inovação; WEG, Malwee, Datasul), docência (professor universitário na UDESC e outras; coordenação de curso de Engenharia de Produção na FAMEG; pós-graduação em IA & Deep Learning) e produção acadêmica (artigos, anais, orientações), com perfis verificáveis.
+- **Navegação**: item entra no `sumario.json` (parte "Sobre"), aparecendo na sidebar e no sumário, com paginação padrão; o nome do autor nos **créditos da tela-capa** vira link para a página.
+- **Fontes**: Currículo Lattes (`6253911800847523`), ORCID (`0000-0002-8979-0461`), perfil profissional público (LinkedIn) e busca web verificável (Journal of Lean Systems, art. 1930). Fatos rastreáveis, sem dados inventados (Princípio I); empresas/instituições citadas como trajetória, sem endosso (Princípio VI).
+- **IA (A3)**: agente **Claude Code (Anthropic)** — pesquisa das fontes, redação e implementação; curadoria e responsabilidade humanas.
+
 ### Edição 0.9 — 2026-07-27 · tela-capa full-screen (splash)
 - **Feature spec-kit oficial `013-splash-capa-cheia`**: `index.html` virou uma **tela-capa full-screen** (capa grande + título + subtítulo + créditos + CTA "Entrar no livro"), sem sidebar; o índice migrou para **`sumario.html`** (com a navegação). A marca das páginas internas aponta para o sumário e há link discreto para a capa; paginação Sumário↔capítulos. Responsiva, `alt` descritivo, gate de link-check verde.
 - **IA (A3)**: agente **Claude Code (Anthropic)** — implementação; imagem por **GPT (OpenAI)**; curadoria humana.

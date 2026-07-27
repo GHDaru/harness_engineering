@@ -147,7 +147,7 @@ function paginaSplash() {
       <a class="btn btn-escuro" href="comparativo.html">Benchmark</a>
       <a class="btn btn-escuro" href="guia-editorial.html">Guia Editorial</a>
     </div>
-    <p class="splash-creditos"><strong>Gilsiley Henrique Darú</strong> — edição, direção e orquestração<br><strong>Claude (Anthropic)</strong> — pesquisa e geração de texto (co-autoria) · <strong>GPT (OpenAI)</strong> — imagem de capa</p>
+    <p class="splash-creditos"><strong><a href="autor.html">Gilsiley Henrique Darú</a></strong> — edição, direção e orquestração<br><strong>Claude (Anthropic)</strong> — pesquisa e geração de texto (co-autoria) · <strong>GPT (OpenAI)</strong> — imagem de capa</p>
   </div>
 </main>
 </body></html>`;

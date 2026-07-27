@@ -43,6 +43,12 @@
         { "arquivo": "livro/HISTORICO.md", "titulo": "Histórico e Registro de Expiração" },
         { "arquivo": "livro/GUIA-EDITORIAL.md", "titulo": "Guia Editorial" }
       ]
+    },
+    {
+      "nome": "Sobre",
+      "itens": [
+        { "arquivo": "livro/autor.md", "titulo": "Sobre o autor" }
+      ]
     }
   ]
 }
