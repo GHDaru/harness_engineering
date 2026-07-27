@@ -28,6 +28,16 @@
 
 ## Edições
 
+### Edição 0.12 — 2026-07-27 · chat-companion: backend (harness-zero ao vivo)
+- **Feature spec-kit oficial `016-chat-companion-backend`**: nasce o **backend do chat-companion** em `chat-companion/backend/` — um serviço FastAPI que **é o harness-zero rodando em produção** (reusa `LLMPort` e o loop de tool-calling do etapa 01). Atende o futuro widget do site.
+- **Portas (hexagonal por necessidade)**: `LLMPort` (echo / OpenAI-compatible → NVIDIA NIM, com **BYOK** por requisição), `StorePort` (`MemoryStore` para dev / `PostgresStore` para **Neon**, com criação de tabelas na subida) e `ToolPort` (tools **seguras/sandbox**: hora, cálculo aritmético seguro, busca no texto do livro).
+- **Gating de capacidades por capítulo** (`capabilities.py`): modo **avançado** (tudo) × **progressivo** (só o que o livro ensinou até o capítulo atual) — o *fading* do 4C/ID virando comportamento. `GET /capabilities` é a fonte que o widget exibe ("o que posso fazer agora").
+- **Endpoints**: `/health`, `/capabilities`, `/session`, `/chat`, `/history`, `DELETE /session/{id}` (LGPD). **Identidade anônima** por navegador; **rate limit** por sessão/IP (BYOK isenta); **CORS** restrito.
+- **Segurança (cap. 07 aplicado a si)**: nenhum segredo no repo; chave só em env; `.env` gitignored; tools sandbox; BYOK nunca persistida. Suíte de smoke (echo + memória) verde, **sem rede e sem banco**.
+- **Deploy**: artefatos (`Procfile`, `railway.json`, `runtime.txt`, `requirements.txt`, `.env.example`) e **README com passo-a-passo Neon + Railway**. O deploy do Railway é manual do autor; o Pages não hospeda o backend.
+- **Tensão intencional documentada**: o companion (produção) roda à frente das etapas didáticas — `StorePort`/`ToolPort` que as etapas 02/04 formalizarão depois. Registrado no plano, não é violação.
+- **IA (A3)**: agente **Claude Code (Anthropic)** — arquitetura, código e testes; curadoria humana.
+
 ### Edição 0.11 — 2026-07-27 · versão e data de atualização na tela-capa
 - **Feature spec-kit oficial `015-versao-data-capa`**: a tela-capa (splash) passa a exibir um selo discreto **`vX.Y.0 · atualizado em <data>`**. A **versão** é derivada automaticamente da **última edição deste histórico** (fonte única — `### Edição X.Y` → `vX.Y.0`), de modo que o placar de edições e a versão exibida nunca divergem. A **data** vem do **último commit** no momento do build (`git log -1`), fiel à última modificação de conteúdo; sem git, cai para a data do build. Fallbacks totais: o selo jamais quebra o build nem o gate de link-check.
 - **Coerência com a tese**: carimbar versão + data de atualização logo na entrada materializa a cláusula de expiração (livro vivo) na própria porta do site.
