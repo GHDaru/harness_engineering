@@ -14,8 +14,9 @@ authors:
   - family-names: "Darú"
     given-names: "Gilsiley Henrique"
     orcid: "https://orcid.org/0000-0002-8979-0461"
-version: "0.13.0"
+version: "0.15.0"
 date-released: "2026-07-27"
+doi: "10.5281/zenodo.21632412"
 url: "https://ghdaru.github.io/harness_engineering/"
 repository-code: "https://github.com/GHDaru/harness_engineering"
 license:
