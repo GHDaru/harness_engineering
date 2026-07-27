@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 .venv/
 .env
+.pytest_cache/
 
 # motor do livro (node)
 publicar/node_modules/

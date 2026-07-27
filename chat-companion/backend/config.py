@@ -1,0 +1,67 @@
+"""Configuração do chat-companion, lida só de variáveis de ambiente.
+
+Regra do cap. 07 aplicada ao próprio projeto: nenhuma credencial no código.
+A chave do projeto (NVIDIA NIM) e a DATABASE_URL (Neon) vivem só no ambiente.
+Defaults são seguros: sem chave -> adapter echo; sem banco -> store em memória.
+"""
+
+import os
+from pathlib import Path
+
+
+def _load_dotenv() -> None:
+    """Carrega um .env vizinho para os.environ (sem dependência externa).
+    Procura a partir deste arquivo subindo os diretórios. `.env` é gitignored."""
+    for parent in (Path(__file__).parent, *Path(__file__).parents):
+        env = parent / ".env"
+        if env.exists():
+            for line in env.read_text().splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, _, val = line.partition("=")
+                    os.environ.setdefault(key.strip(), val.strip())
+            return
+
+
+_load_dotenv()
+
+
+def _bool(name: str, default: bool) -> bool:
+    return os.environ.get(name, str(default)).strip().lower() in ("1", "true", "yes", "on")
+
+
+def _int(name: str, default: int) -> int:
+    try:
+        return int(os.environ.get(name, default))
+    except (TypeError, ValueError):
+        return default
+
+
+# --- LLM ---
+LLM_ADAPTER = os.environ.get("LLM_ADAPTER", "echo")            # "echo" | "openai"
+OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "https://integrate.api.nvidia.com/v1")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")          # chave do PROJETO (nunca commitada)
+LLM_MODEL = os.environ.get("LLM_MODEL", "nvidia/nemotron-3-ultra-550b-a55b")
+
+# --- Persistência (Neon) ---
+DATABASE_URL = os.environ.get("DATABASE_URL", "")             # vazio -> MemoryStore
+
+# --- Rede / origens ---
+# Origens que podem chamar o backend. Default cobre o site publicado + dev local.
+ALLOWED_ORIGINS = [
+    o.strip()
+    for o in os.environ.get(
+        "ALLOWED_ORIGINS",
+        "https://ghdaru.github.io,http://localhost:8000,http://127.0.0.1:8000,http://localhost:5173",
+    ).split(",")
+    if o.strip()
+]
+
+# --- Limites ---
+RATE_LIMIT_MSGS = _int("RATE_LIMIT_MSGS", 20)                  # msgs por janela, por sessão/IP
+RATE_LIMIT_WINDOW_S = _int("RATE_LIMIT_WINDOW_S", 300)         # janela em segundos
+ALLOW_BYOK = _bool("ALLOW_BYOK", True)                         # leitor pode usar a própria chave
+
+# --- Livro (fonte do tutor) ---
+# Raiz do repositório, para o índice de busca no texto do livro.
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parents[2]))
