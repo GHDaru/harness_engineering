@@ -103,7 +103,8 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
 <button id="alt-tema" aria-label="Alternar tema">◐</button>
 <div class="layout">
   <aside class="sidebar">
-    <a class="marca" href="index.html">${tituloLivro}</a>
+    <a class="marca" href="sumario.html">${tituloLivro}</a>
+    <a class="link-capa" href="index.html">↩ capa</a>
     ${navLateral}
   </aside>
   <main class="conteudo">
@@ -115,6 +116,40 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
 </div>
 <script src="${rel}assets/app.js"></script>
 <script src="${rel}assets/viz.js" defer></script>
+</body></html>`;
+}
+
+// Tela-capa (splash) full-screen: porta de entrada do site, sem sidebar.
+function paginaSplash() {
+  return `<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${sumario.titulo}</title>
+<meta name="description" content="${sumario.subtitulo}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="${sumario.titulo}">
+<meta property="og:description" content="${sumario.subtitulo}">
+<meta property="og:image" content="${SITE}assets/capa-social.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="assets/estilo.css">
+</head><body class="splash-body">
+<main class="splash">
+  <div class="splash-arte">
+    <img src="assets/capa.png" width="1024" height="1536" loading="eager"
+      alt="Capa de Engenharia de Harness: um núcleo de IA luminoso, em âmbar, envolto por um harness de engenharia com módulos de loop, ferramenta, permissões, memória e verificação, sobre fundo azul-escuro com traços de blueprint.">
+  </div>
+  <div class="splash-texto">
+    <h1>${sumario.titulo}</h1>
+    <p class="splash-sub">${sumario.subtitulo}</p>
+    <p class="splash-desc">Um estudo empírico da disciplina de construir o <em>scaffolding</em> que envolve agentes de IA — teoria, benchmark de harnesses reais e uma construção prática do zero.</p>
+    <div class="splash-ctas">
+      <a class="btn btn-primario btn-grande" href="sumario.html">Entrar no livro →</a>
+      <a class="btn btn-escuro" href="comparativo.html">Benchmark</a>
+      <a class="btn btn-escuro" href="guia-editorial.html">Guia Editorial</a>
+    </div>
+    <p class="splash-creditos"><strong>Gilsiley Henrique Darú</strong> — edição, direção e orquestração<br><strong>Claude (Anthropic)</strong> — pesquisa e geração de texto (co-autoria) · <strong>GPT (OpenAI)</strong> — imagem de capa</p>
+  </div>
+</main>
 </body></html>`;
 }
 
@@ -172,7 +207,7 @@ for (let k = 0; k < itens.length; k++) {
     tituloPagina: item.titulo,
     corpo,
     navLateral: montarNavLateral(item.slug),
-    prev: itens[k - 1],
+    prev: k === 0 ? { slug: "sumario", titulo: "Sumário" } : itens[k - 1],
     next: itens[k + 1],
     data,
   });
@@ -180,24 +215,15 @@ for (let k = 0; k < itens.length; k++) {
   gerados++;
 }
 
-// index / capa
-const capa = `<section class="hero">
-  <div class="hero-arte">
-    <img src="assets/capa.png" width="1024" height="1536" loading="eager"
-      alt="Capa de Engenharia de Harness: um núcleo de IA luminoso, em âmbar, envolto por um harness de engenharia com módulos de loop, ferramenta, permissões, memória e verificação, sobre fundo azul-escuro com traços de blueprint.">
-  </div>
-  <div class="hero-texto">
-    <h1>${sumario.titulo}</h1>
-    <p class="subtitulo">${sumario.subtitulo}</p>
-    <p class="hero-desc">Um estudo empírico da disciplina de construir o <em>scaffolding</em> que envolve agentes de IA — teoria, benchmark de harnesses reais e uma construção prática do zero.</p>
-    <div class="hero-ctas">
-      <a class="btn btn-primario" href="00-introducao.html">Começar a ler →</a>
-      <a class="btn" href="comparativo.html">Benchmark</a>
-      <a class="btn" href="guia-editorial.html">Guia Editorial</a>
-    </div>
-    <p class="hero-creditos"><strong>Gilsiley Henrique Darú</strong> — edição, direção e orquestração · <strong>Claude (Anthropic)</strong> — pesquisa e geração de texto (co-autoria) · <strong>GPT (OpenAI)</strong> — imagem de capa</p>
-  </div>
-</section>
+// index = tela-capa (splash) full-screen; porta de entrada.
+writeFileSync(resolve(SAIDA, "index.html"), paginaSplash());
+
+// sumario.html = o índice navegável (título + subtítulo + lista de partes), com sidebar.
+const corpoSumario = `<div class="capa">
+<h1>${sumario.titulo}</h1>
+<p class="subtitulo">${sumario.subtitulo}</p>
+<p>Um estudo empírico da disciplina de construir o <em>scaffolding</em> que envolve agentes de IA — teoria, benchmark de harnesses reais e uma construção prática do zero.</p>
+</div>
 ${sumario.partes
   .map(
     (p) =>
@@ -207,12 +233,12 @@ ${sumario.partes
   )
   .join("")}`;
 writeFileSync(
-  resolve(SAIDA, "index.html"),
+  resolve(SAIDA, "sumario.html"),
   pagina({
     tituloLivro: sumario.titulo,
     tituloPagina: "Sumário",
-    corpo: capa,
-    navLateral: montarNavLateral(null),
+    corpo: corpoSumario,
+    navLateral: montarNavLateral("sumario"),
     prev: null,
     next: itens[0],
     data: null,
@@ -222,9 +248,9 @@ writeFileSync(
 
 // Portão de qualidade (T402): todo link interno .html gerado deve apontar para
 // uma página que existe. Link quebrado FALHA o build (e, portanto, o CI).
-const paginas = new Set(itens.map((i) => `${i.slug}.html`).concat("index.html"));
+const paginas = new Set(itens.map((i) => `${i.slug}.html`).concat("index.html", "sumario.html"));
 const quebrados = [];
-for (const i of [...itens, { slug: "index" }]) {
+for (const i of [...itens, { slug: "index" }, { slug: "sumario" }]) {
   const arq = resolve(SAIDA, `${i.slug}.html`);
   if (!existsSync(arq)) continue;
   const html = readFileSync(arq, "utf8");
