@@ -9,9 +9,11 @@ citar de onde vieram. Quando uma etapa futura pedir RAG real, troca-se aqui.
 
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
 from pathlib import Path
+from typing import Optional
 
 _STOP = set("de da do das dos a o e que em para com sem por no na nos nas um uma os as "
             "se ao à é são como mais ou seu sua the of to and in is a an".split())
@@ -24,9 +26,30 @@ def _norm(txt: str) -> list[str]:
 
 
 class BookIndex:
-    def __init__(self, repo_root: Path) -> None:
+    def __init__(self, repo_root: Path, corpus_path: Optional[Path] = None) -> None:
+        """Carrega do `corpus.json` empacotado se existir (caso do container
+        isolado); senão varre `livro/` ao vivo (dev / repo completo)."""
         self.blocos: list[dict] = []
-        self._carregar(repo_root)
+        if corpus_path and Path(corpus_path).exists():
+            self._carregar_corpus(Path(corpus_path))
+        elif (Path(repo_root) / "livro").is_dir():
+            self._carregar(repo_root)
+
+    def _carregar_corpus(self, path: Path) -> None:
+        try:
+            dados = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return
+        for b in dados:
+            self.blocos.append({"fonte": b["fonte"], "titulo": b["titulo"], "texto": b["texto"],
+                                "termos": _norm(b["titulo"] + " " + b["texto"])})
+
+    def exportar(self, path: Path) -> int:
+        """Grava o corpus (sem os termos — recomputados no load) para empacotar."""
+        dados = [{"fonte": b["fonte"], "titulo": b["titulo"], "texto": b["texto"]}
+                 for b in self.blocos]
+        Path(path).write_text(json.dumps(dados, ensure_ascii=False), encoding="utf-8")
+        return len(dados)
 
     def _carregar(self, repo_root: Path) -> None:
         fontes = sorted((repo_root / "livro").rglob("*.md"))

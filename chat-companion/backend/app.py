@@ -35,7 +35,7 @@ app.add_middleware(
 # --- portas (montadas uma vez) ---
 _llm = make_llm(config.LLM_ADAPTER)
 _store = make_store(config.DATABASE_URL)
-_index = BookIndex(config.REPO_ROOT)
+_index = BookIndex(config.REPO_ROOT, config.CORPUS_PATH)
 _tools = Tools(_index)
 
 # --- rate limit em memória (MVP single-instance) ---

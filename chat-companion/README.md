@@ -99,7 +99,7 @@ Sem `.env`, sobe em modo **echo** + **memória** — ótimo para testar o fluxo.
 4. **Deploy.** O Railway expõe uma URL pública (**Settings → Networking → Generate Domain**). Confirme em `https://SEU-APP.up.railway.app/health` → deve responder `{"ok": true, "store": "postgres"}`.
 5. Guarde essa URL — o **widget** (feature 017) vai apontar para ela.
 
-> **Nota**: o `REPO_ROOT` (fonte da busca no livro) resolve para a raiz do repositório automaticamente quando o deploy usa o repo inteiro com root directory `chat-companion/backend`. Se você deployar só a subpasta isolada (sem o resto do repo), a busca no livro fica vazia — para o companion citar o livro, mantenha o deploy a partir do repositório completo.
+> **Nota sobre a busca no livro**: o Railway, com Root Directory `chat-companion/backend`, copia **só** essa pasta para o container. Por isso o backend embarca um **`corpus.json`** (gerado por `build_corpus.py` a partir de `livro/`) e o carrega quando o repositório completo não está presente. Em dev, o mesmo código varre `livro/` ao vivo. **Regenere o corpus quando o livro mudar**: `cd chat-companion/backend && python build_corpus.py` (idealmente no CI, antes do deploy).
 
 ### Verificar
 

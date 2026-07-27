@@ -63,5 +63,22 @@ RATE_LIMIT_WINDOW_S = _int("RATE_LIMIT_WINDOW_S", 300)         # janela em segun
 ALLOW_BYOK = _bool("ALLOW_BYOK", True)                         # leitor pode usar a própria chave
 
 # --- Livro (fonte do tutor) ---
-# Raiz do repositório, para o índice de busca no texto do livro.
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parents[2]))
+# Raiz do repositório, para o índice de busca no texto do livro. Robusto a
+# contextos isolados (ex.: Railway com Root Directory = chat-companion/backend,
+# onde só esta pasta é copiada): procura subindo até achar `livro/`; se não
+# achar (deploy isolado), o `corpus.json` empacotado cobre a busca no livro.
+def _find_repo_root() -> Path:
+    override = os.environ.get("REPO_ROOT")
+    if override:
+        return Path(override)
+    aqui = Path(__file__).resolve()
+    for parent in aqui.parents:
+        if (parent / "livro").is_dir():
+            return parent
+    return aqui.parent  # fallback seguro (sem IndexError); corpus.json cobre o livro
+
+
+REPO_ROOT = _find_repo_root()
+# Corpus do livro empacotado (gerado por build_corpus.py) — usado quando o
+# repositório completo não está no container.
+CORPUS_PATH = Path(__file__).resolve().parent / "corpus.json"
