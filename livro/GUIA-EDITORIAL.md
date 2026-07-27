@@ -119,8 +119,9 @@ Para levar um capítulo ou seção ao padrão do livro:
 1. **Abrir o tema** — pesquisa dupla (comercial/industrial + científica), verificada por busca cruzada; registrar lacunas.
 2. **Reunir a fonte-base** — ler o código dos harnesses; anotar paths (vira Apêndice A).
 3. **Escrever** — no esqueleto v3 (capítulos) ou no tipo Diátaxis correto (guia/benchmark = referência); um tipo de texto por seção; termos técnicos sem tradução.
-4. **Verificar fontes** — nenhuma URL/ID inventado; não-confirmado marcado `⏳`; sincronizar `bibliografia.md`.
-5. **Gate de build** — `node publicar/build.mjs` verde (sem link interno quebrado).
-6. **Datar** — selo de captura no capítulo e entrada no `HISTORICO.md` se o estado da arte mudou.
+4. **Revisar (developmental)** — re-ver estrutura e sentido antes do copyedit de superfície: o argumento fecha? a ordem serve ao leitor? há redundância ou lacuna? "Escrever é reescrever" (§6.A; portão de qualidade da constituição).
+5. **Verificar fontes** — nenhuma URL/ID inventado; não-confirmado marcado `⏳`; sincronizar `bibliografia.md`.
+6. **Gate de build** — `node publicar/build.mjs` verde (sem link interno quebrado).
+7. **Datar** — selo de captura no capítulo e entrada no `HISTORICO.md` — **com a versão do modelo de IA usada** — se o estado da arte mudou.
 
 Salvaguardas de uso de IA: a IA pesquisa e rascunha; o humano decide, verifica e assina. Toda fonte trazida por um agente é conferida antes de entrar no corpo.
