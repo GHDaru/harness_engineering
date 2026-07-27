@@ -81,12 +81,11 @@ O livro cresce por estudo: cada novo harness avaliado alimenta os capítulos com
 
 Esta obra é um **livro vivo**: cada edição é datada e versionada. O registro de DOI (via [Zenodo](https://zenodo.org)/DataCite) segue o mesmo modelo — um **concept DOI** para a obra como um todo (sempre a versão mais recente) e um **DOI de versão** para cada edição.
 
-<!-- BADGE-DOI: fixar aqui o badge do concept DOI quando o Zenodo emitir, ex.:
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX) -->
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21632412.svg)](https://doi.org/10.5281/zenodo.21632412)
 
-Enquanto o DOI não é emitido, cite assim (o GitHub também mostra um botão **"Cite this repository"** a partir do [`CITATION.cff`](CITATION.cff)):
+Cite assim (o GitHub também mostra um botão **"Cite this repository"** a partir do [`CITATION.cff`](CITATION.cff)):
 
-> Darú, Gilsiley Henrique. *Engenharia de Harness — Um livro vivo sobre o scaffolding que envolve agentes de IA*. 2026. Disponível em: https://ghdaru.github.io/harness_engineering/
+> Darú, Gilsiley Henrique. *Engenharia de Harness — Um livro vivo sobre o scaffolding que envolve agentes de IA*. 2026. https://doi.org/10.5281/zenodo.21632412
 
 Autoria e método: obra co-produzida por humano e IA, sob responsabilidade e curadoria humanas; o autor (creator) é Gilsiley Henrique Darú ([ORCID 0000-0002-8979-0461](https://orcid.org/0000-0002-8979-0461)) e a assistência de IA é declarada abertamente (Guia Editorial §6), sem figurar como autora (ICMJE/COPE).
 

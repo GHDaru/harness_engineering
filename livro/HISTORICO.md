@@ -28,6 +28,11 @@
 
 ## Edições
 
+### Edição 0.15 — 2026-07-27 · DOI emitido e fixado
+- **Feature spec-kit oficial `019-doi-badge-site`**: o **DOI** da obra foi emitido pelo Zenodo — **[10.5281/zenodo.21632412](https://doi.org/10.5281/zenodo.21632412)** — e fixado: **badge** no README, **link do DOI** na tela-capa (junto ao selo de versão) e seção **"Como citar"** na página do autor.
+- Com isso, a obra passa a ser **citável academicamente** com identificador persistente, versionado por edição — a cláusula de expiração agora tem um DOI.
+- **IA (A3)**: agente **Claude Code (Anthropic)** — fixação do DOI; curadoria humana.
+
 ### Edição 0.14 — 2026-07-27 · preparação de DOI e citação (Zenodo/DataCite)
 - **Feature spec-kit oficial `018-doi-citacao-zenodo`**: repositório preparado para receber um **DOI** via **Zenodo** (DataCite) — modelo de **concept DOI** (obra viva) + **DOI por versão** (cada edição), espelhando a cláusula de expiração.
 - **Licenciamento duplo**: `LICENSE` = **CC BY 4.0** (conteúdo) e `LICENSE-CODE` = **MIT** (código), com nota no README dizendo o que cada uma cobre.
