@@ -65,6 +65,14 @@ Professor universitário há mais de duas décadas, com passagem por coordenaç�
 
 Trabalhos de conclusão em Engenharia de Produção e Computação, entre eles: aplicação de **algoritmos genéticos** para produção de cortes de barras; comparação entre **busca semântica e busca textual**; avaliação de cenários produtivos por **simulação**; modelos de **apoio multicritério à decisão** (PROMÉTHÉE) para seleção de fornecedores; e sistemas de apoio à decisão com **programação por restrições**.
 
+## Como citar este livro
+
+Esta obra tem **DOI** (Zenodo/DataCite) e é versionada por edição:
+
+> Darú, Gilsiley Henrique. *Engenharia de Harness — Um livro vivo sobre o scaffolding que envolve agentes de IA*. 2026. DOI: [10.5281/zenodo.21632412](https://doi.org/10.5281/zenodo.21632412)
+
+O identificador acompanha a obra viva; cada edição também recebe seu próprio DOI de versão. A co-autoria humano + IA está declarada na [Nota de autoria e método](00-introducao.md#nota-de-autoria-e-metodo).
+
 ## Perfis e contato
 
 - **Currículo Lattes**: <https://lattes.cnpq.br/6253911800847523>

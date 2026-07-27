@@ -205,6 +205,7 @@ function paginaSplash() {
     </div>
     <p class="splash-creditos"><strong><a href="autor.html">Gilsiley Henrique Darú</a></strong> — edição, direção e orquestração<br><strong>Claude (Anthropic)</strong> — pesquisa e geração de texto (co-autoria) · <strong>GPT (OpenAI)</strong> — imagem de capa</p>
     <p class="splash-versao"><span class="splash-versao-num">${versao}</span> · atualizado em ${atualizado}</p>
+    <p class="splash-doi"><a href="https://doi.org/10.5281/zenodo.21632412">DOI: 10.5281/zenodo.21632412</a></p>
   </div>
 </main>
 ${companionSnippet(0)}
