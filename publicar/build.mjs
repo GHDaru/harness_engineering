@@ -32,6 +32,32 @@ const slugsPublicados = new Set(itens.map((i) => i.slug));
 const GITHUB_BASE = "https://github.com/GHDaru/harness_engineering/blob/main/";
 const SITE = "https://ghdaru.github.io/harness_engineering/"; // base absoluta p/ og:image
 
+// Chat-companion (feature 017): URL do backend + espelho leve do registro de
+// capacidades (fonte-de-verdade do gating é o backend; aqui é só exibição).
+const COMPANION_BACKEND = sumario.companion_backend || "";
+const COMPANION_CAPS = [
+  { chave: "tutor", rotulo: "Tutor do livro", libera: 0 },
+  { chave: "busca_livro", rotulo: "Busca no livro", libera: 0 },
+  { chave: "loop", rotulo: "Loop de agente", libera: 2 },
+  { chave: "contexto", rotulo: "Contexto em camadas", libera: 3 },
+  { chave: "compactacao", rotulo: "Compactação", libera: 4 },
+  { chave: "ferramentas", rotulo: "Ferramentas seguras", libera: 5 },
+  { chave: "mcp", rotulo: "MCP", libera: 6 },
+  { chave: "permissoes", rotulo: "Permissões", libera: 7 },
+  { chave: "memoria", rotulo: "Memória entre sessões", libera: 8 },
+  { chave: "planejamento", rotulo: "Planejamento", libera: 9 },
+  { chave: "subagentes", rotulo: "Subagentes", libera: 10 },
+  { chave: "evals", rotulo: "Verificação", libera: 11 },
+];
+// Deriva o capítulo da página a partir do título ("02 — …" -> 2; capa/aparato -> 0).
+const capituloDe = (titulo) => parseInt((String(titulo).match(/^\s*(\d+)/) || [])[1], 10) || 0;
+function companionSnippet(chapter) {
+  const cfg = JSON.stringify({ backend: COMPANION_BACKEND, chapter, mode: "progressivo", capabilities: COMPANION_CAPS });
+  return `<script>window.COMPANION=${cfg.replace(/</g, "\\u003c")}</script>
+<link rel="stylesheet" href="assets/companion.css">
+<script src="assets/companion.js" defer></script>`;
+}
+
 // linkify: false de propósito — num livro técnico, "AGENTS.md"/"app.py" no texto
 // não devem virar links. Links reais já são explícitos no Markdown.
 const md = new MarkdownIt({ html: true, linkify: false, typographer: false }).use(anchor, {
@@ -84,7 +110,7 @@ function marcarCallouts(html) {
   });
 }
 
-function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data, ehIndex }) {
+function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data, ehIndex, chapter = 0 }) {
   const rel = ehIndex ? "" : "";
   const navBtn = (item, dir) =>
     item ? `<a class="nav-${dir}" href="${item.slug}.html">${dir === "prev" ? "← " : ""}${item.titulo}${dir === "next" ? " →" : ""}</a>` : `<span></span>`;
@@ -117,6 +143,7 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
 </div>
 <script src="${rel}assets/app.js"></script>
 <script src="${rel}assets/viz.js" defer></script>
+${companionSnippet(chapter)}
 </body></html>`;
 }
 
@@ -180,6 +207,7 @@ function paginaSplash() {
     <p class="splash-versao"><span class="splash-versao-num">${versao}</span> · atualizado em ${atualizado}</p>
   </div>
 </main>
+${companionSnippet(0)}
 </body></html>`;
 }
 
@@ -207,6 +235,8 @@ cpSync(resolve(AQUI, "tema/estilo.css"), resolve(SAIDA, "assets/estilo.css"));
 cpSync(resolve(AQUI, "tema/app.js"), resolve(SAIDA, "assets/app.js"));
 cpSync(resolve(AQUI, "tema/capa.png"), resolve(SAIDA, "assets/capa.png"));
 cpSync(resolve(AQUI, "tema/capa-social.png"), resolve(SAIDA, "assets/capa-social.png"));
+cpSync(resolve(AQUI, "tema/companion.css"), resolve(SAIDA, "assets/companion.css"));
+cpSync(resolve(AQUI, "tema/companion.js"), resolve(SAIDA, "assets/companion.js"));
 writeFileSync(resolve(SAIDA, ".nojekyll"), "");
 
 // Bundle das ilhas de visualização React (P2). Dados embutidos em build-time.
@@ -240,6 +270,7 @@ for (let k = 0; k < itens.length; k++) {
     prev: k === 0 ? { slug: "sumario", titulo: "Sumário" } : itens[k - 1],
     next: itens[k + 1],
     data,
+    chapter: capituloDe(item.titulo),
   });
   writeFileSync(resolve(SAIDA, `${item.slug}.html`), html);
   gerados++;

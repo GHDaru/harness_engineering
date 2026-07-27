@@ -28,6 +28,14 @@
 
 ## Edições
 
+### Edição 0.13 — 2026-07-27 · chat-companion: widget no site
+- **Feature spec-kit oficial `017-widget-chat-companion`**: o **widget** do companion — um chat flutuante (launcher que abre/minimiza) presente em **todas as páginas, inclusive a capa**. JS/CSS puro injetado pelo motor `publicar/` (progressive enhancement; sem JS a página segue inteira).
+- **Cabeçalho de capacidades por capítulo**: o painel mostra "o que posso fazer agora (até o cap. N)" com as capacidades **ativas** (verdes) e as **bloqueadas** (🔒), conforme o capítulo da página e o modo (avançado × progressivo). O capítulo é derivado no build a partir do título; o mapa de capacidades é espelhado no build para render instantâneo — o **backend continua impondo** o gating no `/chat`.
+- **Conversa e memória**: fala com o backend (016) em `POST /chat`; identidade **anônima por navegador** (`localStorage`), com histórico via `GET /history`. Degradação graciosa se o backend cair (aviso amigável; a página nunca trava).
+- **Acessível e responsivo**: `aria-label`, foco ao abrir, teclado (Enter envia, Esc fecha), contraste; painel quase full no mobile; legível sobre a capa escura; theme-aware.
+- **Backend no ar**: publicado no Railway (`harnessengineering-production.up.railway.app`) com Postgres (Neon) e NVIDIA NIM; `/health` = `openai`+`postgres`; `/chat` já cita o livro.
+- **IA (A3)**: agente **Claude Code (Anthropic)** — implementação; curadoria humana.
+
 ### Edição 0.12 — 2026-07-27 · chat-companion: backend (harness-zero ao vivo)
 - **Feature spec-kit oficial `016-chat-companion-backend`**: nasce o **backend do chat-companion** em `chat-companion/backend/` — um serviço FastAPI que **é o harness-zero rodando em produção** (reusa `LLMPort` e o loop de tool-calling do etapa 01). Atende o futuro widget do site.
 - **Portas (hexagonal por necessidade)**: `LLMPort` (echo / OpenAI-compatible → NVIDIA NIM, com **BYOK** por requisição), `StorePort` (`MemoryStore` para dev / `PostgresStore` para **Neon**, com criação de tabelas na subida) e `ToolPort` (tools **seguras/sandbox**: hora, cálculo aritmético seguro, busca no texto do livro).

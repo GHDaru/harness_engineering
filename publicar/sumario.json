@@ -1,6 +1,7 @@
 {
   "titulo": "Engenharia de Harness",
   "subtitulo": "Um livro vivo sobre o scaffolding que envolve agentes de IA",
+  "companion_backend": "https://harnessengineering-production.up.railway.app",
   "partes": [
     {
       "nome": "Abertura",
