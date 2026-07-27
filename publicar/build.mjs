@@ -13,6 +13,7 @@ import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync, rmSync } fr
 import { dirname, resolve, basename } from "node:path";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { execSync } from "node:child_process";
 import MarkdownIt from "markdown-it";
 import anchor from "markdown-it-anchor";
 import * as esbuild from "esbuild";
@@ -119,8 +120,36 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
 </body></html>`;
 }
 
+// Versão do livro: fonte única = a última edição declarada em HISTORICO.md.
+// "### Edição 0.11 — …" -> "v0.11.0". Fallback seguro se nada casar.
+function versaoDoLivro() {
+  try {
+    const hist = readFileSync(resolve(RAIZ, "livro/HISTORICO.md"), "utf8");
+    const m = hist.match(/^###\s+Edição\s+(\d+)\.(\d+)/m);
+    if (m) return `v${m[1]}.${m[2]}.0`;
+  } catch {}
+  return "v0.0.0";
+}
+
+// Data da última modificação: data do último commit (fiel à mudança real de
+// conteúdo). Sem git / repo raso -> data do build. Nunca quebra o build.
+function dataDaUltimaModificacao() {
+  let d;
+  try {
+    const iso = execSync("git log -1 --format=%cI", { cwd: RAIZ, stdio: ["ignore", "pipe", "ignore"] })
+      .toString()
+      .trim();
+    d = iso ? new Date(iso) : new Date();
+  } catch {
+    d = new Date();
+  }
+  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(d);
+}
+
 // Tela-capa (splash) full-screen: porta de entrada do site, sem sidebar.
 function paginaSplash() {
+  const versao = versaoDoLivro();
+  const atualizado = dataDaUltimaModificacao();
   return `<!doctype html>
 <html lang="pt-BR"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -148,6 +177,7 @@ function paginaSplash() {
       <a class="btn btn-escuro" href="guia-editorial.html">Guia Editorial</a>
     </div>
     <p class="splash-creditos"><strong><a href="autor.html">Gilsiley Henrique Darú</a></strong> — edição, direção e orquestração<br><strong>Claude (Anthropic)</strong> — pesquisa e geração de texto (co-autoria) · <strong>GPT (OpenAI)</strong> — imagem de capa</p>
+    <p class="splash-versao"><span class="splash-versao-num">${versao}</span> · atualizado em ${atualizado}</p>
   </div>
 </main>
 </body></html>`;
