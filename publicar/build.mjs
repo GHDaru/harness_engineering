@@ -29,6 +29,7 @@ const slugDe = (arquivo) => basename(arquivo).replace(/\.md$/, "").toLowerCase()
 itens.forEach((i) => (i.slug = slugDe(i.arquivo)));
 const slugsPublicados = new Set(itens.map((i) => i.slug));
 const GITHUB_BASE = "https://github.com/GHDaru/harness_engineering/blob/main/";
+const SITE = "https://ghdaru.github.io/harness_engineering/"; // base absoluta p/ og:image
 
 // linkify: false de propósito — num livro técnico, "AGENTS.md"/"app.py" no texto
 // não devem virar links. Links reais já são explícitos no Markdown.
@@ -91,8 +92,14 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
 <html lang="pt-BR"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${tituloPagina} · ${tituloLivro}</title>
+<meta name="description" content="${sumario.subtitulo}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="${tituloLivro}">
+<meta property="og:description" content="${sumario.subtitulo}">
+<meta property="og:image" content="${SITE}assets/capa-social.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="${rel}assets/estilo.css">
-</head><body>
+</head><body${ehIndex ? ' class="pagina-index"' : ""}>
 <button id="alt-tema" aria-label="Alternar tema">◐</button>
 <div class="layout">
   <aside class="sidebar">
@@ -133,6 +140,8 @@ if (existsSync(SAIDA)) rmSync(SAIDA, { recursive: true, force: true });
 mkdirSync(resolve(SAIDA, "assets"), { recursive: true });
 cpSync(resolve(AQUI, "tema/estilo.css"), resolve(SAIDA, "assets/estilo.css"));
 cpSync(resolve(AQUI, "tema/app.js"), resolve(SAIDA, "assets/app.js"));
+cpSync(resolve(AQUI, "tema/capa.png"), resolve(SAIDA, "assets/capa.png"));
+cpSync(resolve(AQUI, "tema/capa-social.png"), resolve(SAIDA, "assets/capa-social.png"));
 writeFileSync(resolve(SAIDA, ".nojekyll"), "");
 
 // Bundle das ilhas de visualização React (P2). Dados embutidos em build-time.
@@ -172,11 +181,23 @@ for (let k = 0; k < itens.length; k++) {
 }
 
 // index / capa
-const capa = `<div class="capa">
-<h1>${sumario.titulo}</h1>
-<p class="subtitulo">${sumario.subtitulo}</p>
-<p>Um estudo empírico da disciplina de construir o <em>scaffolding</em> que envolve agentes de IA — teoria, benchmark de harnesses reais e uma construção prática do zero.</p>
-</div>
+const capa = `<section class="hero">
+  <div class="hero-arte">
+    <img src="assets/capa.png" width="1024" height="1536" loading="eager"
+      alt="Capa de Engenharia de Harness: um núcleo de IA luminoso, em âmbar, envolto por um harness de engenharia com módulos de loop, ferramenta, permissões, memória e verificação, sobre fundo azul-escuro com traços de blueprint.">
+  </div>
+  <div class="hero-texto">
+    <h1>${sumario.titulo}</h1>
+    <p class="subtitulo">${sumario.subtitulo}</p>
+    <p class="hero-desc">Um estudo empírico da disciplina de construir o <em>scaffolding</em> que envolve agentes de IA — teoria, benchmark de harnesses reais e uma construção prática do zero.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-primario" href="00-introducao.html">Começar a ler →</a>
+      <a class="btn" href="comparativo.html">Benchmark</a>
+      <a class="btn" href="guia-editorial.html">Guia Editorial</a>
+    </div>
+    <p class="hero-creditos"><strong>Gilsiley Henrique Darú</strong> — edição, direção e orquestração · <strong>Claude (Anthropic)</strong> — pesquisa e geração de texto (co-autoria) · <strong>GPT (OpenAI)</strong> — imagem de capa</p>
+  </div>
+</section>
 ${sumario.partes
   .map(
     (p) =>

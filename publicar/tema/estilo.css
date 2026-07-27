@@ -59,6 +59,28 @@ h2[data-callout="callout-apendice"] { border-color: var(--apend); }
 .rodape { color: var(--muted); font-size: .82rem; margin-top: 2rem; }
 .capa h1 { font-size: 2.6rem; }
 .capa .subtitulo { font-size: 1.15rem; color: var(--muted); margin-top: -.5rem; }
+
+/* Hero de capa (landing) — imagem + texto; empilha no mobile; theme-aware. */
+.hero { display: grid; grid-template-columns: minmax(190px, 250px) 1fr; gap: 1.8rem; align-items: center; margin: 0 0 2.4rem; }
+.hero-arte img { width: 100%; height: auto; border-radius: 12px; display: block;
+  box-shadow: 0 10px 34px rgba(0,0,0,.30); border: 1px solid var(--line); }
+:root[data-tema="escuro"] .hero-arte img { box-shadow: 0 10px 40px rgba(0,0,0,.55); }
+.hero-texto h1 { font-size: 2.3rem; line-height: 1.1; margin: 0 0 .3rem; }
+.hero-texto .subtitulo { color: var(--muted); font-size: 1.12rem; margin: 0 0 .8rem; }
+.hero-desc { margin: 0 0 1.1rem; }
+.hero-ctas { display: flex; flex-wrap: wrap; gap: .6rem; margin-bottom: 1.2rem; }
+.btn { display: inline-block; padding: .5rem .95rem; border: 1px solid var(--line); border-radius: 8px;
+  text-decoration: none; color: var(--fg); font-weight: 600; font-size: .92rem; }
+.btn:hover { background: rgba(127,127,127,.12); }
+.btn-primario { background: var(--link); color: #fff; border-color: var(--link); }
+.btn-primario:hover { filter: brightness(1.08); }
+.hero-creditos { font-size: .78rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: .7rem; margin: 0; line-height: 1.6; }
+.hero-creditos strong { color: var(--fg); font-weight: 600; }
+@media (max-width: 640px) {
+  .hero { grid-template-columns: 1fr; gap: 1.1rem; text-align: center; }
+  .hero-arte img { max-width: 240px; margin: 0 auto; }
+  .hero-ctas { justify-content: center; }
+}
 ul.sumario { list-style: none; padding: 0; }
 ul.sumario li a { display: block; padding: .3rem 0; border-bottom: 1px solid var(--line); text-decoration: none; }
 
@@ -102,4 +124,6 @@ table.viz-heat { border-collapse: collapse; width: 100%; font-size: .9rem; displ
   .layout { grid-template-columns: 1fr; }
   .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
   .conteudo { padding: 1.5rem 1.2rem 3rem; }
+  /* Na home, a capa vem antes da navegação no mobile (SC-001). */
+  .pagina-index .conteudo { order: -1; }
 }
