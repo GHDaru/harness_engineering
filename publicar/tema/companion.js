@@ -54,7 +54,8 @@
   });
   var minBtn = el("button", "cmp-min", "–"); minBtn.setAttribute("aria-label", "Minimizar o companion");
   var sugBtn = el("button", "cmp-min", "💡"); sugBtn.setAttribute("aria-label", "Enviar sugestão ao autor"); sugBtn.title = "Enviar sugestão ao autor";
-  actions.appendChild(modeSel); actions.appendChild(sugBtn); actions.appendChild(minBtn);
+  var limparBtn = el("button", "cmp-min", "🗑"); limparBtn.setAttribute("aria-label", "Apagar a conversa"); limparBtn.title = "Apagar a conversa";
+  actions.appendChild(modeSel); actions.appendChild(sugBtn); actions.appendChild(limparBtn); actions.appendChild(minBtn);
   head.appendChild(title); head.appendChild(actions);
 
   var capsBox = el("div", "cmp-caps");
@@ -133,6 +134,12 @@
   launcher.addEventListener("click", open);
   minBtn.addEventListener("click", close);
   modeSel.addEventListener("change", function () { MODE = modeSel.value; set("cmp_mode", MODE); renderCaps(); });
+  limparBtn.addEventListener("click", function () {
+    if (!confirm("Apagar toda a conversa? (não dá para desfazer)")) return;
+    api("/session/" + encodeURIComponent(SID), { method: "DELETE" })
+      .catch(function () {})
+      .then(function () { msgs.innerHTML = ""; greeted = false; histLoaded = true; greet(); });
+  });
   sugBtn.addEventListener("click", function () {
     sugForm.hidden = !sugForm.hidden;
     if (!sugForm.hidden) sugTxt.focus();
