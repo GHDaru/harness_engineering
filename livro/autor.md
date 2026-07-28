@@ -1,5 +1,7 @@
 # Sobre o autor
 
+<img class="autor-foto" src="assets/autor.png" alt="Foto de Gilsiley Henrique Darú">
+
 **Gilsiley Henrique Darú** é o editor, direcionador e orquestrador humano deste livro vivo. Cientista de dados, engenheiro e professor universitário, atua há mais de 20 anos na fronteira entre **otimização, pesquisa operacional e inteligência artificial** aplicadas ao planejamento e à cadeia de suprimentos — e há alguns anos, na engenharia dos sistemas de IA que este livro chama de *harness*.
 
 A escolha do tema não é acidental. A trajetória do autor é uma longa prática de **envolver métodos poderosos em um andaime que os torna úteis no mundo real**: solvers matemáticos dentro de rotinas de PCP, modelos preditivos dentro de processos de negócio, e agora agentes de IA dentro de um *scaffolding* de loop, ferramentas, memória e verificação. Este livro é a sistematização dessa disciplina.

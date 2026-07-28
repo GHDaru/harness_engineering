@@ -240,7 +240,7 @@ function paginaSplash() {
       <a class="btn btn-escuro" href="comparativo.html">Benchmark</a>
       <a class="btn btn-escuro" href="guia-editorial.html">Guia Editorial</a>
     </div>
-    <p class="splash-creditos"><strong><a href="autor.html">Gilsiley Henrique Darú</a></strong> — edição, direção e orquestração<br><strong>Claude (Anthropic)</strong> — pesquisa e geração de texto (co-autoria) · <strong>GPT (OpenAI)</strong> — imagem de capa</p>
+    <p class="splash-creditos"><strong><a href="autor.html">Gilsiley Henrique Darú</a></strong> — edição, direção e orquestração · <a class="splash-linkedin" href="https://www.linkedin.com/in/gilsiley-dar%C3%BA/">LinkedIn</a><br><strong>Claude (Anthropic)</strong> — pesquisa e geração de texto (co-autoria) · <strong>GPT (OpenAI)</strong> — imagem de capa</p>
     <p class="splash-versao"><span class="splash-versao-num">${versao}</span> · atualizado em ${atualizado}</p>
     <p class="splash-doi"><a href="https://doi.org/10.5281/zenodo.21632412">DOI: 10.5281/zenodo.21632412</a></p>
   </div>
@@ -273,6 +273,7 @@ cpSync(resolve(AQUI, "tema/estilo.css"), resolve(SAIDA, "assets/estilo.css"));
 cpSync(resolve(AQUI, "tema/app.js"), resolve(SAIDA, "assets/app.js"));
 cpSync(resolve(AQUI, "tema/capa.png"), resolve(SAIDA, "assets/capa.png"));
 cpSync(resolve(AQUI, "tema/capa-social.png"), resolve(SAIDA, "assets/capa-social.png"));
+cpSync(resolve(AQUI, "tema/autor.png"), resolve(SAIDA, "assets/autor.png"));
 cpSync(resolve(AQUI, "tema/companion.css"), resolve(SAIDA, "assets/companion.css"));
 cpSync(resolve(AQUI, "tema/companion.js"), resolve(SAIDA, "assets/companion.js"));
 writeFileSync(resolve(SAIDA, ".nojekyll"), "");
