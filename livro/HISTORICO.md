@@ -32,6 +32,11 @@
 
 ## Edições
 
+### Edição 0.26 — 2026-07-28 · companion: corpus atualizado + apagar conversa
+- **Feature spec-kit oficial `031-companion-atualizacoes`**: o **`corpus.json`** do companion foi **regenerado** (618 blocos) — o tutor volta a citar o livro **atual** (Fundamentos novo, Glossário, Apêndice do estudo, caps 14–17 revisados). Prática registrada: regenerar o corpus a cada mudança relevante do livro (roadmap R2; automação via CI fica como evolução).
+- **Widget**: novo botão **🗑 Apagar a conversa** (CO2 do roadmap) — confirma, chama `DELETE /session/{id}` (LGPD) e reinicia o chat localmente.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.25 — 2026-07-28 · formato editorial v3 nos caps 00, 14–17 + siglas inline (auditoria)
 - **Feature spec-kit oficial `030-formato-editorial`** (O005 da auditoria): os capítulos **pré-v3** foram trazidos ao formato editorial do livro (padrão do cap. 04): **14 — Convergências**, **15 — Harness Embutido**, **16 — Aprendizado e Auto-melhoria** e **17 — Protocolos** ganharam cabeçalho de data, objetivos de aprendizagem (Bloom), "O problema", estado da arte reorganizado com leitura executiva, verificação e Apêndice A (material por-repositório preservado, com link às avaliações). **Conteúdo preservado; nenhuma fonte inventada** (capítulos sem papers não ganharam seção de fundamentos — pendência honesta).
 - **Cap. 00 (Introdução)**: cabeçalho de data + seção **"Os harnesses do estudo"** (O004): a **lista completa dos 16 sistemas** por arquétipo, com ponteiro ao Apêndice — O estudo e ao Comparativo (substitui a antiga "primeira rodada").
