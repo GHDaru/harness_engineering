@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.27 — 2026-07-28 · harness-zero: etapa 02 — ToolPort (cap. 05)
+- **Feature spec-kit oficial `032-harness-zero-etapa02`**: retomada a trilha prática. A **etapa 02** (`harness-zero/etapas/02-tools/`) introduz o **ToolPort** — a segunda porta do harness: ferramentas são **funções Python tipadas** registradas por decorator (`@tools.tool`); o **JSON Schema é derivado** da assinatura + docstring (`inspect`/`typing`), curando o tédio dos schemas à mão da etapa 1 (a mesma solução dos harnesses reais: FastMCP, `function_tool`, `#[tool]`). O loop não mudou — é assim que uma porta paga o aluguel. Endpoint `/tools` como janela de observação; parâmetros com default viram opcionais no schema (verificado). Etapa autocontida; roda com echo (sem rede).
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.26 — 2026-07-28 · companion: corpus atualizado + apagar conversa
 - **Feature spec-kit oficial `031-companion-atualizacoes`**: o **`corpus.json`** do companion foi **regenerado** (618 blocos) — o tutor volta a citar o livro **atual** (Fundamentos novo, Glossário, Apêndice do estudo, caps 14–17 revisados). Prática registrada: regenerar o corpus a cada mudança relevante do livro (roadmap R2; automação via CI fica como evolução).
 - **Widget**: novo botão **🗑 Apagar a conversa** (CO2 do roadmap) — confirma, chama `DELETE /session/{id}` (LGPD) e reinicia o chat localmente.
