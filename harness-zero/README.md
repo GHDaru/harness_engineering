@@ -60,7 +60,7 @@ Créditos: modelos e endpoint gratuito cortesia da **NVIDIA** — [NVIDIA API Ca
 | [02-tools](etapas/02-tools/) | 05 | **`ToolPort`** + schemas **derivados de tipos** (decorator `@tools.tool`; assinatura+docstring = fonte da verdade) — a cura do tédio da etapa 1 | ✅ |
 | [03-contexto](etapas/03-contexto/) | 03 | **MontadorDeContexto**: system prompt em camadas (identidade → ambiente → **AGENTS.md** do projeto), remontado a cada turno; janela `/contexto` | ✅ |
 | [04-sessoes](etapas/04-sessoes/) | 08 | **StorePort**: sessões persistidas (adapter **SQLite**; memória como contraste) + `session_id`/resume; 1ª evolução justificada do chat congelado | ✅ |
-| 05-compactacao | 04 | A escada: truncar → prune → sumarizar, com indicador no chat | ⏳ |
+| [05-compactacao](etapas/05-compactacao/) | 04 | **Compactador**: a escada truncar → podar → **sumarizar via LLMPort**, por orçamento; age na *visão*, nunca no registro; indicador 🗜 no trace | ✅ |
 | 06-permissoes | 07 | `PermissionPolicy` como domínio puro + aprovação inline + paths sensíveis fixos | ⏳ |
 | 07-mcp | 06 | Adapter MCP client (stdio) | ⏳ |
 | 08-plan | 09 | Plan mode imposto por permissões | ⏳ |
