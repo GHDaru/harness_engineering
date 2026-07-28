@@ -8,6 +8,11 @@ A fórmula que organiza este livro é simples:
 
 > **agente = modelo + harness**
 
+<figure class="figura">
+  <img src="assets/harness-diagrama.svg" alt="Diagrama esquemático: o modelo de IA no centro, envolto pelos seis blocos do harness — loop do agente, contexto, ferramentas, memória, permissões e verificação — dentro de uma moldura tracejada rotulada 'harness (o andaime)'; à direita, o mundo (arquivos, APIs, terminal) com setas de ida e volta.">
+  <figcaption>O modelo no centro; o harness — o andaime — em volta. Cada bloco é um capítulo deste livro.</figcaption>
+</figure>
+
 O modelo é intercambiável e melhora a cada geração. O harness é engenharia de software clássica — e é nele que a maioria dos agentes falha ou tem sucesso. Dois produtos usando exatamente o mesmo modelo entregam resultados radicalmente diferentes conforme a qualidade do harness: como o contexto chega ao modelo, quais ferramentas ele tem, como os erros retornam, o que acontece quando a janela de contexto acaba.
 
 **Engenharia de harness** é a disciplina de projetar esse scaffolding: entrega de contexto, interfaces de ferramentas, artefatos de planejamento, loops de verificação, sistemas de memória e sandboxes.

@@ -28,6 +28,10 @@
 
 ## Edições
 
+### Edição 0.22 — 2026-07-28 · ilustração esquemática do harness (E02)
+- **Feature spec-kit oficial `027-ilustracao-harness`**: o cap. 00 ganhou uma **figura esquemática (SVG flat, estilo bloco)** — o **modelo no centro** e, em volta, os seis blocos do harness (loop, contexto, ferramentas, memória, permissões, verificação) numa moldura "HARNESS (o andaime)", com o mundo (arquivos/APIs/terminal) à direita. **Theme-aware** (herda as cores do tema via CSS vars), acessível (`<title>`/`alt`/`figcaption`), sem binário (SVG versionável).
+- **IA (A3)**: agente **Claude Code (Anthropic)** — desenho e integração; direção do autor ("menos futurista, mais bloco").
+
 ### Edição 0.21 — 2026-07-28 · companion: sugestões dos leitores (E05)
 - **Feature spec-kit oficial `026-companion-sugestoes`**: o leitor agora pode **enviar sugestões ao autor pelo chat** (botão 💡 no widget). O backend persiste em `suggestions` (Postgres/memória) **antes** de qualquer coisa e envia **email** ao autor quando SMTP está configurado (env; instruções no `.env.example` — Gmail com App Password). Sem SMTP, o autor lê via `GET /suggestions?token=` (`ADMIN_TOKEN`). Rate-limit aplicado; nenhuma sugestão se perde por falha de email.
 - **IA (A3)**: agente **Claude Code (Anthropic)** — implementação e testes (9/9 verdes); curadoria humana.
