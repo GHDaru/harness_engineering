@@ -1,6 +1,5 @@
-// Interações mínimas do site: alternância de tema (persistida) e nada mais.
-// As ilhas de visualização React (data-viz) serão hidratadas por um bundle
-// próprio na fase P2 — este arquivo permanece dependency-free.
+// Interações mínimas do site: alternância de tema (persistida) e o "Retomar"
+// da experiência de entrada (spec 021). Dependency-free.
 (function () {
   var raiz = document.documentElement;
   var chave = "harness-tema";
@@ -15,4 +14,30 @@
       raiz.setAttribute("data-tema", atual);
       localStorage.setItem(chave, atual);
     });
+
+  // --- Progresso de leitura (spec 021) ---
+  var corpo = document.body;
+  var slug = corpo.getAttribute("data-slug");
+  var titulo = corpo.getAttribute("data-titulo");
+  var ehIndex = corpo.classList.contains("pagina-index");
+  var CHAVE_ULT = "hz_ultimo";
+
+  // Ao abrir um capítulo (não o sumário), grava como "último lido".
+  if (slug && !ehIndex && slug !== "sumario") {
+    try { localStorage.setItem(CHAVE_ULT, JSON.stringify({ slug: slug, titulo: titulo })); } catch (e) {}
+  }
+
+  // No sumário, popula o card "Retomar" (ou o mantém oculto se não há histórico).
+  if (ehIndex) {
+    try {
+      var u = JSON.parse(localStorage.getItem(CHAVE_ULT) || "null");
+      var card = document.getElementById("ent-retomar");
+      var cap = document.getElementById("ent-ret-cap");
+      if (u && u.slug && card && cap) {
+        card.setAttribute("href", u.slug + ".html");
+        cap.textContent = u.titulo || u.slug;
+        card.hidden = false;
+      }
+    } catch (e) {}
+  }
 })();

@@ -31,6 +31,7 @@ itens.forEach((i) => (i.slug = slugDe(i.arquivo)));
 const slugsPublicados = new Set(itens.map((i) => i.slug));
 const GITHUB_BASE = "https://github.com/GHDaru/harness_engineering/blob/main/";
 const SITE = "https://ghdaru.github.io/harness_engineering/"; // base absoluta p/ og:image
+const DOI = "10.5281/zenodo.21632412";
 
 // Chat-companion (feature 017): URL do backend + espelho leve do registro de
 // capacidades (fonte-de-verdade do gating é o backend; aqui é só exibição).
@@ -110,7 +111,7 @@ function marcarCallouts(html) {
   });
 }
 
-function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data, ehIndex, chapter = 0 }) {
+function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data, ehIndex, chapter = 0, slug = "" }) {
   const rel = ehIndex ? "" : "";
   const navBtn = (item, dir) =>
     item ? `<a class="nav-${dir}" href="${item.slug}.html">${dir === "prev" ? "← " : ""}${item.titulo}${dir === "next" ? " →" : ""}</a>` : `<span></span>`;
@@ -126,7 +127,7 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
 <meta property="og:image" content="${SITE}assets/capa-social.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="${rel}assets/estilo.css">
-</head><body${ehIndex ? ' class="pagina-index"' : ""}>
+</head><body${ehIndex ? ' class="pagina-index"' : ""} data-slug="${slug}" data-titulo="${tituloPagina.replace(/"/g, "&quot;")}">
 <button id="alt-tema" aria-label="Alternar tema">◐</button>
 <div class="layout">
   <aside class="sidebar">
@@ -272,6 +273,7 @@ for (let k = 0; k < itens.length; k++) {
     next: itens[k + 1],
     data,
     chapter: capituloDe(item.titulo),
+    slug: item.slug,
   });
   writeFileSync(resolve(SAIDA, `${item.slug}.html`), html);
   gerados++;
@@ -280,20 +282,53 @@ for (let k = 0; k < itens.length; k++) {
 // index = tela-capa (splash) full-screen; porta de entrada.
 writeFileSync(resolve(SAIDA, "index.html"), paginaSplash());
 
-// sumario.html = o índice navegável (título + subtítulo + lista de partes), com sidebar.
-const corpoSumario = `<div class="capa">
-<h1>${sumario.titulo}</h1>
-<p class="subtitulo">${sumario.subtitulo}</p>
-<p>Um estudo empírico da disciplina de construir o <em>scaffolding</em> que envolve agentes de IA — teoria, benchmark de harnesses reais e uma construção prática do zero.</p>
-</div>
-${sumario.partes
-  .map(
-    (p) =>
-      `<h2>${p.nome}</h2><ul class="sumario">` +
-      p.itens.map((i) => `<li><a href="${slugDe(i.arquivo)}.html">${i.titulo}</a></li>`).join("") +
-      `</ul>`
-  )
-  .join("")}`;
+// sumario.html = a EXPERIÊNCIA DE ENTRADA (spec 021): hero + retomar + trilha +
+// cartões por parte + pills do aparato. A sidebar (índice completo) vem de pagina().
+const dividirTitulo = (t) => {
+  const p = t.split("—");
+  return p.length >= 2 ? { num: p[0].trim(), texto: p.slice(1).join("—").trim() } : { num: "", texto: t.trim() };
+};
+const cartaoEnt = (i) => {
+  const s = slugDe(i.arquivo);
+  const { num, texto } = dividirTitulo(i.titulo);
+  return `<a class="ent-card" href="${s}.html">${num ? `<span class="ent-badge">${num}</span>` : ""}<span class="ent-ct">${texto}</span>${i.teaser ? `<span class="ent-cd">${i.teaser}</span>` : ""}</a>`;
+};
+const pillEnt = (i) => `<a class="ent-pill" href="${slugDe(i.arquivo)}.html">${dividirTitulo(i.titulo).texto}</a>`;
+const partesCartao = new Set(["Abertura", "Capítulos por funcionalidade"]);
+const blocosCartao = sumario.partes
+  .filter((p) => partesCartao.has(p.nome))
+  .map((p) => `<div class="ent-parte"><span>${p.nome}</span><i></i></div><div class="ent-grid">${p.itens.map(cartaoEnt).join("")}</div>`)
+  .join("");
+const pillsEnt = sumario.partes.filter((p) => !partesCartao.has(p.nome)).flatMap((p) => p.itens).map(pillEnt).join("");
+
+const corpoSumario = `<section class="entrada">
+  <div class="ent-hero">
+    <img class="ent-capa" src="assets/capa.png" width="1024" height="1536" loading="eager" alt="Capa do livro Engenharia de Harness">
+    <div class="ent-hero-txt">
+      <div class="ent-kicker">Livro vivo · ${versaoDoLivro()} · DOI ${DOI}</div>
+      <h1 class="ent-titulo">${sumario.titulo}</h1>
+      <p class="ent-sub">${sumario.subtitulo}</p>
+      <div class="ent-ctas">
+        <a class="ent-btn ent-btn-a" href="00-introducao.html">▶ Começar do início — 00</a>
+        <a class="ent-btn" href="comparativo.html">Benchmark</a>
+        <a class="ent-btn" href="guia-editorial.html">Guia Editorial</a>
+      </div>
+    </div>
+  </div>
+  <a class="ent-retomar" id="ent-retomar" href="#" hidden>
+    <span class="ent-ret-l"><span class="ent-ret-lab">Continue lendo</span><span class="ent-ret-cap" id="ent-ret-cap"></span></span>
+    <span class="ent-btn ent-btn-a">Retomar ▶</span>
+  </a>
+  <div class="ent-trilha">
+    <a class="ent-step" href="01-fundamentos.html"><span class="ent-step-n">Trilha · 1</span><b>Fundamentos</b><span>O vocabulário e a tese do livro.</span></a>
+    <a class="ent-step" href="02-loop-do-agente.html"><span class="ent-step-n">Trilha · 2</span><b>Funcionalidades</b><span>Os 16 componentes, um por capítulo.</span></a>
+    <a class="ent-step" href="comparativo.html"><span class="ent-step-n">Trilha · 3</span><b>Benchmark</b><span>10 harnesses reais comparados.</span></a>
+    <a class="ent-step" href="https://github.com/GHDaru/harness_engineering/tree/main/harness-zero"><span class="ent-step-n">Trilha · 4</span><b>Mão na massa</b><span>Construa o harness-zero, etapa a etapa.</span></a>
+  </div>
+  ${blocosCartao}
+  <div class="ent-parte"><span>Benchmark · Aparato · Sobre</span><i></i></div>
+  <div class="ent-pills">${pillsEnt}</div>
+</section>`;
 writeFileSync(
   resolve(SAIDA, "sumario.html"),
   pagina({
