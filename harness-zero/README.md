@@ -65,7 +65,7 @@ Créditos: modelos e endpoint gratuito cortesia da **NVIDIA** — [NVIDIA API Ca
 | [07-mcp](etapas/07-mcp/) | 06 | **ClienteMCP** (stdio, JSON-RPC 2.0): initialize → tools/list → tools/call contra um **servidor de exemplo incluído**; **RegistroComposto** (locais + `mcp_*` no mesmo catálogo); política vale para MCP | ✅ |
 | [08-plan](etapas/08-plan/) | 09 | **Plan mode imposto por permissões** (uma linha no `decide()`): em `planejar`, mutantes são negados; `propor_plano` → artefato **PLAN.md**; aprovar = trocar o modo | ✅ |
 | [09-subagentes](etapas/09-subagentes/) | 10 | Tool **`task`** → **sessão-filha** com contexto limpo (só a descrição na ida; só o resultado na volta), loop próprio limitado, tools **só-leitura**; filhas visíveis em `/sessions` | ✅ |
-| 10-evals | 11 | Suíte de evals do próprio harness (juiz + respostas gravadas) | ⏳ |
+| [10-evals](etapas/10-evals/) | 11 | **Evals do próprio harness**: `ReplayAdapter` (**respostas gravadas** = determinístico) testando política/plan/compactação/aprovação + **juiz** LLM-as-judge atrás do LLMPort | ✅ |
 | 11-hooks | 12 | Hooks pre/post tool | ⏳ |
 | 12-skills | 16 | O harness que aprende: skills com anti-padrões | ⏳ |
 

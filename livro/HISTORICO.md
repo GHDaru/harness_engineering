@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.35 — 2026-07-28 · harness-zero: etapa 10 — evals do harness (cap. 11)
+- **Feature spec-kit oficial `040-harness-zero-etapa10`**: o harness aplicado a si mesmo. Suíte `evals/` com **`ReplayAdapter`** — **respostas gravadas** em `.jsonl` reproduzidas em ordem: o eval testa o **harness** (política, plan mode, escada de compactação, derivação de schema, **pausa de aprovação**: a gravação pede `write_file` e nada é escrito sem o humano), nunca o humor do modelo. **`juiz.py`** — LLM-as-judge atrás do mesmo `LLMPort` (nota+justificativa por critérios; com echo degrada honestamente, com chave real julga). 6/6 verdes.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.34 — 2026-07-28 · harness-zero: etapa 09 — subagentes (cap. 10)
 - **Feature spec-kit oficial `039-harness-zero-etapa09`**: a tool **`task(descricao)`** delega a um **subagente com sessão-filha** (`task-…`): system prompt focado **só na descrição** (zero contexto do pai), **mesmo loop** com turnos limitados, ferramentas **restritas a leitura** (filha não muta o mundo; a política da etapa 06 segue por cima) — e **só o resultado final volta** ao pai como tool result. As duas fronteiras (ida: só a descrição; volta: só o resultado) são a lição do capítulo: é o que mantém o contexto do pai limpo. Filhas persistidas e visíveis em `/sessions` (a etapa 04 pagando dividendos). Smoke com asserções nas fronteiras.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
