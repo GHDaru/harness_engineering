@@ -19,7 +19,7 @@ Toda conversa de agente cresce até não caber na janela de contexto do modelo. 
 
 As restrições em tensão:
 - **Fidelidade**: o resumo não pode perder decisões, estado de arquivos ou o objetivo da tarefa.
-- **Custo**: sumarizar via LLM é caro; truncar é barato mas destrutivo.
+- **Custo**: sumarizar via LLM (Large Language Model) é caro; truncar é barato mas destrutivo.
 - **Cache**: compactar invalida o prefixo cacheado — deve acontecer o mínimo possível e em momentos controlados.
 
 ## Fundamentos científicos
@@ -106,4 +106,4 @@ Na etapa 5 do projeto (`harness-zero/`), você implementa a escada no seu própr
 Sem compactação no loop (`contextWindowLength` dos memory sub-nodes + `maxTokensFromMemory` apenas) — coerente com execuções curtas acionadas por evento; é o teto da categoria "harness embutido" para tarefas longas.
 
 ### LangGraph / OpenAI Agents SDK / CrewAI (rodada frameworks) — a linha divisória
-LangGraph: **zero suporte nativo** (uma docstring sugerindo `pre_model_hook`); Agents SDK: apenas `OpenAIResponsesCompactionSession` como session opcional; CrewAI: nada. A compactação é a dimensão que mais separa "framework" de "harness pronto".
+LangGraph: **zero suporte nativo** (uma docstring sugerindo `pre_model_hook`); Agents SDK (Software Development Kit): apenas `OpenAIResponsesCompactionSession` como session opcional; CrewAI: nada. A compactação é a dimensão que mais separa "framework" de "harness pronto".

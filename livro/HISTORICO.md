@@ -24,9 +24,19 @@
 | 11 Verificação/Evals | 2026-07 | ✓ | 2026-07-26 |
 | 12 Extensibilidade | 2026-07 | ✓ | 2026-07-26 |
 | 13 Interfaces | 2026-07 | ✓ | 2026-07-26 |
-| 00–01, 14–17 | — (pré-v3) | pendente | — |
+| 14 Convergências | 2026-07 | — | 2026-07-28 |
+| 15 Harness Embutido | 2026-07 | — | 2026-07-28 |
+| 16 Auto-melhoria | 2026-07 | — | 2026-07-28 |
+| 17 Protocolos | 2026-07 | — | 2026-07-28 |
+| 00 Introdução · 01 Fundamentos | 2026-07 | ✓ (01) | 2026-07-28 |
 
 ## Edições
+
+### Edição 0.25 — 2026-07-28 · formato editorial v3 nos caps 00, 14–17 + siglas inline (auditoria)
+- **Feature spec-kit oficial `030-formato-editorial`** (O005 da auditoria): os capítulos **pré-v3** foram trazidos ao formato editorial do livro (padrão do cap. 04): **14 — Convergências**, **15 — Harness Embutido**, **16 — Aprendizado e Auto-melhoria** e **17 — Protocolos** ganharam cabeçalho de data, objetivos de aprendizagem (Bloom), "O problema", estado da arte reorganizado com leitura executiva, verificação e Apêndice A (material por-repositório preservado, com link às avaliações). **Conteúdo preservado; nenhuma fonte inventada** (capítulos sem papers não ganharam seção de fundamentos — pendência honesta).
+- **Cap. 00 (Introdução)**: cabeçalho de data + seção **"Os harnesses do estudo"** (O004): a **lista completa dos 16 sistemas** por arquétipo, com ponteiro ao Apêndice — O estudo e ao Comparativo (substitui a antiga "primeira rodada").
+- **Siglas por extenso inline (O003)**: 1ª ocorrência de cada sigla técnica agora traz o nome por extenso no próprio texto dos caps 00–13 (46 expansões aplicadas; casos que quebravam a leitura foram tratados manualmente). O `<abbr>` continua cobrindo todas as demais ocorrências.
+- **IA (A3)**: agente **Claude Code (Anthropic)** — revisão editorial (4 sub-editores em paralelo p/ 14–17) sob as regras "preserve o conteúdo; não invente fontes"; curadoria humana.
 
 ### Edição 0.24 — 2026-07-28 · PDF do livro (E08)
 - **Feature spec-kit oficial `029-pdf-livro`**: novo gerador **`publicar/pdf.mjs`** — produz o **PDF completo do livro** (`docs/engenharia-de-harness.pdf`) a partir do site construído: folha de rosto (capa, autor+co-autoria de IA, versão, data, DOI), todas as partes e capítulos na ordem do sumário, CSS de impressão (A4, quebras por capítulo, rodapé com paginação). Uso: `node build.mjs && node pdf.mjs`. O PDF é artefato gerado (não versionado); pode ser anexado a cada Release/DOI.

@@ -8,9 +8,9 @@
 
 Ao final deste capítulo, você deve ser capaz de:
 1. **Distinguir** as três perguntas da verificação (o harness funciona? · o agente se comporta? · o trabalho está certo?) e a resposta técnica de cada;
-2. **Explicar** por que a auto-correção *intrínseca* não basta e a verificação precisa ser externa e ancorada em sinal (testes, LSP, tools);
+2. **Explicar** por que a auto-correção *intrínseca* não basta e a verificação precisa ser externa e ancorada em sinal (testes, LSP (Language Server Protocol), tools);
 3. **Avaliar** o *reward hacking* — o agente jogando contra o verificador — e as defesas (held-out, testes imutáveis, anti-mock, verificar o estado final);
-4. **Reconhecer** os vieses do juiz LLM (posição, verbosidade, self-preference) e como mitigá-los;
+4. **Reconhecer** os vieses do juiz LLM (Large Language Model) (posição, verbosidade, self-preference) e como mitigá-los;
 5. **Implementar** uma suíte de evals do harness-zero (juiz + respostas gravadas) na etapa 10.
 
 ## O problema
@@ -81,7 +81,7 @@ A etapa 10 (`harness-zero/etapas/10-evals/`) dá ao harness-zero uma suíte de e
 > Evidência por harness, com paths — complementação online, expandida a cada rodada.
 
 ### gemini-cli (rodada 1) — comportamento sob regressão contínua
-Quatro suítes: (1) `evals/` — ~45 testes comportamentais com **juiz LLM** (`llm-judge.ts`) cobrindo frugalidade, memória hierárquica, plan mode, delegação, segurança de shell, **prompt injection via MCP** e recuperação de sandbox; (2) `integration-tests/` — E2E determinísticos com **respostas gravadas** (`.responses`); (3) `memory-tests/` — regressão contra `baselines.json`, nightly; (4) `perf-tests/` — CPU/startup, nightly. Comportamento como superfície de regressão de primeira classe.
+Quatro suítes: (1) `evals/` — ~45 testes comportamentais com **juiz LLM** (`llm-judge.ts`) cobrindo frugalidade, memória hierárquica, plan mode, delegação, segurança de shell, **prompt injection via MCP (Model Context Protocol)** e recuperação de sandbox; (2) `integration-tests/` — E2E determinísticos com **respostas gravadas** (`.responses`); (3) `memory-tests/` — regressão contra `baselines.json`, nightly; (4) `perf-tests/` — CPU/startup, nightly. Comportamento como superfície de regressão de primeira classe.
 
 ### opencode (rodada 1) — verificação durante a tarefa
 **LSP em runtime** (`packages/opencode/src/lsp/`): edições disparam diagnósticos realimentados ao modelo. **Política anti-mock** explícita (o `AGENTS.md` de `test/` proíbe mocks) + `http-recorder` (grava/replaya HTTP real com determinismo). Typecheck obrigatório (`bun typecheck`).

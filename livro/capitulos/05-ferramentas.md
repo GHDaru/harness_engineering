@@ -44,7 +44,7 @@ Os harnesses convergem num núcleo de ~10 tools (ler/escrever/editar arquivo, gl
 O default de "despejar todas as definições no system prompt" morreu. O estado da arte tem três regimes, e a escolha é por tamanho de catálogo:
 - **catálogo fixo** (dezenas de tools): ainda ok mandar tudo;
 - **tool search / defer_loading** (centenas de tools, muitos servidores MCP): mantém 3–5 tools quentes, carrega o resto sob demanda — presente como `tool_search`/`tool_discovery` no Codex, Tool Search no OpenClaw, `ToolSearch` no OpenHarness;
-- **code-as-action** (pipelines com dados volumosos): o modelo escreve código que orquestra as tools em sandbox e devolve o destilado — `code-mode` (opencode com V8 embutido, Codex idem), `execute_code` (Hermes chamando tools via RPC em "turnos de custo-zero-contexto"), Code Mode (Goose). A métrica que a indústria passou a reportar não é acurácia isolada, é **acurácia por token de definição**.
+- **code-as-action** (pipelines com dados volumosos): o modelo escreve código que orquestra as tools em sandbox e devolve o destilado — `code-mode` (opencode com V8 embutido, Codex idem), `execute_code` (Hermes chamando tools via RPC (Remote Procedure Call) em "turnos de custo-zero-contexto"), Code Mode (Goose). A métrica que a indústria passou a reportar não é acurácia isolada, é **acurácia por token de definição**.
 
 ### 3. A interface de edição é treinada, não inventada
 
@@ -104,4 +104,4 @@ Tools como **capabilities com descritores tipados** declarando `EffectKind`, cre
 `create-node-as-tool.ts`: **qualquer nó `usableAsTool` vira tool** via `$fromAI('chave','desc',tipo)` → schema Zod derivado; ToolWorkflow (sub-workflow como tool), ToolHttpRequest, ToolCode, ToolThink.
 
 ### Frameworks (rodada frameworks)
-Agents SDK: `@function_tool` (Pydantic + griffe com auto-detecção de docstring), 13 tipos incl. hosted; LangGraph: herda `@tool` do langchain-core, adiciona `ToolNode` (execução, injeções); CrewAI: `BaseTool`/`@tool` Pydantic, catálogo `crewai-tools` com 79 diretórios.
+Agents SDK (Software Development Kit): `@function_tool` (Pydantic + griffe com auto-detecção de docstring), 13 tipos incl. hosted; LangGraph: herda `@tool` do langchain-core, adiciona `ToolNode` (execução, injeções); CrewAI: `BaseTool`/`@tool` Pydantic, catálogo `crewai-tools` com 79 diretórios.
