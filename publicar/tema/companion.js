@@ -23,9 +23,11 @@
   function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function fmt(s) { // markdown mínimo e SEGURO (escapa antes)
-    return esc(s).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-                 .replace(/`([^`]+)`/g, "<code>$1</code>")
-                 .replace(/\[([^\]]+\.md[^\]]*)\]/g, '<span class="cmp-src">📖 $1</span>');
+    return esc(s)
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")            // **negrito**
+      .replace(/(^|[^*])\*(?!\s)([^*\n]+?)\*/g, "$1<em>$2</em>")     // *itálico* (não toca no **; _snake_case_ preservado)
+      .replace(/`([^`]+)`/g, "<code>$1</code>")                      // `código`
+      .replace(/\[([^\]]+\.md[^\]]*)\]/g, '<span class="cmp-src">📖 $1</span>'); // citação do livro
   }
   function capsAtivas() {
     return CAPS.map(function (c) {

@@ -28,6 +28,10 @@
 
 ## Edições
 
+### Edição 0.16 — 2026-07-27 · fix: itálico no markdown do chat-companion
+- **Feature spec-kit oficial `022-companion-markdown`**: o widget do companion agora renderiza **itálico** `*x*` (antes vazava como asteriscos). `fmt()` converte `*itálico*` em `<em>` após o negrito, **sem** tocar em `**` nem quebrar identificadores `snake_case`. Escape antes da formatação mantido (segurança).
+- **IA (A3)**: agente **Claude Code (Anthropic)** — correção; curadoria humana.
+
 ### Edição 0.15 — 2026-07-27 · DOI emitido e fixado
 - **Feature spec-kit oficial `019-doi-badge-site`**: o **DOI** da obra foi emitido pelo Zenodo — **[10.5281/zenodo.21632412](https://doi.org/10.5281/zenodo.21632412)** — e fixado: **badge** no README, **link do DOI** na tela-capa (junto ao selo de versão) e seção **"Como citar"** na página do autor.
 - Com isso, a obra passa a ser **citável academicamente** com identificador persistente, versionado por edição — a cláusula de expiração agora tem um DOI.
