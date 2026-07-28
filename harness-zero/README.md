@@ -63,7 +63,7 @@ Créditos: modelos e endpoint gratuito cortesia da **NVIDIA** — [NVIDIA API Ca
 | [05-compactacao](etapas/05-compactacao/) | 04 | **Compactador**: a escada truncar → podar → **sumarizar via LLMPort**, por orçamento; age na *visão*, nunca no registro; indicador 🗜 no trace | ✅ |
 | [06-permissoes](etapas/06-permissoes/) | 07 | **PermissionPolicy** (domínio puro: `decide()` → permitir/perguntar/negar) + **aprovação inline** (pausa→retomada do loop) + paths sensíveis **fixos**; a ferida do `read_file` fechada | ✅ |
 | [07-mcp](etapas/07-mcp/) | 06 | **ClienteMCP** (stdio, JSON-RPC 2.0): initialize → tools/list → tools/call contra um **servidor de exemplo incluído**; **RegistroComposto** (locais + `mcp_*` no mesmo catálogo); política vale para MCP | ✅ |
-| 08-plan | 09 | Plan mode imposto por permissões | ⏳ |
+| [08-plan](etapas/08-plan/) | 09 | **Plan mode imposto por permissões** (uma linha no `decide()`): em `planejar`, mutantes são negados; `propor_plano` → artefato **PLAN.md**; aprovar = trocar o modo | ✅ |
 | 09-subagentes | 10 | Tool `task` com sessão-filha | ⏳ |
 | 10-evals | 11 | Suíte de evals do próprio harness (juiz + respostas gravadas) | ⏳ |
 | 11-hooks | 12 | Hooks pre/post tool | ⏳ |
