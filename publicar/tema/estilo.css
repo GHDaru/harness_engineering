@@ -53,9 +53,47 @@ h2[data-callout="callout-pratica"] { border-color: var(--prat); }
 h2[data-callout="callout-roubar"] { border-color: var(--roubar); }
 h2[data-callout="callout-apendice"] { border-color: var(--apend); }
 
-.paginacao { display: flex; justify-content: space-between; gap: 1rem; margin: 3rem 0 1rem;
-  border-top: 1px solid var(--line); padding-top: 1rem; }
-.paginacao a { text-decoration: none; font-weight: 600; }
+/* ===== Design system dos capítulos (spec 043; DESIGN-SISTEMA.md) ===== */
+
+/* C01 CabeçalhoDeCapítulo — variante B "faixa editorial" (absorve C02). */
+.cap-hero { position: relative; border-bottom: 2px solid var(--prat); padding: .4rem 0 1.3rem;
+  margin-bottom: 1.8rem; overflow: hidden; }
+.cap-num { position: absolute; right: -8px; top: -34px; font-size: 8rem; font-weight: 900; line-height: 1;
+  color: var(--prat); opacity: .12; font-variant-numeric: tabular-nums; pointer-events: none; user-select: none; }
+.cap-kicker { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--prat); font-weight: 600; }
+.cap-hero h1 { font-size: 2.2rem; margin: .2rem 0 .4rem; line-height: 1.1; }
+.cap-teaser { color: var(--muted); margin: 0 0 .9rem; font-size: 1.05rem; max-width: 34rem; }
+.cap-meta { display: flex; flex-wrap: wrap; gap: .45rem; font-size: .74rem; color: var(--muted); }
+.cap-meta span { border: 1px solid var(--line); border-radius: 999px; padding: .15rem .6rem; }
+@media (max-width: 640px) { .cap-num { font-size: 5rem; top: -18px; } .cap-hero h1 { font-size: 1.7rem; } }
+
+/* C08 LeituraExecutiva — V1 "painel âmbar" (o h3 vira o rótulo do painel). */
+.leitura-exec { background: var(--sidebar); border: 1px solid var(--line); border-left: 4px solid var(--prat);
+  border-radius: 0 10px 10px 0; padding: .9rem 1.2rem; margin: 1.4rem 0; }
+.leitura-exec h3 { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--prat); font-weight: 700; margin: 0 0 .4rem; }
+.leitura-exec h3 .header-anchor { display: none; }
+.leitura-exec ul, .leitura-exec ol { margin: .2rem 0 0 1.1rem; padding: 0; }
+.leitura-exec li { margin: .25rem 0; }
+.leitura-exec p { margin: .3rem 0; }
+
+/* N02 PaginaçãoEmCartões — V2 "cartões com badge" (linguagem dos cartões da entrada). */
+.pagcards { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin: 3rem 0 1rem;
+  border-top: 1px solid var(--line); padding-top: 1.2rem; }
+.pagcard { display: flex; align-items: center; gap: .8rem; background: var(--sidebar);
+  border: 1px solid var(--line); border-radius: 11px; padding: .7rem .9rem;
+  text-decoration: none; color: var(--fg); transition: border-color .12s; }
+.pagcard:hover { border-color: var(--prat); }
+.pagcard.next { flex-direction: row-reverse; text-align: right; justify-content: flex-start; }
+.pag-badge { min-width: 40px; height: 40px; display: grid; place-items: center; border-radius: 9px;
+  background: rgba(224,162,74,.14); color: var(--prat); font-weight: 800;
+  border: 1px solid rgba(224,162,74,.28); font-variant-numeric: tabular-nums; }
+.pag-dir { display: block; font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.pag-tt { display: block; font-weight: 700; font-size: .92rem; }
+@media (max-width: 560px) {
+  .pagcards { grid-template-columns: 1fr; }
+  .pagcard.next { flex-direction: row; text-align: left; }
+}
 .rodape { color: var(--muted); font-size: .82rem; margin-top: 2rem; }
 .capa h1 { font-size: 2.6rem; }
 .capa .subtitulo { font-size: 1.15rem; color: var(--muted); margin-top: -.5rem; }
@@ -162,7 +200,7 @@ table.viz-heat { border-collapse: collapse; width: 100%; font-size: .9rem; displ
 /* ===== Experiência de entrada (spec 021) — sumário repaginado ===== */
 .pagina-index .conteudo { max-width: 76rem; padding: 2.2rem 2.6rem 4rem; }
 .pagina-index .markdown { max-width: none; }
-.pagina-index .paginacao { display: none; }
+.pagina-index .pagcards { display: none; }
 
 .ent-hero { display: grid; grid-template-columns: 118px 1fr; gap: 1.4rem; align-items: center;
   background: var(--sidebar); border: 1px solid var(--line); border-radius: 16px; padding: 1.3rem; }

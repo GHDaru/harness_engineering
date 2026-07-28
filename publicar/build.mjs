@@ -94,6 +94,21 @@ function extrairData(markdown) {
   return m ? ("Estado da arte capturado em" + m[1] + m[2]).replace(/\[.*?\]\(.*?\)/g, "").replace(/·\s*$/, "").trim() : null;
 }
 
+// Datas separadas para o cabeçalho de capítulo (C01 absorve o C02): captura e revisão.
+function extrairDatas(markdown) {
+  const cap = (markdown.match(/Estado da arte capturado em\s+(\d{4}-\d{2}(?:-\d{2})?)/) || [])[1] || null;
+  const rev = (markdown.match(/última revisão\s+(\d{4}-\d{2}-\d{2})/) || [])[1] || null;
+  return { cap, rev };
+}
+
+// Carga estimada de leitura (Sweller: expectativa de esforço): ~200 palavras/min,
+// descontando blocos de código (lidos em outro ritmo).
+function tempoDeLeitura(markdown) {
+  const semCodigo = markdown.replace(/```[\s\S]*?```/g, " ");
+  const palavras = (semCodigo.match(/\S+/g) || []).length;
+  return Math.max(1, Math.round(palavras / 200));
+}
+
 // Callouts: marca seções pedagógicas conhecidas com uma classe para o CSS estilizar.
 const TIPOS = [
   { re: /objetivos de aprendizagem/i, cls: "callout-objetivos", rotulo: "Objetivos" },
@@ -139,6 +154,16 @@ function ligarCitacoes(texto) {
     (m, id) => `<a class="cita" href="bibliografia.html" title="ver na Bibliografia">arXiv ${id}</a>`);
 }
 
+// C08 LeituraExecutiva (spec 043): envolve a seção "### Leitura executiva" num
+// painel destacado. O h3 vira o rótulo do painel (CSS); a âncora é preservada.
+function marcarLeituraExec(html) {
+  return html.replace(/(<h3[^>]*>[\s\S]*?<\/h3>)([\s\S]*?)(?=<h[1-3][\s>]|$)/g, (full, h3, resto) => {
+    const limpo = h3.replace(/<[^>]+>/g, "").trim();
+    if (!/^leitura executiva/i.test(limpo)) return full;
+    return `<div class="leitura-exec">${h3}${resto}</div>`;
+  });
+}
+
 function abrirSiglas(html) {
   const re = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g;
   const sub = (t) => ligarCitacoes(t).replace(RE_SIGLAS, (s) => `<abbr title="${SIGLAS[s]}">${s}</abbr>`);
@@ -155,10 +180,25 @@ function abrirSiglas(html) {
   return out + (prot > 0 ? html.slice(last) : sub(html.slice(last)));
 }
 
-function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data, ehIndex, chapter = 0, slug = "" }) {
+// "02 — Loop do Agente" -> { num: "02", texto: "Loop do Agente" }.
+// num só quando o prefixo é numérico (capítulo); o texto sempre perde o prefixo.
+const dividirTitulo = (t) => {
+  const p = t.split("—");
+  if (p.length < 2) return { num: "", texto: t.trim() };
+  return { num: /^\s*\d+\s*$/.test(p[0]) ? p[0].trim() : "", texto: p.slice(1).join("—").trim() };
+};
+
+function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data, ehIndex, chapter = 0, slug = "", hero = null }) {
   const rel = ehIndex ? "" : "";
-  const navBtn = (item, dir) =>
-    item ? `<a class="nav-${dir}" href="${item.slug}.html">${dir === "prev" ? "← " : ""}${item.titulo}${dir === "next" ? " →" : ""}</a>` : `<span></span>`;
+  // N02 PaginaçãoEmCartões (spec 043, V2): cartão com badge numerado — a mesma
+  // linguagem dos cartões da entrada (número = "clique para ir a um capítulo").
+  const navBtn = (item, dir) => {
+    if (!item) return `<span></span>`;
+    const { num, texto } = dividirTitulo(item.titulo);
+    const badge = num ? `<span class="pag-badge">${num}</span>` : "";
+    const rotulo = dir === "prev" ? "← anterior" : "próximo →";
+    return `<a class="pagcard${dir === "next" ? " next" : ""}" href="${item.slug}.html">${badge}<span class="pag-tx"><span class="pag-dir">${rotulo}</span><span class="pag-tt">${texto}</span></span></a>`;
+  };
   const selo = data ? `<div class="selo-data" title="Livro vivo — ver Histórico">🕒 ${data}</div>` : "";
   return `<!doctype html>
 <html lang="pt-BR"><head>
@@ -171,7 +211,7 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
 <meta property="og:image" content="${SITE}assets/capa-social.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="${rel}assets/estilo.css">
-</head><body${ehIndex ? ' class="pagina-index"' : ""} data-slug="${slug}" data-titulo="${tituloPagina.replace(/"/g, "&quot;")}">
+</head><body${ehIndex ? ' class="pagina-index"' : hero ? ' class="pagina-capitulo"' : ""} data-slug="${slug}" data-titulo="${tituloPagina.replace(/"/g, "&quot;")}">
 <button id="alt-tema" aria-label="Alternar tema">◐</button>
 <div class="layout">
   <aside class="sidebar">
@@ -180,9 +220,9 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
     ${navLateral}
   </aside>
   <main class="conteudo">
-    ${selo}
+    ${hero || selo}
     <article class="markdown">${corpo}</article>
-    <nav class="paginacao">${navBtn(prev, "prev")}${navBtn(next, "next")}</nav>
+    <nav class="pagcards">${navBtn(prev, "prev")}${navBtn(next, "next")}</nav>
     <footer class="rodape">Livro vivo · gerado do Markdown pelo motor próprio · <a href="https://github.com/GHDaru/harness_engineering">fonte no GitHub</a></footer>
   </main>
 </div>
@@ -310,6 +350,29 @@ for (let k = 0; k < itens.length; k++) {
   const bruto = readFileSync(caminho, "utf8");
   const data = extrairData(bruto);
   let corpo = marcarCallouts(md.render(bruto, { srcDir: dirname(item.arquivo) }));
+  corpo = marcarLeituraExec(corpo); // C08 (spec 043)
+
+  // C01 CabeçalhoDeCapítulo (spec 043, variante B "faixa editorial"): só páginas
+  // com número de capítulo. Absorve o C02 (datação) e mostra a carga de leitura.
+  // O h1 e o blockquote de datação do Markdown saem do corpo (o herói já os mostra).
+  let hero = null;
+  const { num, texto } = dividirTitulo(item.titulo);
+  if (num) {
+    const { cap, rev } = extrairDatas(bruto);
+    const chips = [
+      cap ? `<span title="Livro vivo — ver Histórico">🕒 estado da arte ${cap}</span>` : "",
+      rev ? `<span>revisão ${rev}</span>` : "",
+      `<span>📖 ~${tempoDeLeitura(bruto)} min de leitura</span>`,
+    ].join("");
+    hero = `<header class="cap-hero"><div class="cap-num" aria-hidden="true">${num}</div>
+<div class="cap-kicker">${item.parte} · Cap. ${num}</div>
+<h1>${texto}</h1>
+${item.teaser ? `<p class="cap-teaser">${item.teaser}</p>` : ""}
+<div class="cap-meta">${chips}</div></header>`;
+    corpo = corpo.replace(/<h1[^>]*>[\s\S]*?<\/h1>\s*/, "");
+    corpo = corpo.replace(/<blockquote>\s*<p><strong>Estado da arte capturado em[\s\S]*?<\/blockquote>\s*/, "");
+  }
+
   if (item.slug !== "glossario") corpo = abrirSiglas(corpo); // "abre" siglas fora do próprio glossário
   const html = pagina({
     tituloLivro: sumario.titulo,
@@ -321,6 +384,7 @@ for (let k = 0; k < itens.length; k++) {
     data,
     chapter: capituloDe(item.titulo),
     slug: item.slug,
+    hero,
   });
   writeFileSync(resolve(SAIDA, `${item.slug}.html`), html);
   gerados++;
@@ -331,10 +395,6 @@ writeFileSync(resolve(SAIDA, "index.html"), paginaSplash());
 
 // sumario.html = a EXPERIÊNCIA DE ENTRADA (spec 021): hero + retomar + trilha +
 // cartões por parte + pills do aparato. A sidebar (índice completo) vem de pagina().
-const dividirTitulo = (t) => {
-  const p = t.split("—");
-  return p.length >= 2 ? { num: p[0].trim(), texto: p.slice(1).join("—").trim() } : { num: "", texto: t.trim() };
-};
 const cartaoEnt = (i) => {
   const s = slugDe(i.arquivo);
   const { num, texto } = dividirTitulo(i.titulo);
