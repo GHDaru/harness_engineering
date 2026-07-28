@@ -13,3 +13,5 @@ docs/
 # harness-zero etapa 04 (banco local de sessões)
 harness-zero/**/sessoes.db
 harness-zero/**/auditoria.jsonl
+harness-zero/**/skills/pendentes/
+harness-zero/**/skills/aprovadas/
