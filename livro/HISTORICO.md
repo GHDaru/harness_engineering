@@ -28,6 +28,12 @@
 
 ## Edições
 
+### Edição 0.20 — 2026-07-28 · Fundamentos reescrito com história e método (rigor)
+- **Feature spec-kit oficial `025-fundamentos-rigor`** (a pedido do editor: "fundamentos fraco; falta rigor metodológico/científico"): o **cap. 01** foi reescrito em 9 seções — definição (com *scaffolding* = **andaime** traduzido e introduzido), **o que havia antes** (sistemas especialistas, RPA, chatbots, Copilot-autocomplete e por que não eram agentes), a **linhagem técnica** (CoT → **ReAct** → function calling → AutoGPT/BabyAGI e sua lição → CLIs de código → protocolos MCP/A2A/AGENTS.md) com **linha do tempo**, a definição constitutiva (4 elementos), a **proveniência do corpus** (3 arquétipos + teste de inclusão), e a nova seção **"O método do estudo"**: casos múltiplos (Yin) + Mining Software Repositories (Hassan 2008) + GQM (Basili) + feature analysis DESMET (Kitchenham 1997) + benchmarking científico (Sim et al. 2003) + Design Science (Hevner 2004; Peffers 2007) + **tabela de ameaças à validade** (Cook & Campbell), em que a cláusula de expiração vira mitigação declarada.
+- **Bibliografia**: novas seções "História e proveniência" e "Metodologia do estudo" com fontes **✓ verificadas** por pesquisa dedicada (ReAct arXiv 2210.03629; anúncios primários de Copilot/function calling/MCP/A2A; Hassan; Runeson & Höst; DESMET; Sim; Stol; Peffers) e itens **⏳** a confirmar explicitamente marcados (Princípio I).
+- **Decisão registrada**: `adr/0003-fundamentos-rigor.md` (alternativas avaliadas e justificativa).
+- **IA (A3)**: agente **Claude Code (Anthropic)** — pesquisa (2 frentes verificadas) e redação; direção editorial humana.
+
 ### Edição 0.19 — 2026-07-27 · foto + LinkedIn do autor; LinkedIn na capa
 - **Feature spec-kit oficial `024-autor-linkedin`** (E06+E07 da auditoria): a página "Sobre o autor" ganhou a **foto** do autor (`assets/autor.png`, flutuando à direita, responsiva) e a **tela-capa** passou a incluir o link do **LinkedIn** nos créditos (repositório é público).
 - **IA (A3)**: agente **Claude Code (Anthropic)** — implementação; foto enviada pelo autor.

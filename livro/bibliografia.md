@@ -16,6 +16,28 @@
 - ✓ **ReAct: Synergizing Reasoning and Acting in Language Models** (Yao et al.) — arXiv [2210.03629](https://arxiv.org/abs/2210.03629). O paper seminal do loop raciocínio+ação.
 - ⏳ *A Review of Prominent Paradigms for LLM-Based Agents* — CoLing 2025 ([aclanthology](https://aclanthology.org/2025.coling-main.652.pdf)).
 
+### História e proveniência (cap. 01 §2–3) — adicionadas na revisão de rigor
+
+- ✓ **ReAct: Synergizing Reasoning and Acting in Language Models** (Yao et al.) — arXiv [2210.03629](https://arxiv.org/abs/2210.03629), ICLR 2023. O loop Pensamento→Ação→Observação; esqueleto de todo harness.
+- ✓ **Introducing GitHub Copilot: your AI pair programmer** (GitHub, jun/2021) — [github.blog](https://github.blog/news-insights/product-news/introducing-github-copilot-ai-pair-programmer/). Marca o "antes": autocomplete pelo Codex, sem loop/ferramentas.
+- ✓ **Function calling and other API updates** (OpenAI, jun/2023) — [openai.com](https://openai.com/index/function-calling-and-other-api-updates/). O elo modelo→ferramentas.
+- ✓ **Introducing the Model Context Protocol** (Anthropic, nov/2024) — [anthropic.com](https://www.anthropic.com/news/model-context-protocol).
+- ✓ **Announcing the Agent2Agent Protocol (A2A)** (Google, abr/2025) — [developers.googleblog.com](https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/).
+- ✓ **AGENTS.md** — [agents.md](https://agents.md/). O "README para agentes".
+- ✓ **BabyAGI** (Yohei Nakajima, abr/2023) — [babyagi.org](http://babyagi.org/). · **AutoGPT** (Significant Gravitas, mar/2023) — [repositório](https://github.com/Significant-Gravitas/AutoGPT).
+- ✓ **Aider** (Paul Gauthier, 2023) — [github.com/Aider-AI/aider](https://github.com/Aider-AI/aider/releases).
+- ⏳ **Chain-of-Thought Prompting** (Wei et al., 2022) — provável arXiv 2201.11903; confirmar ID antes de citar no corpo. · **Toolformer** (Meta, 2023) — provável arXiv 2302.04761; idem.
+
+### Metodologia do estudo (cap. 01 §6) — adicionadas na revisão de rigor
+
+- ✓ **Hassan, A. E. (2008).** *The Road Ahead for Mining Software Repositories.* FoSM/ICSM 2008. Repositórios como dado primário (MSR).
+- ✓ **Runeson, P. & Höst, M. (2009).** *Guidelines for Conducting and Reporting Case Study Research in Software Engineering.* Empirical Software Engineering 14(2). Protocolo de estudo de caso em ES.
+- ✓ **Kitchenham, B., Linkman, S. & Law, D. (1997).** *DESMET: a methodology for evaluating software engineering methods and tools.* IEE CCEJ. A feature analysis do benchmark.
+- ✓ **Sim, S. E., Easterbrook, S. & Holt, R. C. (2003).** *Using Benchmarking to Advance Research.* ICSE 2003. O benchmark como motor científico.
+- ✓ **Stol, K.-J., Ralph, P. & Fitzgerald, B. (2016).** *Grounded Theory in Software Engineering Research.* ICSE 2016. Codificação indutiva de artefatos.
+- ✓ **Peffers, K. et al. (2007).** *A Design Science Research Methodology for IS Research.* JMIS 24(3). O processo DSRM do harness-zero.
+- ⏳ **Yin, R. K.** *Case Study Research: Design and Methods* (SAGE) — confirmar edição usada. · **Hevner et al. (2004)** *Design Science in IS Research*, MISQ 28(1) — canônica; conferir páginas. · **Basili, Caldiera & Rombach** *The GQM Approach* — confirmar formulação citada. · **Hsieh & Shannon (2005)** *Three Approaches to Qualitative Content Analysis*, QHR 15(9). · **Cook & Campbell (1979)** *Quasi-Experimentation* — taxonomia das validades.
+
 ## Cap. 02 — Loop do Agente
 
 - ✓ ReAct (acima).
