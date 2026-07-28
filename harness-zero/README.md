@@ -67,6 +67,6 @@ Créditos: modelos e endpoint gratuito cortesia da **NVIDIA** — [NVIDIA API Ca
 | [09-subagentes](etapas/09-subagentes/) | 10 | Tool **`task`** → **sessão-filha** com contexto limpo (só a descrição na ida; só o resultado na volta), loop próprio limitado, tools **só-leitura**; filhas visíveis em `/sessions` | ✅ |
 | [10-evals](etapas/10-evals/) | 11 | **Evals do próprio harness**: `ReplayAdapter` (**respostas gravadas** = determinístico) testando política/plan/compactação/aprovação + **juiz** LLM-as-judge atrás do LLMPort | ✅ |
 | [11-hooks](etapas/11-hooks/) | 12 | **Hooks** pre/post tool (bloquear/ajustar/transformar) em fronteira estável — loop intacto; exemplos: **auditoria** (`auditoria.jsonl`) e **redator** de segredos (defesa em profundidade) | ✅ |
-| 12-skills | 16 | O harness que aprende: skills com anti-padrões | ⏳ |
+| [12-skills](etapas/12-skills/) | 16 | **Skills com freio**: `salvar_skill` → **pendente** (auto-aprovar = prompt injection persistente); humano aprova → vira **camada do contexto** (índice só; conteúdo via `ler_skill` — progressive disclosure) | ✅ |
 
-Cada etapa é **autocontida** (worked example completo): você pode abrir qualquer uma e rodá-la sem as anteriores — e o diff entre etapas consecutivas é a lição do capítulo.
+**🎉 Trilha completa: etapas 00–12.** Cada etapa é **autocontida** (worked example completo): você pode abrir qualquer uma e rodá-la sem as anteriores — e o diff entre etapas consecutivas é a lição do capítulo.

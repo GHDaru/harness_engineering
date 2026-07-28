@@ -1,0 +1,753 @@
+"""harness-zero — Etapa 12: skills. O harness que aprende — com freio.
+
+Última etapa da trilha. Todo o scaffolding até aqui é ESTÁTICO: humanos
+escreveram as tools, as regras, os hooks. O capítulo 16 documenta a dimensão
+emergente: o agente que CAPTURA procedimentos aprendidos como **skills**
+reutilizáveis — e o anti-padrão que vem junto.
+
+O ciclo desta etapa:
+
+    1. o agente percebe um procedimento que valeu a pena e chama
+       `salvar_skill(nome, quando_usar, conteudo)`;
+    2. a skill NÃO entra em vigor: vai para skills/pendentes/ —
+       **skill auto-aprovada é prompt injection PERSISTENTE** (se um texto
+       malicioso convencer o modelo a "aprender" uma regra, ela envenenaria
+       todas as sessões futuras). O humano revisa e aprova (POST /skills/aprovar);
+    3. aprovada, a skill entra numa CAMADA nova do MontadorDeContexto
+       (etapa 3 pagando dividendos): só nome + quando_usar no prompt —
+       o conteúdo completo é carregado sob demanda via `ler_skill`
+       (progressive disclosure: skills não podem lotar a janela; cap. 4).
+
+Com isso o harness-zero fecha o mapa: loop, tools, contexto, sessões,
+compactação, permissões, MCP, plan, subagentes, evals, hooks e skills —
+as doze dimensões do livro, construídas do zero.
+
+Rodar:  uvicorn app:app --reload  →  "salve uma skill sobre X";
+GET /skills; aprove; nova sessão já enxerga a skill.
+"""
+
+import datetime
+import inspect
+import json
+import os
+import platform
+import sqlite3
+import subprocess
+import typing
+import uuid
+from pathlib import Path
+from typing import Protocol
+
+import httpx
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
+
+
+def _load_dotenv() -> None:
+    for parent in (Path(__file__).parent, *Path(__file__).parents):
+        env = parent / ".env"
+        if env.exists():
+            for line in env.read_text().splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, _, val = line.partition("=")
+                    os.environ.setdefault(key.strip(), val.strip())
+            return
+
+
+_load_dotenv()
+
+Message = dict
+MAX_TURNS = 8
+AQUI = Path(__file__).parent
+
+
+# ------------------------------------------------------------- StorePort
+
+class StorePort(Protocol):
+    def append(self, session_id: str, msg: Message) -> None: ...
+    def history(self, session_id: str) -> list[Message]: ...
+    def sessions(self) -> list[dict]: ...
+
+
+class MemoriaStore:
+    """A etapa 0-3 em forma de adapter: some no restart. Fica como contraste."""
+
+    def __init__(self) -> None:
+        self._por_sessao: dict[str, list[Message]] = {}
+
+    def append(self, session_id: str, msg: Message) -> None:
+        self._por_sessao.setdefault(session_id, []).append(msg)
+
+    def history(self, session_id: str) -> list[Message]:
+        return list(self._por_sessao.get(session_id, []))
+
+    def sessions(self) -> list[dict]:
+        return [{"session_id": s, "mensagens": len(m)} for s, m in self._por_sessao.items()]
+
+
+class SQLiteStore:
+    """Persistência real: um arquivo .db ao lado do app. A conversa sobrevive
+    ao restart — teste: converse, mate o servidor, suba de novo, continue."""
+
+    def __init__(self, caminho: Path) -> None:
+        self._caminho = str(caminho)
+        with self._conn() as c:
+            c.execute("""CREATE TABLE IF NOT EXISTS mensagens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL,
+                papel TEXT NOT NULL,
+                corpo TEXT NOT NULL,
+                criada_em TEXT NOT NULL DEFAULT (datetime('now')))""")
+
+    def _conn(self):
+        return sqlite3.connect(self._caminho)
+
+    def append(self, session_id: str, msg: Message) -> None:
+        with self._conn() as c:
+            c.execute("INSERT INTO mensagens(session_id, papel, corpo) VALUES (?,?,?)",
+                      (session_id, msg.get("role", "?"), json.dumps(msg, ensure_ascii=False)))
+
+    def history(self, session_id: str) -> list[Message]:
+        with self._conn() as c:
+            rows = c.execute("SELECT corpo FROM mensagens WHERE session_id=? ORDER BY id",
+                             (session_id,)).fetchall()
+        return [json.loads(r[0]) for r in rows]
+
+    def sessions(self) -> list[dict]:
+        with self._conn() as c:
+            rows = c.execute("""SELECT session_id, count(*), max(criada_em)
+                                FROM mensagens GROUP BY session_id ORDER BY 3 DESC""").fetchall()
+        return [{"session_id": r[0], "mensagens": r[1], "ultima_em": r[2]} for r in rows]
+
+
+def make_store() -> StorePort:
+    if os.environ.get("STORE_ADAPTER", "sqlite") == "memoria":
+        return MemoriaStore()
+    return SQLiteStore(AQUI / "sessoes.db")
+
+
+# ------------------------------------------- MontadorDeContexto (etapa 3)
+
+class MontadorDeContexto:
+    def camada_skills(self) -> str:
+        """Só as APROVADAS, e só o índice (nome + quando usar) — o conteúdo
+        completo vem sob demanda via ler_skill (progressive disclosure)."""
+        pasta = AQUI / "skills" / "aprovadas"
+        if not pasta.exists() or not any(pasta.glob("*.md")):
+            return "(sem skills aprendidas ainda)"
+        linhas = []
+        for arq in sorted(pasta.glob("*.md")):
+            primeira = arq.read_text().splitlines()
+            quando = next((l.removeprefix("> quando usar:").strip()
+                           for l in primeira if l.startswith("> quando usar:")), "")
+            linhas.append(f"- {arq.stem}: {quando} (use ler_skill para o conteúdo)")
+        return "Skills aprendidas (aprovadas pelo humano):\n" + "\n".join(linhas)
+
+    def montar(self) -> str:
+        regras = (AQUI / "AGENTS.md")
+        return "\n\n---\n\n".join([
+            "Você é o assistente do harness-zero, a trilha prática do livro "
+            "Engenharia de Harness. Você tem ferramentas; use-as quando ajudarem.",
+            f"Ambiente: {platform.system()} · Python {platform.python_version()} · "
+            f"agora é {datetime.datetime.now().isoformat(timespec='minutes')}.",
+            f"Regras do projeto (AGENTS.md — siga-as):\n\n{regras.read_text()}"
+            if regras.exists() else "(sem AGENTS.md)",
+            self.camada_skills(),
+        ])
+
+
+contexto = MontadorDeContexto()
+
+
+# ------------------------------------------------------- ToolPort (etapa 2)
+
+_MAPA_TIPOS = {str: "string", int: "integer", float: "number", bool: "boolean"}
+
+
+def _schema_da_funcao(fn) -> dict:
+    sig = inspect.signature(fn)
+    hints = typing.get_type_hints(fn)
+    props, required = {}, []
+    for nome, par in sig.parameters.items():
+        props[nome] = {"type": _MAPA_TIPOS.get(hints.get(nome, str), "string")}
+        if par.default is inspect.Parameter.empty:
+            required.append(nome)
+    return {"type": "function", "function": {
+        "name": fn.__name__, "description": inspect.getdoc(fn) or fn.__name__,
+        "parameters": {"type": "object", "properties": props, "required": required}}}
+
+
+class RegistroDeTools:
+    def __init__(self) -> None:
+        self._fns: dict[str, typing.Callable] = {}
+
+    def tool(self, fn):
+        self._fns[fn.__name__] = fn
+        return fn
+
+    def schemas(self) -> list[dict]:
+        return [_schema_da_funcao(f) for f in self._fns.values()]
+
+    def executar(self, nome: str, args: dict) -> str:
+        fn = self._fns.get(nome)
+        if fn is None:
+            return f"erro: ferramenta desconhecida '{nome}'"
+        try:
+            return str(fn(**args))
+        except Exception as exc:
+            return f"erro: {exc}"
+
+
+tools = RegistroDeTools()
+
+
+@tools.tool
+def get_time() -> str:
+    """Retorna a data e hora atuais no formato ISO."""
+    return datetime.datetime.now().isoformat(timespec="seconds")
+
+
+@tools.tool
+def read_file(path: str, max_chars: int = 4000) -> str:
+    """Lê um arquivo de texto do disco e retorna até max_chars caracteres."""
+    return Path(path).read_text()[:max_chars]
+
+
+@tools.tool
+def propor_plano(titulo: str, passos: str) -> str:
+    """Registra um plano de trabalho (título + passos numerados) como artefato
+    PLAN revisável. Use em modo planejar, antes de qualquer execução."""
+    arq = AQUI / "PLAN.md"
+    arq.write_text(f"# PLAN — {titulo}\n\n{passos}\n")
+    return f"plano registrado em {arq.name} — aguarde o humano aprovar (trocar para modo executar)"
+
+
+MAX_TURNS_FILHO = 5
+
+
+@tools.tool
+def task(descricao: str) -> str:
+    """Delegar uma subtarefa a um subagente com contexto limpo. O subagente
+    só LÊ (não escreve); devolve apenas o resultado final. Use para
+    investigações e resumos que poluiriam a conversa principal."""
+    filho_id = "task-" + uuid.uuid4().hex[:8]
+    system = ("Você é um SUBAGENTE do harness-zero. Resolva APENAS esta tarefa, "
+              "direto ao ponto, e devolva o resultado final:\n\n" + descricao)
+    mensagens: list[Message] = [{"role": "system", "content": system},
+                                {"role": "user", "content": descricao}]
+    store.append(filho_id, mensagens[1])
+    # ferramentas restritas: filha não muta o mundo (nem planeja)
+    schemas_filha = [t for t in registro.schemas()
+                     if t["function"]["name"] not in MUTANTES + ("propor_plano", "task")]
+    for _ in range(MAX_TURNS_FILHO):
+        reply = llm.complete(mensagens, schemas_filha)
+        mensagens.append(reply)
+        store.append(filho_id, reply)
+        calls = reply.get("tool_calls") or []
+        if not calls:
+            return f"[subagente {filho_id}] " + (reply.get("content") or "(sem resposta)")
+        for call in calls:
+            nome = call["function"]["name"]
+            args = json.loads(call["function"].get("arguments") or "{}")
+            if decide(nome, args) != "permitir" or nome in MUTANTES:
+                resultado = "erro: subagentes só têm leitura."
+            else:
+                resultado = hooks.executar_com_hooks(registro.executar, nome, args, [])
+            msg = {"role": "tool", "tool_call_id": call.get("id", ""), "content": resultado}
+            mensagens.append(msg)
+            store.append(filho_id, msg)
+    return f"[subagente {filho_id}] (interrompido: limite de turnos do subagente)"
+
+
+@tools.tool
+def salvar_skill(nome: str, quando_usar: str, conteudo: str) -> str:
+    """Captura um procedimento aprendido como skill reutilizável. A skill fica
+    PENDENTE até um humano aprovar — nunca entra em vigor sozinha."""
+    nome = "".join(c for c in nome.lower().replace(" ", "-") if c.isalnum() or c == "-")[:40]
+    pasta = AQUI / "skills" / "pendentes"
+    pasta.mkdir(parents=True, exist_ok=True)
+    (pasta / f"{nome}.md").write_text(
+        f"# skill: {nome}\n\n> quando usar: {quando_usar}\n\n{conteudo}\n")
+    return (f"skill '{nome}' salva como PENDENTE. Um humano precisa aprová-la "
+            "(POST /skills/aprovar) antes de ela valer — segurança contra "
+            "aprendizado envenenado.")
+
+
+@tools.tool
+def ler_skill(nome: str) -> str:
+    """Carrega o conteúdo completo de uma skill APROVADA (progressive disclosure)."""
+    arq = AQUI / "skills" / "aprovadas" / f"{nome}.md"
+    if not arq.exists():
+        return f"erro: skill aprovada '{nome}' não existe."
+    return arq.read_text()
+
+
+@tools.tool
+def write_file(path: str, conteudo: str) -> str:
+    """Escreve conteúdo num arquivo de texto (cria ou sobrescreve)."""
+    destino = Path(path)
+    destino.write_text(conteudo)
+    return f"escrito: {destino} ({len(conteudo)} chars)"
+
+
+# ---------------------------------------------------------------- LLMPort
+
+class LLMPort(Protocol):
+    def complete(self, messages: list[Message], tools: list[dict]) -> Message: ...
+
+
+class EchoAdapter:
+    def complete(self, messages: list[Message], tools: list[dict]) -> Message:
+        n = sum(1 for m in messages if m["role"] != "system")
+        return {"role": "assistant",
+                "content": f"(echo) você disse: {messages[-1]['content']} "
+                           f"[esta sessão tem {n} mensagens — mate o servidor e volte: elas ficam]"}
+
+
+class OpenAICompatAdapter:
+    def __init__(self) -> None:
+        self.base_url = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
+        self.api_key = os.environ.get("OPENAI_API_KEY", "")
+        self.model = os.environ.get("LLM_MODEL", "gpt-5.4-mini")
+
+    def complete(self, messages: list[Message], tools: list[dict]) -> Message:
+        response = httpx.post(
+            f"{self.base_url}/chat/completions",
+            headers={"Authorization": f"Bearer {self.api_key}"},
+            json={"model": self.model, "messages": messages, "tools": tools},
+            timeout=120,
+        )
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]
+
+
+def make_llm() -> LLMPort:
+    if os.environ.get("LLM_ADAPTER", "echo") == "openai":
+        return OpenAICompatAdapter()
+    return EchoAdapter()
+
+
+# --------------------------------------------------------- Hooks (cap. 12)
+
+import re as _re
+import time as _time
+
+
+class Hooks:
+    """Registro de hooks pre/post tool. Fronteira estável: o loop não muda;
+    terceiros plugam comportamento aqui."""
+
+    def __init__(self) -> None:
+        self._pre: list = []
+        self._post: list = []
+
+    def pre_tool(self, fn):
+        """fn(nome, args) -> None (segue) | str "block:motivo" | dict (args ajustados)"""
+        self._pre.append(fn)
+        return fn
+
+    def post_tool(self, fn):
+        """fn(nome, args, resultado) -> resultado (possivelmente transformado)"""
+        self._post.append(fn)
+        return fn
+
+    def executar_com_hooks(self, executar, nome: str, args: dict, trace: list) -> str:
+        for h in self._pre:
+            r = h(nome, args)
+            if isinstance(r, str) and r.startswith("block:"):
+                trace.append(f"\U0001FA9D hook '{h.__name__}' bloqueou {nome}: {r[6:]}")
+                return f"erro: bloqueado pelo hook {h.__name__} — {r[6:]}"
+            if isinstance(r, dict):
+                args = r
+        resultado = executar(nome, args)
+        for h in self._post:
+            resultado = h(nome, args, resultado)
+        return resultado
+
+
+hooks = Hooks()
+
+
+# --- hooks de exemplo (dores reais) ---
+
+@hooks.pre_tool
+def auditoria(nome: str, args: dict):
+    """Cada chamada de ferramenta vira uma linha de log estruturado."""
+    with open(AQUI / "auditoria.jsonl", "a", encoding="utf-8") as f:
+        f.write(json.dumps({"ts": _time.strftime("%Y-%m-%dT%H:%M:%S"),
+                            "tool": nome, "args": args}, ensure_ascii=False) + "\n")
+    return None  # observa, não interfere
+
+
+_PADROES_SEGREDO = _re.compile(r"(nvapi-[A-Za-z0-9_-]{8,}|sk-[A-Za-z0-9_-]{16,}|password\s*=\s*\S+)", _re.I)
+
+
+@hooks.post_tool
+def redator(nome: str, args: dict, resultado: str) -> str:
+    """Mascara padrões de segredo ANTES de o resultado chegar ao modelo.
+    (Defesa em profundidade: soma-se à política da etapa 6, não a substitui.)"""
+    return _PADROES_SEGREDO.sub("[SEGREDO-REDIGIDO]", resultado)
+
+
+# ------------------------------------------------------ ClienteMCP (cap. 06)
+
+class ClienteMCP:
+    """Cliente MCP mínimo (stdio): sobe o servidor como subprocesso e fala
+    JSON-RPC 2.0 linha a linha. Lazy: só conecta no primeiro uso."""
+
+    def __init__(self, comando: list[str]) -> None:
+        self._comando = comando
+        self._proc = None
+        self._id = 0
+        self.tools: list[dict] = []
+
+    def _garantir(self) -> None:
+        if self._proc is not None:
+            return
+        self._proc = subprocess.Popen(
+            self._comando, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            text=True, bufsize=1, cwd=str(AQUI))
+        self._rpc("initialize", {})
+        self._notificar("notifications/initialized")
+        self.tools = self._rpc("tools/list", None).get("tools", [])
+
+    def _rpc(self, metodo: str, params) -> dict:
+        self._id += 1
+        req = {"jsonrpc": "2.0", "id": self._id, "method": metodo}
+        if params is not None:
+            req["params"] = params
+        self._proc.stdin.write(json.dumps(req) + "\n")
+        resp = json.loads(self._proc.stdout.readline())
+        if "error" in resp:
+            raise RuntimeError(resp["error"].get("message", "erro MCP"))
+        return resp.get("result", {})
+
+    def _notificar(self, metodo: str) -> None:
+        self._proc.stdin.write(json.dumps({"jsonrpc": "2.0", "method": metodo}) + "\n")
+
+    def schemas(self) -> list[dict]:
+        """Tools MCP no dialeto OpenAI, com prefixo mcp_ (como os harnesses reais)."""
+        self._garantir()
+        return [{"type": "function", "function": {
+            "name": f"mcp_{t['name']}",
+            "description": f"[MCP] {t.get('description', t['name'])}",
+            "parameters": t.get("inputSchema", {"type": "object", "properties": {}})}}
+            for t in self.tools]
+
+    def executar(self, nome_prefixado: str, args: dict) -> str:
+        self._garantir()
+        r = self._rpc("tools/call", {"name": nome_prefixado[len("mcp_"):], "arguments": args})
+        partes = [c.get("text", "") for c in r.get("content", []) if c.get("type") == "text"]
+        return "\n".join(partes) or "(sem conteúdo)"
+
+
+class RegistroComposto:
+    """ToolPort composto: tools locais + tools MCP atrás da MESMA interface.
+    O loop não sabe (nem deve saber) de onde cada ferramenta vem."""
+
+    def __init__(self, local: "RegistroDeTools", mcp: ClienteMCP) -> None:
+        self._local, self._mcp = local, mcp
+
+    def schemas(self) -> list[dict]:
+        try:
+            extras = self._mcp.schemas()
+        except Exception:
+            extras = []  # servidor fora? o harness segue só com as locais
+        return self._local.schemas() + extras
+
+    def executar(self, nome: str, args: dict) -> str:
+        if nome.startswith("mcp_"):
+            try:
+                return self._mcp.executar(nome, args)
+            except Exception as exc:
+                return f"erro no servidor MCP: {exc}"
+        return self._local.executar(nome, args)
+
+
+# ------------------------------------------------- PermissionPolicy (cap. 07)
+# DOMÍNIO PURO: sem I/O, sem estado, testável com uma linha. A lista de paths
+# sensíveis é FIXA no código de propósito — segurança que o usuário pode
+# desligar não é segurança (a regra dos harnesses reais).
+
+PATHS_SENSIVEIS = (".env", ".ssh", "id_rsa", "credentials", "secrets", ".aws", "token")
+MUTANTES = ("write_file",)  # ferramentas que alteram o mundo (crescerá com o harness)
+MODOS_SESSAO: dict[str, str] = {}  # session_id -> "executar" | "planejar"
+
+
+def modo_de(session_id: str) -> str:
+    return MODOS_SESSAO.get(session_id, "executar")
+
+
+def decide(tool: str, args: dict, modo: str = "executar") -> str:
+    """permitir | perguntar | negar — a política inteira numa função pura.
+    A etapa 8 acrescenta UMA regra: em modo planejar, mutante é negado."""
+    alvo = str(args.get("path", "")).lower()
+    if any(p in alvo for p in PATHS_SENSIVEIS):
+        return "negar"
+    if modo == "planejar" and tool in MUTANTES:
+        return "negar"
+    if tool == "write_file":
+        return "perguntar"
+    return "permitir"
+
+
+# ---------------------------------------------------------- Compactador
+
+ORCAMENTO_CHARS = int(os.environ.get("ORCAMENTO_CHARS", "6000"))
+
+
+class Compactador:
+    """A escada do cap. 04. Opera sobre a VISÃO (lista enviada ao modelo),
+    nunca sobre o registro persistido. Cada degrau reporta o que fez."""
+
+    def _uso(self, msgs: list[Message]) -> int:
+        return sum(len(json.dumps(m, ensure_ascii=False)) for m in msgs)
+
+    def _truncar_tools(self, msgs: list[Message]) -> int:
+        n = 0
+        for m in msgs[:-6]:  # preserva o final da conversa
+            if m.get("role") == "tool" and len(m.get("content", "")) > 200:
+                m["content"] = m["content"][:200] + " …[truncado pelo compactador]"
+                n += 1
+        return n
+
+    def _podar(self, msgs: list[Message]) -> list[Message]:
+        # mantém system + os 8 últimos; o que sai vai para o degrau 3
+        return msgs[:1] + msgs[-8:] if len(msgs) > 9 else msgs
+
+    def compactar(self, msgs: list[Message], llm: "LLMPort", trace: list[str]) -> list[Message]:
+        if self._uso(msgs) <= ORCAMENTO_CHARS:
+            return msgs
+        # degrau 1 — truncar tool-results antigos
+        n = self._truncar_tools(msgs)
+        if n:
+            trace.append(f"🗜 compactador: degrau 1 — {n} resultado(s) de tool truncado(s)")
+        if self._uso(msgs) <= ORCAMENTO_CHARS:
+            return msgs
+        # degrau 2 — podar turnos antigos (guardando-os para o resumo)
+        podados = msgs[1:-8] if len(msgs) > 9 else []
+        msgs = self._podar(msgs)
+        trace.append(f"🗜 compactador: degrau 2 — {len(podados)} mensagem(ns) podada(s)")
+        if not podados or self._uso(msgs) <= ORCAMENTO_CHARS * 1.2:
+            return msgs
+        # degrau 3 — sumarizar o podado via LLMPort (caro; preserva o fio)
+        texto = "\n".join(f"{m.get('role')}: {str(m.get('content'))[:300]}" for m in podados)
+        resumo = llm.complete([{"role": "user", "content":
+            "Resuma em até 5 linhas os fatos e decisões desta conversa "
+            "(será a memória do agente):\n\n" + texto}], [])
+        msgs.insert(1, {"role": "system",
+                        "content": "Resumo da conversa anterior (compactada): "
+                                   + (resumo.get("content") or "")[:800]})
+        trace.append("🗜 compactador: degrau 3 — resumo gerado e injetado")
+        return msgs
+
+
+compactador = Compactador()
+
+
+# ------------------------------------------------------------- O LOOP
+# Igual à etapa 3, mas quem guarda mensagens agora é o StorePort.
+
+def run_turn(session_id: str, store: StorePort, llm: LLMPort, port, trace: list[str],
+             mensagens: list[Message] | None = None) -> dict:
+    """Agora o turno pode terminar de DOIS jeitos: resposta final, ou PAUSA
+    aguardando aprovação (retorna a pendência). `mensagens` != None = retomada."""
+    if mensagens is None:
+        mensagens = [{"role": "system", "content": contexto.montar()}] + store.history(session_id)
+        mensagens = compactador.compactar(mensagens, llm, trace)
+    for _ in range(MAX_TURNS):
+        reply = llm.complete(mensagens, port.schemas())
+        mensagens.append(reply)
+        store.append(session_id, reply)
+
+        tool_calls = reply.get("tool_calls") or []
+        if not tool_calls:
+            return {"reply": reply.get("content") or "", "pendente": None}
+
+        for i, call in enumerate(tool_calls):
+            nome = call["function"]["name"]
+            args = json.loads(call["function"]["arguments"] or "{}")
+            veredicto = decide(nome, args, modo_de(session_id))  # <- a política, agora com modo
+            if veredicto == "negar":
+                motivo = "modo planejar" if modo_de(session_id) == "planejar" and nome in MUTANTES else "path sensível"
+                trace.append(f"\U0001F6E1 política: NEGADO {nome} ({motivo})")
+                resultado = ("erro: negado pela política — modo planejar só permite leitura e propor_plano. "
+                             "Proponha um plano." if motivo == "modo planejar" else
+                             "erro: acesso negado pela política de permissões (path sensível). "
+                             "Explique ao usuário e siga sem esse dado.")
+            elif veredicto == "perguntar":
+                pid = uuid.uuid4().hex[:8]
+                trace.append(f"🛡 política: aguardando aprovação humana para {nome}")
+                PENDENTES[pid] = {"session_id": session_id, "mensagens": mensagens,
+                                  "calls_restantes": tool_calls[i:], "trace": trace}
+                return {"reply": None, "pendente": {
+                    "id": pid, "tool": nome, "args": args,
+                    "aviso": f"O agente quer executar {nome}({json.dumps(args, ensure_ascii=False)[:120]}). Aprovar?"}}
+            else:
+                resultado = port.executar(nome, args)
+                trace.append(f"🔧 {nome}({json.dumps(args, ensure_ascii=False)})")
+            msg = {"role": "tool", "tool_call_id": call["id"], "content": resultado}
+            mensagens.append(msg)
+            store.append(session_id, msg)
+
+    return {"reply": "(interrompido: limite de turnos atingido)", "pendente": None}
+
+
+def retomar(pid: str, aprovado: bool) -> dict:
+    """Retoma o loop pausado: executa (ou nega) a chamada pendente e continua."""
+    p = PENDENTES.pop(pid, None)
+    if p is None:
+        return {"reply": "(pendência não encontrada ou já resolvida)", "pendente": None, "trace": []}
+    mensagens, trace = p["mensagens"], p["trace"]
+    for j, call in enumerate(p["calls_restantes"]):
+        nome = call["function"]["name"]
+        args = json.loads(call["function"]["arguments"] or "{}")
+        if j == 0:
+            if aprovado:
+                resultado = hooks.executar_com_hooks(registro.executar, nome, args, trace)
+                trace.append(f"✅ humano aprovou: {nome}")
+            else:
+                resultado = "o humano NEGOU esta ação. Não tente de novo; explique e siga."
+                trace.append(f"⛔ humano negou: {nome}")
+        else:
+            resultado = hooks.executar_com_hooks(registro.executar, nome, args, trace) if decide(nome, args) == "permitir" \
+                else "erro: bloqueado pela política"
+        msg = {"role": "tool", "tool_call_id": call["id"], "content": resultado}
+        mensagens.append(msg)
+        store.append(p["session_id"], msg)
+    r = run_turn(p["session_id"], store, llm, registro, trace, mensagens=mensagens)
+    r["trace"] = trace
+    return r
+
+
+# ------------------------------------------------------------------ app
+
+app = FastAPI(title="harness-zero · etapa 12")
+llm: LLMPort = make_llm()
+store: StorePort = make_store()
+mcp = ClienteMCP(["python3", "servidor_mcp_exemplo.py"])
+registro = RegistroComposto(tools, mcp)
+PENDENTES: dict[str, dict] = {}  # pausas aguardando o humano (memória: didático)
+
+
+class ChatIn(BaseModel):
+    message: str
+    session_id: str | None = None  # sem id -> o servidor cria um (e devolve)
+
+
+@app.post("/chat")
+def chat(inp: ChatIn) -> dict:
+    session_id = inp.session_id or uuid.uuid4().hex[:12]
+    if modo_de(session_id) == "planejar":
+        store.append(session_id, {"role": "user", "content": inp.message +
+                     "\n\n[modo planejar ativo: você NÃO pode executar mudanças; "
+                     "use propor_plano e peça aprovação]"})
+    else:
+        store.append(session_id, {"role": "user", "content": inp.message})
+    trace: list[str] = []
+    r = run_turn(session_id, store, llm, registro, trace)
+    return {"reply": r["reply"], "pendente": r["pendente"], "trace": trace, "session_id": session_id}
+
+
+class DecisaoIn(BaseModel):
+    id: str
+
+
+class ModoIn(BaseModel):
+    session_id: str
+    modo: str  # "executar" | "planejar"
+
+
+@app.post("/modo")
+def trocar_modo(inp: ModoIn) -> dict:
+    MODOS_SESSAO[inp.session_id] = inp.modo if inp.modo in ("executar", "planejar") else "executar"
+    return {"session_id": inp.session_id, "modo": modo_de(inp.session_id)}
+
+
+@app.get("/plano")
+def ver_plano() -> dict:
+    arq = AQUI / "PLAN.md"
+    return {"plano": arq.read_text() if arq.exists() else None}
+
+
+@app.post("/aprovar")
+def aprovar(inp: DecisaoIn) -> dict:
+    return retomar(inp.id, aprovado=True)
+
+
+@app.post("/negar")
+def negar(inp: DecisaoIn) -> dict:
+    return retomar(inp.id, aprovado=False)
+
+
+@app.get("/tools")
+def listar_tools() -> dict:
+    """Janela: locais e MCP lado a lado — o modelo vê um catálogo só."""
+    return {"tools": registro.schemas()}
+
+
+class SkillIn(BaseModel):
+    nome: str
+
+
+@app.get("/skills")
+def listar_skills() -> dict:
+    """Janela: pendentes (aguardando o humano) × aprovadas (em vigor)."""
+    def nomes(sub):
+        pasta = AQUI / "skills" / sub
+        return sorted(a.stem for a in pasta.glob("*.md")) if pasta.exists() else []
+    return {"pendentes": nomes("pendentes"), "aprovadas": nomes("aprovadas")}
+
+
+@app.post("/skills/aprovar")
+def aprovar_skill(inp: SkillIn) -> dict:
+    origem = AQUI / "skills" / "pendentes" / f"{inp.nome}.md"
+    if not origem.exists():
+        return {"ok": False, "erro": "skill pendente não encontrada"}
+    destino = AQUI / "skills" / "aprovadas"
+    destino.mkdir(parents=True, exist_ok=True)
+    origem.rename(destino / origem.name)
+    return {"ok": True, "aprovada": inp.nome}
+
+
+@app.post("/skills/rejeitar")
+def rejeitar_skill(inp: SkillIn) -> dict:
+    origem = AQUI / "skills" / "pendentes" / f"{inp.nome}.md"
+    if origem.exists():
+        origem.unlink()
+        return {"ok": True, "rejeitada": inp.nome}
+    return {"ok": False, "erro": "skill pendente não encontrada"}
+
+
+@app.get("/auditoria")
+def ver_auditoria() -> dict:
+    """Janela: o log estruturado que o hook de auditoria escreve."""
+    arq = AQUI / "auditoria.jsonl"
+    linhas = arq.read_text().strip().splitlines() if arq.exists() else []
+    return {"entradas": [json.loads(l) for l in linhas[-50:]]}
+
+
+@app.get("/contexto_uso")
+def contexto_uso(session_id: str) -> dict:
+    """Janela de observação: uso atual da janela × orçamento (antes de compactar)."""
+    msgs = [{"role": "system", "content": contexto.montar()}] + store.history(session_id)
+    return {"session_id": session_id, "chars": compactador._uso(msgs),
+            "orcamento": ORCAMENTO_CHARS, "mensagens": len(msgs)}
+
+
+@app.get("/sessions")
+def listar_sessions() -> dict:
+    """Janela de observação: as conversas que o store conhece (o /resume)."""
+    return {"sessions": store.sessions()}
+
+
+@app.get("/history")
+def ver_history(session_id: str) -> dict:
+    return {"session_id": session_id, "messages": store.history(session_id)}
+
+
+@app.get("/")
+def index() -> HTMLResponse:
+    return HTMLResponse((Path(__file__).parent / "index.html").read_text())

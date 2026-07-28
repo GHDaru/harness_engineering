@@ -32,6 +32,11 @@
 
 ## Edições
 
+### Edição 0.37 — 2026-07-28 · harness-zero: etapa 12 — skills (cap. 16) — TRILHA COMPLETA
+- **Feature spec-kit oficial `042-harness-zero-etapa12`**: o harness que **aprende — com freio**. `salvar_skill(nome, quando_usar, conteudo)` captura procedimentos como skills, mas a skill **nunca entra em vigor sozinha**: vai para `skills/pendentes/` (**auto-aprovação = prompt injection persistente**, o anti-padrão central do cap. 16); o humano **aprova** (`POST /skills/aprovar`) ou rejeita. Aprovada, entra como **camada nova do MontadorDeContexto** (etapa 03 pagando dividendos) — **só nome + quando usar** no prompt; o conteúdo completo vem sob demanda via `ler_skill` (**progressive disclosure**, cap. 04). Smoke com asserções: pendente fora do contexto; aprovada dentro (índice apenas); conteúdo via tool.
+- **🏁 Com esta etapa, a trilha prática fecha o mapa completo: etapas 00–12** — loop, tools (schemas derivados), contexto em camadas, sessões, compactação, permissões+aprovação, MCP, plan mode, subagentes, evals (replay+juiz), hooks e skills. As doze dimensões do livro, construídas do zero, cada etapa autocontida e verificada.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.36 — 2026-07-28 · harness-zero: etapa 11 — hooks (cap. 12)
 - **Feature spec-kit oficial `041-harness-zero-etapa11`**: extensibilidade sem tocar no loop. **Hooks** em duas fronteiras estáveis da execução de ferramentas — `pre_tool` (pode **bloquear** ou **ajustar args**) e `post_tool` (pode **transformar o resultado**) — envolvendo `registro.executar` em todos os caminhos (loop, aprovação, subagente). Dois hooks de exemplo com dor real: **auditoria** (cada chamada vira linha estruturada em `auditoria.jsonl`; janela `GET /auditoria`) e **redator** (mascara padrões de segredo — `nvapi-…`, `password=` — antes de o resultado chegar ao modelo; defesa em profundidade somada à política da etapa 06). Smoke: redação, bloqueio e log verificados.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
