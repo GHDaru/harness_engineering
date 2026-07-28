@@ -1,0 +1,58 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>harness-zero · etapa 8</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  #log { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; min-height: 300px; }
+  .user { text-align: right; color: #1a4f8b; margin: .4rem 0; }
+  .assistant { text-align: left; color: #222; margin: .4rem 0; white-space: pre-wrap; }
+  .trace { text-align: left; color: #7a5c00; font-size: 13px; margin: .2rem 0; }
+  form { display: flex; gap: .5rem; margin-top: .75rem; }
+  input { flex: 1; padding: .5rem; font: inherit; }
+  #sess { font-size: 12px; color: #777; margin: .4rem 0 0; }
+  #sess button { font-size: 12px; }
+</style>
+<h3>harness-zero · etapa 8 — plan mode (alterne o modo e veja a política agir)</h3>
+<div id="log"></div>
+<form id="f"><input id="m" autofocus placeholder="ex.: que horas são?"><button>enviar</button></form>
+<p id="sess">sessão: <code id="sid">(nova)</code> <button id="nova" type="button">nova sessão</button></p>
+<script>
+  // Evolução mínima do chat congelado, justificada pela dimensão da etapa (cap. 08):
+  // a sessão precisa de superfície — o id persiste no navegador e é reenviado (o /resume).
+  const log = document.getElementById("log");
+  const add = (cls, text) => { const d = document.createElement("div"); d.className = cls; d.textContent = text; log.appendChild(d); d.scrollIntoView(); };
+  let sid = localStorage.getItem("hz8_sid") || null;
+  const mostraSid = () => document.getElementById("sid").textContent = sid || "(nova)";
+  mostraSid();
+  document.getElementById("nova").onclick = () => { sid = null; localStorage.removeItem("hz8_sid"); log.innerHTML = ""; mostraSid(); };
+  // ao abrir com sessão existente, recarrega o histórico (o resume de verdade)
+  if (sid) fetch("/history?session_id=" + sid).then(r => r.json()).then(d =>
+    (d.messages || []).forEach(m => { if (m.role === "user") add("user", m.content); else if (m.role === "assistant" && m.content) add("assistant", m.content); }));
+  document.getElementById("f").onsubmit = async (e) => {
+    e.preventDefault();
+    const input = document.getElementById("m");
+    const text = input.value.trim(); if (!text) return;
+    add("user", text); input.value = "";
+    const r = await fetch("/chat", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({message: text, session_id: sid}) });
+    const data = await r.json();
+    sid = data.session_id; localStorage.setItem("hz8_sid", sid); mostraSid();
+    (data.trace || []).forEach(t => add("trace", t));
+    if (data.pendente) mostraPendente(data.pendente); else add("assistant", data.reply);
+  };
+  // Evolução justificada (cap. 07): a aprovação precisa de superfície.
+  async function mostraPendente(p) {
+    const d = document.createElement("div"); d.className = "trace";
+    d.textContent = "🛡 " + p.aviso + " ";
+    const ok = document.createElement("button"); ok.textContent = "aprovar";
+    const nao = document.createElement("button"); nao.textContent = "negar"; nao.style.marginLeft = ".4rem";
+    const decide = async (rota) => {
+      ok.disabled = nao.disabled = true;
+      const r = await fetch(rota, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({id: p.id}) });
+      const data = await r.json();
+      (data.trace || []).forEach(t => add("trace", t));
+      if (data.pendente) mostraPendente(data.pendente); else add("assistant", data.reply);
+    };
+    ok.onclick = () => decide("/aprovar"); nao.onclick = () => decide("/negar");
+    d.appendChild(ok); d.appendChild(nao); log.appendChild(d); d.scrollIntoView();
+  }
+</script>

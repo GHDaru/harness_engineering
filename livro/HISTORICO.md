@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.33 — 2026-07-28 · harness-zero: etapa 08 — plan mode (cap. 09)
+- **Feature spec-kit oficial `038-harness-zero-etapa08`**: plan mode **imposto, não pedido**. Um **modo por sessão** (`executar`/`planejar`, `POST /modo`); em `planejar`, a **política da etapa 06 nega toda ferramenta mutante** — a mudança é **uma linha** no `decide()` (a lição: quem garante o comportamento é o mecanismo de permissões, não a boa vontade do modelo). Nova tool `propor_plano` grava o artefato **PLAN.md** revisável (`GET /plano`); aprovar o plano = trocar o modo para executar. O turno em modo planejar recebe o aviso injetado. Smoke: negação com motivo em planejar; executar volta a perguntar.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.32 — 2026-07-28 · harness-zero: etapa 07 — MCP client (cap. 06)
 - **Feature spec-kit oficial `037-harness-zero-etapa07`**: o harness aprende a **plugar ferramentas dos outros**. A etapa traz um **servidor MCP de exemplo** (~60 linhas, JSON-RPC 2.0 por linha no stdio — para o leitor ver o protocolo por dentro) e o **ClienteMCP** no harness: `initialize` → `tools/list` → `tools/call`, com as tools importadas de **prefixo `mcp_`** num **RegistroComposto** (locais + MCP atrás da mesma interface — o loop não sabe de onde a ferramenta vem). A **política da etapa 06 vale para as tools MCP** (servidor externo é input não-confiável); trace distingue 🔧 local × 🔌 MCP; degradação graciosa se o servidor cair. Smoke: handshake + list + call verificados.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
