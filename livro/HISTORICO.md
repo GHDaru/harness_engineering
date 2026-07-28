@@ -28,6 +28,12 @@
 
 ## Edições
 
+### Edição 0.17 — 2026-07-27 · experiência de entrada do livro (índice repaginado)
+- **Feature spec-kit oficial `021-experiencia-entrada`**: o sumário deixou de ser uma lista crua e virou uma **entrada de verdade** — mantendo a **sidebar** com o índice completo (navegação sem rolar), o conteúdo principal ganhou: **hero** (capa + título + `vX.Y.0`/DOI + CTAs), card **"Continue lendo/Retomar"** (via `localStorage`, aparece após ler um capítulo), **trilha** em 4 passos (Fundamentos → Funcionalidades → Benchmark → Mão na massa) e os **capítulos em cartões** com *teaser*; benchmark/aparato/sobre como **pills**.
+- **Teasers por capítulo** entraram no `sumario.json` (conteúdo reaproveitável). O motor grava o último capítulo lido e popula o "Retomar".
+- **Theme-aware** (claro/escuro via `--vars`), **responsivo** (hero empilha, trilha 2 col., cartões 1 col. no mobile) e acessível. O cartão vira a **base do template dos capítulos** (feature futura).
+- **IA (A3)**: agente **Claude Code (Anthropic)** — design e implementação; curadoria e aprovação humanas (mockups revisados antes de publicar).
+
 ### Edição 0.16 — 2026-07-27 · fix: itálico no markdown do chat-companion
 - **Feature spec-kit oficial `022-companion-markdown`**: o widget do companion agora renderiza **itálico** `*x*` (antes vazava como asteriscos). `fmt()` converte `*itálico*` em `<em>` após o negrito, **sem** tocar em `**` nem quebrar identificadores `snake_case`. Escape antes da formatação mantido (segurança).
 - **IA (A3)**: agente **Claude Code (Anthropic)** — correção; curadoria humana.
