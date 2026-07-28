@@ -28,6 +28,11 @@
 
 ## Edições
 
+### Edição 0.23 — 2026-07-28 · Apêndice "O estudo" + fork/commit por harness + citações→Bibliografia
+- **Feature spec-kit oficial `028-estudo-citacoes`** (E01+E03+E04 da auditoria): nova página **Apêndice — O estudo** (`livro/apendice-estudo.md`), no aparato: os **16 harnesses avaliados** com **origem**, versão/snapshot, **fork GHDaru + commit lido** (a data de corte materializada — reprodutibilidade do método, cap. 01 §6), data/rodada e link para a **avaliação completa** de cada um; mais o template (`HARNESS_EVAL`/`FRAMEWORK_EVAL`) e a ponte para o Comparativo.
+- **Citações (MVP)**: o motor agora converte menções textuais `arXiv NNNN.NNNNN` em **link para a Bibliografia** (que linka as fontes). Decisão e evolução planejada em `adr/0004`.
+- **IA (A3)**: agente **Claude Code (Anthropic)** — extração dos metadados reais das avaliações e implementação; curadoria humana.
+
 ### Edição 0.22 — 2026-07-28 · ilustração esquemática do harness (E02)
 - **Feature spec-kit oficial `027-ilustracao-harness`**: o cap. 00 ganhou uma **figura esquemática (SVG flat, estilo bloco)** — o **modelo no centro** e, em volta, os seis blocos do harness (loop, contexto, ferramentas, memória, permissões, verificação) numa moldura "HARNESS (o andaime)", com o mundo (arquivos/APIs/terminal) à direita. **Theme-aware** (herda as cores do tema via CSS vars), acessível (`<title>`/`alt`/`figcaption`), sem binário (SVG versionável).
 - **IA (A3)**: agente **Claude Code (Anthropic)** — desenho e integração; direção do autor ("menos futurista, mais bloco").

@@ -131,9 +131,17 @@ const SIGLAS = {
 };
 const RE_SIGLAS = new RegExp("\\b(" + Object.keys(SIGLAS).sort((a, b) => b.length - a.length).join("|") + ")\\b", "g");
 const TAGS_PROT = /^(pre|code|a|abbr|h[1-6]|script|style)$/i;
+// Citações (E01): menções textuais a "arXiv NNNN.NNNNN" fora de links viram
+// link para a Bibliografia (que, por sua vez, linka a fonte). MVP honesto:
+// âncora na página da bibliografia; âncoras por entrada ficam para depois (ADR 0004).
+function ligarCitacoes(texto) {
+  return texto.replace(/arXiv\s+(\d{4}\.\d{4,5})/g,
+    (m, id) => `<a class="cita" href="bibliografia.html" title="ver na Bibliografia">arXiv ${id}</a>`);
+}
+
 function abrirSiglas(html) {
   const re = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g;
-  const sub = (t) => t.replace(RE_SIGLAS, (s) => `<abbr title="${SIGLAS[s]}">${s}</abbr>`);
+  const sub = (t) => ligarCitacoes(t).replace(RE_SIGLAS, (s) => `<abbr title="${SIGLAS[s]}">${s}</abbr>`);
   let out = "", last = 0, m, prot = 0;
   while ((m = re.exec(html))) {
     const txt = html.slice(last, m.index);
