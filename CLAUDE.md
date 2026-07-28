@@ -32,12 +32,15 @@ As skills `/speckit-*` (em `.claude/skills/`) automatizam esses passos; quando n
 
 **Exceções (Princípio VII):** emendas à constituição e a **este** documento de governança, e correções triviais (typo, link quebrado), podem ir direto à `main`, sempre com commit descritivo.
 
+**Decisões (ADR):** toda decisão relevante (com alternativas e consequências) vira um registro em `adr/` (ver `adr/README.md`): contexto → decisão → alternativas avaliadas → justificativa → consequências. Registra o *porquê*, além do *o quê* (specs/HISTORICO).
+
 ## Mapa do repositório
 
 - `livro/` — o livro. `GUIA-EDITORIAL.md` (como escrever), `HISTORICO.md` (edições + expiração), `bibliografia.md`, `capitulos/`.
 - `benchmark/` — avaliações por dimensão (`README.md` = metodologia; `template/` = HARNESS_EVAL e FRAMEWORK_EVAL; `avaliacoes/`; `comparativo.md`).
 - `harness-zero/` — a construção prática (Python + FastAPI), uma etapa por capítulo. Regras da construção: seção "Restrições" da constituição.
 - `estudos/` — notas de pesquisa (parecer editorial, panoramas).
+- `adr/` — Architecture Decision Records (decisões + alternativas + justificativa).
 - `.specify/` — spec-kit: constituição (`memory/`), scripts (`scripts/bash/`), templates (`templates/`). `.claude/skills/` — skills `/speckit-*` (o ciclo spec-kit) e `academic-research`.
 - `scripts/sync-forks.ps1` — sincronização local dos forks estudados.
 
