@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.34 — 2026-07-28 · harness-zero: etapa 09 — subagentes (cap. 10)
+- **Feature spec-kit oficial `039-harness-zero-etapa09`**: a tool **`task(descricao)`** delega a um **subagente com sessão-filha** (`task-…`): system prompt focado **só na descrição** (zero contexto do pai), **mesmo loop** com turnos limitados, ferramentas **restritas a leitura** (filha não muta o mundo; a política da etapa 06 segue por cima) — e **só o resultado final volta** ao pai como tool result. As duas fronteiras (ida: só a descrição; volta: só o resultado) são a lição do capítulo: é o que mantém o contexto do pai limpo. Filhas persistidas e visíveis em `/sessions` (a etapa 04 pagando dividendos). Smoke com asserções nas fronteiras.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.33 — 2026-07-28 · harness-zero: etapa 08 — plan mode (cap. 09)
 - **Feature spec-kit oficial `038-harness-zero-etapa08`**: plan mode **imposto, não pedido**. Um **modo por sessão** (`executar`/`planejar`, `POST /modo`); em `planejar`, a **política da etapa 06 nega toda ferramenta mutante** — a mudança é **uma linha** no `decide()` (a lição: quem garante o comportamento é o mecanismo de permissões, não a boa vontade do modelo). Nova tool `propor_plano` grava o artefato **PLAN.md** revisável (`GET /plano`); aprovar o plano = trocar o modo para executar. O turno em modo planejar recebe o aviso injetado. Smoke: negação com motivo em planejar; executar volta a perguntar.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
