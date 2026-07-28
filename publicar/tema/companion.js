@@ -53,7 +53,8 @@
     var o = el("option", null, m[1]); o.value = m[0]; if (m[0] === MODE) o.selected = true; modeSel.appendChild(o);
   });
   var minBtn = el("button", "cmp-min", "–"); minBtn.setAttribute("aria-label", "Minimizar o companion");
-  actions.appendChild(modeSel); actions.appendChild(minBtn);
+  var sugBtn = el("button", "cmp-min", "💡"); sugBtn.setAttribute("aria-label", "Enviar sugestão ao autor"); sugBtn.title = "Enviar sugestão ao autor";
+  actions.appendChild(modeSel); actions.appendChild(sugBtn); actions.appendChild(minBtn);
   head.appendChild(title); head.appendChild(actions);
 
   var capsBox = el("div", "cmp-caps");
@@ -68,7 +69,12 @@
   var send = el("button", "cmp-send", "➤"); send.type = "submit"; send.setAttribute("aria-label", "Enviar");
   form.appendChild(input); form.appendChild(send);
 
-  panel.appendChild(head); panel.appendChild(capsBox); panel.appendChild(msgs); panel.appendChild(form);
+  var sugForm = el("form", "cmp-sugform"); sugForm.hidden = true;
+  var sugTxt = el("textarea", "cmp-input"); sugTxt.rows = 3; sugTxt.placeholder = "Sua sugestão para o livro… (vai para o autor)";
+  sugTxt.setAttribute("aria-label", "Texto da sugestão");
+  var sugSend = el("button", "cmp-send", "➤"); sugSend.type = "submit"; sugSend.setAttribute("aria-label", "Enviar sugestão");
+  sugForm.appendChild(sugTxt); sugForm.appendChild(sugSend);
+  panel.appendChild(head); panel.appendChild(capsBox); panel.appendChild(msgs); panel.appendChild(sugForm); panel.appendChild(form);
   root.appendChild(launcher); root.appendChild(panel);
 
   // --- render ---
@@ -127,6 +133,20 @@
   launcher.addEventListener("click", open);
   minBtn.addEventListener("click", close);
   modeSel.addEventListener("change", function () { MODE = modeSel.value; set("cmp_mode", MODE); renderCaps(); });
+  sugBtn.addEventListener("click", function () {
+    sugForm.hidden = !sugForm.hidden;
+    if (!sugForm.hidden) sugTxt.focus();
+  });
+  sugForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var t = sugTxt.value.trim(); if (!t) return;
+    sugSend.disabled = true;
+    api("/suggestion", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ session_id: SID, texto: t, pagina: location.pathname.split("/").pop() || "index.html" }) })
+      .then(function () { sugTxt.value = ""; sugForm.hidden = true; addMsg("sys", "💡 Sugestão enviada ao autor — obrigado!"); })
+      .catch(function (err) { addMsg("sys", "⚠️ Não consegui enviar a sugestão (" + err.message + ")."); })
+      .then(function () { sugSend.disabled = false; });
+  });
   form.addEventListener("submit", function (e) {
     e.preventDefault(); var t = input.value.trim(); if (!t) return; input.value = ""; input.style.height = "auto"; sendMsg(t);
   });

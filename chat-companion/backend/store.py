@@ -25,6 +25,8 @@ class StorePort(Protocol):
     def history(self, session_id: str, limit: int = 100) -> list[Message]: ...
     def count_since(self, session_id: str, since_ts: float) -> int: ...
     def delete_session(self, session_id: str) -> None: ...
+    def add_suggestion(self, session_id: str, texto: str, pagina: str) -> None: ...
+    def suggestions(self, limit: int = 200) -> list[dict]: ...
 
 
 # ----------------------------------------------------------- memória
@@ -32,6 +34,7 @@ class StorePort(Protocol):
 class MemoryStore:
     def __init__(self) -> None:
         self._msgs: dict[str, list[dict]] = {}
+        self._sug: list[dict] = []
 
     def ensure_session(self, session_id: str) -> None:
         self._msgs.setdefault(session_id, [])
@@ -50,6 +53,12 @@ class MemoryStore:
 
     def delete_session(self, session_id: str) -> None:
         self._msgs.pop(session_id, None)
+
+    def add_suggestion(self, session_id: str, texto: str, pagina: str) -> None:
+        self._sug.append({"session_id": session_id, "texto": texto, "pagina": pagina, "ts": time.time()})
+
+    def suggestions(self, limit: int = 200) -> list[dict]:
+        return list(self._sug[-limit:])
 
 
 # ----------------------------------------------------------- postgres (neon)
@@ -86,6 +95,13 @@ class PostgresStore:
                     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
                 );
                 CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id, id);
+                CREATE TABLE IF NOT EXISTS suggestions (
+                    id BIGSERIAL PRIMARY KEY,
+                    session_id TEXT,
+                    texto TEXT NOT NULL,
+                    pagina TEXT,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                );
             """)
             conn.commit()
 
@@ -124,6 +140,18 @@ class PostgresStore:
         with self._conn() as conn, conn.cursor() as cur:
             cur.execute("DELETE FROM sessions WHERE session_id = %s", (session_id,))
             conn.commit()
+
+    def add_suggestion(self, session_id: str, texto: str, pagina: str) -> None:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("INSERT INTO suggestions(session_id, texto, pagina) VALUES (%s, %s, %s)",
+                        (session_id, texto, pagina))
+            conn.commit()
+
+    def suggestions(self, limit: int = 200) -> list[dict]:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("SELECT session_id, texto, pagina, created_at FROM suggestions ORDER BY id DESC LIMIT %s", (limit,))
+            rows = cur.fetchall()
+        return [{"session_id": r[0], "texto": r[1], "pagina": r[2], "created_at": str(r[3])} for r in rows]
 
 
 def make_store(database_url: str) -> StorePort:

@@ -29,6 +29,8 @@ Backend FastAPI (Railway)            ← este diretório (backend/)
 | `POST` | `/chat` | o turno de conversa (tutor + loop de tools com gating) |
 | `GET` | `/history?session_id=…` | histórico para retomar |
 | `DELETE` | `/session/{session_id}` | apagar a sessão (LGPD, direito ao esquecimento) |
+| `POST` | `/suggestion` | leitor envia sugestão ao autor (persiste + email se SMTP configurado) |
+| `GET` | `/suggestions?token=…` | autor lê as sugestões (token por env `ADMIN_TOKEN`) |
 
 Exemplo de `POST /chat`:
 
