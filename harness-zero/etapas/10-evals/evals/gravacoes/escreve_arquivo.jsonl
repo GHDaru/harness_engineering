@@ -1,0 +1,2 @@
+{"role":"assistant","content":null,"tool_calls":[{"id":"g1","function":{"name":"write_file","arguments":"{\"path\":\"saida_eval.txt\",\"conteudo\":\"ok\"}"}}]}
+{"role":"assistant","content":"arquivo escrito."}
