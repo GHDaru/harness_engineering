@@ -1,5 +1,7 @@
 # 00 — Introdução
 
+> **Estado da arte capturado em 2026-07** · última revisão 2026-07-28 · [histórico e registro de expiração](HISTORICO.md)
+
 ## Agente = modelo + harness
 
 Quando um agente de IA resolve uma tarefa real — corrigir um bug, migrar um módulo, responder com base em dezenas de arquivos — duas coisas distintas estão trabalhando. A primeira é o **modelo**: a rede que lê contexto e decide o próximo passo. A segunda é tudo o que está em volta dele: quem monta o contexto que ele lê, quem executa as ferramentas que ele invoca, quem decide o que ele pode ou não fazer, quem lembra o que aconteceu ontem, quem verifica se o resultado está certo. Esse "tudo em volta" é o **harness** — em tradução livre, o arreio, o andaime, o *scaffolding*.
@@ -19,7 +21,7 @@ O modelo é intercambiável e melhora a cada geração. O harness é engenharia 
 
 ## Por que um livro — e por que agora
 
-Entre 2024 e 2026, os harnesses de agentes de código deixaram de ser experimentos e viraram uma categoria de produto: Claude Code, Codex CLI, Gemini CLI, opencode, Aider, Cline, Goose, OpenHands e dezenas de outros. O mais notável não é a quantidade, mas a **convergência**: projetos independentes, em linguagens diferentes, chegaram às mesmas soluções — arquivos de contexto hierárquicos, compactação em camadas, plan mode como modo de permissão, hooks de ciclo de vida, MCP como padrão de integração.
+Entre 2024 e 2026, os harnesses de agentes de código deixaram de ser experimentos e viraram uma categoria de produto: Claude Code, Codex CLI, Gemini CLI, opencode, Aider, Cline, Goose, OpenHands e dezenas de outros. O mais notável não é a quantidade, mas a **convergência**: projetos independentes, em linguagens diferentes, chegaram às mesmas soluções — arquivos de contexto hierárquicos, compactação em camadas, plan mode como modo de permissão, hooks de ciclo de vida, MCP (Model Context Protocol) como padrão de integração.
 
 Quando implementações independentes convergem, existe uma disciplina por trás. Este livro documenta essa disciplina.
 
@@ -44,14 +46,17 @@ Isso não é um detalhe: um livro sobre a disciplina de instrumentar bem os agen
 - **Convergências e tendências** (capítulo 14): o que a indústria já padronizou, onde ainda há divergência real, e a "cláusula de expiração" — a tese de que todo componente de harness existe porque o modelo ainda não faz aquilo sozinho, e deve ser desenhado sabendo que um dia será desnecessário.
 - **Benchmark** (`benchmark/`): a seção empírica — avaliações padronizadas, por dimensão, com notas 0–3 e evidência, de cada harness estudado, mais o comparativo consolidado.
 
-## Os harnesses da primeira rodada
+## Os harnesses do estudo
 
-| Harness | Stack | Por que foi escolhido |
-|---|---|---|
-| **opencode** | TypeScript + Effect-TS | Produto maduro, cliente-servidor, o mais agnóstico de provedor (~26 loaders + centenas de modelos) |
-| **gemini-cli** | TypeScript (Google) | Produto de big tech com o regime de controle (policy engine, sandbox) e verificação (4 suítes de eval) mais rigoroso |
-| **OpenHarness** | Python | Port declarado e legível do Claude Code — expõe os mecanismos que os produtos escondem — mais um subsistema multi-agente ambicioso |
+O estudo cobre, até esta edição, **dezesseis sistemas de código aberto**, avaliados por leitura sistemática de código em três arquétipos (o método está no [capítulo 01, §6](01-fundamentos.md)):
 
-E, como referencial teórico, a lista curada **awesome-harness-engineering** (~426 recursos organizados por problema), de onde vem a definição de harness usada no capítulo 01 e a taxonomia que estrutura os capítulos.
+- **Harnesses de código** — opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands;
+- **Agentes pessoais self-hosted** — OpenClaw, Hermes Agent, IronClaw, ohmo;
+- **Harnesses embutidos** — n8n (nó AI Agent);
+- **Frameworks** — LangGraph, CrewAI, OpenAI Agents SDK (Software Development Kit), Software Agent SDK.
 
-As próximas rodadas incorporam Codex CLI (Rust, sandbox-first), Goose (Rust, MCP-nativo), Aider (Python, context-first) e OpenHands (Python, event-stream + cultura de eval acadêmica) — cada um escolhido por representar um *arquétipo* diferente de harness.
+Cada um foi escolhido por representar um *arquétipo* diferente (lógica de replicação, não amostragem): produto maduro agnóstico de provedor (opencode), regime de controle de big tech (gemini-cli), port didático legível (OpenHarness), sandbox-first (Codex CLI), MCP-nativo (Goose), context-first (Aider), cultura de eval acadêmica (OpenHands), e assim por diante.
+
+A lista completa — com **origem, versão, fork e commit exatos lidos** em cada avaliação, e o link para a análise e o diagnóstico de cada um — está no **[Apêndice — O estudo](apendice-estudo.md)**. O placar consolidado por dimensão está no [Comparativo](../benchmark/comparativo.md).
+
+Como referencial teórico, soma-se a lista curada **awesome-harness-engineering** (~426 recursos organizados por problema), de onde vêm a definição de harness usada no capítulo 01 e a taxonomia que estrutura os capítulos.

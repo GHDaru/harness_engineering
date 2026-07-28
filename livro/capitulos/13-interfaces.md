@@ -8,8 +8,8 @@
 
 Ao final deste capítulo, você deve ser capaz de:
 1. **Argumentar** por que "núcleo com front-ends" bate "front-end com um agente dentro" — e como desenhar a fronteira cedo maximiza as superfícies possíveis;
-2. **Distinguir** as superfícies (TUI, headless/SDK, IDE, chat, cloud) e o que cada uma exige do core;
-3. **Avaliar** a UX de interação à luz da HCI (mixed-initiative, níveis de automação, over-reliance);
+2. **Distinguir** as superfícies (TUI (Terminal User Interface), headless/SDK (Software Development Kit), IDE (Integrated Development Environment), chat, cloud) e o que cada uma exige do core;
+3. **Avaliar** a UX de interação à luz da HCI (Human-Computer Interaction) (mixed-initiative, níveis de automação, over-reliance);
 4. **Reconhecer** a superfície como fronteira de segurança (mesmo contrato de turn, não backdoor) e a virada para o paradigma *ambient*/inbox;
 5. **Explicar** por que, com o loop atrás de portas, uma segunda superfície (headless) é um adapter fino, não uma reescrita (etapa 0 do harness-zero).
 
@@ -17,7 +17,7 @@ Ao final deste capítulo, você deve ser capaz de:
 
 O mesmo agente precisa servir públicos diferentes: o desenvolvedor no terminal, o script de CI que precisa de JSON, o IDE que quer diffs inline, o gestor que acompanha por chat. A pergunta arquitetural é uma só: **o harness é um núcleo com múltiplos front-ends, ou um front-end com um agente dentro?** Os harnesses estudados responderam "núcleo com front-ends" — e a qualidade dessa separação determina quantas interfaces são viáveis.
 
-Superfícies consagradas: **TUI interativa**, **headless/não-interativo** (`-p` com saída estruturada), **IDE** (diffs, contexto do editor), **CI/CD** (Actions), **protocolos de agente** (ACP, A2A), **chat** (Slack, Telegram…) e, cada vez mais, **cloud/assíncrona**.
+Superfícies consagradas: **TUI interativa**, **headless/não-interativo** (`-p` com saída estruturada), **IDE** (diffs, contexto do editor), **CI/CD** (Actions), **protocolos de agente** (ACP (Agent Client Protocol), A2A (Agent-to-Agent)), **chat** (Slack, Telegram…) e, cada vez mais, **cloud/assíncrona**.
 
 ## Fundamentos científicos
 
@@ -32,7 +32,7 @@ Registro editorial honesto (Princípio I): **não existe canon acadêmico de "in
 
 ## Fontes da indústria
 
-- **Um núcleo, muitas superfícies (agora doutrina)** — a doc [Platforms and integrations (Claude Code)](https://code.claude.com/docs/en/platforms) diz explicitamente: "roda o mesmo motor subjacente em todo lugar, mas cada superfície é afinada para um jeito de trabalhar" (CLI, Desktop, VS Code, JetBrains, Web, Mobile + Chrome, GitHub Actions, GitLab, Slack), com **config, memória de projeto e MCP compartilhados** entre as superfícies locais. Decisão: construa o agente como um motor único e trate terminal/IDE/web/mobile como front-ends intercambiáveis.
+- **Um núcleo, muitas superfícies (agora doutrina)** — a doc [Platforms and integrations (Claude Code)](https://code.claude.com/docs/en/platforms) diz explicitamente: "roda o mesmo motor subjacente em todo lugar, mas cada superfície é afinada para um jeito de trabalhar" (CLI, Desktop, VS Code, JetBrains, Web, Mobile + Chrome, GitHub Actions, GitLab, Slack), com **config, memória de projeto e MCP (Model Context Protocol) compartilhados** entre as superfícies locais. Decisão: construa o agente como um motor único e trate terminal/IDE/web/mobile como front-ends intercambiáveis.
 - **Headless é um filtro Unix** — [Run Claude Code programmatically (headless)](https://code.claude.com/docs/en/headless): `-p`/`--print`, `--output-format text|json|stream-json`, lê stdin e redireciona stdout "como qualquer ferramenta de linha de comando", com `--allowedTools`/`--permission-mode` para runs desatendidos nunca travarem num prompt. Decisão: a interface é stdin/stdout + exit codes — o agente cai em pipes, build scripts e CI sem UI.
 - **O SDK é o loop empacotado; Managed Agents é o agente como serviço** — o [Agent SDK](https://code.claude.com/docs/en/agent-sdk/overview) dá "as mesmas tools, loop e gestão de contexto que movem o Claude Code", programável em Python/TS, e separa *quem roda o loop* (SDK no seu processo) de *quem o renderiza*; os [Managed Agents](https://platform.claude.com/docs/en/managed-agents/overview) levam ao extremo — "a Anthropic roda o agente e o sandbox, sua aplicação manda eventos e recebe o stream". Decisão: a superfície programática é o core como biblioteca — ou como endpoint REST.
 - **O IDE é uma superfície fina sobre o mesmo motor** — [VS Code](https://code.claude.com/docs/en/vs-code) e [JetBrains](https://code.claude.com/docs/en/jetbrains) adicionam diffs inline e contexto do editor reusando o engine do CLI (mesmo CLAUDE.md, mesmos modos de permissão); o padrão mais amplo — [Copilot agent mode](https://code.visualstudio.com/blogs/2025/02/24/introducing-copilot-agent-mode), Cursor 2.0 (background agents), Windsurf Cascade — divide a superfície do editor em **inline (síncrona)** e **background (assíncrona, cloud)** sobre a mesma abstração de tarefa.

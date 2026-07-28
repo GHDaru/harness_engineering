@@ -74,7 +74,7 @@ Na etapa 3 você constrói o montador de contexto do harness-zero: system prompt
 > Evidência por harness, com paths — complementação online, expandida a cada rodada do benchmark.
 
 ### opencode (rodada 1) — álgebra tipada e Context Epochs
-`packages/opencode/src/session/system.ts` monta environment + skills + instruções MCP; **~10 prompts por família de modelo** em `session/prompt/*.txt` (anthropic, gpt, codex, gemini, kimi, beast...), selecionados por substring do model id; `AGENTS.md` globais/ascendentes agregados por `session/instruction.ts`. A V2 (`CONTEXT.md`) formaliza o contexto como álgebra de "Context Sources" com snapshots, **Context Epochs** (baseline de cache) e mensagens de sistema mid-conversation só em fronteiras seguras.
+`packages/opencode/src/session/system.ts` monta environment + skills + instruções MCP (Model Context Protocol); **~10 prompts por família de modelo** em `session/prompt/*.txt` (anthropic, gpt, codex, gemini, kimi, beast...), selecionados por substring do model id; `AGENTS.md` globais/ascendentes agregados por `session/instruction.ts`. A V2 (`CONTEXT.md`) formaliza o contexto como álgebra de "Context Sources" com snapshots, **Context Epochs** (baseline de cache) e mensagens de sistema mid-conversation só em fronteiras seguras.
 
 ### gemini-cli (rodada 1) — hierarquia com @imports
 `prompts/promptProvider.ts` monta por modo/tools/modelo (snippets modernos × legados); `GEMINI.md` hierárquico (`memoryDiscovery.ts`: global → pais → subpastas) com `@imports` (`memoryImportProcessor.ts`) e `flattenMemory`; override total via `GEMINI_SYSTEM_MD`; injeção just-in-time (`tools/jit-context.ts`).
@@ -110,4 +110,4 @@ Na etapa 3 você constrói o montador de contexto do harness-zero: system prompt
 `ToolsAgent/common.ts`: `ChatPromptTemplate` com system message livre + histórico + binários ricos (imagens/PDF); sem arquivo de regras nem hierarquia — o contexto vem mapeado do workflow pelo autor.
 
 ### Frameworks (rodada frameworks) — aberto por design
-LangGraph e Agents SDK deixam a montagem por conta do dev (instructions estáticas ou callable); CrewAI impõe role/goal/backstory como contexto estrutural; o software-agent-sdk dá preset Jinja com escape hatch documentado (`prompt_dir` + `_prompt_preset() -> None`).
+LangGraph e Agents SDK (Software Development Kit) deixam a montagem por conta do dev (instructions estáticas ou callable); CrewAI impõe role/goal/backstory como contexto estrutural; o software-agent-sdk dá preset Jinja com escape hatch documentado (`prompt_dir` + `_prompt_preset() -> None`).

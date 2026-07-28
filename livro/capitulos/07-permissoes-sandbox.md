@@ -10,7 +10,7 @@ Ao final deste capítulo, você deve ser capaz de:
 1. **Distinguir** as duas camadas de defesa — política (o que o agente pode pedir) e contenção (o que o processo consegue fazer);
 2. **Projetar** permissões em duas dimensões ortogonais (modo de sandbox × política de aprovação);
 3. **Aplicar** a "trifecta letal" e a "regra de dois" como checklists de revisão de toolset e de arquitetura de sessão;
-4. **Implementar** uma `PermissionPolicy` como domínio puro (testável sem LLM) + paths sensíveis indesligáveis (etapa 6);
+4. **Implementar** uma `PermissionPolicy` como domínio puro (testável sem LLM (Large Language Model)) + paths sensíveis indesligáveis (etapa 6);
 5. **Avaliar** um harness real quanto ao seu *blast radius* — o que vaza se a injection vencer?
 
 ## O problema
@@ -106,4 +106,4 @@ A etapa 6 introduz a `PermissionPolicy` como **domínio puro**: uma função `(a
 A permissão é **topológica**: o autor escolhe quais nós ficam na porta `AiTool` — allowlist por construção. HITL real via `sendAndWait` (pausa durável), proibido em sub-agentes; nó Guardrails.
 
 ### Frameworks (rodada frameworks) — deixam aberto
-LangGraph e CrewAI não têm política de tools nativa (constrói-se sobre `interrupt`/HITL); o Agents SDK tem guardrails em três níveis (agente/run/tool) como primitiva, mas contenção fica por conta do adotante.
+LangGraph e CrewAI não têm política de tools nativa (constrói-se sobre `interrupt`/HITL); o Agents SDK (Software Development Kit) tem guardrails em três níveis (agente/run/tool) como primitiva, mas contenção fica por conta do adotante.
