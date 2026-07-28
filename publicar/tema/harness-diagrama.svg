@@ -1,0 +1,64 @@
+<svg viewBox="0 0 860 560" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,'Segoe UI',Roboto,Arial,sans-serif" role="img" aria-labelledby="hd-t">
+  <title id="hd-t">Diagrama esquemático: o modelo de IA no centro e, em volta, os seis blocos do harness — loop do agente, ferramentas, contexto, memória, permissões e verificação — dentro de uma moldura chamada harness (andaime).</title>
+  <style>
+    .caixa { fill: var(--sidebar, #f4f4f2); stroke: var(--line, #cfcfcb); stroke-width: 1.5; rx: 10; }
+    .caixa-t { fill: var(--fg, #1c1c1c); font-size: 16px; font-weight: 700; }
+    .caixa-d { fill: var(--muted, #6a6a6a); font-size: 11.5px; }
+    .modelo { fill: #e8a33d22; stroke: #e8a33d; stroke-width: 2.5; }
+    .modelo-t { fill: var(--fg, #1c1c1c); font-size: 19px; font-weight: 800; }
+    .moldura { fill: none; stroke: var(--muted, #8a8a86); stroke-width: 2; stroke-dasharray: 9 6; }
+    .moldura-t { fill: var(--muted, #6a6a6a); font-size: 13px; font-weight: 700; letter-spacing: .12em; }
+    .seta { stroke: var(--muted, #8a8a86); stroke-width: 1.8; fill: none; marker-end: url(#ponta); }
+    .mundo { fill: var(--fg, #1c1c1c); font-size: 13.5px; font-weight: 700; }
+  </style>
+  <defs>
+    <marker id="ponta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--muted, #8a8a86)"/>
+    </marker>
+  </defs>
+
+  <!-- moldura do harness -->
+  <rect class="moldura" x="30" y="46" width="672" height="484" rx="18"/>
+  <text class="moldura-t" x="52" y="34">HARNESS&#160;&#160;(o andaime / scaffolding)</text>
+
+  <!-- modelo no centro -->
+  <rect class="caixa modelo" x="270" y="234" width="192" height="104" rx="14"/>
+  <text class="modelo-t" x="366" y="280" text-anchor="middle">MODELO</text>
+  <text class="caixa-d" x="366" y="302" text-anchor="middle">LLM — gera texto e decide</text>
+
+  <!-- blocos do harness -->
+  <g><rect class="caixa" x="90" y="76" width="182" height="76" rx="10"/>
+     <text class="caixa-t" x="181" y="108" text-anchor="middle">Loop do agente</text>
+     <text class="caixa-d" x="181" y="130" text-anchor="middle">decidir → agir → observar (cap. 02)</text></g>
+  <g><rect class="caixa" x="462" y="76" width="182" height="76" rx="10"/>
+     <text class="caixa-t" x="553" y="108" text-anchor="middle">Contexto</text>
+     <text class="caixa-d" x="553" y="130" text-anchor="middle">o que o modelo enxerga (caps. 03–04)</text></g>
+  <g><rect class="caixa" x="60" y="248" width="160" height="76" rx="10"/>
+     <text class="caixa-t" x="140" y="280" text-anchor="middle">Ferramentas</text>
+     <text class="caixa-d" x="140" y="302" text-anchor="middle">agir sobre o mundo (cap. 05)</text></g>
+  <g><rect class="caixa" x="512" y="248" width="160" height="76" rx="10"/>
+     <text class="caixa-t" x="592" y="280" text-anchor="middle">Memória</text>
+     <text class="caixa-d" x="592" y="302" text-anchor="middle">entre turnos e sessões (cap. 08)</text></g>
+  <g><rect class="caixa" x="90" y="424" width="182" height="76" rx="10"/>
+     <text class="caixa-t" x="181" y="456" text-anchor="middle">Permissões</text>
+     <text class="caixa-d" x="181" y="478" text-anchor="middle">o que pode, e onde (cap. 07)</text></g>
+  <g><rect class="caixa" x="462" y="424" width="182" height="76" rx="10"/>
+     <text class="caixa-t" x="553" y="456" text-anchor="middle">Verificação</text>
+     <text class="caixa-d" x="553" y="478" text-anchor="middle">está certo? (cap. 11)</text></g>
+
+  <!-- setas: harness <-> modelo -->
+  <path class="seta" d="M 219 152 L 300 232"/>
+  <path class="seta" d="M 513 152 L 434 232"/>
+  <path class="seta" d="M 222 286 L 268 286"/>
+  <path class="seta" d="M 464 286 L 510 286"/>
+  <path class="seta" d="M 300 340 L 219 424"/>
+  <path class="seta" d="M 434 340 L 513 424"/>
+
+  <!-- mundo externo -->
+  <rect class="caixa" x="738" y="234" width="102" height="104" rx="10"/>
+  <text class="mundo" x="789" y="280" text-anchor="middle">Mundo</text>
+  <text class="caixa-d" x="789" y="300" text-anchor="middle">arquivos, APIs,</text>
+  <text class="caixa-d" x="789" y="314" text-anchor="middle">terminal</text>
+  <path class="seta" d="M 704 270 L 736 270"/>
+  <path class="seta" d="M 736 306 L 704 306"/>
+</svg>
