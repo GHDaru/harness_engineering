@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.29 — 2026-07-28 · harness-zero: etapa 04 — sessões (cap. 08)
+- **Feature spec-kit oficial `034-harness-zero-etapa04`**: a **etapa 04** (`harness-zero/etapas/04-sessoes/`) paga a dívida carregada de propósito desde a etapa 0: o histórico sai da variável global. Nasce o **StorePort** (terceira porta) com dois adapters — `MemoriaStore` (o contraste didático) e **`SQLiteStore`** (persistência real: converse, mate o servidor, volte — a conversa fica). Conceito de **sessão** (`session_id` + `/sessions` + `/history` = o *resume* dos harnesses reais); **1ª evolução justificada do chat congelado** (a dimensão exigiu superfície: id no navegador + retomada do histórico). O companion roda a mesma arquitetura em produção (mesmo StorePort, adapter Postgres). Smoke verificado.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.28 — 2026-07-28 · harness-zero: etapa 03 — contexto em camadas (cap. 03)
 - **Feature spec-kit oficial `033-harness-zero-etapa03`**: a **etapa 03** (`harness-zero/etapas/03-contexto/`) introduz o **MontadorDeContexto** — o system prompt montado em **camadas nomeadas** (identidade fixa → ambiente derivado → **regras do projeto via `AGENTS.md`**), **remontado a cada turno** (edite o AGENTS.md com o chat aberto e veja o comportamento mudar sem redeploy — o artefato-padrão do cap. 01 §9 em ação). Loop e ToolPort intactos (mudança de uma linha no loop); janela de observação `GET /contexto` mostra as camadas e o prompt final; o EchoAdapter passou a exibir o tamanho do system prompt. Etapa autocontida, roda sem rede.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
