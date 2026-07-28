@@ -66,7 +66,7 @@ Créditos: modelos e endpoint gratuito cortesia da **NVIDIA** — [NVIDIA API Ca
 | [08-plan](etapas/08-plan/) | 09 | **Plan mode imposto por permissões** (uma linha no `decide()`): em `planejar`, mutantes são negados; `propor_plano` → artefato **PLAN.md**; aprovar = trocar o modo | ✅ |
 | [09-subagentes](etapas/09-subagentes/) | 10 | Tool **`task`** → **sessão-filha** com contexto limpo (só a descrição na ida; só o resultado na volta), loop próprio limitado, tools **só-leitura**; filhas visíveis em `/sessions` | ✅ |
 | [10-evals](etapas/10-evals/) | 11 | **Evals do próprio harness**: `ReplayAdapter` (**respostas gravadas** = determinístico) testando política/plan/compactação/aprovação + **juiz** LLM-as-judge atrás do LLMPort | ✅ |
-| 11-hooks | 12 | Hooks pre/post tool | ⏳ |
+| [11-hooks](etapas/11-hooks/) | 12 | **Hooks** pre/post tool (bloquear/ajustar/transformar) em fronteira estável — loop intacto; exemplos: **auditoria** (`auditoria.jsonl`) e **redator** de segredos (defesa em profundidade) | ✅ |
 | 12-skills | 16 | O harness que aprende: skills com anti-padrões | ⏳ |
 
 Cada etapa é **autocontida** (worked example completo): você pode abrir qualquer uma e rodá-la sem as anteriores — e o diff entre etapas consecutivas é a lição do capítulo.

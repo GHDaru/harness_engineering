@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.36 — 2026-07-28 · harness-zero: etapa 11 — hooks (cap. 12)
+- **Feature spec-kit oficial `041-harness-zero-etapa11`**: extensibilidade sem tocar no loop. **Hooks** em duas fronteiras estáveis da execução de ferramentas — `pre_tool` (pode **bloquear** ou **ajustar args**) e `post_tool` (pode **transformar o resultado**) — envolvendo `registro.executar` em todos os caminhos (loop, aprovação, subagente). Dois hooks de exemplo com dor real: **auditoria** (cada chamada vira linha estruturada em `auditoria.jsonl`; janela `GET /auditoria`) e **redator** (mascara padrões de segredo — `nvapi-…`, `password=` — antes de o resultado chegar ao modelo; defesa em profundidade somada à política da etapa 06). Smoke: redação, bloqueio e log verificados.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.35 — 2026-07-28 · harness-zero: etapa 10 — evals do harness (cap. 11)
 - **Feature spec-kit oficial `040-harness-zero-etapa10`**: o harness aplicado a si mesmo. Suíte `evals/` com **`ReplayAdapter`** — **respostas gravadas** em `.jsonl` reproduzidas em ordem: o eval testa o **harness** (política, plan mode, escada de compactação, derivação de schema, **pausa de aprovação**: a gravação pede `write_file` e nada é escrito sem o humano), nunca o humor do modelo. **`juiz.py`** — LLM-as-judge atrás do mesmo `LLMPort` (nota+justificativa por critérios; com echo degrada honestamente, com chave real julga). 6/6 verdes.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
