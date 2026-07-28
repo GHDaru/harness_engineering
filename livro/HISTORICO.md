@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.30 — 2026-07-28 · harness-zero: etapa 05 — compactação (cap. 04)
+- **Feature spec-kit oficial `035-harness-zero-etapa05`**: a **etapa 05** (`harness-zero/etapas/05-compactacao/`) implementa a **escada de agressividade** do cap. 04: degrau 1 **trunca** resultados de ferramenta antigos, degrau 2 **poda** turnos antigos, degrau 3 **sumariza** o podado via `LLMPort` e injeta o resumo — acionada por **orçamento** de contexto (chars como proxy didático de tokens; `ORCAMENTO_CHARS` para experimentar). Lições materializadas: a escada age na **visão** enviada ao modelo, nunca no **registro** persistido (etapa 4 intacta), e **compactação avisa** (indicador 🗜 no trace — silenciosa é dívida invisível). Janela `GET /contexto_uso`. Smoke verificado (degraus 2 e 3 disparando).
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.29 — 2026-07-28 · harness-zero: etapa 04 — sessões (cap. 08)
 - **Feature spec-kit oficial `034-harness-zero-etapa04`**: a **etapa 04** (`harness-zero/etapas/04-sessoes/`) paga a dívida carregada de propósito desde a etapa 0: o histórico sai da variável global. Nasce o **StorePort** (terceira porta) com dois adapters — `MemoriaStore` (o contraste didático) e **`SQLiteStore`** (persistência real: converse, mate o servidor, volte — a conversa fica). Conceito de **sessão** (`session_id` + `/sessions` + `/history` = o *resume* dos harnesses reais); **1ª evolução justificada do chat congelado** (a dimensão exigiu superfície: id no navegador + retomada do histórico). O companion roda a mesma arquitetura em produção (mesmo StorePort, adapter Postgres). Smoke verificado.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
