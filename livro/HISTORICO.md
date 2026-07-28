@@ -28,6 +28,10 @@
 
 ## Edições
 
+### Edição 0.19 — 2026-07-27 · foto + LinkedIn do autor; LinkedIn na capa
+- **Feature spec-kit oficial `024-autor-linkedin`** (E06+E07 da auditoria): a página "Sobre o autor" ganhou a **foto** do autor (`assets/autor.png`, flutuando à direita, responsiva) e a **tela-capa** passou a incluir o link do **LinkedIn** nos créditos (repositório é público).
+- **IA (A3)**: agente **Claude Code (Anthropic)** — implementação; foto enviada pelo autor.
+
 ### Edição 0.18 — 2026-07-27 · Glossário + siglas por extenso
 - **Feature spec-kit oficial `023-glossario-siglas`**: nova página **Glossário** (`livro/glossario.md`) com as siglas do livro **por extenso**, explicação curta e **em que capítulos aparecem** (agrupadas por tema). Fiel ao texto (siglas varridas; expansões conferidas na fonte — Princípio I).
 - **Siglas "abertas" em todo o livro**: o motor envolve automaticamente cada sigla conhecida em `<abbr title="Por Extenso">` — o leitor vê o significado ao passar o mouse — de forma **não-invasiva** (sem mexer no Markdown-fonte) e **HTML-safe** (não toca em código, `<pre>`, links ou títulos).

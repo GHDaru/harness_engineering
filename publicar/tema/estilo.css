@@ -223,3 +223,9 @@ table.viz-heat { border-collapse: collapse; width: 100%; font-size: .9rem; displ
 /* Siglas "abertas" (spec 023): sublinhado pontilhado discreto + tooltip nativo. */
 abbr[title] { text-decoration: underline dotted; text-decoration-thickness: 1px;
   text-underline-offset: 2px; text-decoration-color: var(--muted); cursor: help; }
+
+/* Foto do autor (spec 024) */
+.autor-foto { width: 160px; height: 160px; object-fit: cover; border-radius: 12px;
+  float: right; margin: .2rem 0 1rem 1.5rem; border: 1px solid var(--line); box-shadow: 0 4px 14px rgba(0,0,0,.15); }
+@media (max-width: 600px) { .autor-foto { float: none; display: block; margin: 0 auto 1rem; } }
+.splash-linkedin { color: inherit; }
