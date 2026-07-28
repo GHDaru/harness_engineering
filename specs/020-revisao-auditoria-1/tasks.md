@@ -20,6 +20,9 @@
 - [ ] **O003** **Siglas por extenso inline na 1ª ocorrência** de cada capítulo (a passada pesada; o auto-`<abbr>` da spec 023 já cobre o hover; isto é o texto literal "Nome Completo (SIGLA)").
 - [ ] **O004** **Introdução — falar da lista completa de harnesses estudados** (não "rodada"): apresentar todos que passaram pelo estudo, com ponteiro para o apêndice do trabalho. *(o apêndice em si vira E04.)*
 
+- [ ] **O005** **Formato editorial dos capítulos.** O cap. 04 está no formato editorial; **revisar os demais** para o mesmo padrão (verificar 02–13 e alinhar).
+- [ ] **E08** **Gerar PDF do livro** ao final do roadmap (saída completa em PDF, além do site).
+
 ### Features estruturais derivadas (viram specs próprios; anotadas aqui)
 
 - [ ] **E01** **Cross-link de citações (motor).** No build, menções a papers/fontes viram links para a Bibliografia; entradas da Bibliografia linkam a fonte. (deriva de O001)
