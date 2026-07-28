@@ -32,6 +32,14 @@
 
 ## Edições
 
+### Edição 0.38 — 2026-07-28 · design system dos capítulos: C01 + C08 + N02 (spec 043)
+- **Feature spec-kit oficial `043-template-capitulos`** ([ADR 0005](../adr/0005-template-capitulos-um-spec.md) e [ADR 0006](../adr/0006-design-system-componentes.md)): o catálogo de componentes ([`publicar/DESIGN-SISTEMA.md`](../publicar/DESIGN-SISTEMA.md)) ganhou os três componentes que faltavam, todos aprovados em **gate humano** (página-espécime + 3 modelos por componente):
+  - **C01 CabeçalhoDeCapítulo — variante B "faixa editorial"**: kicker da parte, título, teaser, número em marca d'água, datação absorvida (C02) e **tempo de leitura estimado**; o `h1` e o blockquote de datação do Markdown saem do corpo (sem duplicação). Só páginas de capítulo numeradas; o aparato mantém o selo clássico.
+  - **C08 LeituraExecutiva — V1 "painel âmbar"**: a seção `### Leitura executiva` (16 capítulos) vira painel destacado com rótulo em versalete; âncora preservada.
+  - **N02 PaginaçãoEmCartões — V2 "cartões com badge"**: anterior/próximo na linguagem dos cartões da entrada (badge numerado = "clique para ir a um capítulo").
+- **Portão novo por capítulo** ([ADR 0005](../adr/0005-template-capitulos-um-spec.md)): `publicar/verifica-capitulos.mjs` confere os 18 capítulos (badge correto, `h1` único, datação absorvida, C08 aplicado) e as 7 páginas de aparato — falha encerra com erro.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; direção de arte e aprovações (B/V1/V2) humanas.
+
 ### Edição 0.37 — 2026-07-28 · harness-zero: etapa 12 — skills (cap. 16) — TRILHA COMPLETA
 - **Feature spec-kit oficial `042-harness-zero-etapa12`**: o harness que **aprende — com freio**. `salvar_skill(nome, quando_usar, conteudo)` captura procedimentos como skills, mas a skill **nunca entra em vigor sozinha**: vai para `skills/pendentes/` (**auto-aprovação = prompt injection persistente**, o anti-padrão central do cap. 16); o humano **aprova** (`POST /skills/aprovar`) ou rejeita. Aprovada, entra como **camada nova do MontadorDeContexto** (etapa 03 pagando dividendos) — **só nome + quando usar** no prompt; o conteúdo completo vem sob demanda via `ler_skill` (**progressive disclosure**, cap. 04). Smoke com asserções: pendente fora do contexto; aprovada dentro (índice apenas); conteúdo via tool.
 - **🏁 Com esta etapa, a trilha prática fecha o mapa completo: etapas 00–12** — loop, tools (schemas derivados), contexto em camadas, sessões, compactação, permissões+aprovação, MCP, plan mode, subagentes, evals (replay+juiz), hooks e skills. As doze dimensões do livro, construídas do zero, cada etapa autocontida e verificada.
