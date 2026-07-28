@@ -111,6 +111,42 @@ function marcarCallouts(html) {
   });
 }
 
+// Siglas "abertas" (spec 023): o motor envolve cada ocorrência conhecida em
+// <abbr title="Por Extenso">, de forma NÃO-invasiva (não altera o Markdown-fonte)
+// e HTML-safe (pula code/pre/links/títulos). Fonte única aqui; a página do
+// glossário mirroreia as mesmas expansões. Só siglas de 3+ letras (evita ruído).
+const SIGLAS = {
+  MCP: "Model Context Protocol", ACP: "Agent Client Protocol", A2A: "Agent-to-Agent",
+  LSP: "Language Server Protocol", RPC: "Remote Procedure Call",
+  MAST: "Multi-Agent System Failure Taxonomy", RAG: "Retrieval-Augmented Generation",
+  LLM: "Large Language Model", GPT: "Generative Pre-trained Transformer",
+  API: "Application Programming Interface", SDK: "Software Development Kit",
+  CLI: "Command-Line Interface", TUI: "Text (Terminal) User Interface",
+  IDE: "Integrated Development Environment", HCI: "Human-Computer Interaction",
+  HTTP: "HyperText Transfer Protocol", SSE: "Server-Sent Events", JSON: "JavaScript Object Notation",
+  DDD: "Domain-Driven Design", DOI: "Digital Object Identifier",
+  ORCID: "Open Researcher and Contributor ID", ISBN: "International Standard Book Number",
+  ICMJE: "International Committee of Medical Journal Editors", COPE: "Committee on Publication Ethics",
+  ICLR: "International Conference on Learning Representations", SWE: "Software Engineering",
+};
+const RE_SIGLAS = new RegExp("\\b(" + Object.keys(SIGLAS).sort((a, b) => b.length - a.length).join("|") + ")\\b", "g");
+const TAGS_PROT = /^(pre|code|a|abbr|h[1-6]|script|style)$/i;
+function abrirSiglas(html) {
+  const re = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g;
+  const sub = (t) => t.replace(RE_SIGLAS, (s) => `<abbr title="${SIGLAS[s]}">${s}</abbr>`);
+  let out = "", last = 0, m, prot = 0;
+  while ((m = re.exec(html))) {
+    const txt = html.slice(last, m.index);
+    out += prot > 0 ? txt : sub(txt);
+    const tag = m[1].toLowerCase();
+    if (TAGS_PROT.test(tag) && !m[0].endsWith("/>")) prot += m[0][1] === "/" ? -1 : 1;
+    if (prot < 0) prot = 0;
+    out += m[0];
+    last = re.lastIndex;
+  }
+  return out + (prot > 0 ? html.slice(last) : sub(html.slice(last)));
+}
+
 function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data, ehIndex, chapter = 0, slug = "" }) {
   const rel = ehIndex ? "" : "";
   const navBtn = (item, dir) =>
@@ -263,7 +299,8 @@ for (let k = 0; k < itens.length; k++) {
   }
   const bruto = readFileSync(caminho, "utf8");
   const data = extrairData(bruto);
-  const corpo = marcarCallouts(md.render(bruto, { srcDir: dirname(item.arquivo) }));
+  let corpo = marcarCallouts(md.render(bruto, { srcDir: dirname(item.arquivo) }));
+  if (item.slug !== "glossario") corpo = abrirSiglas(corpo); // "abre" siglas fora do próprio glossário
   const html = pagina({
     tituloLivro: sumario.titulo,
     tituloPagina: item.titulo,

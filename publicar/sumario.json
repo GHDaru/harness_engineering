@@ -40,6 +40,7 @@
     {
       "nome": "Aparato do livro",
       "itens": [
+        { "arquivo": "livro/glossario.md", "titulo": "Glossário", "teaser": "Siglas por extenso, com explicação e contexto." },
         { "arquivo": "livro/bibliografia.md", "titulo": "Bibliografia", "teaser": "Fontes científicas e da indústria, verificadas." },
         { "arquivo": "livro/HISTORICO.md", "titulo": "Histórico e Registro de Expiração", "teaser": "Edições, datas e o placar de expiração." },
         { "arquivo": "livro/GUIA-EDITORIAL.md", "titulo": "Guia Editorial", "teaser": "Como o livro é escrito (método e metodologias)." }

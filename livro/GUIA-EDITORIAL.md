@@ -125,3 +125,9 @@ Para levar um capítulo ou seção ao padrão do livro:
 7. **Datar** — selo de captura no capítulo e entrada no `HISTORICO.md` — **com a versão do modelo de IA usada** — se o estado da arte mudou.
 
 Salvaguardas de uso de IA: a IA pesquisa e rascunha; o humano decide, verifica e assina. Toda fonte trazida por um agente é conferida antes de entrar no corpo.
+
+## Siglas e glossário (política)
+
+- **Toda sigla técnica é apresentada por extenso na 1ª ocorrência** de um capítulo — "Model Context Protocol (MCP)" — e, dali em diante, o texto pode usar só a sigla.
+- O motor de publicação reforça isso: **envolve automaticamente cada sigla conhecida em `<abbr>`**, de modo que passar o mouse revela o significado em qualquer ocorrência, sem poluir o texto-fonte. O mapa de siglas vive em `publicar/build.mjs` e é espelhado na página **[Glossário](glossario.md)** (`livro/glossario.md`).
+- O **Glossário** dá o **por extenso**, uma explicação curta e **em que capítulos** cada sigla aparece. Ao introduzir uma sigla nova, adicione-a nos dois lugares (mapa do motor + glossário) e **confira a expansão na fonte** (Princípio I).

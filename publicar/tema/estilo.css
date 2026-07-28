@@ -219,3 +219,7 @@ table.viz-heat { border-collapse: collapse; width: 100%; font-size: .9rem; displ
   .ent-ctas { justify-content: center; }
   .ent-trilha { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* Siglas "abertas" (spec 023): sublinhado pontilhado discreto + tooltip nativo. */
+abbr[title] { text-decoration: underline dotted; text-decoration-thickness: 1px;
+  text-underline-offset: 2px; text-decoration-color: var(--muted); cursor: help; }
