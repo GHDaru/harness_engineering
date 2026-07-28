@@ -28,6 +28,12 @@
 
 ## Edições
 
+### Edição 0.18 — 2026-07-27 · Glossário + siglas por extenso
+- **Feature spec-kit oficial `023-glossario-siglas`**: nova página **Glossário** (`livro/glossario.md`) com as siglas do livro **por extenso**, explicação curta e **em que capítulos aparecem** (agrupadas por tema). Fiel ao texto (siglas varridas; expansões conferidas na fonte — Princípio I).
+- **Siglas "abertas" em todo o livro**: o motor envolve automaticamente cada sigla conhecida em `<abbr title="Por Extenso">` — o leitor vê o significado ao passar o mouse — de forma **não-invasiva** (sem mexer no Markdown-fonte) e **HTML-safe** (não toca em código, `<pre>`, links ou títulos).
+- **Política no Guia Editorial**: expandir na 1ª ocorrência; o mapa de siglas vive no motor e é espelhado no Glossário.
+- **IA (A3)**: agente **Claude Code (Anthropic)** — implementação; curadoria e aprovação humanas.
+
 ### Edição 0.17 — 2026-07-27 · experiência de entrada do livro (índice repaginado)
 - **Feature spec-kit oficial `021-experiencia-entrada`**: o sumário deixou de ser uma lista crua e virou uma **entrada de verdade** — mantendo a **sidebar** com o índice completo (navegação sem rolar), o conteúdo principal ganhou: **hero** (capa + título + `vX.Y.0`/DOI + CTAs), card **"Continue lendo/Retomar"** (via `localStorage`, aparece após ler um capítulo), **trilha** em 4 passos (Fundamentos → Funcionalidades → Benchmark → Mão na massa) e os **capítulos em cartões** com *teaser*; benchmark/aparato/sobre como **pills**.
 - **Teasers por capítulo** entraram no `sumario.json` (conteúdo reaproveitável). O motor grava o último capítulo lido e popula o "Retomar".
