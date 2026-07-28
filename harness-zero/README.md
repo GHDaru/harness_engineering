@@ -61,7 +61,7 @@ Créditos: modelos e endpoint gratuito cortesia da **NVIDIA** — [NVIDIA API Ca
 | [03-contexto](etapas/03-contexto/) | 03 | **MontadorDeContexto**: system prompt em camadas (identidade → ambiente → **AGENTS.md** do projeto), remontado a cada turno; janela `/contexto` | ✅ |
 | [04-sessoes](etapas/04-sessoes/) | 08 | **StorePort**: sessões persistidas (adapter **SQLite**; memória como contraste) + `session_id`/resume; 1ª evolução justificada do chat congelado | ✅ |
 | [05-compactacao](etapas/05-compactacao/) | 04 | **Compactador**: a escada truncar → podar → **sumarizar via LLMPort**, por orçamento; age na *visão*, nunca no registro; indicador 🗜 no trace | ✅ |
-| 06-permissoes | 07 | `PermissionPolicy` como domínio puro + aprovação inline + paths sensíveis fixos | ⏳ |
+| [06-permissoes](etapas/06-permissoes/) | 07 | **PermissionPolicy** (domínio puro: `decide()` → permitir/perguntar/negar) + **aprovação inline** (pausa→retomada do loop) + paths sensíveis **fixos**; a ferida do `read_file` fechada | ✅ |
 | 07-mcp | 06 | Adapter MCP client (stdio) | ⏳ |
 | 08-plan | 09 | Plan mode imposto por permissões | ⏳ |
 | 09-subagentes | 10 | Tool `task` com sessão-filha | ⏳ |
