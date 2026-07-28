@@ -62,7 +62,7 @@ Créditos: modelos e endpoint gratuito cortesia da **NVIDIA** — [NVIDIA API Ca
 | [04-sessoes](etapas/04-sessoes/) | 08 | **StorePort**: sessões persistidas (adapter **SQLite**; memória como contraste) + `session_id`/resume; 1ª evolução justificada do chat congelado | ✅ |
 | [05-compactacao](etapas/05-compactacao/) | 04 | **Compactador**: a escada truncar → podar → **sumarizar via LLMPort**, por orçamento; age na *visão*, nunca no registro; indicador 🗜 no trace | ✅ |
 | [06-permissoes](etapas/06-permissoes/) | 07 | **PermissionPolicy** (domínio puro: `decide()` → permitir/perguntar/negar) + **aprovação inline** (pausa→retomada do loop) + paths sensíveis **fixos**; a ferida do `read_file` fechada | ✅ |
-| 07-mcp | 06 | Adapter MCP client (stdio) | ⏳ |
+| [07-mcp](etapas/07-mcp/) | 06 | **ClienteMCP** (stdio, JSON-RPC 2.0): initialize → tools/list → tools/call contra um **servidor de exemplo incluído**; **RegistroComposto** (locais + `mcp_*` no mesmo catálogo); política vale para MCP | ✅ |
 | 08-plan | 09 | Plan mode imposto por permissões | ⏳ |
 | 09-subagentes | 10 | Tool `task` com sessão-filha | ⏳ |
 | 10-evals | 11 | Suíte de evals do próprio harness (juiz + respostas gravadas) | ⏳ |

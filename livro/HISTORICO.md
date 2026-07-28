@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.32 — 2026-07-28 · harness-zero: etapa 07 — MCP client (cap. 06)
+- **Feature spec-kit oficial `037-harness-zero-etapa07`**: o harness aprende a **plugar ferramentas dos outros**. A etapa traz um **servidor MCP de exemplo** (~60 linhas, JSON-RPC 2.0 por linha no stdio — para o leitor ver o protocolo por dentro) e o **ClienteMCP** no harness: `initialize` → `tools/list` → `tools/call`, com as tools importadas de **prefixo `mcp_`** num **RegistroComposto** (locais + MCP atrás da mesma interface — o loop não sabe de onde a ferramenta vem). A **política da etapa 06 vale para as tools MCP** (servidor externo é input não-confiável); trace distingue 🔧 local × 🔌 MCP; degradação graciosa se o servidor cair. Smoke: handshake + list + call verificados.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.31 — 2026-07-28 · harness-zero: etapa 06 — permissões (cap. 07)
 - **Feature spec-kit oficial `036-harness-zero-etapa06`**: fecha a **ferida aberta desde a etapa 1** (`read_file` lia qualquer arquivo, inclusive `.env`). Nasce a **PermissionPolicy** como **domínio puro** — `decide(tool, args) → permitir | perguntar | negar`, uma função sem I/O — com **paths sensíveis fixos no código** (segurança que o usuário pode desligar não é segurança) e `write_file` exigindo **aprovação humana inline**: o turno **pausa** (pendência com id), o chat mostra [aprovar]/[negar], e o loop **retoma do ponto exato**. Negação vira **texto para o modelo** (ele explica e segue). Evolução justificada do chat congelado (a aprovação exige superfície). Smoke: política pura + pausa/aprovação/retomada verificadas.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
