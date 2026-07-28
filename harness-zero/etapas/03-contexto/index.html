@@ -1,0 +1,29 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>harness-zero · etapa 1</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  #log { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; min-height: 300px; }
+  .user { text-align: right; color: #1a4f8b; margin: .4rem 0; }
+  .assistant { text-align: left; color: #222; margin: .4rem 0; white-space: pre-wrap; }
+  .trace { text-align: left; color: #7a5c00; font-size: 13px; margin: .2rem 0; }
+  form { display: flex; gap: .5rem; margin-top: .75rem; }
+  input { flex: 1; padding: .5rem; font: inherit; }
+</style>
+<h3>harness-zero · etapa 1 — o loop (pergunte as horas, ou peça para ler um arquivo)</h3>
+<div id="log"></div>
+<form id="f"><input id="m" autofocus placeholder="ex.: que horas são? leia o requirements.txt..."><button>enviar</button></form>
+<script>
+  const log = document.getElementById("log");
+  const add = (cls, text) => { const d = document.createElement("div"); d.className = cls; d.textContent = text; log.appendChild(d); d.scrollIntoView(); };
+  document.getElementById("f").onsubmit = async (e) => {
+    e.preventDefault();
+    const input = document.getElementById("m");
+    const text = input.value.trim(); if (!text) return;
+    add("user", text); input.value = "";
+    const r = await fetch("/chat", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({message: text}) });
+    const data = await r.json();
+    (data.trace || []).forEach(t => add("trace", t));  // as ações do agente, visíveis
+    add("assistant", data.reply);
+  };
+</script>

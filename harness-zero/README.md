@@ -58,7 +58,7 @@ Créditos: modelos e endpoint gratuito cortesia da **NVIDIA** — [NVIDIA API Ca
 | [00-chat](etapas/00-chat/) | 00–01 | O chat e a **primeira porta** (`LLMPort`): echo → modelo real trocando um adapter | ✅ |
 | [01-loop](etapas/01-loop/) | 02 | O **loop de tool-calling** (~80 linhas): a diferença entre um chat e um agente | ✅ |
 | [02-tools](etapas/02-tools/) | 05 | **`ToolPort`** + schemas **derivados de tipos** (decorator `@tools.tool`; assinatura+docstring = fonte da verdade) — a cura do tédio da etapa 1 | ✅ |
-| 03-contexto | 03 | Montador de system prompt em camadas + arquivo de regras do projeto | ⏳ |
+| [03-contexto](etapas/03-contexto/) | 03 | **MontadorDeContexto**: system prompt em camadas (identidade → ambiente → **AGENTS.md** do projeto), remontado a cada turno; janela `/contexto` | ✅ |
 | 04-sessoes | 08 | Persistência (adapter SQLite) + `/resume` | ⏳ |
 | 05-compactacao | 04 | A escada: truncar → prune → sumarizar, com indicador no chat | ⏳ |
 | 06-permissoes | 07 | `PermissionPolicy` como domínio puro + aprovação inline + paths sensíveis fixos | ⏳ |

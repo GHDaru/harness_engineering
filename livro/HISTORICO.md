@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.28 — 2026-07-28 · harness-zero: etapa 03 — contexto em camadas (cap. 03)
+- **Feature spec-kit oficial `033-harness-zero-etapa03`**: a **etapa 03** (`harness-zero/etapas/03-contexto/`) introduz o **MontadorDeContexto** — o system prompt montado em **camadas nomeadas** (identidade fixa → ambiente derivado → **regras do projeto via `AGENTS.md`**), **remontado a cada turno** (edite o AGENTS.md com o chat aberto e veja o comportamento mudar sem redeploy — o artefato-padrão do cap. 01 §9 em ação). Loop e ToolPort intactos (mudança de uma linha no loop); janela de observação `GET /contexto` mostra as camadas e o prompt final; o EchoAdapter passou a exibir o tamanho do system prompt. Etapa autocontida, roda sem rede.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.27 — 2026-07-28 · harness-zero: etapa 02 — ToolPort (cap. 05)
 - **Feature spec-kit oficial `032-harness-zero-etapa02`**: retomada a trilha prática. A **etapa 02** (`harness-zero/etapas/02-tools/`) introduz o **ToolPort** — a segunda porta do harness: ferramentas são **funções Python tipadas** registradas por decorator (`@tools.tool`); o **JSON Schema é derivado** da assinatura + docstring (`inspect`/`typing`), curando o tédio dos schemas à mão da etapa 1 (a mesma solução dos harnesses reais: FastMCP, `function_tool`, `#[tool]`). O loop não mudou — é assim que uma porta paga o aluguel. Endpoint `/tools` como janela de observação; parâmetros com default viram opcionais no schema (verificado). Etapa autocontida; roda com echo (sem rede).
 - **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
