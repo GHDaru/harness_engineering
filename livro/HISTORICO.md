@@ -28,6 +28,10 @@
 
 ## Edições
 
+### Edição 0.21 — 2026-07-28 · companion: sugestões dos leitores (E05)
+- **Feature spec-kit oficial `026-companion-sugestoes`**: o leitor agora pode **enviar sugestões ao autor pelo chat** (botão 💡 no widget). O backend persiste em `suggestions` (Postgres/memória) **antes** de qualquer coisa e envia **email** ao autor quando SMTP está configurado (env; instruções no `.env.example` — Gmail com App Password). Sem SMTP, o autor lê via `GET /suggestions?token=` (`ADMIN_TOKEN`). Rate-limit aplicado; nenhuma sugestão se perde por falha de email.
+- **IA (A3)**: agente **Claude Code (Anthropic)** — implementação e testes (9/9 verdes); curadoria humana.
+
 ### Edição 0.20 — 2026-07-28 · Fundamentos reescrito com história e método (rigor)
 - **Feature spec-kit oficial `025-fundamentos-rigor`** (a pedido do editor: "fundamentos fraco; falta rigor metodológico/científico"): o **cap. 01** foi reescrito em 9 seções — definição (com *scaffolding* = **andaime** traduzido e introduzido), **o que havia antes** (sistemas especialistas, RPA, chatbots, Copilot-autocomplete e por que não eram agentes), a **linhagem técnica** (CoT → **ReAct** → function calling → AutoGPT/BabyAGI e sua lição → CLIs de código → protocolos MCP/A2A/AGENTS.md) com **linha do tempo**, a definição constitutiva (4 elementos), a **proveniência do corpus** (3 arquétipos + teste de inclusão), e a nova seção **"O método do estudo"**: casos múltiplos (Yin) + Mining Software Repositories (Hassan 2008) + GQM (Basili) + feature analysis DESMET (Kitchenham 1997) + benchmarking científico (Sim et al. 2003) + Design Science (Hevner 2004; Peffers 2007) + **tabela de ameaças à validade** (Cook & Campbell), em que a cláusula de expiração vira mitigação declarada.
 - **Bibliografia**: novas seções "História e proveniência" e "Metodologia do estudo" com fontes **✓ verificadas** por pesquisa dedicada (ReAct arXiv 2210.03629; anúncios primários de Copilot/function calling/MCP/A2A; Hassan; Runeson & Höst; DESMET; Sim; Stol; Peffers) e itens **⏳** a confirmar explicitamente marcados (Princípio I).

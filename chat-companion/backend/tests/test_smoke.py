@@ -82,3 +82,17 @@ def test_delete_session():
     client.post("/chat", json={"session_id": sid, "message": "oi"})
     client.delete(f"/session/{sid}")
     assert client.get("/history", params={"session_id": sid}).json()["messages"] == []
+
+
+def test_suggestion_persists_and_lists():
+    sid = "s-sug"
+    r = client.post("/suggestion", json={"session_id": sid, "texto": "ótimo livro, cap 5 podia ter mais exemplos", "pagina": "05-ferramentas.html"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["ok"] is True and body["email_enviado"] is False  # sem SMTP no teste
+    # sem ADMIN_TOKEN -> 403
+    assert client.get("/suggestions", params={"token": "x"}).status_code == 403
+
+
+def test_suggestion_empty_400():
+    assert client.post("/suggestion", json={"session_id": "s", "texto": "  "}).status_code == 400

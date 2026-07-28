@@ -7,8 +7,10 @@ sem chave -> echo; sem DATABASE_URL -> memória. Sobe em qualquer lugar.
 
 from __future__ import annotations
 
+import smtplib
 import time
 from collections import defaultdict, deque
+from email.message import EmailMessage
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request
@@ -86,6 +88,12 @@ class SessionIn(BaseModel):
     session_id: str
 
 
+class SuggestionIn(BaseModel):
+    session_id: str
+    texto: str
+    pagina: Optional[str] = None
+
+
 # ------------------------------------------------------------------ rotas
 
 @app.get("/health")
@@ -118,6 +126,51 @@ def get_history(session_id: str) -> dict:
 def delete_session(session_id: str) -> dict:
     _store.delete_session(session_id)
     return {"session_id": session_id, "deleted": True}
+
+
+def _enviar_email_sugestao(texto: str, pagina: str, session_id: str) -> bool:
+    """Envia a sugestão por email se SMTP estiver configurado. Nunca levanta:
+    a sugestão já está persistida; email é best-effort."""
+    if not config.SMTP_HOST:
+        return False
+    try:
+        msg = EmailMessage()
+        msg["Subject"] = f"[Engenharia de Harness] Sugestão de leitor ({pagina or 'site'})"
+        msg["From"] = config.SMTP_USER or "companion@harness"
+        msg["To"] = config.SUGGESTION_EMAIL_TO
+        msg.set_content(f"Sugestão recebida pelo companion do livro.\n\n"
+                        f"Página: {pagina or '-'}\nSessão (anônima): {session_id}\n\n{texto}\n")
+        with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT, timeout=20) as smtp:
+            smtp.starttls()
+            if config.SMTP_USER:
+                smtp.login(config.SMTP_USER, config.SMTP_PASS)
+            smtp.send_message(msg)
+        return True
+    except Exception:
+        return False
+
+
+@app.post("/suggestion")
+def post_suggestion(inp: SuggestionIn, request: Request) -> dict:
+    texto = inp.texto.strip()
+    if not texto:
+        raise HTTPException(status_code=400, detail="sugestão vazia")
+    if len(texto) > 4000:
+        raise HTTPException(status_code=400, detail="sugestão longa demais (máx. 4000)")
+    ip = request.client.host if request.client else "?"
+    if not _rate_ok(f"sug:{inp.session_id}:{ip}"):
+        raise HTTPException(status_code=429, detail="muitas sugestões; tente mais tarde.")
+    _store.ensure_session(inp.session_id)
+    _store.add_suggestion(inp.session_id, texto, inp.pagina or "")  # persiste SEMPRE
+    email_ok = _enviar_email_sugestao(texto, inp.pagina or "", inp.session_id)
+    return {"ok": True, "email_enviado": email_ok}
+
+
+@app.get("/suggestions")
+def get_suggestions(token: str = "") -> dict:
+    if not config.ADMIN_TOKEN or token != config.ADMIN_TOKEN:
+        raise HTTPException(status_code=403, detail="token inválido")
+    return {"suggestions": _store.suggestions()}
 
 
 @app.post("/chat")
