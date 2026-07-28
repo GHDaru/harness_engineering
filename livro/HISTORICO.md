@@ -28,6 +28,10 @@
 
 ## Edições
 
+### Edição 0.24 — 2026-07-28 · PDF do livro (E08)
+- **Feature spec-kit oficial `029-pdf-livro`**: novo gerador **`publicar/pdf.mjs`** — produz o **PDF completo do livro** (`docs/engenharia-de-harness.pdf`) a partir do site construído: folha de rosto (capa, autor+co-autoria de IA, versão, data, DOI), todas as partes e capítulos na ordem do sumário, CSS de impressão (A4, quebras por capítulo, rodapé com paginação). Uso: `node build.mjs && node pdf.mjs`. O PDF é artefato gerado (não versionado); pode ser anexado a cada Release/DOI.
+- **IA (A3)**: agente **Claude Code (Anthropic)** — implementação; curadoria humana.
+
 ### Edição 0.23 — 2026-07-28 · Apêndice "O estudo" + fork/commit por harness + citações→Bibliografia
 - **Feature spec-kit oficial `028-estudo-citacoes`** (E01+E03+E04 da auditoria): nova página **Apêndice — O estudo** (`livro/apendice-estudo.md`), no aparato: os **16 harnesses avaliados** com **origem**, versão/snapshot, **fork GHDaru + commit lido** (a data de corte materializada — reprodutibilidade do método, cap. 01 §6), data/rodada e link para a **avaliação completa** de cada um; mais o template (`HARNESS_EVAL`/`FRAMEWORK_EVAL`) e a ponte para o Comparativo.
 - **Citações (MVP)**: o motor agora converte menções textuais `arXiv NNNN.NNNNN` em **link para a Bibliografia** (que linka as fontes). Decisão e evolução planejada em `adr/0004`.
