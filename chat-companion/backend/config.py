@@ -60,6 +60,7 @@ ALLOWED_ORIGINS = [
 # --- Limites ---
 RATE_LIMIT_MSGS = _int("RATE_LIMIT_MSGS", 20)                  # msgs por janela, por sessão/IP
 RATE_LIMIT_WINDOW_S = _int("RATE_LIMIT_WINDOW_S", 300)         # janela em segundos
+RATE_LIMIT_IP_FACTOR = _int("RATE_LIMIT_IP_FACTOR", 3)        # teto por IP = MSGS × fator (guarda em memória)
 ALLOW_BYOK = _bool("ALLOW_BYOK", True)                         # leitor pode usar a própria chave
 
 # --- Livro (fonte do tutor) ---
