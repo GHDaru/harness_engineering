@@ -29,11 +29,11 @@ Abra `../docs/index.html` no navegador.
   de tema, dependency-free).
 - Saída em `../docs/` (GitHub Pages serve de `main/docs`; `.nojekyll` incluído).
 
-## Roadmap (spec 001)
+## Estado do motor (atualizado na spec 052)
 
-- **P1 (feito)** — site navegável a partir do Markdown.
-- **P2** — visualizações React como *islands* (`data-viz`): comparativo do
-  benchmark, registro de expiração, radar de notas.
-- **P3** — PDF via LaTeX do mesmo Markdown.
-- **P4** — CI (publica a cada push) + portão de qualidade (link quebrado falha
-  o build) + apêndice do livro que documenta esta infraestrutura.
+Tudo do roadmap original (spec 001) está entregue — P1 site, P2 ilhas React,
+P3 PDF (via Chromium, não LaTeX: `pdf.mjs`, livro completo + por capítulo),
+P4 CI com portões (link-check + `verifica-capitulos.mjs`). Além dele:
+design system de componentes (`DESIGN-SISTEMA.md`, ADR 0006), downloads
+PDF/Markdown, siglas automáticas, citações ligadas à bibliografia.
+O backlog corrente vive nas specs (`specs/`) e no histórico do livro.

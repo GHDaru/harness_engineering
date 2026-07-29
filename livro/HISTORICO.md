@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.47 — 2026-07-29 · cadência do livro vivo declarada (spec 052)
+- **Feature spec-kit oficial `052-cadencia-livro-vivo`** ([ADR 0007](../adr/0007-cadencia-livro-vivo.md)): o livro agora tem **política explícita de revisão** — janela **trimestral** (próxima: **2026-10**; re-sync dos 16 forks, diff por dimensão, Apêndices A + placar) e **gatilho extraordinário**: qualquer evento que invalide uma "Leitura executiva" dispara revisão pontual do capítulo, sem esperar a janela. A Leitura executiva (C08) vira o contrato observável de frescor. Guia Editorial ganhou a seção operacional; `publicar/README` atualizado ao estado real do motor; branches mergeadas podadas.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; política decidida em ADR com alternativas.
+
 ### Edição 0.46 — 2026-07-29 · auditoria editorial rodada 2: 27 correções (spec 051)
 - **Feature spec-kit oficial `051-auditoria-rodada2`**: 4 auditores (subagentes) leram o livro inteiro em paralelo; 27 achados confirmados e corrigidos. O mais grave: o **cap. 02 estava truncado no meio do Apêndice A desde a reescrita v3** (entrada do IronClaw cortada; Aider, OpenHands, ohmo, n8n e frameworks ausentes) — reconstruído a partir da evidência do benchmark. Demais: cap. 01 §5 realinhado ao corpus real (quatro arquétipos), caps. 15–17 na estrutura do cap. 00, exercícios dos caps. 05/06/07/09/12 realinhados ao harness-zero real, `StorePort` nos caps. 08/13, ACP-IBM desambiguado (cap. 10), contagens do cap. 17 e do glossário corrigidas, e uma dúzia de consertos de português/consistência. Detalhe completo na spec.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; achados verificados um a um contra o fonte antes de corrigir.
