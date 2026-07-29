@@ -32,6 +32,15 @@
 
 ## Edições
 
+### Edição 0.49 — 2026-07-29 · experiência educacional: consentimento, onboarding, telemetria e plano de ensino (spec 054)
+- **Feature spec-kit oficial `054-experiencia-educacional`** (ciclo specify→plan→tasks→implement):
+  - **Consentimento com aceite gravado**: banner em todas as páginas (e cartão no chat, que fica bloqueado até o aceite) avisa que as conversas alimentam o **aprimoramento vivo do livro** e que **dados pessoais não devem ser compartilhados**; o aceite é versionado e gravado no navegador **e** no backend (tabela `consents`, sessão anônima, `ON DELETE CASCADE` — LGPD preservada).
+  - **Onboarding**: tour de 5 passos com spotlight (navegação, cabeçalho/downloads, companion, Bastidores, `/plano`), oferecido após o aceite, 1× por navegador, revisitável com **`/tour`**; passos sem alvo na página são pulados.
+  - **Telemetria de navegação**: só após o aceite (verificado também no servidor), cada página envia `{sessão anônima, slug}` via sendBeacon → tabela `nav_events`; resumo por página em `GET /telemetry` (ADMIN_TOKEN) — insumo de quais capítulos merecem a próxima revisão. Sem IP/UA persistidos.
+  - **Objetivo + plano de ensino**: **`/plano <objetivo>`** grava o objetivo do leitor (tabela `goals`) e pede ao tutor um plano pelos capítulos e etapas do harness-zero; com objetivo gravado, **toda conversa** ganha a camada "Objetivo declarado do leitor" no system prompt (o cap. 03 em ação) e os Bastidores o exibem.
+- Verificação: suíte do backend 13/13; e2e Playwright com **14 checagens verdes** (aceite bloqueia/libera, tour navega e não repete, beacon grava só pós-consent, objetivo chega ao prompt e aos Bastidores). Três bugs reais pegos pelo e2e e corrigidos (bootstrap duplo, `[hidden]` × flex, banner sobrepondo o cartão de aceite).
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.48 — 2026-07-29 · chat repaginado: dock, paleta de comandos, tooltips e Bastidores (spec 053)
 - **Feature spec-kit oficial `053-chat-ux`** (ciclo completo specify→plan→tasks→implement; gate humano com 3 padrões de tela aprovados): o companion ganhou uma repaginação de usabilidade em quatro frentes:
   - **Layout**: painel flutuante ampliado (480px×78vh) + **modo ancorado** (sidebar direita que empurra o conteúdo — leitura e conversa lado a lado) + **maximizar** (640px); estado persiste entre páginas; mobile vira tela cheia.

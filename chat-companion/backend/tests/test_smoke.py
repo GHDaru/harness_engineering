@@ -147,3 +147,29 @@ def test_debug_bastidores():
         eventos = [json.loads(l[6:]) for l in r.iter_lines() if l.startswith("data: ")]
     done = [e for e in eventos if e.get("done")][0]
     assert done["debug"]["tokens_estimados"] > 0
+
+
+def test_consent_telemetria_objetivo():
+    """spec 054: aceite gravado; telemetria só com consentimento; objetivo
+    persiste, aparece no GET e entra como camada do system prompt (debug)."""
+    sid = "t-054"
+    # telemetria ANTES do aceite: não grava
+    r = client.post("/telemetry", json={"session_id": sid, "slug": "02-loop-do-agente"})
+    assert r.json()["ok"] is False
+    # aceite
+    r = client.post("/consent", json={"session_id": sid, "versao": "v1"})
+    assert r.json()["ok"] is True
+    # telemetria depois: grava
+    r = client.post("/telemetry", json={"session_id": sid, "slug": "02-loop-do-agente"})
+    assert r.json()["ok"] is True
+    # resumo exige token
+    assert client.get("/telemetry").status_code == 403
+    # objetivo
+    r = client.post("/objetivo", json={"session_id": sid, "texto": "construir um agente para meu ERP"})
+    assert r.json()["ok"] is True
+    assert client.get("/objetivo", params={"session_id": sid}).json()["objetivo"].startswith("construir")
+    # camada no prompt: via debug do /chat
+    d = client.post("/chat", json={"session_id": sid, "message": "por onde começo?"}).json()["debug"]
+    assert d["objetivo"].startswith("construir")
+    # e o system prompt de fato contém a camada
+    assert "Objetivo declarado do leitor" in appmod._system_prompt(2, "progressivo", [], "x")

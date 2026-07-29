@@ -67,9 +67,14 @@ def _rate_ok_chat(session_id: str, ip: str) -> bool:
     return _rate_ok(f"ip:{ip}", limite=config.RATE_LIMIT_MSGS * config.RATE_LIMIT_IP_FACTOR)
 
 
-def _system_prompt(chapter: Optional[int], mode: str, achados: list[dict]) -> str:
+def _system_prompt(chapter: Optional[int], mode: str, achados: list[dict],
+                   goal: Optional[str] = None) -> str:
     caps = [c for c in capacidades(chapter, mode) if c["ativa"]]
     lista = ", ".join(c["rotulo"] for c in caps) or "Tutor do livro"
+    obj = (f"\n\nObjetivo declarado do leitor: {goal}\n"
+           "Conecte as respostas a este objetivo; ao traçar planos de ensino, "
+           "sugira a ordem de capítulos e as etapas do harness-zero que melhor o servem, "
+           "e sempre aponte o próximo passo concreto.") if goal else ""
     ctx = ("\n\nTrechos do livro relevantes (use como evidência e cite a fonte entre colchetes):\n"
            + "\n".join(f"- [{a['fonte']} · {a['titulo']}] {a['trecho']}" for a in achados)
            ) if achados else ""
@@ -82,7 +87,7 @@ def _system_prompt(chapter: Optional[int], mode: str, achados: list[dict]) -> st
         "Você é o companion do livro vivo 'Engenharia de Harness', em português. "
         "Ajuda o leitor a entender o scaffolding que envolve agentes de IA. "
         "Seja preciso e conciso; ancore afirmações no texto do livro; sem inventar fontes. "
-        f"Capacidades ativas agora: {lista}. {modo_txt}{ctx}"
+        f"Capacidades ativas agora: {lista}. {modo_txt}{obj}{ctx}"
     )
 
 
@@ -104,6 +109,21 @@ class SuggestionIn(BaseModel):
     session_id: str
     texto: str
     pagina: Optional[str] = None
+
+
+class ConsentIn(BaseModel):
+    session_id: str
+    versao: str = "v1"
+
+
+class TelemetryIn(BaseModel):
+    session_id: str
+    slug: str
+
+
+class GoalIn(BaseModel):
+    session_id: str
+    texto: str
 
 
 # ------------------------------------------------------------------ rotas
@@ -178,6 +198,50 @@ def post_suggestion(inp: SuggestionIn, request: Request) -> dict:
     return {"ok": True, "email_enviado": email_ok}
 
 
+# ---- spec 054: consentimento, telemetria e objetivo ----
+
+@app.post("/consent")
+def post_consent(inp: ConsentIn) -> dict:
+    """Grava o aceite do disclaimer (sessão anônima + versão do texto).
+    Auditável: mudou o texto ⇒ nova versão ⇒ novo aceite."""
+    _store.ensure_session(inp.session_id)
+    _store.record_consent(inp.session_id, inp.versao[:20])
+    return {"ok": True, "versao": inp.versao[:20]}
+
+
+@app.post("/telemetry")
+def post_telemetry(inp: TelemetryIn) -> dict:
+    """Navegação anônima (slug×sessão) — só grava com consentimento da sessão.
+    Best-effort por design: nunca é obstáculo para o leitor."""
+    slug = "".join(c for c in inp.slug.lower() if c.isalnum() or c in "-_.")[:80]
+    if not slug or not _store.has_consent(inp.session_id):
+        return {"ok": False}
+    _store.add_nav(inp.session_id, slug)
+    return {"ok": True}
+
+
+@app.get("/telemetry")
+def get_telemetry(token: str = "") -> dict:
+    if not config.ADMIN_TOKEN or token != config.ADMIN_TOKEN:
+        raise HTTPException(status_code=403, detail="token inválido")
+    return _store.nav_stats()
+
+
+@app.post("/objetivo")
+def post_objetivo(inp: GoalIn) -> dict:
+    texto = inp.texto.strip()[:300]
+    if not texto:
+        raise HTTPException(status_code=400, detail="objetivo vazio")
+    _store.ensure_session(inp.session_id)
+    _store.set_goal(inp.session_id, texto)
+    return {"ok": True, "objetivo": texto}
+
+
+@app.get("/objetivo")
+def get_objetivo(session_id: str) -> dict:
+    return {"session_id": session_id, "objetivo": _store.get_goal(session_id)}
+
+
 @app.get("/suggestions")
 def get_suggestions(token: str = "") -> dict:
     if not config.ADMIN_TOKEN or token != config.ADMIN_TOKEN:
@@ -204,12 +268,13 @@ def _preparar_chat(inp: ChatIn, request: Request) -> tuple[str, str, list, set]:
     _store.append(inp.session_id, "user", inp.message)
 
     achados = _index.buscar(inp.message, k=3)  # busca no livro é baseline (sempre)
-    history = [{"role": "system", "content": _system_prompt(inp.chapter, mode, achados)}]
+    goal = _store.get_goal(inp.session_id)  # objetivo do leitor como camada (spec 054)
+    history = [{"role": "system", "content": _system_prompt(inp.chapter, mode, achados, goal)}]
     history += _store.history(inp.session_id, limit=40)
     return mode, byok, history, tools_ativas(inp.chapter, mode), achados
 
 
-def _debug(achados: list, history: list, trace: list, chapter, mode: str) -> dict:
+def _debug(achados: list, history: list, trace: list, chapter, mode: str, session_id: str = "") -> dict:
     """Bloco de transparência dos Bastidores (spec 053): o que foi injetado e
     quanto custa — dados que o backend já computava e descartava. Tokens são
     ESTIMADOS (~chars/4); o widget exibe sempre com '~'."""
@@ -224,6 +289,7 @@ def _debug(achados: list, history: list, trace: list, chapter, mode: str) -> dic
         "tools_executadas": len(trace),
         "modo": mode,
         "capacidades_ativas": [c["rotulo"] for c in capacidades(chapter, mode) if c["ativa"]],
+        "objetivo": _store.get_goal(session_id) if session_id else None,
     }
 
 
@@ -239,7 +305,7 @@ def chat(inp: ChatIn, request: Request) -> dict:
     _store.append(inp.session_id, "assistant", reply)
     return {"reply": reply, "trace": trace, "mode": mode, "chapter": inp.chapter,
             "capabilities_ativas": [c for c in capacidades(inp.chapter, mode) if c["ativa"]],
-            "debug": _debug(achados, history, trace, inp.chapter, mode)}
+            "debug": _debug(achados, history, trace, inp.chapter, mode, inp.session_id)}
 
 
 @app.post("/chat/stream")
@@ -270,7 +336,7 @@ def chat_stream(inp: ChatIn, request: Request) -> StreamingResponse:
         _store.append(inp.session_id, "assistant", reply)
         yield sse({"done": True, "reply": reply, "mode": mode, "chapter": inp.chapter,
                    "capabilities_ativas": [c for c in capacidades(inp.chapter, mode) if c["ativa"]],
-                   "debug": _debug(achados, history, trace, inp.chapter, mode)})
+                   "debug": _debug(achados, history, trace, inp.chapter, mode, inp.session_id)})
 
     return StreamingResponse(gerar(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
