@@ -32,6 +32,14 @@
 
 ## Edições
 
+### Edição 0.40 — 2026-07-29 · download do livro: PDF e Markdown, completo e por capítulo (spec 045)
+- **Feature spec-kit oficial `045-downloads`**:
+  - **Livro completo**: a entrada ganhou os botões **⬇ PDF** (`pdf/engenharia-de-harness.pdf`, capa + rodapé paginado) e **⬇ Markdown** (`md/engenharia-de-harness.md`, concatenação na ordem do sumário com cabeçalho de versão/DOI — útil inclusive para alimentar LLMs).
+  - **Por capítulo**: o cabeçalho de cada capítulo (C01) ganhou os chips **⬇ md** (fonte exata) e **⬇ pdf** (avulso com título, datação e rodapé paginado) — 18 PDFs gerados no CI.
+  - **Correção**: o PDF completo tinha perdido os títulos de capítulo após a spec 043 (o `h1` saiu do `<article>`); o gerador agora injeta o título do sumário + linha de datação do cabeçalho. O painel Leitura executiva (C08) também ganhou estilo de impressão.
+  - **CI**: o workflow instala Chromium (Playwright) e gera os PDFs após o build; o portão por capítulo confere links e artefatos de download.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.39 — 2026-07-29 · correções do editor: contagem de arquétipos + sugestão sob demanda + Gmail
 - **Feature spec-kit oficial `044-correcoes-cap00-sugestoes`**:
   - **Cap. 00**: a contagem agora bate com a lista — "**quatro** arquétipos" (código, agentes pessoais self-hosted, embutidos, frameworks). A taxonomia própria do cap. 01 §5 (três, com 3 itens) permanece.

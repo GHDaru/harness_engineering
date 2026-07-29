@@ -33,9 +33,19 @@ jobs:
       - name: Instalar dependências do motor
         run: npm ci
         working-directory: publicar
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
       - name: Gerar o site (Markdown -> docs/)
         run: npm run build
         working-directory: publicar
+      - name: Instalar Chromium (para os PDFs)
+        run: npx playwright install --with-deps chromium
+        working-directory: publicar
+      - name: Gerar PDFs (livro completo + por capitulo)
+        run: npm run pdf
+        working-directory: publicar
+      - name: Limpar temporario de impressao
+        run: rm -f docs/_print.html
       # Requer que o Pages esteja habilitado uma vez no repositório
       # (Settings → Pages → Source: GitHub Actions). O token do Actions não
       # tem permissão para criar o site sozinho — é a única etapa manual.

@@ -65,6 +65,9 @@ h2[data-callout="callout-apendice"] { border-color: var(--apend); }
 .cap-teaser { color: var(--muted); margin: 0 0 .9rem; font-size: 1.05rem; max-width: 34rem; }
 .cap-meta { display: flex; flex-wrap: wrap; gap: .45rem; font-size: .74rem; color: var(--muted); }
 .cap-meta span { border: 1px solid var(--line); border-radius: 999px; padding: .15rem .6rem; }
+.cap-meta .cap-dl { border: 1px solid var(--line); border-radius: 999px; padding: .15rem .6rem;
+  text-decoration: none; color: var(--muted); font-weight: 600; }
+.cap-meta .cap-dl:hover { border-color: var(--prat); color: var(--prat); }
 @media (max-width: 640px) { .cap-num { font-size: 5rem; top: -18px; } .cap-hero h1 { font-size: 1.7rem; } }
 
 /* C08 LeituraExecutiva — V1 "painel âmbar" (o h3 vira o rótulo do painel). */
