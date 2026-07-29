@@ -53,9 +53,8 @@
     var o = el("option", null, m[1]); o.value = m[0]; if (m[0] === MODE) o.selected = true; modeSel.appendChild(o);
   });
   var minBtn = el("button", "cmp-min", "–"); minBtn.setAttribute("aria-label", "Minimizar o companion");
-  var sugBtn = el("button", "cmp-min", "💡"); sugBtn.setAttribute("aria-label", "Enviar sugestão ao autor"); sugBtn.title = "Enviar sugestão ao autor";
   var limparBtn = el("button", "cmp-min", "🗑"); limparBtn.setAttribute("aria-label", "Apagar a conversa"); limparBtn.title = "Apagar a conversa";
-  actions.appendChild(modeSel); actions.appendChild(sugBtn); actions.appendChild(limparBtn); actions.appendChild(minBtn);
+  actions.appendChild(modeSel); actions.appendChild(limparBtn); actions.appendChild(minBtn);
   head.appendChild(title); head.appendChild(actions);
 
   var capsBox = el("div", "cmp-caps");
@@ -111,7 +110,7 @@
   }
   function greet() {
     greeted = true;
-    addMsg("sys", "Olá! Sou o companion deste livro vivo. Pergunte o que quiser — eu respondo com base no texto do livro.");
+    addMsg("sys", "Olá! Sou o companion deste livro vivo. Pergunte o que quiser — eu respondo com base no texto do livro. Para mandar uma sugestão ao autor, escreva /sugerir.");
   }
   function sendMsg(text) {
     addMsg("user", text);
@@ -140,10 +139,17 @@
       .catch(function () {})
       .then(function () { msgs.innerHTML = ""; greeted = false; histLoaded = true; greet(); });
   });
-  sugBtn.addEventListener("click", function () {
-    sugForm.hidden = !sugForm.hidden;
-    if (!sugForm.hidden) sugTxt.focus();
-  });
+  // Sugestão sob demanda (spec 044): sem botão permanente — o formulário abre
+  // quando o leitor pede no chat (comando /sugerir ou intenção explícita).
+  function pedirSugestao() {
+    sugForm.hidden = false;
+    addMsg("sys", "💡 Escreva sua sugestão no campo destacado abaixo — ela vai por email ao autor. (Ela não passa pelo tutor.)");
+    sugTxt.focus();
+  }
+  function ehPedidoDeSugestao(t) {
+    if (/^\/(sugerir|sugestao|sugestão)\b/i.test(t)) return true;
+    return /sugest/i.test(t) && /\b(autor|enviar|mandar|deixar)\b/i.test(t);
+  }
   sugForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var t = sugTxt.value.trim(); if (!t) return;
@@ -155,7 +161,9 @@
       .then(function () { sugSend.disabled = false; });
   });
   form.addEventListener("submit", function (e) {
-    e.preventDefault(); var t = input.value.trim(); if (!t) return; input.value = ""; input.style.height = "auto"; sendMsg(t);
+    e.preventDefault(); var t = input.value.trim(); if (!t) return; input.value = ""; input.style.height = "auto";
+    if (ehPedidoDeSugestao(t)) { addMsg("user", t); pedirSugestao(); return; }
+    sendMsg(t);
   });
   input.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }

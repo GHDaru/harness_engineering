@@ -32,6 +32,13 @@
 
 ## Edições
 
+### Edição 0.39 — 2026-07-29 · correções do editor: contagem de arquétipos + sugestão sob demanda + Gmail
+- **Feature spec-kit oficial `044-correcoes-cap00-sugestoes`**:
+  - **Cap. 00**: a contagem agora bate com a lista — "**quatro** arquétipos" (código, agentes pessoais self-hosted, embutidos, frameworks). A taxonomia própria do cap. 01 §5 (três, com 3 itens) permanece.
+  - **Companion — sugestão sob demanda**: o formulário "enviar ao autor" **não aparece mais por default** (corrigido inclusive um bug de CSS que o deixava sempre visível) e o botão 💡 permanente saiu do cabeçalho. Ele abre quando o leitor pede no chat: comando **`/sugerir`** ou intenção explícita ("quero enviar uma sugestão ao autor"); a solicitação é resolvida no widget, sem passar pelo tutor. As boas-vindas mencionam o comando.
+  - **Email via Gmail**: [`chat-companion/backend/EMAIL.md`](../chat-companion/backend/EMAIL.md) documenta a configuração (senha de app do Google + variáveis `SMTP_*` no Railway; remetente = conta do autor, destinatário = `SUGGESTION_EMAIL_TO`). Nenhuma credencial no repositório.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; revisão editorial humana.
+
 ### Edição 0.38 — 2026-07-28 · design system dos capítulos: C01 + C08 + N02 (spec 043)
 - **Feature spec-kit oficial `043-template-capitulos`** ([ADR 0005](../adr/0005-template-capitulos-um-spec.md) e [ADR 0006](../adr/0006-design-system-componentes.md)): o catálogo de componentes ([`publicar/DESIGN-SISTEMA.md`](../publicar/DESIGN-SISTEMA.md)) ganhou os três componentes que faltavam, todos aprovados em **gate humano** (página-espécime + 3 modelos por componente):
   - **C01 CabeçalhoDeCapítulo — variante B "faixa editorial"**: kicker da parte, título, teaser, número em marca d'água, datação absorvida (C02) e **tempo de leitura estimado**; o `h1` e o blockquote de datação do Markdown saem do corpo (sem duplicação). Só páginas de capítulo numeradas; o aparato mantém o selo clássico.

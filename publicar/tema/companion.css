@@ -83,4 +83,5 @@
 }
 
 /* Form de sugestão (E05) */
+.cmp-sugform[hidden] { display: none; }
 .cmp-sugform { display: flex; gap: .4rem; padding: .6rem; border-bottom: 1px solid var(--cmp-line); background: var(--cmp-bot); }
