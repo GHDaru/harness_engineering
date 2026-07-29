@@ -20,6 +20,16 @@
   var MODE = get("cmp_mode", CFG.mode || "progressivo");
   // Estados de layout (spec 053): float (padrão) | dock (sidebar) | max (dock largo).
   var DOCK = get("cmp_dock", "float"); if (["float","dock","max"].indexOf(DOCK) < 0) DOCK = "float";
+  // Consentimento (spec 054): versão do texto; mudou o texto => nova versão => novo aceite.
+  var CONSENT_V = "v1";
+  var CONSENT_TXT = "As conversas com o companion são usadas para o aprimoramento vivo deste livro. " +
+    "Nunca compartilhe dados pessoais (nome completo, email, documentos, senhas) no chat.";
+  function consentiu() { return get("cmp_consent", "").indexOf(CONSENT_V + ":") === 0; }
+  function aceitarConsent() {
+    set("cmp_consent", CONSENT_V + ":" + Date.now());
+    if (BACKEND) fetch(BACKEND + "/consent", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ session_id: SID, versao: CONSENT_V }) }).catch(function () {});
+  }
   // BYOK (spec 048): a chave vive SÓ no localStorage deste navegador; é lida
   // no momento do envio e nunca aparece em texto claro na tela.
   function byok() { return (get("cmp_byok", "") || "").trim(); }
@@ -95,10 +105,11 @@
   byokTxt.setAttribute("aria-label", "Sua chave de API");
   var byokSave = el("button", "cmp-send", "✓"); byokSave.type = "submit"; byokSave.setAttribute("aria-label", "Salvar chave");
   byokForm.appendChild(byokTxt); byokForm.appendChild(byokSave);
+  var consentCard = el("div", "cmp-consent"); consentCard.hidden = true;
   var status = el("div", "cmp-status"); status.setAttribute("role", "button"); status.tabIndex = 0;
   status.title = "Abrir os bastidores (contexto injetado, tokens, chamadas)";
   var aux = el("aside", "cmp-aux"); aux.hidden = true; aux.setAttribute("aria-label", "Bastidores do companion");
-  panel.appendChild(head); panel.appendChild(capsBox); panel.appendChild(msgs); panel.appendChild(sugForm); panel.appendChild(byokForm); panel.appendChild(form); panel.appendChild(status);
+  panel.appendChild(head); panel.appendChild(capsBox); panel.appendChild(msgs); panel.appendChild(sugForm); panel.appendChild(byokForm); panel.appendChild(consentCard); panel.appendChild(form); panel.appendChild(status);
   root.appendChild(launcher); root.appendChild(aux); root.appendChild(panel);
 
   // --- render ---
@@ -188,6 +199,7 @@
       kv(b3, "Sessão anônima", "…" + SID.slice(-4));
       kv(b3, "Persistência", health ? (health.store === "postgres" ? "Postgres (Neon)" : "memória") : "—");
       kv(b3, "Sua chave (BYOK)", byok() ? ("ativa (" + byokMask() + ")") : "não configurada");
+      kv(b3, "Objetivo (/plano)", (d && d.objetivo) ? d.objetivo : "não declarado");
       t1.className = "on"; t2.className = "";
     }
     function abaDocs() {
@@ -337,9 +349,13 @@
   window.addEventListener("resize", aplicarDock);
   function open() {
     root.setAttribute("data-open", "true"); aplicarDock(); renderCaps(); carregarCaps(); renderStatus(); loadHistory();
+    if (banner) banner.style.display = "none"; // o cartão de aceite do chat assume
     setTimeout(function () { input.focus(); }, 30);
   }
-  function close() { root.setAttribute("data-open", "false"); aux.hidden = true; aplicarDock(); }
+  function close() {
+    root.setAttribute("data-open", "false"); aux.hidden = true; aplicarDock();
+    if (banner && !consentiu()) banner.style.display = "";
+  }
   launcher.addEventListener("click", open);
   minBtn.addEventListener("click", close);
   modeSel.addEventListener("change", function () { MODE = modeSel.value; set("cmp_mode", MODE); renderCaps(); });
@@ -396,7 +412,9 @@
     { c: "/chave", d: "usar sua própria chave de API (BYOK)" },
     { c: "/chave limpar", d: "remover sua chave deste navegador" },
     { c: "/limpar", d: "apagar a conversa" },
-    { c: "/bastidores", d: "ver contexto injetado, tokens e chamadas" }
+    { c: "/bastidores", d: "ver contexto injetado, tokens e chamadas" },
+    { c: "/plano", d: "declarar seu objetivo e receber um plano de ensino" },
+    { c: "/tour", d: "rever o tour das funcionalidades do livro" }
   ];
   var palSel = 0, palItens = [];
   function fecharPal() { pal.hidden = true; palItens = []; }
@@ -432,6 +450,30 @@
     e.preventDefault(); var t = input.value.trim(); if (!t) return; input.value = ""; input.style.height = "auto"; fecharPal();
     if (/^\/limpar\b/i.test(t)) { limparConversa(); return; }
     if (/^\/bastidores\b/i.test(t)) { toggleAux(); return; }
+    if (/^\/tour\b/i.test(t)) { iniciarTour(); return; }
+    var mPlano = t.match(/^\/plano\s*(.*)$/i);
+    if (mPlano) {
+      var objetivo = mPlano[1].trim();
+      if (!objetivo) {
+        api("/objetivo?session_id=" + encodeURIComponent(SID), {}).then(function (d) {
+          addMsg("sys", d.objetivo
+            ? ("🎯 Seu objetivo atual: “" + d.objetivo + "”. Para redefinir: /plano <novo objetivo>.")
+            : "🎯 Declare seu objetivo assim: /plano quero construir um agente para meu produto — eu gravo e traço um plano de ensino pelos capítulos.");
+        }).catch(function () {
+          addMsg("sys", "🎯 Declare seu objetivo assim: /plano <seu objetivo> — eu gravo e traço um plano de ensino.");
+        });
+        return;
+      }
+      addMsg("user", "/plano " + objetivo);
+      api("/objetivo", { method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ session_id: SID, texto: objetivo }) })
+        .catch(function () {})
+        .then(function () {
+          addMsg("sys", "🎯 Objetivo gravado. Ele agora acompanha todas as suas conversas (veja nos Bastidores).");
+          sendMsg("Meu objetivo é: " + objetivo + ". Trace um plano de ensino por este livro para mim (ordem de capítulos, o que praticar no harness-zero e por onde começar hoje).");
+        });
+      return;
+    }
     if (/^\/(chave|byok)\s+(limpar|remover)\b/i.test(t)) {
       set("cmp_byok", ""); renderCaps(); addMsg("sys", "🔑 Chave removida deste navegador."); return;
     }
@@ -445,7 +487,103 @@
   input.addEventListener("input", function () { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 220) + "px"; });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && root.getAttribute("data-open") === "true") close(); });
 
-  renderCaps(); root.setAttribute("data-dock", DOCK);
-  document.addEventListener("DOMContentLoaded", function () { document.body.appendChild(root); });
-  if (document.readyState !== "loading") document.body.appendChild(root);
+  // Tour de onboarding (spec 054): overlay + spotlight; passos declarativos;
+  // alvo ausente na página é pulado; roda 1x por navegador (cmp_tour), ou via /tour.
+  var PASSOS_TOUR = [
+    { alvo: ".sidebar", t: "Navegação", d: "O sumário completo fica sempre à esquerda. A entrada do livro tem trilha guiada e o botão Retomar leva onde você parou." },
+    { alvo: ".cap-hero", t: "Cabeçalho do capítulo", d: "Cada capítulo mostra a data do estado da arte, o tempo de leitura e os downloads ⬇ md/pdf deste capítulo." },
+    { alvo: ".cmp-launcher, .cmp-panel", t: "Companion", d: "Este é o tutor do livro. Digite / para ver os comandos; passe o mouse nos chips para saber o que cada capacidade faz e quando libera." },
+    { alvo: ".cmp-status", t: "Bastidores", d: "Aqui o livro se demonstra: tokens, chamadas e o que foi injetado na conversa. Clique para abrir o painel." },
+    { alvo: null, t: "Seu objetivo", d: "Conte seu objetivo com /plano (ex.: /plano quero construir um agente para meu produto) e eu traço um plano de ensino pelos capítulos. Reveja este tour quando quiser com /tour." }
+  ];
+  var tourOverlay = null, tourCard = null, tourIdx = 0;
+  function fecharTour() {
+    if (tourOverlay) tourOverlay.remove(); if (tourCard) tourCard.remove();
+    tourOverlay = tourCard = null; set("cmp_tour", "1");
+  }
+  function passoTour() {
+    var passos = PASSOS_TOUR.filter(function (px) { return !px.alvo || document.querySelector(px.alvo); });
+    if (tourIdx >= passos.length) { fecharTour(); return; }
+    var px = passos[tourIdx];
+    var alvoEl = px.alvo ? document.querySelector(px.alvo) : null;
+    if (!tourOverlay) { tourOverlay = el("div", "cmp-tour-ov"); document.body.appendChild(tourOverlay); }
+    if (!tourCard) { tourCard = el("div", "cmp-tour-card"); document.body.appendChild(tourCard); }
+    // spotlight
+    tourOverlay.innerHTML = "";
+    var foco = el("div", "cmp-tour-foco");
+    if (alvoEl) {
+      var r = alvoEl.getBoundingClientRect();
+      foco.style.left = (r.left - 6) + "px"; foco.style.top = (r.top - 6) + "px";
+      foco.style.width = (r.width + 12) + "px"; foco.style.height = (r.height + 12) + "px";
+      tourOverlay.appendChild(foco);
+    }
+    // cartão
+    tourCard.innerHTML = "";
+    tourCard.appendChild(el("div", "cmp-tour-n", (tourIdx + 1) + " / " + passos.length));
+    tourCard.appendChild(el("b", null, px.t));
+    tourCard.appendChild(el("p", null, px.d));
+    var linhaT = el("div", "cmp-tour-bts");
+    var pular = el("button", "cmp-tour-skip", "pular tour");
+    pular.addEventListener("click", fecharTour);
+    var prox = el("button", "cmp-send cmp-send-rot", tourIdx + 1 >= passos.length ? "Concluir ✓" : "Próximo →");
+    prox.addEventListener("click", function () { tourIdx++; passoTour(); });
+    linhaT.appendChild(pular); linhaT.appendChild(prox); tourCard.appendChild(linhaT);
+    if (alvoEl) {
+      var rr = alvoEl.getBoundingClientRect();
+      var top = Math.min(window.innerHeight - 190, Math.max(12, rr.top));
+      var left = rr.right + 330 < window.innerWidth ? rr.right + 14 : Math.max(12, rr.left - 314);
+      tourCard.style.top = top + "px"; tourCard.style.left = left + "px";
+    } else {
+      tourCard.style.top = "50%"; tourCard.style.left = "50%"; tourCard.style.transform = "translate(-50%,-50%)";
+    }
+  }
+  function iniciarTour() { tourIdx = 0; passoTour(); }
+  function oferecerTour() {
+    if (get("cmp_tour", "")) return;
+    setTimeout(iniciarTour, 350);
+  }
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && tourOverlay) fecharTour(); });
+
+  // Gate de consentimento no chat (spec 054): sem aceite, o cartão substitui a entrada.
+  function renderConsent() {
+    var ok = consentiu();
+    consentCard.hidden = ok; form.hidden = !ok; status.hidden = !ok;
+    if (!ok && !consentCard.childNodes.length) {
+      consentCard.appendChild(el("div", "cmp-consent-t", "Antes de conversar…"));
+      consentCard.appendChild(el("p", null, CONSENT_TXT));
+      var bt = el("button", "cmp-send cmp-send-rot", "Entendi e aceito");
+      bt.addEventListener("click", function () { aceitarConsent(); renderConsent(); banner && banner.remove(); oferecerTour(); input.focus(); });
+      consentCard.appendChild(bt);
+    }
+  }
+
+  // Banner do site (todas as páginas, até aceitar) + telemetria pós-consent.
+  var banner = null;
+  function montarBanner() {
+    if (consentiu()) return;
+    banner = el("div", "cmp-banner");
+    var tx = el("span", null, "💬 " + CONSENT_TXT);
+    var bt = el("button", "cmp-banner-bt", "Entendi e aceito");
+    bt.addEventListener("click", function () { aceitarConsent(); banner.remove(); banner = null; renderConsent(); oferecerTour(); });
+    banner.appendChild(tx); banner.appendChild(bt);
+    document.body.appendChild(banner);
+  }
+  function telemetria() {
+    if (!BACKEND || !consentiu()) return;
+    var slug = (document.body.getAttribute("data-slug") || "").trim() || (location.pathname.split("/").pop() || "index").replace(/\.html$/, "");
+    var corpo = JSON.stringify({ session_id: SID, slug: slug });
+    try {
+      if (navigator.sendBeacon) { navigator.sendBeacon(BACKEND + "/telemetry", new Blob([corpo], { type: "application/json" })); return; }
+    } catch (e) {}
+    fetch(BACKEND + "/telemetry", { method: "POST", headers: { "content-type": "application/json" }, body: corpo, keepalive: true }).catch(function () {});
+  }
+
+  renderCaps(); root.setAttribute("data-dock", DOCK); renderConsent();
+  var bootFeito = false;
+  function bootstrap() {
+    if (bootFeito) return; bootFeito = true;
+    document.body.appendChild(root); montarBanner(); telemetria();
+  }
+  document.addEventListener("DOMContentLoaded", bootstrap);
+  if (document.readyState !== "loading") bootstrap();
 })();

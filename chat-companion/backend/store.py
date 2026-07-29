@@ -27,6 +27,13 @@ class StorePort(Protocol):
     def delete_session(self, session_id: str) -> None: ...
     def add_suggestion(self, session_id: str, texto: str, pagina: str) -> None: ...
     def suggestions(self, limit: int = 200) -> list[dict]: ...
+    # spec 054 — consentimento, telemetria e objetivo do leitor
+    def record_consent(self, session_id: str, versao: str) -> None: ...
+    def has_consent(self, session_id: str) -> bool: ...
+    def add_nav(self, session_id: str, slug: str) -> None: ...
+    def nav_stats(self, limit: int = 500) -> dict: ...
+    def set_goal(self, session_id: str, texto: str) -> None: ...
+    def get_goal(self, session_id: str) -> Optional[str]: ...
 
 
 # ----------------------------------------------------------- memória
@@ -59,6 +66,33 @@ class MemoryStore:
 
     def suggestions(self, limit: int = 200) -> list[dict]:
         return list(self._sug[-limit:])
+
+    # ---- spec 054 ----
+    def record_consent(self, session_id: str, versao: str) -> None:
+        self._consents = getattr(self, "_consents", {})
+        self._consents[session_id] = {"versao": versao, "ts": time.time()}
+
+    def has_consent(self, session_id: str) -> bool:
+        return session_id in getattr(self, "_consents", {})
+
+    def add_nav(self, session_id: str, slug: str) -> None:
+        self._nav = getattr(self, "_nav", [])
+        self._nav.append({"session_id": session_id, "slug": slug, "ts": time.time()})
+
+    def nav_stats(self, limit: int = 500) -> dict:
+        nav = getattr(self, "_nav", [])[-limit:]
+        por_slug: dict[str, int] = {}
+        for e in nav:
+            por_slug[e["slug"]] = por_slug.get(e["slug"], 0) + 1
+        return {"total": len(nav), "por_pagina": por_slug,
+                "ultimos": [{"slug": e["slug"], "ts": e["ts"]} for e in nav[-20:]]}
+
+    def set_goal(self, session_id: str, texto: str) -> None:
+        self._goals = getattr(self, "_goals", {})
+        self._goals[session_id] = texto
+
+    def get_goal(self, session_id: str) -> Optional[str]:
+        return getattr(self, "_goals", {}).get(session_id)
 
 
 # ----------------------------------------------------------- postgres (neon)
@@ -101,6 +135,23 @@ class PostgresStore:
                     texto TEXT NOT NULL,
                     pagina TEXT,
                     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                );
+                CREATE TABLE IF NOT EXISTS consents (
+                    session_id TEXT PRIMARY KEY REFERENCES sessions(session_id) ON DELETE CASCADE,
+                    versao TEXT NOT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                );
+                CREATE TABLE IF NOT EXISTS nav_events (
+                    id BIGSERIAL PRIMARY KEY,
+                    session_id TEXT NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
+                    slug TEXT NOT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                );
+                CREATE INDEX IF NOT EXISTS idx_nav_slug ON nav_events(slug);
+                CREATE TABLE IF NOT EXISTS goals (
+                    session_id TEXT PRIMARY KEY REFERENCES sessions(session_id) ON DELETE CASCADE,
+                    texto TEXT NOT NULL,
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
                 );
             """)
             conn.commit()
@@ -152,6 +203,47 @@ class PostgresStore:
             cur.execute("SELECT session_id, texto, pagina, created_at FROM suggestions ORDER BY id DESC LIMIT %s", (limit,))
             rows = cur.fetchall()
         return [{"session_id": r[0], "texto": r[1], "pagina": r[2], "created_at": str(r[3])} for r in rows]
+
+    # ---- spec 054 ----
+    def record_consent(self, session_id: str, versao: str) -> None:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("INSERT INTO consents(session_id, versao) VALUES (%s, %s) "
+                        "ON CONFLICT (session_id) DO UPDATE SET versao = EXCLUDED.versao, created_at = now()",
+                        (session_id, versao))
+            conn.commit()
+
+    def has_consent(self, session_id: str) -> bool:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("SELECT 1 FROM consents WHERE session_id = %s", (session_id,))
+            return cur.fetchone() is not None
+
+    def add_nav(self, session_id: str, slug: str) -> None:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("INSERT INTO nav_events(session_id, slug) VALUES (%s, %s)", (session_id, slug))
+            conn.commit()
+
+    def nav_stats(self, limit: int = 500) -> dict:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("SELECT slug, count(*) FROM nav_events GROUP BY slug ORDER BY count(*) DESC LIMIT 100")
+            por = {r[0]: int(r[1]) for r in cur.fetchall()}
+            cur.execute("SELECT slug, created_at FROM nav_events ORDER BY id DESC LIMIT 20")
+            ult = [{"slug": r[0], "ts": str(r[1])} for r in cur.fetchall()]
+            cur.execute("SELECT count(*) FROM nav_events")
+            total = int(cur.fetchone()[0])
+        return {"total": total, "por_pagina": por, "ultimos": ult}
+
+    def set_goal(self, session_id: str, texto: str) -> None:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("INSERT INTO goals(session_id, texto) VALUES (%s, %s) "
+                        "ON CONFLICT (session_id) DO UPDATE SET texto = EXCLUDED.texto, updated_at = now()",
+                        (session_id, texto))
+            conn.commit()
+
+    def get_goal(self, session_id: str) -> Optional[str]:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("SELECT texto FROM goals WHERE session_id = %s", (session_id,))
+            row = cur.fetchone()
+        return row[0] if row else None
 
 
 def make_store(database_url: str) -> StorePort:
