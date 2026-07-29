@@ -131,3 +131,11 @@ Salvaguardas de uso de IA: a IA pesquisa e rascunha; o humano decide, verifica e
 - **Toda sigla técnica é apresentada por extenso na 1ª ocorrência** de um capítulo — "Model Context Protocol (MCP)" — e, dali em diante, o texto pode usar só a sigla.
 - O motor de publicação reforça isso: **envolve automaticamente cada sigla conhecida em `<abbr>`**, de modo que passar o mouse revela o significado em qualquer ocorrência, sem poluir o texto-fonte. O mapa de siglas vive em `publicar/build.mjs` e é espelhado na página **[Glossário](glossario.md)** (`livro/glossario.md`).
 - O **Glossário** dá o **por extenso**, uma explicação curta e **em que capítulos** cada sigla aparece. Ao introduzir uma sigla nova, adicione-a nos dois lugares (mapa do motor + glossário) e **confira a expansão na fonte** (Princípio I).
+
+## Cadência do livro vivo
+
+> Política decidida no [ADR 0007](../adr/0007-cadencia-livro-vivo.md) (alternativas e justificativa lá).
+
+- **Janela trimestral** (próxima: **2026-10**): re-sync dos 16 forks (`scripts/sync-forks.ps1`), diff dirigido pelas dimensões do benchmark, atualização dos Apêndices A afetados, do placar de expiração e das datas de revisão; edição minor no [Histórico](HISTORICO.md).
+- **Gatilho extraordinário**: qualquer evento que **invalide uma "Leitura executiva"** (mudança de protocolo, capacidade migrando para o provedor, harness do corpus arquivado) dispara revisão pontual do capítulo afetado, sem esperar a janela.
+- A data "estado da arte capturado em" de cada capítulo continua sendo a verdade exposta ao leitor — a cadência existe para que ela nunca minta por omissão.
