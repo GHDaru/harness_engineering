@@ -32,6 +32,15 @@
 
 ## Edições
 
+### Edição 0.48 — 2026-07-29 · chat repaginado: dock, paleta de comandos, tooltips e Bastidores (spec 053)
+- **Feature spec-kit oficial `053-chat-ux`** (ciclo completo specify→plan→tasks→implement; gate humano com 3 padrões de tela aprovados): o companion ganhou uma repaginação de usabilidade em quatro frentes:
+  - **Layout**: painel flutuante ampliado (480px×78vh) + **modo ancorado** (sidebar direita que empurra o conteúdo — leitura e conversa lado a lado) + **maximizar** (640px); estado persiste entre páginas; mobile vira tela cheia.
+  - **Entrada**: textarea de 3 linhas com auto-crescimento, linha de dicas e botão **Enviar** rotulado.
+  - **Explicabilidade**: chips de capacidade com **tooltip** (descrição + "libera no cap. X", dados do `/capabilities`); **paleta de `/`** com os cinco comandos descritos, filtro por prefixo e navegação por teclado.
+  - **Bastidores** (o livro se demonstrando): barra de status com `~tokens · chamadas · trechos` e painel com Janela de contexto (barra de ocupação), **o que foi injetado no turno** (trechos RAG com fonte), Memória da sessão, e aba **Documentos** (downloads do capítulo + fontes citadas). Backend expõe o bloco `debug` (aditivo) no `/chat` e no stream — tokens sempre estimados (~chars/4), honestamente marcados.
+- Verificação: suíte do backend 12/12 (teste novo do `debug`); e2e Playwright com 18 checagens verdes (estados persistem, paleta, tooltip, bastidores com dados reais, regressão de stream/sugestão/BYOK).
+- **IA (A3)**: agente **Claude Code (Anthropic)**; padrões de tela aprovados pelo editor.
+
 ### Edição 0.47 — 2026-07-29 · cadência do livro vivo declarada (spec 052)
 - **Feature spec-kit oficial `052-cadencia-livro-vivo`** ([ADR 0007](../adr/0007-cadencia-livro-vivo.md)): o livro agora tem **política explícita de revisão** — janela **trimestral** (próxima: **2026-10**; re-sync dos 16 forks, diff por dimensão, Apêndices A + placar) e **gatilho extraordinário**: qualquer evento que invalide uma "Leitura executiva" dispara revisão pontual do capítulo, sem esperar a janela. A Leitura executiva (C08) vira o contrato observável de frescor. Guia Editorial ganhou a seção operacional; `publicar/README` atualizado ao estado real do motor; branches mergeadas podadas.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; política decidida em ADR com alternativas.

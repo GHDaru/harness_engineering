@@ -206,12 +206,30 @@ def _preparar_chat(inp: ChatIn, request: Request) -> tuple[str, str, list, set]:
     achados = _index.buscar(inp.message, k=3)  # busca no livro é baseline (sempre)
     history = [{"role": "system", "content": _system_prompt(inp.chapter, mode, achados)}]
     history += _store.history(inp.session_id, limit=40)
-    return mode, byok, history, tools_ativas(inp.chapter, mode)
+    return mode, byok, history, tools_ativas(inp.chapter, mode), achados
+
+
+def _debug(achados: list, history: list, trace: list, chapter, mode: str) -> dict:
+    """Bloco de transparência dos Bastidores (spec 053): o que foi injetado e
+    quanto custa — dados que o backend já computava e descartava. Tokens são
+    ESTIMADOS (~chars/4); o widget exibe sempre com '~'."""
+    chars = sum(len(str(m.get("content") or "")) for m in history)
+    return {
+        "trechos": [{"fonte": a.get("fonte", ""), "titulo": a.get("titulo", ""),
+                     "preview": str(a.get("trecho", ""))[:90]} for a in achados],
+        "historico_msgs": max(0, len(history) - 1),  # sem contar o system
+        "prompt_chars": chars,
+        "tokens_estimados": chars // 4,
+        "janela_tokens": config.CONTEXT_WINDOW_TOKENS,
+        "tools_executadas": len(trace),
+        "modo": mode,
+        "capacidades_ativas": [c["rotulo"] for c in capacidades(chapter, mode) if c["ativa"]],
+    }
 
 
 @app.post("/chat")
 def chat(inp: ChatIn, request: Request) -> dict:
-    mode, byok, history, permitidas = _preparar_chat(inp, request)
+    mode, byok, history, permitidas, achados = _preparar_chat(inp, request)
     trace: list[str] = []
     try:
         reply = run_turn(history, _llm, _tools, permitidas, trace, byok_key=byok or None)
@@ -220,7 +238,8 @@ def chat(inp: ChatIn, request: Request) -> dict:
 
     _store.append(inp.session_id, "assistant", reply)
     return {"reply": reply, "trace": trace, "mode": mode, "chapter": inp.chapter,
-            "capabilities_ativas": [c for c in capacidades(inp.chapter, mode) if c["ativa"]]}
+            "capabilities_ativas": [c for c in capacidades(inp.chapter, mode) if c["ativa"]],
+            "debug": _debug(achados, history, trace, inp.chapter, mode)}
 
 
 @app.post("/chat/stream")
@@ -230,7 +249,7 @@ def chat_stream(inp: ChatIn, request: Request) -> StreamingResponse:
     ao final do stream."""
     import json as _json
 
-    mode, byok, history, permitidas = _preparar_chat(inp, request)
+    mode, byok, history, permitidas, achados = _preparar_chat(inp, request)
     trace: list[str] = []
 
     def sse(ev: dict) -> str:
@@ -250,7 +269,8 @@ def chat_stream(inp: ChatIn, request: Request) -> StreamingResponse:
             return
         _store.append(inp.session_id, "assistant", reply)
         yield sse({"done": True, "reply": reply, "mode": mode, "chapter": inp.chapter,
-                   "capabilities_ativas": [c for c in capacidades(inp.chapter, mode) if c["ativa"]]})
+                   "capabilities_ativas": [c for c in capacidades(inp.chapter, mode) if c["ativa"]],
+                   "debug": _debug(achados, history, trace, inp.chapter, mode)})
 
     return StreamingResponse(gerar(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
