@@ -32,6 +32,11 @@
 
 ## Edições
 
+### Edição 0.42 — 2026-07-29 · companion com streaming SSE (spec 047)
+- **Feature spec-kit oficial `047-companion-sse`**: as respostas do tutor agora chegam **em streaming** — novo `POST /chat/stream` (`text/event-stream`, eventos `{delta}`/`{trace}`/`{done}`/`{erro}`), `stream()` nos dois adapters de LLM (SSE OpenAI-compatible com agregação de tool_calls por índice; Echo em pedaços, testável sem rede) e `run_turn_stream()` no loop (mesmo freio `MAX_TURNS`, mesmo trace). O widget consome via `fetch`+`ReadableStream`, renderiza incrementalmente (markdown aplicado ao final) e **cai no `/chat` clássico** em falha de transporte — falha do modelo no meio do stream não refaz a chamada (evita duplicar o turno persistido).
+- Verificação: suíte do backend 10/10 (novo teste do stream com Echo: deltas + done ≡ histórico persistido); ponta a ponta real com uvicorn local + widget no Chromium (render incremental e markdown final conferidos).
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.41 — 2026-07-29 · a obra ligada ao Awesome Harness Engineering (spec 046)
 - **Feature spec-kit oficial `046-awesome-list-obra`** (criada pelo script `.specify/create-new-feature.sh`): a coleção viva **[Awesome Harness Engineering](https://github.com/GHDaru/awesome-harness-engineering)** (curada pelo autor, organizada por problema — a mesma taxonomia do livro) agora é referenciada em toda a obra:
   - **"Consulte também"** ao fim das Fontes da indústria dos caps. 02–13 e 17, apontando para a **seção específica** da lista (Agent Loop, Context Delivery, Tool Design, Skills & MCP, Permissions, Memory, Planning, Orchestration, Verification, DX, Human-in-the-Loop…);

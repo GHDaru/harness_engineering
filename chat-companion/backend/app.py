@@ -15,12 +15,13 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 import config
 from capabilities import MODOS, capacidades, loop_ativo, tools_ativas
 from llm import make_llm
-from loop import run_turn
+from loop import run_turn, run_turn_stream
 from ragindex import BookIndex
 from store import make_store
 from tools import Tools
@@ -173,8 +174,9 @@ def get_suggestions(token: str = "") -> dict:
     return {"suggestions": _store.suggestions()}
 
 
-@app.post("/chat")
-def chat(inp: ChatIn, request: Request) -> dict:
+def _preparar_chat(inp: ChatIn, request: Request) -> tuple[str, str, list, set]:
+    """Validações, rate-limit, persistência do turno do usuário e montagem do
+    histórico — comum ao /chat e ao /chat/stream (spec 047)."""
     if not inp.message.strip():
         raise HTTPException(status_code=400, detail="mensagem vazia")
     mode = inp.mode if inp.mode in MODOS else "progressivo"
@@ -193,8 +195,12 @@ def chat(inp: ChatIn, request: Request) -> dict:
     achados = _index.buscar(inp.message, k=3)  # busca no livro é baseline (sempre)
     history = [{"role": "system", "content": _system_prompt(inp.chapter, mode, achados)}]
     history += _store.history(inp.session_id, limit=40)
+    return mode, byok, history, tools_ativas(inp.chapter, mode)
 
-    permitidas = tools_ativas(inp.chapter, mode)
+
+@app.post("/chat")
+def chat(inp: ChatIn, request: Request) -> dict:
+    mode, byok, history, permitidas = _preparar_chat(inp, request)
     trace: list[str] = []
     try:
         reply = run_turn(history, _llm, _tools, permitidas, trace, byok_key=byok or None)
@@ -204,3 +210,36 @@ def chat(inp: ChatIn, request: Request) -> dict:
     _store.append(inp.session_id, "assistant", reply)
     return {"reply": reply, "trace": trace, "mode": mode, "chapter": inp.chapter,
             "capabilities_ativas": [c for c in capacidades(inp.chapter, mode) if c["ativa"]]}
+
+
+@app.post("/chat/stream")
+def chat_stream(inp: ChatIn, request: Request) -> StreamingResponse:
+    """Mesmo contrato do /chat, em text/event-stream (spec 047): eventos JSON
+    {delta} / {trace} / {done} / {erro}. A resposta do assistente é persistida
+    ao final do stream."""
+    import json as _json
+
+    mode, byok, history, permitidas = _preparar_chat(inp, request)
+    trace: list[str] = []
+
+    def sse(ev: dict) -> str:
+        return "data: " + _json.dumps(ev, ensure_ascii=False) + "\n\n"
+
+    def gerar():
+        reply = ""
+        try:
+            for ev in run_turn_stream(history, _llm, _tools, permitidas, trace,
+                                      byok_key=byok or None):
+                if "reply" in ev:
+                    reply = ev["reply"]
+                else:
+                    yield sse(ev)
+        except Exception as exc:  # nunca vaza stack para o cliente
+            yield sse({"erro": f"falha ao consultar o modelo: {exc}"})
+            return
+        _store.append(inp.session_id, "assistant", reply)
+        yield sse({"done": True, "reply": reply, "mode": mode, "chapter": inp.chapter,
+                   "capabilities_ativas": [c for c in capacidades(inp.chapter, mode) if c["ativa"]]})
+
+    return StreamingResponse(gerar(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})

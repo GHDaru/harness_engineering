@@ -96,3 +96,25 @@ def test_suggestion_persists_and_lists():
 
 def test_suggestion_empty_400():
     assert client.post("/suggestion", json={"session_id": "s", "texto": "  "}).status_code == 400
+
+
+def test_chat_stream_echo():
+    """spec 047: o stream emite deltas e um done com a resposta completa,
+    idêntica à que fica persistida no histórico."""
+    import json
+    sid = "t-stream"
+    with client.stream("POST", "/chat/stream",
+                       json={"session_id": sid, "message": "olá streaming"}) as r:
+        assert r.status_code == 200
+        assert r.headers["content-type"].startswith("text/event-stream")
+        eventos = []
+        for linha in r.iter_lines():
+            if linha.startswith("data: "):
+                eventos.append(json.loads(linha[6:]))
+    deltas = [e["delta"] for e in eventos if "delta" in e]
+    done = [e for e in eventos if e.get("done")]
+    assert len(deltas) > 1, "deveria vir em mais de um pedaço"
+    assert len(done) == 1
+    assert "".join(deltas) == done[0]["reply"]
+    hist = client.get("/history", params={"session_id": sid}).json()["messages"]
+    assert hist[-1]["role"] == "assistant" and hist[-1]["content"] == done[0]["reply"]

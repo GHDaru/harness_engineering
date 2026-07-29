@@ -112,19 +112,65 @@
     greeted = true;
     addMsg("sys", "Olá! Sou o companion deste livro vivo. Pergunte o que quiser — eu respondo com base no texto do livro. Para mandar uma sugestão ao autor, escreva /sugerir.");
   }
+  // Streaming SSE (spec 047): consome POST /chat/stream via fetch+ReadableStream,
+  // renderiza o texto conforme chega (textContent) e aplica markdown no final.
+  // Qualquer falha cai no /chat clássico (compatível com backend antigo).
+  function sendMsgStream(text, typing) {
+    return fetch(BACKEND + "/chat/stream", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ session_id: SID, message: text, chapter: CHAPTER, mode: MODE })
+    }).then(function (r) {
+      if (!r.ok || !r.body) throw new Error("HTTP " + r.status);
+      typing.remove();
+      var m = addMsg("bot", "");
+      var reader = r.body.getReader(), dec = new TextDecoder(), buf = "", texto = "", houveErro = null;
+      function trata(ev) {
+        if (ev.delta) { texto += ev.delta; m.textContent = texto; msgs.scrollTop = msgs.scrollHeight; }
+        if (ev.trace) { addMsg("sys", ev.trace); }
+        if (ev.erro) { houveErro = ev.erro; }
+        if (ev.done) { m.innerHTML = fmt(ev.reply || texto || "(sem resposta)"); }
+      }
+      function pump() {
+        return reader.read().then(function (x) {
+          if (x.done) {
+            if (houveErro) { m.remove(); var e2 = new Error(houveErro); e2.semFallback = true; throw e2; }
+            if (!texto) { m.innerHTML = fmt("(sem resposta)"); }
+            return;
+          }
+          buf += dec.decode(x.value, { stream: true });
+          var blocos = buf.split("\n\n"); buf = blocos.pop();
+          blocos.forEach(function (l) {
+            if (l.indexOf("data: ") === 0) { try { trata(JSON.parse(l.slice(6))); } catch (e) {} }
+          });
+          return pump();
+        });
+      }
+      return pump();
+    });
+  }
+
   function sendMsg(text) {
     addMsg("user", text);
     send.disabled = true;
     var typing = el("div", "cmp-typing", "digitando…"); msgs.appendChild(typing); msgs.scrollTop = msgs.scrollHeight;
-    api("/chat", {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ session_id: SID, message: text, chapter: CHAPTER, mode: MODE })
-    }).then(function (d) {
-      typing.remove(); addMsg("bot", d.reply || "(sem resposta)", true);
-    }).catch(function (err) {
-      typing.remove();
-      addMsg("sys", "⚠️ Não consegui falar com o companion agora (" + err.message + "). Tente de novo em instantes.");
-    }).then(function () { send.disabled = false; input.focus(); });
+    var fallback = function () {
+      return api("/chat", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ session_id: SID, message: text, chapter: CHAPTER, mode: MODE })
+      }).then(function (d) {
+        typing.remove(); addMsg("bot", d.reply || "(sem resposta)", true);
+      });
+    };
+    (BACKEND ? sendMsgStream(text, typing).catch(function (err) {
+      // erro do modelo no meio do stream: o turno já foi persistido — não
+      // repetir via /chat (duplicaria o histórico); só transporte faz fallback.
+      if (err && err.semFallback) throw err;
+      return fallback();
+    }) : fallback())
+      .catch(function (err) {
+        if (typing.parentNode) typing.remove();
+        addMsg("sys", "⚠️ Não consegui falar com o companion agora (" + err.message + "). Tente de novo em instantes.");
+      }).then(function () { send.disabled = false; input.focus(); });
   }
 
   // --- eventos ---
