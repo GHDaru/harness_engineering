@@ -363,6 +363,8 @@ for (let k = 0; k < itens.length; k++) {
       cap ? `<span title="Livro vivo — ver Histórico">🕒 estado da arte ${cap}</span>` : "",
       rev ? `<span>revisão ${rev}</span>` : "",
       `<span>📖 ~${tempoDeLeitura(bruto)} min de leitura</span>`,
+      `<a class="cap-dl" href="md/${item.slug}.md" download title="Baixar o Markdown-fonte deste capítulo">⬇ md</a>`,
+      `<a class="cap-dl" href="pdf/${item.slug}.pdf" title="Abrir o PDF deste capítulo">⬇ pdf</a>`,
     ].join("");
     hero = `<header class="cap-hero"><div class="cap-num" aria-hidden="true">${num}</div>
 <div class="cap-kicker">${item.parte} · Cap. ${num}</div>
@@ -388,6 +390,23 @@ ${item.teaser ? `<p class="cap-teaser">${item.teaser}</p>` : ""}
   });
   writeFileSync(resolve(SAIDA, `${item.slug}.html`), html);
   gerados++;
+}
+
+// Downloads (spec 045): fontes .md publicados em docs/md/ + consolidado do
+// livro inteiro (ordem do sumário, cabeçalho com versão/DOI). Os PDFs são
+// gerados por pdf.mjs em docs/pdf/ (no CI, após o build).
+mkdirSync(resolve(SAIDA, "md"), { recursive: true });
+{
+  const partesMd = [];
+  for (const item of itens) {
+    const caminho = resolve(RAIZ, item.arquivo);
+    if (!existsSync(caminho)) continue;
+    const bruto = readFileSync(caminho, "utf8");
+    writeFileSync(resolve(SAIDA, "md", `${item.slug}.md`), bruto);
+    partesMd.push(bruto.trim());
+  }
+  const cabecalho = `# ${sumario.titulo}\n\n> ${sumario.subtitulo}\n>\n> ${versaoDoLivro()} · DOI ${DOI} · fonte: https://github.com/GHDaru/harness_engineering · site: ${SITE}\n\n---\n\n`;
+  writeFileSync(resolve(SAIDA, "md", "engenharia-de-harness.md"), cabecalho + partesMd.join("\n\n---\n\n") + "\n");
 }
 
 // index = tela-capa (splash) full-screen; porta de entrada.
@@ -419,6 +438,8 @@ const corpoSumario = `<section class="entrada">
         <a class="ent-btn ent-btn-a" href="00-introducao.html">▶ Começar do início — 00</a>
         <a class="ent-btn" href="comparativo.html">Benchmark</a>
         <a class="ent-btn" href="guia-editorial.html">Guia Editorial</a>
+        <a class="ent-btn" href="pdf/engenharia-de-harness.pdf" title="Livro completo em PDF">⬇ PDF</a>
+        <a class="ent-btn" href="md/engenharia-de-harness.md" download title="Livro completo em Markdown (bom para LLMs)">⬇ Markdown</a>
       </div>
     </div>
   </div>

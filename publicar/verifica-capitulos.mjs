@@ -43,6 +43,12 @@ for (const item of itens) {
     if (h1s !== 1) erro(`esperado 1 <h1>, encontrado ${h1s}`);
     if (/<blockquote>\s*<p><strong>Estado da arte capturado em/.test(html)) erro("blockquote de datação sobrou no corpo");
     if (/^###\s+Leitura executiva/m.test(md) && !html.includes('class="leitura-exec"')) erro("C08 não aplicado");
+    // Downloads por capítulo (spec 045): links no C01 + .md copiado; o PDF é
+    // conferido só quando docs/pdf/ existe (gerado por pdf.mjs após o portão).
+    if (!html.includes(`href="md/${slug}.md"`)) erro("link de download .md ausente");
+    if (!html.includes(`href="pdf/${slug}.pdf"`)) erro("link de download .pdf ausente");
+    if (!existsSync(resolve(DOCS, "md", `${slug}.md`))) erro("docs/md/*.md não copiado");
+    if (existsSync(resolve(DOCS, "pdf")) && !existsSync(resolve(DOCS, "pdf", `${slug}.pdf`))) erro("docs/pdf/*.pdf ausente");
   } else {
     aparato++;
     if (html.includes('class="cap-hero"')) erro("página do aparato ganhou C01 indevidamente");
@@ -50,6 +56,12 @@ for (const item of itens) {
   }
   if (!html.includes('class="pagcards"')) erro("sem N02 (.pagcards)");
 }
+
+// Livro completo para download (spec 045)
+if (!existsSync(resolve(DOCS, "md", "engenharia-de-harness.md"))) falhas.push("consolidado md/engenharia-de-harness.md ausente");
+const sum = readFileSync(resolve(DOCS, "sumario.html"), "utf8");
+if (!sum.includes('href="pdf/engenharia-de-harness.pdf"') || !sum.includes('href="md/engenharia-de-harness.md"'))
+  falhas.push("entrada sem os botões de download do livro completo");
 
 if (falhas.length) {
   console.error(`✗ verificação do template: ${falhas.length} falha(s)`);
