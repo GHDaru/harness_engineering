@@ -54,6 +54,8 @@ Mas a substituição tem teto: **sem compactação nem planejamento, o nó de ag
 
 O harness embutido não é um harness dedicado incompleto: é uma categoria em que o ambiente de execução substitui, por construção, metade das dimensões do scaffolding — plano vira grafo, permissão vira topologia, contexto vira expressão mapeada. A substituição vale enquanto a classe de tarefa for respeitada: decisões pontuais dentro de processos estruturados, não trabalho longo autônomo. **O que roubar** hoje: derivação automática de tools a partir de integrações existentes (padrão `$fromAI`) e human-in-the-loop durável em vez de aprovação síncrona.
 
+> **Consulte também**: a coleção viva [Awesome Harness Engineering — Production Infrastructure & Operations](https://github.com/GHDaru/awesome-harness-engineering#production-infrastructure--operations) reúne mais recursos consultáveis desta dimensão, curados por problema.
+
 ## Verificação
 
 1. Enuncie a inversão que define a categoria e explique por que ela transforma "dimensões fracas" do benchmark em "dimensões dispensadas pelo ambiente". (Se precisar, releia "O que o ambiente dispensa".)

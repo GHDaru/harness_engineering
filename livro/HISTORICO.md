@@ -32,6 +32,14 @@
 
 ## Edições
 
+### Edição 0.41 — 2026-07-29 · a obra ligada ao Awesome Harness Engineering (spec 046)
+- **Feature spec-kit oficial `046-awesome-list-obra`** (criada pelo script `.specify/create-new-feature.sh`): a coleção viva **[Awesome Harness Engineering](https://github.com/GHDaru/awesome-harness-engineering)** (curada pelo autor, organizada por problema — a mesma taxonomia do livro) agora é referenciada em toda a obra:
+  - **"Consulte também"** ao fim das Fontes da indústria dos caps. 02–13 e 17, apontando para a **seção específica** da lista (Agent Loop, Context Delivery, Tool Design, Skills & MCP, Permissions, Memory, Planning, Orchestration, Verification, DX, Human-in-the-Loop…);
+  - caps. 14/15/16 (sem seção de fontes): nota antes da Verificação (Foundations, Production Infrastructure, Skills & MCP);
+  - cap. 00 (Os harnesses do estudo), cap. 01 §5 e Apêndice do estudo (→ Reference Implementations);
+  - **Bibliografia**: nova seção "Coleções vivas" com a entrada da lista.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.40 — 2026-07-29 · download do livro: PDF e Markdown, completo e por capítulo (spec 045)
 - **Feature spec-kit oficial `045-downloads`**:
   - **Livro completo**: a entrada ganhou os botões **⬇ PDF** (`pdf/engenharia-de-harness.pdf`, capa + rodapé paginado) e **⬇ Markdown** (`md/engenharia-de-harness.md`, concatenação na ordem do sumário com cabeçalho de versão/DOI — útil inclusive para alimentar LLMs).

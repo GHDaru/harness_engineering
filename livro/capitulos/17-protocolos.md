@@ -104,6 +104,7 @@ A camada de protocolos já tem um vencedor por fronteira: MCP na vertical (agent
 - [Zed ACP](https://tessl.io/blog/zed-debuts-agent-client-protocol-to-connect-ai-coding-agents-to-any-editor/)
 
 Matriz de adoção: evidência própria do benchmark (`benchmark/avaliacoes/`).
+- **Consulte também**: a coleção viva [Awesome Harness Engineering — Skills & MCP](https://github.com/GHDaru/awesome-harness-engineering#skills--mcp) reúne mais recursos consultáveis desta dimensão (padrões, artigos e implementações), curados por problema.
 
 ## Verificação
 

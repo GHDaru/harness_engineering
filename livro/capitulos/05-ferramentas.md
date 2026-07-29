@@ -32,6 +32,7 @@ As ferramentas são as "mãos" do agente: o contrato pelo qual o modelo age sobr
 - **[Programmatic tool calling](https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling)** (docs): o modelo escreve Python que chama as tools em sandbox e devolve só o destilado — ~38% menos tokens de input num benchmark com 75 tools; 20–40% típico em produção com 10–49 tools.
 - **[Code Mode](https://blog.cloudflare.com/code-mode-mcp/)** (Cloudflare): a mesma tese, de um fornecedor de infra — o argumento é de *distribuição de treino*: LLMs escrevem código contra APIs conhecidas melhor do que preenchem schemas sintéticos. Convergência de indústria, não peculiaridade de um vendor.
 - **[Apply Patch](https://developers.openai.com/api/docs/guides/tools-apply-patch)** + **[GPT-5.1 for developers](https://openai.com/index/gpt-5-1-for-developers/)** (OpenAI): tool de edição **treinada no modelo** (formato V4A de diffs) — explica por que formatos ad-hoc de search/replace perdem para o formato que o modelo viu em treino.
+- **Consulte também**: a coleção viva [Awesome Harness Engineering — Tool Design](https://github.com/GHDaru/awesome-harness-engineering#tool-design) reúne mais recursos consultáveis desta dimensão (padrões, artigos e implementações), curados por problema.
 
 ## O estado da arte
 

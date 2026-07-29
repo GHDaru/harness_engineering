@@ -59,4 +59,6 @@ Cada um foi escolhido por representar um *arquétipo* diferente (lógica de repl
 
 A lista completa — com **origem, versão, fork e commit exatos lidos** em cada avaliação, e o link para a análise e o diagnóstico de cada um — está no **[Apêndice — O estudo](apendice-estudo.md)**. O placar consolidado por dimensão está no [Comparativo](../benchmark/comparativo.md).
 
+Para explorar o ecossistema além do corpus deste estudo, o autor mantém a coleção viva **[Awesome Harness Engineering](https://github.com/GHDaru/awesome-harness-engineering)** — recursos, padrões e templates de harness engineering curados por problema, na mesma organização deste livro.
+
 Como referencial teórico, soma-se a lista curada **awesome-harness-engineering** (~426 recursos organizados por problema), de onde vêm a definição de harness usada no capítulo 01 e a taxonomia que estrutura os capítulos.

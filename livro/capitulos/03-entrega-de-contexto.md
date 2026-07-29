@@ -34,6 +34,7 @@ Sub-problemas clássicos: onde vivem as regras do projeto e como são descoberta
 - **[AGENTS.md](https://agents.md/)** + **[Agentic AI Foundation](https://openai.com/index/agentic-ai-foundation/)**: o "README para agentes" foi **doado à Linux Foundation (dez/2025)** com OpenAI, Anthropic e Block como co-fundadores; 60k+ projetos. Decisão: contexto por arquivo de repositório virou infraestrutura neutra e portável — investir nesse pipeline é seguro.
 - **[How Claude remembers your project](https://code.claude.com/docs/en/memory)** (docs): formaliza a **cascata** global → projeto → local, com o arquivo mais próximo vencendo e o pessoal fora do versionamento.
 - **[AGENTS.md Field Guide 2026](https://www.iuriio.com/blog/posts/2026/05/agents-md-field-guide-2026)** (praticante): autoria — começar com ~30 linhas, teto ~150–200 na raiz, comandos exatos antes de prosa, aninhar por pacote em monorepo, e **crescer só por evidência de falha reincidente do agente** (o erro comum é tratá-lo como documentação).
+- **Consulte também**: a coleção viva [Awesome Harness Engineering — Context Delivery & Compaction](https://github.com/GHDaru/awesome-harness-engineering#context-delivery--compaction) reúne mais recursos consultáveis desta dimensão (padrões, artigos e implementações), curados por problema.
 
 ## O estado da arte
 
