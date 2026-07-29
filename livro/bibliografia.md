@@ -1,6 +1,6 @@
 # Bibliografia científica do livro
 
-> Regra editorial: nenhuma referência entra num capítulo sem status **✓ validada** (ID↔título confirmado por fonte independente). Nesta sessão o arXiv está bloqueado pela política de rede; a validação foi feita por busca cruzada (título retornado junto ao ID). Itens **⏳ pendentes** aguardam confirmação (rodar `verify` localmente ou conferir manualmente). ⭐ = âncora do capítulo.
+> Regra editorial: nenhuma referência entra num capítulo sem status **✓ validada** (ID↔título confirmado por fonte independente). Revisão de 2026-07-29 (spec 050): **todos os itens ⏳ foram verificados por busca web independente** e promovidos a ✓ (com duas correções registradas: o arXiv 2509.18661 é o *Agentic* AutoSurvey; o ISBN 9780226595146 do Norton é da 1ª ed. 2009). ⭐ = âncora do capítulo.
 
 ## Status geral
 
@@ -14,7 +14,7 @@
 - ⭐ ✓ **From Question Answering to Task Completion: A Survey on Agent System and Harness Design** — arXiv [2606.20683](https://arxiv.org/abs/2606.20683). O survey exatamente no recorte do livro; candidata a espinha teórica do cap. 01.
 - ✓ **Recursive Agent Harnesses** — arXiv [2606.13643](https://arxiv.org/abs/2606.13643). Achado da validação; avaliar aderência (harnesses compostos — conecta com caps. 10 e 15).
 - ✓ **ReAct: Synergizing Reasoning and Acting in Language Models** (Yao et al.) — arXiv [2210.03629](https://arxiv.org/abs/2210.03629). O paper seminal do loop raciocínio+ação.
-- ⏳ *A Review of Prominent Paradigms for LLM-Based Agents* — CoLing 2025 ([aclanthology](https://aclanthology.org/2025.coling-main.652.pdf)).
+- ✓ **Li, Xinzhe** *A Review of Prominent Paradigms for LLM-Based Agents: Tool Use, Planning (Including RAG), and Feedback Learning* — COLING 2025, pp. 9760–9779 ([aclanthology](https://aclanthology.org/2025.coling-main.652/); arXiv 2406.05804).
 
 ### História e proveniência (cap. 01 §2–3) — adicionadas na revisão de rigor
 
@@ -26,7 +26,7 @@
 - ✓ **AGENTS.md** — [agents.md](https://agents.md/). O "README para agentes".
 - ✓ **BabyAGI** (Yohei Nakajima, abr/2023) — [babyagi.org](http://babyagi.org/). · **AutoGPT** (Significant Gravitas, mar/2023) — [repositório](https://github.com/Significant-Gravitas/AutoGPT).
 - ✓ **Aider** (Paul Gauthier, 2023) — [github.com/Aider-AI/aider](https://github.com/Aider-AI/aider/releases).
-- ⏳ **Chain-of-Thought Prompting** (Wei et al., 2022) — provável arXiv 2201.11903; confirmar ID antes de citar no corpo. · **Toolformer** (Meta, 2023) — provável arXiv 2302.04761; idem.
+- ✓ **Chain-of-Thought Prompting Elicits Reasoning in Large Language Models** (Wei et al., 2022) — arXiv 2201.11903. · ✓ **Toolformer: Language Models Can Teach Themselves to Use Tools** (Schick et al., Meta, 2023) — arXiv 2302.04761.
 
 ### Metodologia do estudo (cap. 01 §6) — adicionadas na revisão de rigor
 
@@ -36,7 +36,7 @@
 - ✓ **Sim, S. E., Easterbrook, S. & Holt, R. C. (2003).** *Using Benchmarking to Advance Research.* ICSE 2003. O benchmark como motor científico.
 - ✓ **Stol, K.-J., Ralph, P. & Fitzgerald, B. (2016).** *Grounded Theory in Software Engineering Research.* ICSE 2016. Codificação indutiva de artefatos.
 - ✓ **Peffers, K. et al. (2007).** *A Design Science Research Methodology for IS Research.* JMIS 24(3). O processo DSRM do harness-zero.
-- ⏳ **Yin, R. K.** *Case Study Research: Design and Methods* (SAGE) — confirmar edição usada. · **Hevner et al. (2004)** *Design Science in IS Research*, MISQ 28(1) — canônica; conferir páginas. · **Basili, Caldiera & Rombach** *The GQM Approach* — confirmar formulação citada. · **Hsieh & Shannon (2005)** *Three Approaches to Qualitative Content Analysis*, QHR 15(9). · **Cook & Campbell (1979)** *Quasi-Experimentation* — taxonomia das validades.
+- ✓ **Yin, R. K. (2018)** *Case Study Research and Applications: Design and Methods*, 6ª ed., SAGE (ISBN 9781506336169). · ✓ **Hevner, March, Park & Ram (2004)** *Design Science in Information Systems Research*, MIS Quarterly 28(1), 75–105. · ✓ **Basili, Caldiera & Rombach (1994)** *The Goal Question Metric Approach*, Encyclopedia of Software Engineering, vol. 1, Wiley, 528–532. · ✓ **Hsieh & Shannon (2005)** *Three Approaches to Qualitative Content Analysis*, Qualitative Health Research 15(9), 1277–1288 (DOI 10.1177/1049732305276687). · ✓ **Cook & Campbell (1979)** *Quasi-Experimentation: Design & Analysis Issues for Field Settings*, Houghton Mifflin (ISBN 9780395307908).
 
 ## Cap. 02 — Loop do Agente
 
@@ -60,8 +60,8 @@
 ## Cap. 05 — Ferramentas
 
 - ✓ **The Evolution of Tool Use in LLM Agents: From Single-Tool Call to Multi-Tool Orchestration** — arXiv [2603.22862](https://arxiv.org/abs/2603.22862).
-- ⏳ *Tool Learning with LLMs: A Survey* (Qu et al.) — arXiv 2405.17935 (+ [repo](https://github.com/quchangle1/LLM-Tool-Survey)).
-- ⏳ Gorilla / ToolLLM (papers seminais de tool-calling).
+- ✓ *Tool Learning with Large Language Models: A Survey* (Qu et al.; aceito na Frontiers of Computer Science) — arXiv 2405.17935 (+ [repo](https://github.com/quchangle1/LLM-Tool-Survey)).
+- ✓ **Gorilla: Large Language Model Connected with Massive APIs** (Patil et al., 2023) — arXiv 2305.15334. · ✓ **ToolLLM: Facilitating LLMs to Master 16000+ Real-world APIs** (Qin et al., 2023) — arXiv 2307.16789.
 
 ## Cap. 06 — MCP
 
@@ -169,7 +169,7 @@ Fontes da indústria (docs/vendor/praticantes) na linha do Cap. 06 abaixo.
 - ⭐ ✓ **A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve** — arXiv [2507.21046](https://arxiv.org/abs/2507.21046).
 - ✓ **Voyager: An Open-Ended Embodied Agent with LLMs** — arXiv [2305.16291](https://arxiv.org/abs/2305.16291). A skill library auto-escrita que antecipou o Hermes em 3 anos.
 - ✓ **Adaptation of Agentic AI: Post-Training, Memory, and Skills** — arXiv [2512.16301](https://arxiv.org/abs/2512.16301).
-- ⏳ *Comprehensive Survey of Self-Evolving AI Agents* — arXiv 2508.07407.
+- ✓ *A Comprehensive Survey of Self-Evolving AI Agents: A New Paradigm Bridging Foundation Models and Lifelong Agentic Systems* (Fang et al., 2025) — arXiv 2508.07407.
 - ✓ SSGM (cap. 08) — o risco do aprendizado permanente envenenado.
 
 ## Caps. 15, 17 — a lacuna registrada
@@ -212,11 +212,11 @@ Harnesses embutidos e protocolos têm literatura acadêmica **rarefeita** (busca
 
 - ✓ **Blueprints for complex learning: The 4C/ID-model** (van Merriënboer et al.) — [ETR&D](https://link.springer.com/article/10.1007/BF02504993).
 - ✓ **Cognitive Architecture and Instructional Design: 20 Years Later** (Sweller, van Merriënboer & Paas, 2019) — [EPR](https://link.springer.com/article/10.1007/s10648-019-09465-5).
-- ⏳ *Ten Steps to Complex Learning* (3ª ed., 2018, Routledge); *Understanding by Design* (Wiggins & McTighe); Diátaxis (diataxis.fr).
+- ✓ **van Merriënboer & Kirschner (2018)** *Ten Steps to Complex Learning*, 3ª ed., Routledge (ISBN 9781138080805). · ✓ **Wiggins & McTighe (2005)** *Understanding by Design*, expanded 2nd ed., ASCD (ISBN 9781416600350). · ✓ **Diátaxis** (Procida) — [diataxis.fr](https://diataxis.fr/).
 
 ## Guia — Metodologias de escrita (survey do Guia Editorial §6)
 
-> Fontes do estudo sobre processos/metodologias de escrita editorial e acadêmica (Guia Editorial §6). Verificadas por busca cruzada; itens `⏳` não confirmados. Feature `010-estudo-metodologias-escrita`.
+> Fontes do estudo sobre processos/metodologias de escrita editorial e acadêmica (Guia Editorial §6). Todas verificadas por busca cruzada (revisão spec 050). Feature `010-estudo-metodologias-escrita`.
 
 **Tradicionais:**
 - ✓ **The IMRAD Structure: A Fifty-Year Survey** (Sollaci & Pereira, 2004) — *J. Med. Libr. Assoc.* 92(3):364–371, [PMC442179](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC442179/).
@@ -228,7 +228,7 @@ Harnesses embutidos e protocolos têm literatura acadêmica **rarefeita** (busca
 - ✓ **The Chicago Manual of Style** (17ª ed., 2017) — ISBN 9780226287058 · **APA Publication Manual** (7ª ed., 2020) — ISBN 9781433832161.
 - ✓ **The Craft of Research** (Booth, Colomb, Williams et al., 4ª ed. 2016) — ISBN 9780226239736 · **The Uses of Argument** (Toulmin, 1958) — Cambridge University Press.
 - ✓ **The history of the peer-review process** (Spier, 2002) — *Trends in Biotechnology* 20(8):357–358, [DOI 10.1016/S0167-7799(02)01985-6](https://doi.org/10.1016/S0167-7799(02)01985-6).
-- ✓ **Peer Review** (Baldwin) — CMU ETHOS, [entrada](https://ethos.lps.library.cmu.edu/article/id/19/) *(ano ⏳)* · **Developmental Editing** (Norton) — Univ. of Chicago Press, ISBN 9780226595146 *(edição↔ISBN ⏳)*.
+- ✓ **Peer Review** (Melinda Baldwin) — Encyclopedia of the History of Science (CMU ETHOS, ed. Christopher Phillips), [entrada](https://lps.library.cmu.edu/ETHOS/article/id/29/) *(entrada sem ano declarado)*. · ✓ **Developmental Editing** (Scott Norton) — Univ. of Chicago Press, 1ª ed. 2009, ISBN 9780226595146 *(há 2ª ed. 2023, ISBN 9780226793634)*.
 - (Pedagogia — ver seção acima: Backward Design; 4C/ID; Sweller; [Diátaxis](https://diataxis.fr/).)
 
 **Era-IA:**
@@ -241,4 +241,4 @@ Harnesses embutidos e protocolos têm literatura acadêmica **rarefeita** (busca
 - ✓ **ICMJE** ([AI use by authors](https://www.icmje.org/recommendations/browse/artificial-intelligence/)); **COPE — Authorship and AI Tools** (2023) ([position](https://publicationethics.org/guidance/cope-position/authorship-and-ai-tools)); **Thorp, "ChatGPT is fun, but not an author"** (*Science*, 2023) — [DOI 10.1126/science.adg7879](https://doi.org/10.1126/science.adg7879); **Nature editorial** (2023) — [d41586-023-00191-1](https://www.nature.com/articles/d41586-023-00191-1).
 - ✓ **Fabrication and errors in the bibliographic citations generated by ChatGPT** (Walters & Wilder, 2023) — *Scientific Reports* 13, [DOI 10.1038/s41598-023-41032-5](https://doi.org/10.1038/s41598-023-41032-5).
 - ✓ **Your Brain on ChatGPT** (Kosmyna et al., 2025) — arXiv [2506.08872](https://arxiv.org/abs/2506.08872) · **Homogenization Effects of LLMs on Human Creative Ideation** (2024) — arXiv [2402.01536](https://arxiv.org/abs/2402.01536) · **Academ-AI** (2024) — arXiv [2411.15218](https://arxiv.org/abs/2411.15218).
-- ⏳ AutoSurvey / Agentic AutoSurvey (arXiv 2509.18661); "Defeating Nondeterminism in LLM Inference" (Thinking Machines, blog de indústria) — a confirmar/citar como não-acadêmico.
+- ✓ *Agentic AutoSurvey: Let LLMs Survey LLMs* (Liu et al., 2025) — arXiv 2509.18661 *(nota: é o "Agentic AutoSurvey"; o AutoSurvey original é trabalho anterior distinto)*. · ✓ **Defeating Nondeterminism in LLM Inference** (Thinking Machines Lab, set/2025) — [blog de indústria, não-acadêmico](https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/).

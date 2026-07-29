@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.45 — 2026-07-29 · bibliografia 100% verificada (spec 050)
+- **Feature spec-kit oficial `050-bibliografia-verificacao`** (Princípio I — evidência acima de retórica): os **16 itens ⏳** da Bibliografia foram verificados por **busca web independente nesta sessão** e promovidos a ✓ com dados completos (autores, veículo, páginas, ISBN/DOI). Duas correções encontradas e registradas: o arXiv 2509.18661 é o ***Agentic* AutoSurvey** (Liu et al.), não o AutoSurvey original; e o ISBN 9780226595146 do *Developmental Editing* (Norton) é da **1ª ed. 2009** (a 2ª ed. 2023 tem ISBN 9780226793634). A URL da entrada de Peer Review (Baldwin, CMU ETHOS) foi corrigida. **A fila de pendências da Bibliografia está zerada.**
+- **IA (A3)**: agente **Claude Code (Anthropic)**; verificação por busca cruzada com fontes independentes.
+
 ### Edição 0.44 — 2026-07-29 · rate-limit persistente (spec 049)
 - **Feature spec-kit oficial `049-rate-limit-persistente`**: o limite de mensagens **por sessão** agora deriva do **store** (`count_since` sobre as mensagens persistidas — porta que existia desde a spec 016 nos dois adapters): **sobrevive a deploys do Railway e vale entre instâncias**, sem tabela nova. O deque em memória virou guarda secundária **por IP** (`RATE_LIMIT_MSGS × RATE_LIMIT_IP_FACTOR`, default 3×) contra abuso multi-sessão, e segue limitando sugestões. BYOK continua isento. Trade-off registrado: `delete_session` (LGPD) zera a contagem — privacidade > contabilidade; a guarda por IP cobre o atalho.
 - Verificação: teste novo simula restart (deque limpo) e o 429 por sessão continua vindo do store; suíte 11/11.
