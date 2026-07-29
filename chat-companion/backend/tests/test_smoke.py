@@ -11,6 +11,7 @@ os.environ.setdefault("LLM_ADAPTER", "echo")   # sem rede
 os.environ.pop("DATABASE_URL", None)           # força MemoryStore
 os.environ["RATE_LIMIT_MSGS"] = "3"
 os.environ["RATE_LIMIT_WINDOW_S"] = "60"
+os.environ["RATE_LIMIT_IP_FACTOR"] = "100"  # guarda por IP fora do caminho nos testes
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -118,3 +119,15 @@ def test_chat_stream_echo():
     assert "".join(deltas) == done[0]["reply"]
     hist = client.get("/history", params={"session_id": sid}).json()["messages"]
     assert hist[-1]["role"] == "assistant" and hist[-1]["content"] == done[0]["reply"]
+
+
+def test_rate_limit_sobrevive_a_restart():
+    """spec 049: o 429 por sessão vem do STORE (mensagens persistidas), não do
+    deque em memória — limpar o deque (simulando deploy) não zera o limite."""
+    sid = "t-rl-persistente"
+    for i in range(3):  # RATE_LIMIT_MSGS = 3 nos testes
+        r = client.post("/chat", json={"session_id": sid, "message": f"m{i}"})
+        assert r.status_code == 200
+    appmod._hits.clear()  # "restart" da instância
+    r = client.post("/chat", json={"session_id": sid, "message": "m-extra"})
+    assert r.status_code == 429

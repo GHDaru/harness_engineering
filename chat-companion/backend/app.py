@@ -41,19 +41,30 @@ _store = make_store(config.DATABASE_URL)
 _index = BookIndex(config.REPO_ROOT, config.CORPUS_PATH)
 _tools = Tools(_index)
 
-# --- rate limit em memória (MVP single-instance) ---
+# --- rate limit (spec 049) ---
+# Fonte da verdade POR SESSÃO: o store (count_since sobre mensagens `user`
+# persistidas) — sobrevive a deploys e vale entre instâncias. O deque em
+# memória fica como guarda secundária POR IP (multi-sessão de um mesmo IP)
+# e como limitador das sugestões: best-effort, zera no restart, e está ok.
 _hits: dict[str, deque] = defaultdict(deque)
 
 
-def _rate_ok(chave: str) -> bool:
+def _rate_ok(chave: str, limite: int | None = None) -> bool:
     agora = time.time()
     janela = _hits[chave]
     while janela and janela[0] < agora - config.RATE_LIMIT_WINDOW_S:
         janela.popleft()
-    if len(janela) >= config.RATE_LIMIT_MSGS:
+    if len(janela) >= (limite if limite is not None else config.RATE_LIMIT_MSGS):
         return False
     janela.append(agora)
     return True
+
+
+def _rate_ok_chat(session_id: str, ip: str) -> bool:
+    persistidas = _store.count_since(session_id, time.time() - config.RATE_LIMIT_WINDOW_S)
+    if persistidas >= config.RATE_LIMIT_MSGS:
+        return False
+    return _rate_ok(f"ip:{ip}", limite=config.RATE_LIMIT_MSGS * config.RATE_LIMIT_IP_FACTOR)
 
 
 def _system_prompt(chapter: Optional[int], mode: str, achados: list[dict]) -> str:
@@ -184,7 +195,7 @@ def _preparar_chat(inp: ChatIn, request: Request) -> tuple[str, str, list, set]:
     byok = (inp.byok_key or "").strip() if config.ALLOW_BYOK else ""
     if not byok:  # BYOK isenta do limite do projeto
         ip = request.client.host if request.client else "?"
-        if not _rate_ok(f"{inp.session_id}:{ip}"):
+        if not _rate_ok_chat(inp.session_id, ip):
             raise HTTPException(status_code=429,
                                 detail="limite de mensagens atingido; tente mais tarde "
                                        "ou use sua própria chave (BYOK).")

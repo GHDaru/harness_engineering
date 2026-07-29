@@ -32,6 +32,11 @@
 
 ## Edições
 
+### Edição 0.44 — 2026-07-29 · rate-limit persistente (spec 049)
+- **Feature spec-kit oficial `049-rate-limit-persistente`**: o limite de mensagens **por sessão** agora deriva do **store** (`count_since` sobre as mensagens persistidas — porta que existia desde a spec 016 nos dois adapters): **sobrevive a deploys do Railway e vale entre instâncias**, sem tabela nova. O deque em memória virou guarda secundária **por IP** (`RATE_LIMIT_MSGS × RATE_LIMIT_IP_FACTOR`, default 3×) contra abuso multi-sessão, e segue limitando sugestões. BYOK continua isento. Trade-off registrado: `delete_session` (LGPD) zera a contagem — privacidade > contabilidade; a guarda por IP cobre o atalho.
+- Verificação: teste novo simula restart (deque limpo) e o 429 por sessão continua vindo do store; suíte 11/11.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.43 — 2026-07-29 · BYOK no widget (spec 048)
 - **Feature spec-kit oficial `048-byok-widget`**: o leitor pode usar a **própria chave de API** no companion — comando **`/chave`** abre um campo `password` discreto (mesmo padrão sob-demanda da sugestão); a chave fica **só no localStorage do navegador**, mascarada (`…últimos 4`), vai como `byok_key` no `/chat` e `/chat/stream` (o backend já a tratava como efêmera e isenta do rate-limit — specs 016/017), e some com `/chave limpar` ou um clique no selo 🔑 do cabeçalho. A mensagem de limite (429) agora ensina o comando.
 - Verificação e2e (uvicorn echo + Chromium): payload com/sem `byok_key` conferido na rede; a chave nunca aparece em texto claro na conversa.
