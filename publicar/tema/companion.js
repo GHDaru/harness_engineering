@@ -18,6 +18,10 @@
   }
   var SID = get("cmp_sid", ""); if (!SID) { SID = uuid(); set("cmp_sid", SID); }
   var MODE = get("cmp_mode", CFG.mode || "progressivo");
+  // BYOK (spec 048): a chave vive SÓ no localStorage deste navegador; é lida
+  // no momento do envio e nunca aparece em texto claro na tela.
+  function byok() { return (get("cmp_byok", "") || "").trim(); }
+  function byokMask() { var k = byok(); return k ? "…" + k.slice(-4) : ""; }
 
   // --- helpers ---
   function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -47,6 +51,9 @@
   var head = el("div", "cmp-head");
   var title = el("div", "cmp-title"); title.appendChild(el("span", null, "Companion"));
   var capTag = el("span", "cmp-cap", CHAPTER ? ("cap. " + CHAPTER) : "capa"); title.appendChild(capTag);
+  var byokSelo = el("button", "cmp-byok-selo", "🔑"); byokSelo.hidden = true;
+  byokSelo.setAttribute("aria-label", "Chave própria ativa — clique para remover");
+  title.appendChild(byokSelo);
   var actions = el("div", "cmp-actions");
   var modeSel = el("select", "cmp-mode"); modeSel.setAttribute("aria-label", "Modo do companion");
   [["progressivo", "Progressivo"], ["avancado", "Avançado"]].forEach(function (m) {
@@ -74,12 +81,20 @@
   sugTxt.setAttribute("aria-label", "Texto da sugestão");
   var sugSend = el("button", "cmp-send", "➤"); sugSend.type = "submit"; sugSend.setAttribute("aria-label", "Enviar sugestão");
   sugForm.appendChild(sugTxt); sugForm.appendChild(sugSend);
-  panel.appendChild(head); panel.appendChild(capsBox); panel.appendChild(msgs); panel.appendChild(sugForm); panel.appendChild(form);
+
+  var byokForm = el("form", "cmp-sugform cmp-byokform"); byokForm.hidden = true;
+  var byokTxt = el("input", "cmp-input"); byokTxt.type = "password"; byokTxt.placeholder = "Cole sua chave de API… (fica só neste navegador)";
+  byokTxt.setAttribute("aria-label", "Sua chave de API");
+  var byokSave = el("button", "cmp-send", "✓"); byokSave.type = "submit"; byokSave.setAttribute("aria-label", "Salvar chave");
+  byokForm.appendChild(byokTxt); byokForm.appendChild(byokSave);
+  panel.appendChild(head); panel.appendChild(capsBox); panel.appendChild(msgs); panel.appendChild(sugForm); panel.appendChild(byokForm); panel.appendChild(form);
   root.appendChild(launcher); root.appendChild(panel);
 
   // --- render ---
   function renderCaps() {
     capTag.textContent = CHAPTER ? ("cap. " + CHAPTER) : "capa";
+    byokSelo.hidden = !byok();
+    byokSelo.title = byok() ? ("Usando sua chave (" + byokMask() + ") — clique para remover") : "";
     capsT.textContent = "O que posso fazer agora" + (MODE === "avancado" ? " (avançado)" : (CHAPTER ? " (até o cap. " + CHAPTER + ")" : ""));
     chips.innerHTML = "";
     capsAtivas().forEach(function (c) {
@@ -118,7 +133,7 @@
   function sendMsgStream(text, typing) {
     return fetch(BACKEND + "/chat/stream", {
       method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ session_id: SID, message: text, chapter: CHAPTER, mode: MODE })
+      body: JSON.stringify({ session_id: SID, message: text, chapter: CHAPTER, mode: MODE, byok_key: byok() || undefined })
     }).then(function (r) {
       if (!r.ok || !r.body) throw new Error("HTTP " + r.status);
       typing.remove();
@@ -156,7 +171,7 @@
     var fallback = function () {
       return api("/chat", {
         method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ session_id: SID, message: text, chapter: CHAPTER, mode: MODE })
+        body: JSON.stringify({ session_id: SID, message: text, chapter: CHAPTER, mode: MODE, byok_key: byok() || undefined })
       }).then(function (d) {
         typing.remove(); addMsg("bot", d.reply || "(sem resposta)", true);
       });
@@ -169,7 +184,8 @@
     }) : fallback())
       .catch(function (err) {
         if (typing.parentNode) typing.remove();
-        addMsg("sys", "⚠️ Não consegui falar com o companion agora (" + err.message + "). Tente de novo em instantes.");
+        var dica = /limite|BYOK/i.test(err.message) ? " Dica: escreva /chave para usar sua própria chave de API (sem limite do projeto)." : "";
+        addMsg("sys", "⚠️ Não consegui falar com o companion agora (" + err.message + ")." + dica);
       }).then(function () { send.disabled = false; input.focus(); });
   }
 
@@ -192,6 +208,15 @@
     addMsg("sys", "💡 Escreva sua sugestão no campo destacado abaixo — ela vai por email ao autor. (Ela não passa pelo tutor.)");
     sugTxt.focus();
   }
+  function pedirChave() {
+    byokForm.hidden = false;
+    addMsg("sys", "🔑 Cole sua chave de API no campo abaixo — ela fica só neste navegador (localStorage), nunca é enviada como mensagem nem persistida no servidor, e isenta do limite do projeto. Para remover depois: /chave limpar.");
+    byokTxt.focus();
+  }
+  function ehPedidoDeChave(t) {
+    if (/^\/chave\b|^\/byok\b/i.test(t)) return true;
+    return /\b(byok|minha (própria )?chave)\b/i.test(t) && /\b(usar|colocar|configurar|cadastrar)\b/i.test(t);
+  }
   function ehPedidoDeSugestao(t) {
     if (/^\/(sugerir|sugestao|sugestão)\b/i.test(t)) return true;
     return /sugest/i.test(t) && /\b(autor|enviar|mandar|deixar)\b/i.test(t);
@@ -206,8 +231,22 @@
       .catch(function (err) { addMsg("sys", "⚠️ Não consegui enviar a sugestão (" + err.message + ")."); })
       .then(function () { sugSend.disabled = false; });
   });
+  byokForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var k = byokTxt.value.trim(); if (!k) return;
+    set("cmp_byok", k); byokTxt.value = ""; byokForm.hidden = true; renderCaps();
+    addMsg("sys", "🔑 Chave salva neste navegador (" + byokMask() + "). Suas próximas mensagens usam a sua chave.");
+  });
+  byokSelo.addEventListener("click", function () {
+    if (!confirm("Remover sua chave deste navegador?")) return;
+    set("cmp_byok", ""); renderCaps(); addMsg("sys", "🔑 Chave removida.");
+  });
   form.addEventListener("submit", function (e) {
     e.preventDefault(); var t = input.value.trim(); if (!t) return; input.value = ""; input.style.height = "auto";
+    if (/^\/(chave|byok)\s+(limpar|remover)\b/i.test(t)) {
+      set("cmp_byok", ""); renderCaps(); addMsg("sys", "🔑 Chave removida deste navegador."); return;
+    }
+    if (ehPedidoDeChave(t)) { addMsg("user", t); pedirChave(); return; }
     if (ehPedidoDeSugestao(t)) { addMsg("user", t); pedirSugestao(); return; }
     sendMsg(t);
   });

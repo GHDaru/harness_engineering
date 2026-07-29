@@ -32,6 +32,11 @@
 
 ## Edições
 
+### Edição 0.43 — 2026-07-29 · BYOK no widget (spec 048)
+- **Feature spec-kit oficial `048-byok-widget`**: o leitor pode usar a **própria chave de API** no companion — comando **`/chave`** abre um campo `password` discreto (mesmo padrão sob-demanda da sugestão); a chave fica **só no localStorage do navegador**, mascarada (`…últimos 4`), vai como `byok_key` no `/chat` e `/chat/stream` (o backend já a tratava como efêmera e isenta do rate-limit — specs 016/017), e some com `/chave limpar` ou um clique no selo 🔑 do cabeçalho. A mensagem de limite (429) agora ensina o comando.
+- Verificação e2e (uvicorn echo + Chromium): payload com/sem `byok_key` conferido na rede; a chave nunca aparece em texto claro na conversa.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.42 — 2026-07-29 · companion com streaming SSE (spec 047)
 - **Feature spec-kit oficial `047-companion-sse`**: as respostas do tutor agora chegam **em streaming** — novo `POST /chat/stream` (`text/event-stream`, eventos `{delta}`/`{trace}`/`{done}`/`{erro}`), `stream()` nos dois adapters de LLM (SSE OpenAI-compatible com agregação de tool_calls por índice; Echo em pedaços, testável sem rede) e `run_turn_stream()` no loop (mesmo freio `MAX_TURNS`, mesmo trace). O widget consome via `fetch`+`ReadableStream`, renderiza incrementalmente (markdown aplicado ao final) e **cai no `/chat` clássico** em falha de transporte — falha do modelo no meio do stream não refaz a chamada (evita duplicar o turno persistido).
 - Verificação: suíte do backend 10/10 (novo teste do stream com Echo: deltas + done ≡ histórico persistido); ponta a ponta real com uvicorn local + widget no Chromium (render incremental e markdown final conferidos).
