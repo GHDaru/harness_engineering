@@ -131,3 +131,19 @@ def test_rate_limit_sobrevive_a_restart():
     appmod._hits.clear()  # "restart" da instância
     r = client.post("/chat", json={"session_id": sid, "message": "m-extra"})
     assert r.status_code == 429
+
+
+def test_debug_bastidores():
+    """spec 053: /chat e o done do stream expõem o bloco debug (transparência)."""
+    import json
+    r = client.post("/chat", json={"session_id": "t-debug", "message": "o que é loop?"})
+    d = r.json()["debug"]
+    assert d["tokens_estimados"] > 0 and d["janela_tokens"] > 0
+    assert d["historico_msgs"] >= 1 and isinstance(d["trechos"], list)
+    assert "Tutor do livro" in d["capacidades_ativas"]
+
+    with client.stream("POST", "/chat/stream",
+                       json={"session_id": "t-debug2", "message": "e compactação?"}) as r:
+        eventos = [json.loads(l[6:]) for l in r.iter_lines() if l.startswith("data: ")]
+    done = [e for e in eventos if e.get("done")][0]
+    assert done["debug"]["tokens_estimados"] > 0

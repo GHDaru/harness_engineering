@@ -18,6 +18,8 @@
   }
   var SID = get("cmp_sid", ""); if (!SID) { SID = uuid(); set("cmp_sid", SID); }
   var MODE = get("cmp_mode", CFG.mode || "progressivo");
+  // Estados de layout (spec 053): float (padrão) | dock (sidebar) | max (dock largo).
+  var DOCK = get("cmp_dock", "float"); if (["float","dock","max"].indexOf(DOCK) < 0) DOCK = "float";
   // BYOK (spec 048): a chave vive SÓ no localStorage deste navegador; é lida
   // no momento do envio e nunca aparece em texto claro na tela.
   function byok() { return (get("cmp_byok", "") || "").trim(); }
@@ -61,7 +63,9 @@
   });
   var minBtn = el("button", "cmp-min", "–"); minBtn.setAttribute("aria-label", "Minimizar o companion");
   var limparBtn = el("button", "cmp-min", "🗑"); limparBtn.setAttribute("aria-label", "Apagar a conversa"); limparBtn.title = "Apagar a conversa";
-  actions.appendChild(modeSel); actions.appendChild(limparBtn); actions.appendChild(minBtn);
+  var dockBtn = el("button", "cmp-min", "◧"); dockBtn.setAttribute("aria-label", "Ancorar como sidebar");
+  var maxBtn = el("button", "cmp-min", "⤢"); maxBtn.setAttribute("aria-label", "Maximizar");
+  actions.appendChild(modeSel); actions.appendChild(limparBtn); actions.appendChild(dockBtn); actions.appendChild(maxBtn); actions.appendChild(minBtn);
   head.appendChild(title); head.appendChild(actions);
 
   var capsBox = el("div", "cmp-caps");
@@ -70,11 +74,15 @@
 
   var msgs = el("div", "cmp-msgs");
 
-  var form = el("form", "cmp-form");
-  var input = el("textarea", "cmp-input"); input.rows = 1; input.placeholder = "Pergunte sobre o livro…";
+  var form = el("form", "cmp-form cmp-entrada");
+  var pal = el("div", "cmp-pal"); pal.hidden = true; // paleta de comandos (/)
+  var input = el("textarea", "cmp-input"); input.rows = 3; input.placeholder = "Pergunte sobre o livro…";
   input.setAttribute("aria-label", "Sua mensagem");
-  var send = el("button", "cmp-send", "➤"); send.type = "submit"; send.setAttribute("aria-label", "Enviar");
-  form.appendChild(input); form.appendChild(send);
+  var linha = el("div", "cmp-ent-linha");
+  var dica = el("span", "cmp-ent-dica", "Enter envia · Shift+Enter quebra linha · / comandos");
+  var send = el("button", "cmp-send cmp-send-rot", "Enviar ➤"); send.type = "submit"; send.setAttribute("aria-label", "Enviar");
+  linha.appendChild(dica); linha.appendChild(send);
+  form.appendChild(pal); form.appendChild(input); form.appendChild(linha);
 
   var sugForm = el("form", "cmp-sugform"); sugForm.hidden = true;
   var sugTxt = el("textarea", "cmp-input"); sugTxt.rows = 3; sugTxt.placeholder = "Sua sugestão para o livro… (vai para o autor)";
@@ -87,20 +95,133 @@
   byokTxt.setAttribute("aria-label", "Sua chave de API");
   var byokSave = el("button", "cmp-send", "✓"); byokSave.type = "submit"; byokSave.setAttribute("aria-label", "Salvar chave");
   byokForm.appendChild(byokTxt); byokForm.appendChild(byokSave);
-  panel.appendChild(head); panel.appendChild(capsBox); panel.appendChild(msgs); panel.appendChild(sugForm); panel.appendChild(byokForm); panel.appendChild(form);
-  root.appendChild(launcher); root.appendChild(panel);
+  var status = el("div", "cmp-status"); status.setAttribute("role", "button"); status.tabIndex = 0;
+  status.title = "Abrir os bastidores (contexto injetado, tokens, chamadas)";
+  var aux = el("aside", "cmp-aux"); aux.hidden = true; aux.setAttribute("aria-label", "Bastidores do companion");
+  panel.appendChild(head); panel.appendChild(capsBox); panel.appendChild(msgs); panel.appendChild(sugForm); panel.appendChild(byokForm); panel.appendChild(form); panel.appendChild(status);
+  root.appendChild(launcher); root.appendChild(aux); root.appendChild(panel);
 
   // --- render ---
+  // Explicabilidade (spec 053): dados ricos do /capabilities (descrição + capítulo
+  // que libera) alimentam tooltips nos chips; fallback ao espelho local (CFG).
+  var capsRicas = null, tip = el("div", "cmp-tip"); tip.hidden = true;
+  function carregarCaps() {
+    api("/capabilities?chapter=" + CHAPTER + "&mode=" + MODE, {}).then(function (d) {
+      capsRicas = d.capabilities || null; renderCaps();
+    }).catch(function () {});
+  }
+  function mostrarTip(chip, c) {
+    tip.innerHTML = "";
+    var b1 = el("b", null, c.rotulo); tip.appendChild(b1);
+    if (c.descricao) tip.appendChild(el("div", null, c.descricao));
+    var lib = (c.libera_no_capitulo != null ? c.libera_no_capitulo : c.libera) || 0;
+    tip.appendChild(el("div", "cmp-tip-st", c.on ? ("✓ liberado" + (lib ? " no cap. " + String(lib).padStart(2, "0") : "")) :
+      ("🔒 libera no cap. " + String(lib).padStart(2, "0") + " — continue lendo")));
+    chip.appendChild(tip); tip.hidden = false;
+  }
+  function esconderTip() { tip.hidden = true; if (tip.parentNode) tip.parentNode.removeChild(tip); }
   function renderCaps() {
     capTag.textContent = CHAPTER ? ("cap. " + CHAPTER) : "capa";
     byokSelo.hidden = !byok();
     byokSelo.title = byok() ? ("Usando sua chave (" + byokMask() + ") — clique para remover") : "";
     capsT.textContent = "O que posso fazer agora" + (MODE === "avancado" ? " (avançado)" : (CHAPTER ? " (até o cap. " + CHAPTER + ")" : ""));
     chips.innerHTML = "";
-    capsAtivas().forEach(function (c) {
-      var ch = el("span", "cmp-chip", c.rotulo); ch.setAttribute("data-on", c.on ? "true" : "false"); chips.appendChild(ch);
+    var lista = capsRicas
+      ? capsRicas.map(function (c) { return { rotulo: c.rotulo, descricao: c.descricao, libera_no_capitulo: c.libera_no_capitulo, on: !!c.ativa }; })
+      : CAPS.map(function (c) { return { rotulo: c.rotulo, libera: c.libera, on: MODE === "avancado" || c.libera <= CHAPTER }; });
+    lista.forEach(function (c) {
+      var ch = el("span", "cmp-chip", c.rotulo); ch.setAttribute("data-on", c.on ? "true" : "false"); ch.tabIndex = 0;
+      ch.addEventListener("mouseenter", function () { mostrarTip(ch, c); });
+      ch.addEventListener("mouseleave", esconderTip);
+      ch.addEventListener("focus", function () { mostrarTip(ch, c); });
+      ch.addEventListener("blur", esconderTip);
+      ch.addEventListener("click", function (e) { e.stopPropagation(); tip.hidden || tip.parentNode !== ch ? mostrarTip(ch, c) : esconderTip(); });
+      chips.appendChild(ch);
     });
   }
+  // Bastidores (spec 053): contadores da sessão + debug do último turno.
+  var stats = { chamadas: 0, tools: 0 }, lastDebug = null, health = null;
+  function tokensFmt(t) { return t >= 1000 ? "~" + (t / 1000).toFixed(1).replace(".", ",") + "k" : "~" + t; }
+  function renderStatus() {
+    status.innerHTML = "";
+    var d = lastDebug || {};
+    status.appendChild(el("span", null, "🧠 " + (d.tokens_estimados ? tokensFmt(d.tokens_estimados) : "—") + " tokens"));
+    status.appendChild(el("span", null, "🔁 " + stats.chamadas + " chamada" + (stats.chamadas === 1 ? "" : "s")));
+    status.appendChild(el("span", null, "📎 " + ((d.trechos || []).length) + " trechos"));
+    var abrir = el("span", "cmp-status-abrir", aux.hidden ? "𝍢 bastidores" : "𝍢 fechar");
+    status.appendChild(abrir);
+  }
+  function renderAux() {
+    aux.innerHTML = "";
+    var tabs = el("div", "cmp-aux-tabs");
+    var t1 = el("span", "on", "𝍢 Bastidores"), t2 = el("span", null, "📄 Documentos");
+    var fechar = el("button", "cmp-aux-x", "×"); fechar.setAttribute("aria-label", "Fechar bastidores");
+    fechar.addEventListener("click", function () { toggleAux(false); });
+    tabs.appendChild(t1); tabs.appendChild(t2); tabs.appendChild(fechar); aux.appendChild(tabs);
+    var corpo = el("div", "cmp-aux-corpo"); aux.appendChild(corpo);
+    var d = lastDebug;
+    function bloco(titulo) { var x = el("div", "cmp-bloco"); x.appendChild(el("div", "cmp-bloco-t", titulo)); corpo.appendChild(x); return x; }
+    function kv(pai, k, v) { var l = el("div", "cmp-kv"); l.appendChild(el("span", null, k)); l.appendChild(el("b", null, v)); pai.appendChild(l); }
+    function abaBastidores() {
+      corpo.innerHTML = "";
+      var b1 = bloco("Janela de contexto");
+      if (d) {
+        kv(b1, "Tokens estimados", tokensFmt(d.tokens_estimados) + " / " + tokensFmt(d.janela_tokens).replace("~", ""));
+        var barra = el("div", "cmp-barra"); var fill = el("i");
+        fill.style.width = Math.min(100, Math.round(100 * d.tokens_estimados / (d.janela_tokens || 1))) + "%";
+        barra.appendChild(fill); b1.appendChild(barra);
+        kv(b1, "Mensagens no histórico", d.historico_msgs + " (janela: 40)");
+      } else { b1.appendChild(el("div", "cmp-aux-vazio", "Envie uma mensagem para ver os dados do turno.")); }
+      kv(b1, "Chamadas ao modelo", String(stats.chamadas));
+      kv(b1, "Tools executadas", String(stats.tools));
+      var b2 = bloco("Injetado neste turno");
+      if (d) {
+        kv(b2, "Modo", d.modo === "avancado" ? "avançado" : "progressivo");
+        kv(b2, "Capacidades ativas", String((d.capacidades_ativas || []).length));
+        kv(b2, "Trechos do livro (RAG)", String((d.trechos || []).length));
+        (d.trechos || []).forEach(function (t) {
+          var l = el("div", "cmp-trecho"); l.appendChild(el("span", null, "📖 " + t.fonte + " · "));
+          var i = el("i", null, "“" + (t.preview || t.titulo || "") + "…”"); l.appendChild(i); b2.appendChild(l);
+        });
+      } else { b2.appendChild(el("div", "cmp-aux-vazio", "Sem dados deste turno (backend sem debug ou nenhum turno ainda).")); }
+      var b3 = bloco("Memória da sessão");
+      kv(b3, "Sessão anônima", "…" + SID.slice(-4));
+      kv(b3, "Persistência", health ? (health.store === "postgres" ? "Postgres (Neon)" : "memória") : "—");
+      kv(b3, "Sua chave (BYOK)", byok() ? ("ativa (" + byokMask() + ")") : "não configurada");
+      t1.className = "on"; t2.className = "";
+    }
+    function abaDocs() {
+      corpo.innerHTML = "";
+      var slug = (document.body.getAttribute("data-slug") || "").trim();
+      var b1 = bloco("Esta página");
+      if (slug && slug !== "sumario" && slug !== "index") {
+        var l1 = el("a", "cmp-doc", "⬇ " + slug + ".md — fonte Markdown"); l1.href = "md/" + slug + ".md"; l1.setAttribute("download", "");
+        var l2 = el("a", "cmp-doc", "⬇ " + slug + ".pdf — PDF do capítulo"); l2.href = "pdf/" + slug + ".pdf";
+        b1.appendChild(l1); b1.appendChild(l2);
+      } else { b1.appendChild(el("div", "cmp-aux-vazio", "Abra um capítulo para ver os downloads dele.")); }
+      var b2 = bloco("Fontes citadas na conversa");
+      var fontes = {};
+      ((lastDebug || {}).trechos || []).forEach(function (t) { if (t.fonte) fontes[t.fonte] = true; });
+      var lista = Object.keys(fontes);
+      if (lista.length) lista.forEach(function (f) {
+        var a2 = el("a", "cmp-doc", "📖 " + f); a2.href = f.replace(/\.md$/i, ".html"); b2.appendChild(a2);
+      });
+      else b2.appendChild(el("div", "cmp-aux-vazio", "As fontes dos trechos usados aparecem aqui."));
+      t2.className = "on"; t1.className = "";
+    }
+    t1.addEventListener("click", abaBastidores);
+    t2.addEventListener("click", abaDocs);
+    abaBastidores();
+  }
+  function toggleAux(abrirAux) {
+    var novo = (typeof abrirAux === "boolean") ? abrirAux : aux.hidden;
+    aux.hidden = !novo;
+    if (novo) { if (!health) api("/health", {}).then(function (h) { health = h; renderAux(); }).catch(function () {}); renderAux(); }
+    renderStatus();
+  }
+  status.addEventListener("click", function () { toggleAux(); });
+  status.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleAux(); } });
+
   function addMsg(role, text, asHtml) {
     var m = el("div", "cmp-msg " + role);
     if (asHtml) m.innerHTML = fmt(text); else m.textContent = text;
@@ -125,7 +246,7 @@
   }
   function greet() {
     greeted = true;
-    addMsg("sys", "Olá! Sou o companion deste livro vivo. Pergunte o que quiser — eu respondo com base no texto do livro. Para mandar uma sugestão ao autor, escreva /sugerir.");
+    addMsg("sys", "Olá! Sou o companion deste livro vivo. Pergunte o que quiser — eu respondo com base no texto do livro. Digite / para ver os comandos (sugestão ao autor, sua chave de API, bastidores…).");
   }
   // Streaming SSE (spec 047): consome POST /chat/stream via fetch+ReadableStream,
   // renderiza o texto conforme chega (textContent) e aplica markdown no final.
@@ -141,9 +262,12 @@
       var reader = r.body.getReader(), dec = new TextDecoder(), buf = "", texto = "", houveErro = null;
       function trata(ev) {
         if (ev.delta) { texto += ev.delta; m.textContent = texto; msgs.scrollTop = msgs.scrollHeight; }
-        if (ev.trace) { addMsg("sys", ev.trace); }
+        if (ev.trace) { addMsg("sys", ev.trace); stats.tools++; }
         if (ev.erro) { houveErro = ev.erro; }
-        if (ev.done) { m.innerHTML = fmt(ev.reply || texto || "(sem resposta)"); }
+        if (ev.done) {
+          m.innerHTML = fmt(ev.reply || texto || "(sem resposta)");
+          if (ev.debug) { lastDebug = ev.debug; renderStatus(); if (!aux.hidden) renderAux(); }
+        }
       }
       function pump() {
         return reader.read().then(function (x) {
@@ -166,7 +290,7 @@
 
   function sendMsg(text) {
     addMsg("user", text);
-    send.disabled = true;
+    send.disabled = true; stats.chamadas++; renderStatus();
     var typing = el("div", "cmp-typing", "digitando…"); msgs.appendChild(typing); msgs.scrollTop = msgs.scrollHeight;
     var fallback = function () {
       return api("/chat", {
@@ -174,6 +298,8 @@
         body: JSON.stringify({ session_id: SID, message: text, chapter: CHAPTER, mode: MODE, byok_key: byok() || undefined })
       }).then(function (d) {
         typing.remove(); addMsg("bot", d.reply || "(sem resposta)", true);
+        stats.tools += (d.trace || []).length;
+        if (d.debug) { lastDebug = d.debug; renderStatus(); if (!aux.hidden) renderAux(); }
       });
     };
     (BACKEND ? sendMsgStream(text, typing).catch(function (err) {
@@ -190,17 +316,40 @@
   }
 
   // --- eventos ---
-  function open() { root.setAttribute("data-open", "true"); renderCaps(); loadHistory(); setTimeout(function () { input.focus(); }, 30); }
-  function close() { root.setAttribute("data-open", "false"); }
+  // Dock (spec 053): aplica o estado no root + empurra o conteúdo via classe no <html>.
+  function aplicarDock() {
+    root.setAttribute("data-dock", DOCK);
+    var aberto = root.getAttribute("data-open") === "true";
+    var docked = aberto && (DOCK === "dock" || DOCK === "max") && window.innerWidth > 820;
+    document.documentElement.classList.toggle("cmp-docked", docked);
+    document.documentElement.style.setProperty("--cmp-dockw", DOCK === "max" ? "640px" : "430px");
+    dockBtn.textContent = DOCK === "float" ? "◧" : "❐";
+    dockBtn.setAttribute("aria-label", DOCK === "float" ? "Ancorar como sidebar" : "Voltar a flutuar");
+    dockBtn.title = dockBtn.getAttribute("aria-label");
+    maxBtn.hidden = DOCK === "float";
+    maxBtn.textContent = DOCK === "max" ? "⤡" : "⤢";
+    maxBtn.setAttribute("aria-label", DOCK === "max" ? "Restaurar largura" : "Maximizar");
+    maxBtn.title = maxBtn.getAttribute("aria-label");
+  }
+  function setDock(d) { DOCK = d; set("cmp_dock", d); aplicarDock(); }
+  dockBtn.addEventListener("click", function () { setDock(DOCK === "float" ? "dock" : "float"); });
+  maxBtn.addEventListener("click", function () { setDock(DOCK === "max" ? "dock" : "max"); });
+  window.addEventListener("resize", aplicarDock);
+  function open() {
+    root.setAttribute("data-open", "true"); aplicarDock(); renderCaps(); carregarCaps(); renderStatus(); loadHistory();
+    setTimeout(function () { input.focus(); }, 30);
+  }
+  function close() { root.setAttribute("data-open", "false"); aux.hidden = true; aplicarDock(); }
   launcher.addEventListener("click", open);
   minBtn.addEventListener("click", close);
   modeSel.addEventListener("change", function () { MODE = modeSel.value; set("cmp_mode", MODE); renderCaps(); });
-  limparBtn.addEventListener("click", function () {
+  function limparConversa() {
     if (!confirm("Apagar toda a conversa? (não dá para desfazer)")) return;
     api("/session/" + encodeURIComponent(SID), { method: "DELETE" })
       .catch(function () {})
       .then(function () { msgs.innerHTML = ""; greeted = false; histLoaded = true; greet(); });
-  });
+  }
+  limparBtn.addEventListener("click", limparConversa);
   // Sugestão sob demanda (spec 044): sem botão permanente — o formulário abre
   // quando o leitor pede no chat (comando /sugerir ou intenção explícita).
   function pedirSugestao() {
@@ -241,8 +390,48 @@
     if (!confirm("Remover sua chave deste navegador?")) return;
     set("cmp_byok", ""); renderCaps(); addMsg("sys", "🔑 Chave removida.");
   });
+  // Paleta de comandos (spec 053): digitar "/" lista, ↑↓ navega, Enter aplica, Esc fecha.
+  var COMANDOS = [
+    { c: "/sugerir", d: "enviar uma sugestão ao autor (por email)" },
+    { c: "/chave", d: "usar sua própria chave de API (BYOK)" },
+    { c: "/chave limpar", d: "remover sua chave deste navegador" },
+    { c: "/limpar", d: "apagar a conversa" },
+    { c: "/bastidores", d: "ver contexto injetado, tokens e chamadas" }
+  ];
+  var palSel = 0, palItens = [];
+  function fecharPal() { pal.hidden = true; palItens = []; }
+  function renderPal(filtro) {
+    palItens = COMANDOS.filter(function (x) { return x.c.indexOf(filtro) === 0; });
+    if (!palItens.length) { fecharPal(); return; }
+    if (palSel >= palItens.length) palSel = 0;
+    pal.innerHTML = "";
+    palItens.forEach(function (x, i) {
+      var l = el("div", "cmp-pal-item" + (i === palSel ? " sel" : ""));
+      l.appendChild(el("b", null, x.c)); l.appendChild(el("span", null, x.d));
+      l.addEventListener("mousedown", function (e) { e.preventDefault(); aplicarComando(x.c); });
+      pal.appendChild(l);
+    });
+    pal.hidden = false;
+  }
+  function aplicarComando(c) {
+    fecharPal(); input.value = c; form.requestSubmit();
+  }
+  input.addEventListener("input", function () {
+    var v = input.value;
+    if (v.charAt(0) === "/" && v.indexOf("\n") < 0) { renderPal(v.trim()); } else { fecharPal(); }
+  });
+  input.addEventListener("keydown", function (e) {
+    if (pal.hidden) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); palSel = (palSel + 1) % palItens.length; renderPal(input.value.trim()); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); palSel = (palSel - 1 + palItens.length) % palItens.length; renderPal(input.value.trim()); }
+    else if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); aplicarComando(palItens[palSel].c); }
+    else if (e.key === "Escape") { e.stopPropagation(); fecharPal(); }
+  }, true);
+
   form.addEventListener("submit", function (e) {
-    e.preventDefault(); var t = input.value.trim(); if (!t) return; input.value = ""; input.style.height = "auto";
+    e.preventDefault(); var t = input.value.trim(); if (!t) return; input.value = ""; input.style.height = "auto"; fecharPal();
+    if (/^\/limpar\b/i.test(t)) { limparConversa(); return; }
+    if (/^\/bastidores\b/i.test(t)) { toggleAux(); return; }
     if (/^\/(chave|byok)\s+(limpar|remover)\b/i.test(t)) {
       set("cmp_byok", ""); renderCaps(); addMsg("sys", "🔑 Chave removida deste navegador."); return;
     }
@@ -253,10 +442,10 @@
   input.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
   });
-  input.addEventListener("input", function () { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 120) + "px"; });
+  input.addEventListener("input", function () { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 220) + "px"; });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && root.getAttribute("data-open") === "true") close(); });
 
-  renderCaps();
+  renderCaps(); root.setAttribute("data-dock", DOCK);
   document.addEventListener("DOMContentLoaded", function () { document.body.appendChild(root); });
   if (document.readyState !== "loading") document.body.appendChild(root);
 })();
