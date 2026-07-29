@@ -44,7 +44,7 @@ As dimensões sem consenso são o mapa das apostas em aberto:
 - **Multi-agente** (cap. 10): ferramenta pontual, serviço com registry, ou time persistente com mailbox? Três filosofias incompatíveis; o vencedor depende de quão bons os modelos ficarão em coordenação.
 - **Quem decide continuar** (cap. 02): heurística estrutural ou uma inferência extra por turno (next-speaker check)?
 - **Neutralidade de modelo** (cap. 12): ~26 provedores (opencode) contra vitrine de um ecossistema (gemini-cli). Aposta comercial, não técnica — mas define quem sobrevive à comoditização dos modelos.
-- **Evals comportamentais** (cap. 11): só um dos três trata comportamento do agente como superfície de regressão. Previsão fácil: em dois anos, isso será tão obrigatório quanto CI.
+- **Evals comportamentais** (cap. 11): na rodada 1, só um dos três tratava comportamento do agente como superfície de regressão — a rodada 2 confirmou a previsão e a lacuna fechou (ver cap. 11). Previsão fácil: em dois anos, isso será tão obrigatório quanto CI.
 
 ### A cláusula de expiração, aplicada
 
@@ -67,7 +67,7 @@ O que **não** expira: sandbox (contenção é sobre o mundo, não sobre a capac
 1. **Padronização do arquivo de contexto** — a pressão por `AGENTS.md` neutro cross-vendor.
 2. **Skills/plugins portáveis** — o OpenHarness já carrega skills do formato Claude Code; um "MCP da extensibilidade" está se formando.
 3. **Agente-como-serviço** — A2A server, agent cards, SDKs: harnesses expondo-se uns aos outros.
-4. **Segurança como dimensão de primeira classe** — parsing de shell, trusted folders, evals de injection: hoje exceção, amanhã baseline (hipótese a testar no Codex CLI, próximo da fila).
+4. **Segurança como dimensão de primeira classe** — parsing de shell, trusted folders, evals de injection: hoje exceção, amanhã baseline (hipótese confirmada na rodada 2 com o Codex CLI).
 5. **Reversibilidade** — checkpoint git com `/rewind`: quando desfazer é barato, a política pode ser mais frouxa; espere mais harnesses copiando.
 6. **O harness mínimo** — na contramão da sofisticação, projetos como mini-swe-agent (~100 linhas) testam quanto do *scaffolding* (andaime) o modelo moderno já dispensa. É a cláusula de expiração virando experimento.
 

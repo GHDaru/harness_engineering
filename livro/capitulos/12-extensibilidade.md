@@ -11,7 +11,7 @@ Ao final deste capítulo, você deve ser capaz de:
 2. **Distinguir** os quatro eixos de extensão (hooks · comandos/skills · plugins · provedores) e o que cada um resolve;
 3. **Comparar** as três estratégias de ecossistema — profundidade, empacotamento, interoperabilidade;
 4. **Avaliar** o código de extensão como superfície de ataque (o *trust triangle*) e as defesas (scan, trust envelope, managed settings, least-privilege);
-5. **Implementar** um subsistema de hooks pre/post-tool com controle por exit code no harness-zero (etapa 11).
+5. **Implementar** um subsistema de hooks pre/post-tool com o retorno do hook como canal de controle no harness-zero (etapa 11).
 
 ## O problema
 
@@ -28,7 +28,7 @@ A regra que une os quatro é antiga: **aberto para extensão, fechado para modif
 
 Registro editorial honesto (Princípio I): **não existe canon acadêmico de "extensibilidade de harness de agente"** — é uma lacuna real. As citações duráveis vêm da engenharia de software clássica de arquiteturas extensíveis e da segurança de ecossistemas de plugin, que transferem diretamente.
 
-- **Extension points, não fork** — o [princípio aberto-fechado](https://dl.acm.org/doi/10.1145/1053331.1053345) (Meyer, 1988; Martin, 1996) e a arquitetura de plug-ins do Eclipse ([Birsan, *ACM Queue* 2005](https://dl.acm.org/doi/10.1145/1053331.1053345)) dão a fundação — e a advertência do "*plug-in hell*": pontos de extensão mal desenhados viram dívida. Decisão: exponha *seams* explícitos (eventos, diretórios conhecidos), não pontos ad-hoc.
+- **Extension points, não fork** — o princípio aberto-fechado (Meyer, 1988; Martin, 1996) e a arquitetura de plug-ins do Eclipse ([Birsan, *ACM Queue* 2005](https://dl.acm.org/doi/10.1145/1053331.1053345)) dão a fundação — e a advertência do "*plug-in hell*": pontos de extensão mal desenhados viram dívida. Decisão: exponha *seams* explícitos (eventos, diretórios conhecidos), não pontos ad-hoc.
 - **Núcleo mínimo, extensões plugáveis** — o padrão Microkernel (Buschmann et al., *POSA* v.1, 1996) e sua encarnação agêntica, [AIOS, arXiv 2403.16971](https://arxiv.org/abs/2403.16971) (um kernel que isola escalonamento/memória/tools das aplicações-agente), sustentam a postura "harness como microkernel": um core pequeno que serve de soquete.
 - **Mecanismo × política** — [Hydra (Levin et al., SOSP '75)](https://dl.acm.org/doi/10.1145/800213.806531) é a origem de "separar mecanismo de política". Traduzido: o harness fornece o *mecanismo* (invocar tool, despachar hook, carregar provedor); a *extensão* fornece a política. É por isso que adicionar um provedor de modelo pode ser "escrever um arquivo".
 - **Extensão de terceiros não é confiável** — a melhor citação on-topic é [LLM (Large Language Model) Platform Security: ChatGPT Plugins, arXiv 2309.10254](https://arxiv.org/abs/2309.10254) (AIES '24): um *trust triangle* plataforma/plugin/usuário com exploits concretos (sequestro de sessão via plugin malicioso). E a base empírica de over-privilege vem da segurança de extensões de browser ([Barth et al., NDSS '10](https://www.adambarth.com/papers/2010/barth-felt-saxena-boodman.pdf): 88% das extensões pedem mais poder do que precisam). Decisão: least-privilege + isolamento + verificação — o mesmo argumento do *tool poisoning* do cap. 06.
@@ -72,7 +72,7 @@ O que está mais moderno: a convergência de formatos (SKILL.md/.claude-plugin/A
 
 ## Mão na massa — harness-zero, etapa 11
 
-A etapa 11 (`harness-zero/etapas/11-hooks/`) dá ao harness-zero um subsistema de **hooks pre/post-tool**: antes de cada chamada de tool, o harness executa um comando do usuário e lê o **exit code** como canal de controle (0 segue; não-zero bloqueia e realimenta o stderr ao modelo). É o mecanismo (o harness despacha o hook) separado da política (o usuário decide o que o hook faz) — a tese do capítulo em ~40 linhas. Exercício de completude: você adiciona um `PostToolUse` que roda um linter e devolve os erros ao modelo, e um gate de confiança mínimo (o hook só roda se o diretório for confiável).
+A etapa 11 (`harness-zero/etapas/11-hooks/`) dá ao harness-zero um subsistema de **hooks pre/post-tool**: antes de cada chamada de tool, hooks são funções registradas (`@hooks.pre_tool`/`@hooks.post_tool`) e o **retorno do hook é o canal de controle** (`"block:motivo"` bloqueia e realimenta o motivo ao modelo; um dict ajusta os argumentos) — o exercício de completude propõe a variante externa dos produtos: executar um comando do usuário e ler o exit code (0 segue; não-zero bloqueia com o stderr). É o mecanismo (o harness despacha o hook) separado da política (o usuário decide o que o hook faz) — a tese do capítulo em ~40 linhas. Exercício de completude: você adiciona um `PostToolUse` que roda um linter e devolve os erros ao modelo, e um gate de confiança mínimo (o hook só roda se o diretório for confiável).
 
 ## Verificação
 

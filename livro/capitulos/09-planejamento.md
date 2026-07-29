@@ -73,7 +73,7 @@ O que está mais moderno: plan mode como camada de permissão (padrão oficial);
 
 ## Mão na massa — harness-zero, etapa 8
 
-A etapa 8 (`harness-zero/etapas/08-plan/`) adiciona plan mode ao harness-zero **reusando** a `PermissionPolicy` da etapa 6: entrar em plan mode seta um modo que a política traduz em "toda tool de escrita é negada"; o agente só lê e propõe; sair pede aprovação e restaura o modo. É a demonstração concreta da tese do capítulo — plan mode não é um subsistema, é uma configuração do domínio de permissões que já existe. Exercício de completude: você adiciona uma `ExitPlanMode` que escreve o plano aprovado num arquivo (o artefato persistido) antes de transicionar para execução.
+A etapa 8 (`harness-zero/etapas/08-plan/`) adiciona plan mode ao harness-zero **reusando** a `PermissionPolicy` da etapa 6: entrar em plan mode seta um modo que a política traduz em "toda tool de escrita é negada"; o agente só lê e propõe; sair pede aprovação e restaura o modo. É a demonstração concreta da tese do capítulo — plan mode não é um subsistema, é uma configuração do domínio de permissões que já existe. Exercício de completude: o `propor_plano` já persiste o artefato (`PLAN.md`); você adiciona a exigência de que a saída do plan mode só aconteça com um `PLAN.md` aprovado — o gate entre planejar e executar.
 
 ## Verificação
 

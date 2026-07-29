@@ -77,7 +77,7 @@ O n8n implementa o agente como um "cluster node": um nó-raiz **AI Agent** com p
 
 **2. A ponte `$fromAI` — a ideia mais exportável da categoria.** `create-node-as-tool.ts` transforma **qualquer um dos 400+ nós de integração** marcado `usableAsTool` numa tool do agente: o traversal dos parâmetros coleta expressões `$fromAI('chave', 'descrição', tipo)` — os slots que o LLM deve preencher — e gera o schema Zod automaticamente. Nenhum harness dedicado tem um pool de tools desse tamanho, porque nenhum tem um ecossistema de integrações pré-existente para converter.
 
-**3. A permissão é topologia.** Não há aprovação por chamada dentro do loop: o LLM só pode invocar o que o autor plugou na porta `AiTool` do canvas. É allowlist por construção, decidida visualmente por um humano — complementada por human-in-the-loop real (nós `sendAndWait` pausam a execução de forma durável aguardando aprovação no Slack/Outlook, proibidos dentro de sub-agentes) e um nó Guardrails.
+**3. A permissão é topologia.** Não há aprovação por chamada dentro do loop: o LLM só pode invocar o que o autor plugou na porta `AiTool` do canvas. É allowlist por construção, decidida visualmente por um humano — complementada por human-in-the-loop real (nós `sendAndWait` pausam a execução de forma durável aguardando aprovação no Slack/Outlook, proibidos dentro de subagentes) e um nó Guardrails.
 
 ### O placar (29/36) e o mapa força/fraqueza
 
