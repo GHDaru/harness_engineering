@@ -275,3 +275,18 @@ abbr[title] { text-decoration: underline dotted; text-decoration-thickness: 1px;
 .figura { margin: 1.6rem 0; text-align: center; }
 .figura img { max-width: 100%; height: auto; }
 .figura figcaption { font-size: .82rem; color: var(--muted); margin-top: .5rem; }
+
+/* Ilha viva "Uso do livro" (spec 055) */
+.uso-kpis { display: flex; gap: .7rem; margin: 1rem 0; }
+.uso-kpi { flex: 1; background: var(--sidebar); border: 1px solid var(--line); border-radius: 10px;
+  padding: .7rem .9rem; text-align: center; }
+.uso-kpi b { display: block; font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+.uso-kpi span { font-size: .74rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.uso-lista { display: flex; flex-direction: column; gap: .35rem; margin: 1rem 0; }
+.uso-linha { display: grid; grid-template-columns: minmax(140px, 220px) 1fr 3ch; gap: .6rem; align-items: center; font-size: .85rem; }
+.uso-nome { color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uso-trilho { height: 12px; border-radius: 5px; background: rgba(127,127,127,.15); overflow: hidden; }
+.uso-trilho i { display: block; height: 100%; background: linear-gradient(90deg, var(--link), var(--prat)); }
+.uso-n { text-align: right; font-variant-numeric: tabular-nums; }
+.uso-nota, .uso-off { font-size: .8rem; color: var(--muted); }
+@media (max-width: 560px) { .uso-linha { grid-template-columns: 1fr; gap: .15rem; } .uso-n { text-align: left; } }

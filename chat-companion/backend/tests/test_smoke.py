@@ -173,3 +173,15 @@ def test_consent_telemetria_objetivo():
     assert d["objetivo"].startswith("construir")
     # e o system prompt de fato contém a camada
     assert "Objetivo declarado do leitor" in appmod._system_prompt(2, "progressivo", [], "x")
+
+
+def test_telemetry_publico_agregado():
+    """spec 055: projeção pública só tem agregados — nada de sessões/timestamps."""
+    sid = "t-055"
+    client.post("/consent", json={"session_id": sid, "versao": "v1"})
+    for slug in ("02-loop-do-agente", "02-loop-do-agente", "glossario"):
+        client.post("/telemetry", json={"session_id": sid, "slug": slug})
+    d = client.get("/telemetry/publico").json()
+    assert d["total"] >= 3 and d["paginas_distintas"] >= 2
+    assert d["por_pagina"].get("02-loop-do-agente", 0) >= 2
+    assert set(d.keys()) == {"total", "paginas_distintas", "por_pagina"}  # nada além do agregado

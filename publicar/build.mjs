@@ -228,6 +228,7 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
 </div>
 <script src="${rel}assets/app.js"></script>
 <script src="${rel}assets/viz.js" defer></script>
+<script src="${rel}assets/uso.js" defer></script>
 ${companionSnippet(chapter)}
 </body></html>`;
 }
@@ -325,6 +326,7 @@ cpSync(resolve(AQUI, "tema/autor.png"), resolve(SAIDA, "assets/autor.png"));
 cpSync(resolve(AQUI, "tema/harness-diagrama.svg"), resolve(SAIDA, "assets/harness-diagrama.svg"));
 cpSync(resolve(AQUI, "tema/companion.css"), resolve(SAIDA, "assets/companion.css"));
 cpSync(resolve(AQUI, "tema/companion.js"), resolve(SAIDA, "assets/companion.js"));
+cpSync(resolve(AQUI, "tema/uso.js"), resolve(SAIDA, "assets/uso.js"));
 writeFileSync(resolve(SAIDA, ".nojekyll"), "");
 
 // Bundle das ilhas de visualização React (P2). Dados embutidos em build-time.
