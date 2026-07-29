@@ -48,7 +48,7 @@ Isso não é um detalhe: um livro sobre a disciplina de instrumentar bem os agen
 
 ## Os harnesses do estudo
 
-O estudo cobre, até esta edição, **dezesseis sistemas de código aberto**, avaliados por leitura sistemática de código em três arquétipos (o método está no [capítulo 01, §6](01-fundamentos.md)):
+O estudo cobre, até esta edição, **dezesseis sistemas de código aberto**, avaliados por leitura sistemática de código em quatro arquétipos (o método está no [capítulo 01, §6](01-fundamentos.md)):
 
 - **Harnesses de código** — opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands;
 - **Agentes pessoais self-hosted** — OpenClaw, Hermes Agent, IronClaw, ohmo;

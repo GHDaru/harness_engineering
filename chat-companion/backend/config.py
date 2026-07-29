@@ -86,6 +86,7 @@ CORPUS_PATH = Path(__file__).resolve().parent / "corpus.json"
 # --- Sugestões dos leitores (E05) ---
 SUGGESTION_EMAIL_TO = os.environ.get("SUGGESTION_EMAIL_TO", "ghdaru@gmail.com")
 SMTP_HOST = os.environ.get("SMTP_HOST", "")           # vazio -> não envia email (só persiste)
+# Gmail: ver EMAIL.md (senha de app + variáveis no Railway).
 SMTP_PORT = _int("SMTP_PORT", 587)
 SMTP_USER = os.environ.get("SMTP_USER", "")
 SMTP_PASS = os.environ.get("SMTP_PASS", "")
