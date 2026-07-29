@@ -176,6 +176,10 @@ Fontes da indústria (docs/vendor/praticantes) na linha do Cap. 06 abaixo.
 
 Harnesses embutidos e protocolos têm literatura acadêmica **rarefeita** (buscas de 2026-07 não retornaram surveys dedicados). Registro editorial: o livro cobre essas dimensões com specs, evidência do benchmark e literatura industrial — e assinala a lacuna como oportunidade de pesquisa (possível seção "problemas em aberto" no cap. 14). Nota: os caps. 12 (extensibilidade) e 13 (interfaces), antes nesta lista, foram ancorados em literatura adjacente — SE clássica de arquiteturas extensíveis e HCI de interação humano-IA, respectivamente (ver as seções Cap. 12 e Cap. 13 acima). A lacuna *agent-specific* persiste, mas as fundações duráveis existem.
 
+## Coleções vivas
+
+- ✓ **[Awesome Harness Engineering](https://github.com/GHDaru/awesome-harness-engineering)** — coleção curada pelo autor: recursos, padrões e templates de harness engineering organizados **por problema** (mesma taxonomia deste livro). Referenciada nos capítulos como "Consulte também", seção a seção.
+
 ## Fontes da indústria por capítulo (docs de vendor e blogs de engenharia)
 
 > Material comercial/industrial que fundamenta a seção "Fontes da indústria" de cada capítulo (esqueleto v3). URLs verificadas como existentes por busca; fetch direto a anthropic.com/openai.com retorna 403 (anti-bot) neste ambiente — conteúdo confirmado por snippets e citações de terceiros.

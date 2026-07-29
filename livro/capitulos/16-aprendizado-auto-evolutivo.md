@@ -70,6 +70,8 @@ A dimensão é a mais nova do template e a menos convergida: dois harnesses no n
 
 *Reavaliação retroativa da coorte de código pendente; a dimensão sai de "suplementar" quando ≥3 harnesses atingirem nível 2+.*
 
+> **Consulte também**: a coleção viva [Awesome Harness Engineering — Skills & MCP](https://github.com/GHDaru/awesome-harness-engineering#skills--mcp) reúne mais recursos consultáveis desta dimensão, curados por problema.
+
 ## Verificação
 
 1. Por que a lista de **anti-padrões** ("o que NÃO aprender") é descrita como a peça central da engenharia curatorial, e não o mecanismo de captura em si? O que acontece com um sistema que captura sem ela?

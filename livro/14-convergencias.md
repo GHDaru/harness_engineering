@@ -79,6 +79,8 @@ O que **não** expira: sandbox (contenção é sobre o mundo, não sobre a capac
 - O valor de longo prazo da engenharia de harness está na fronteira agente–mundo; o resto muda de dono ou desaparece conforme os modelos melhoram.
 - Este capítulo é o placar vivo do livro: cada rodada do benchmark confirma convergências, resolve divergências ou aposenta componentes expirados.
 
+> **Consulte também**: a coleção viva [Awesome Harness Engineering — Foundations](https://github.com/GHDaru/awesome-harness-engineering#foundations) reúne mais recursos consultáveis desta dimensão, curados por problema.
+
 ## Verificação
 
 1. Por que a convergência **independente** (três stacks, três origens) é evidência mais forte de consolidação do que a adoção de um padrão por vários projetos que se copiam? (Releia "O problema" e o achado central.)

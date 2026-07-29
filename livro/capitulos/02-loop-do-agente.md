@@ -32,6 +32,7 @@ O loop é o coração do harness: envia contexto ao modelo, recebe uma decisão 
 - **[Running agents](https://openai.github.io/openai-agents-python/running_agents/)** (OpenAI Agents SDK): o contrato alternativo — parada quando o agente produz o **`output_type` declarado** (validável), com `MaxTurnsExceeded` tipado.
 - **[LoopAgent](https://google.github.io/adk-docs/agents/workflow-agents/loop-agents/)** (Google ADK): só duas formas de parar — `max_iterations` ou um sub-agente juiz emitindo `escalate=True` — o loop burro separado do juiz endereçável.
 - **[Durable AI Loops](https://www.restate.dev/blog/durable-ai-loops-fault-tolerance-across-frameworks-and-without-handcuffs)** (Restate) e [Inngest](https://www.inngest.com/blog/durable-execution-key-to-harnessing-ai-agents): o loop como **workflow de longa duração** — cada passo journalado, falha = replay do último passo concluído; retry vira duas categorias (backoff dentro do passo × replay do loop), com idempotência obrigatória em tools mutantes.
+- **Consulte também**: a coleção viva [Awesome Harness Engineering — Agent Loop](https://github.com/GHDaru/awesome-harness-engineering#agent-loop) reúne mais recursos consultáveis desta dimensão (padrões, artigos e implementações), curados por problema.
 
 ## O estado da arte
 

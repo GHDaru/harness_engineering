@@ -61,7 +61,7 @@ O corpus é **de código aberto** (o Princípio II do livro: a fonte-base é o c
 - **Frameworks** de construção de agentes (LangGraph/LangChain, Google ADK, Deep Agents): expõem loop, estado e ferramentas como primitivas programáveis.
 - **Plataformas e meta-harnesses** de produção: onde o harness carrega requisitos não-funcionais organizacionais (observabilidade, multi-tenant, políticas).
 
-O **teste de inclusão** é a definição da §4: entra quem tem *loop + ferramentas + gestão de contexto + controle*; ficam de fora bibliotecas de modelo puro e meros *wrappers* de uma ferramenta. A lista avaliada, com o repositório e o commit lido de cada um, está no [Comparativo](../benchmark/comparativo.md) e no apêndice do estudo.
+O **teste de inclusão** é a definição da §4: entra quem tem *loop + ferramentas + gestão de contexto + controle*; ficam de fora bibliotecas de modelo puro e meros *wrappers* de uma ferramenta. A lista avaliada, com o repositório e o commit lido de cada um, está no [Comparativo](../benchmark/comparativo.md) e no apêndice do estudo. Recursos consultáveis além do corpus estão na coleção viva [Awesome Harness Engineering](https://github.com/GHDaru/awesome-harness-engineering).
 
 ## 6. O método do estudo (rigor)
 

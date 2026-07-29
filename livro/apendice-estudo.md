@@ -35,3 +35,7 @@ Este apêndice **mostra o trabalho executado**: a lista completa dos harnesses q
 Os **resultados por dimensão** (notas 0–3, com evidência) e o diagnóstico comparativo estão no [Comparativo dos Harnesses](../benchmark/comparativo.md) — incluindo o heatmap interativo. Cada avaliação individual traz, além das notas: o **arquétipo observado** do harness, os pontos fortes com caminhos de arquivo, e a seção **"o que roubar"** (padrões que merecem ser levados para outros harnesses).
 
 > **Nota de método** (cap. 01 §6): a seleção seguiu lógica de replicação (Yin) — casos representativos *e* deliberadamente atípicos; a unidade de análise é o código-fonte; as notas seguem a grade fixa do template (feature analysis, DESMET). O placar de expiração das previsões está no [Histórico](HISTORICO.md).
+
+---
+
+> **Consulte também**: implementações de referência além das avaliadas aqui estão catalogadas em [Awesome Harness Engineering — Reference Implementations](https://github.com/GHDaru/awesome-harness-engineering#reference-implementations).
