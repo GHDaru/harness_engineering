@@ -32,6 +32,11 @@
 
 ## Edições
 
+### Edição 0.50 — 2026-07-29 · Apêndice — Uso do livro (vivo) (spec 055)
+- **Feature spec-kit oficial `055-apendice-uso-vivo`** (ciclo specify→plan→tasks→implement): o livro passa a **expor a própria telemetria** — novo aparato [Apêndice — Uso do livro](apendice-uso.md), com uma **ilha viva** (`data-viz="uso-livro"`, JS puro) que consome o novo `GET /telemetry/publico`: projeção **estritamente agregada** (total, páginas distintas, contagens por página — sem sessões, sem timestamps, por isso pública). A página explica o que é medido e o que não é (consentimento da spec 054, sessões anônimas, direito ao esquecimento) e conecta o painel à cadência do livro vivo (ADR 0007): atenção dos leitores orienta a prioridade de revisão. No PDF a ilha é omitida (regra existente), com aviso no texto.
+- Verificação: suíte do backend 14/14 (teste do agregado público sem campos sensíveis); e2e com backend semeado (KPIs, barras, títulos legíveis, nota de privacidade) e fallback honesto sem backend; build/portão/corpus verdes.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.49 — 2026-07-29 · experiência educacional: consentimento, onboarding, telemetria e plano de ensino (spec 054)
 - **Feature spec-kit oficial `054-experiencia-educacional`** (ciclo specify→plan→tasks→implement):
   - **Consentimento com aceite gravado**: banner em todas as páginas (e cartão no chat, que fica bloqueado até o aceite) avisa que as conversas alimentam o **aprimoramento vivo do livro** e que **dados pessoais não devem ser compartilhados**; o aceite é versionado e gravado no navegador **e** no backend (tabela `consents`, sessão anônima, `ON DELETE CASCADE` — LGPD preservada).

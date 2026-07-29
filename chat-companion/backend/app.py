@@ -220,6 +220,15 @@ def post_telemetry(inp: TelemetryIn) -> dict:
     return {"ok": True}
 
 
+@app.get("/telemetry/publico")
+def get_telemetry_publico() -> dict:
+    """Projeção pública do uso do livro (spec 055): SÓ agregados por página —
+    sem sessões, sem timestamps, sem token. Alimenta o Apêndice — Uso do livro."""
+    stats = _store.nav_stats()
+    por = stats.get("por_pagina", {})
+    return {"total": stats.get("total", 0), "paginas_distintas": len(por), "por_pagina": por}
+
+
 @app.get("/telemetry")
 def get_telemetry(token: str = "") -> dict:
     if not config.ADMIN_TOKEN or token != config.ADMIN_TOKEN:
