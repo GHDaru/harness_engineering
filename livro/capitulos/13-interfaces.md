@@ -69,7 +69,7 @@ O que está mais moderno: um motor, muitas superfícies (doutrina); headless est
 
 ## Mão na massa — harness-zero: o chat como janela de observação
 
-A interface do harness-zero nasceu na **etapa 0**: um chat mínimo sobre FastAPI, a *janela de observação* que acompanha cada etapa do livro. A lição desta dimensão é o que o projeto inteiro demonstra: porque o loop vive atrás de portas (`LLMPort`, `ToolPort`, `SessionPort`), acrescentar uma **segunda superfície** — um modo headless `--print` que emite os mesmos eventos em `stream-json` — é um **adapter fino**, não uma reescrita. Exercício de completude: você adiciona o modo headless e prova que o mesmo agente responde no chat e no pipe, e que a aprovação (o gate de permissão do cap. 07) aparece nas duas superfícies pelo mesmo contrato — a superfície não é backdoor.
+A interface do harness-zero nasceu na **etapa 0**: um chat mínimo sobre FastAPI, a *janela de observação* que acompanha cada etapa do livro. A lição desta dimensão é o que o projeto inteiro demonstra: porque o loop vive atrás de portas (`LLMPort`, `ToolPort`, `StorePort`), acrescentar uma **segunda superfície** — um modo headless `--print` que emite os mesmos eventos em `stream-json` — é um **adapter fino**, não uma reescrita. Exercício de completude: você adiciona o modo headless e prova que o mesmo agente responde no chat e no pipe, e que a aprovação (o gate de permissão do cap. 07) aparece nas duas superfícies pelo mesmo contrato — a superfície não é backdoor.
 
 ## Verificação
 

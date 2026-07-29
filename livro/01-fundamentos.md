@@ -6,7 +6,7 @@ Este capítulo fixa o vocabulário, a **origem** e o **método** do livro. Antes
 
 ## 1. O que é um harness (definição)
 
-A definição de trabalho vem da lista curada [awesome-harness-engineering](https://github.com/ai-boost/awesome-harness-engineering):
+A definição de trabalho vem da lista curada [awesome-harness-engineering](https://github.com/GHDaru/awesome-harness-engineering):
 
 > **Engenharia de harness** é a disciplina de projetar o *scaffolding* — **andaime** ou estrutura de suporte — que envolve um agente de IA (entrega de contexto, interfaces de ferramentas, artefatos de planejamento, loops de verificação, sistemas de memória e sandboxes) e determina se ele tem sucesso ou falha em tarefas reais.
 
@@ -55,11 +55,12 @@ Um sistema sem qualquer um dos quatro **não é um harness completo**: um chatbo
 
 ## 5. De onde vêm os harnesses deste estudo
 
-O corpus é **de código aberto** (o Princípio II do livro: a fonte-base é o código) e se divide em três arquétipos:
+O corpus é **de código aberto** (o Princípio II do livro: a fonte-base é o código) e se divide em quatro arquétipos — os mesmos do capítulo 00:
 
-- **CLIs de código** (Claude Code, Codex CLI, Aider, Cline, OpenHands, SWE-agent): implementações de referência que juntam as quatro peças num executável de terminal.
-- **Frameworks** de construção de agentes (LangGraph/LangChain, Google ADK, Deep Agents): expõem loop, estado e ferramentas como primitivas programáveis.
-- **Plataformas e meta-harnesses** de produção: onde o harness carrega requisitos não-funcionais organizacionais (observabilidade, multi-tenant, políticas).
+- **Harnesses de código** (opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands): implementações de referência que juntam as quatro peças num executável.
+- **Agentes pessoais self-hosted** (OpenClaw, Hermes Agent, IronClaw, ohmo): o harness a serviço de uma pessoa, com identidade, memória e canais próprios.
+- **Harnesses embutidos** (n8n, nó AI Agent): o loop como componente dentro de um produto maior.
+- **Frameworks** (LangGraph, CrewAI, OpenAI Agents SDK, Software Agent SDK): expõem loop, estado e ferramentas como primitivas programáveis.
 
 O **teste de inclusão** é a definição da §4: entra quem tem *loop + ferramentas + gestão de contexto + controle*; ficam de fora bibliotecas de modelo puro e meros *wrappers* de uma ferramenta. A lista avaliada, com o repositório e o commit lido de cada um, está no [Comparativo](../benchmark/comparativo.md) e no apêndice do estudo. Recursos consultáveis além do corpus estão na coleção viva [Awesome Harness Engineering](https://github.com/GHDaru/awesome-harness-engineering).
 

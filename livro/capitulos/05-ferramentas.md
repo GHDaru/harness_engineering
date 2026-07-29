@@ -44,7 +44,7 @@ Os harnesses convergem num núcleo de ~10 tools (ler/escrever/editar arquivo, gl
 
 O default de "despejar todas as definições no system prompt" morreu. O estado da arte tem três regimes, e a escolha é por tamanho de catálogo:
 - **catálogo fixo** (dezenas de tools): ainda ok mandar tudo;
-- **tool search / defer_loading** (centenas de tools, muitos servidores MCP): mantém 3–5 tools quentes, carrega o resto sob demanda — presente como `tool_search`/`tool_discovery` no Codex, Tool Search no OpenClaw, `ToolSearch` no OpenHarness;
+- **tool search / defer_loading** (centenas de tools, muitos servidores MCP): mantém 3–5 tools quentes, carrega o resto sob demanda — presente como `tool_search`/`tool_discovery` no Codex, Tool Search no OpenClaw, `tool_search` no OpenHarness;
 - **code-as-action** (pipelines com dados volumosos): o modelo escreve código que orquestra as tools em sandbox e devolve o destilado — `code-mode` (opencode com V8 embutido, Codex idem), `execute_code` (Hermes chamando tools via RPC (Remote Procedure Call) em "turnos de custo-zero-contexto"), Code Mode (Goose). A métrica que a indústria passou a reportar não é acurácia isolada, é **acurácia por token de definição**.
 
 ### 3. A interface de edição é treinada, não inventada
@@ -57,7 +57,7 @@ O que está mais moderno: schema derivado de tipos com separação dado×context
 
 ## Mão na massa — harness-zero, etapa 2
 
-A etapa 2 substitui os schemas escritos à mão da etapa 1 por uma `ToolPort`: uma tool é uma função tipada, e o schema é **derivado das anotações** (via `inspect` + Pydantic). Você adiciona `read/write/shell`, com o retorno separando dado estruturado do texto que vai ao modelo, e erros voltando como texto. Exercício de completude: o derivador de schema vem esqueletado para um parâmetro; você estende para tipos compostos.
+A etapa 2 substitui os schemas escritos à mão da etapa 1 por uma `ToolPort`: uma tool é uma função tipada, e o schema é **derivado das anotações** (via `inspect`/`typing`, lendo assinatura e docstring). Você adiciona `read_file` ao lado de `get_time`/`somar`, com erros voltando como texto ao modelo (nunca como exceção que derruba o loop). Exercício de completude: o derivador de schema vem esqueletado para um parâmetro; você estende para tipos compostos.
 
 ## Verificação
 

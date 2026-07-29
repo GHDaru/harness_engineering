@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.46 — 2026-07-29 · auditoria editorial rodada 2: 27 correções (spec 051)
+- **Feature spec-kit oficial `051-auditoria-rodada2`**: 4 auditores (subagentes) leram o livro inteiro em paralelo; 27 achados confirmados e corrigidos. O mais grave: o **cap. 02 estava truncado no meio do Apêndice A desde a reescrita v3** (entrada do IronClaw cortada; Aider, OpenHands, ohmo, n8n e frameworks ausentes) — reconstruído a partir da evidência do benchmark. Demais: cap. 01 §5 realinhado ao corpus real (quatro arquétipos), caps. 15–17 na estrutura do cap. 00, exercícios dos caps. 05/06/07/09/12 realinhados ao harness-zero real, `StorePort` nos caps. 08/13, ACP-IBM desambiguado (cap. 10), contagens do cap. 17 e do glossário corrigidas, e uma dúzia de consertos de português/consistência. Detalhe completo na spec.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; achados verificados um a um contra o fonte antes de corrigir.
+
 ### Edição 0.45 — 2026-07-29 · bibliografia 100% verificada (spec 050)
 - **Feature spec-kit oficial `050-bibliografia-verificacao`** (Princípio I — evidência acima de retórica): os **16 itens ⏳** da Bibliografia foram verificados por **busca web independente nesta sessão** e promovidos a ✓ com dados completos (autores, veículo, páginas, ISBN/DOI). Duas correções encontradas e registradas: o arXiv 2509.18661 é o ***Agentic* AutoSurvey** (Liu et al.), não o AutoSurvey original; e o ISBN 9780226595146 do *Developmental Editing* (Norton) é da **1ª ed. 2009** (a 2ª ed. 2023 tem ISBN 9780226793634). A URL da entrada de Peer Review (Baldwin, CMU ETHOS) foi corrigida. **A fila de pendências da Bibliografia está zerada.**
 - **IA (A3)**: agente **Claude Code (Anthropic)**; verificação por busca cruzada com fontes independentes.

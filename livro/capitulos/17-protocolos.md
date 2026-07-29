@@ -6,7 +6,7 @@
 
 Ao final deste capítulo, você deve ser capaz de:
 1. **Explicar** por que a camada de protocolos é o que transforma um mercado de silos em um ecossistema — e por que cada protocolo padroniza uma *fronteira* diferente do harness;
-2. **Distinguir** as fronteiras cobertas por MCP, A2A, ACP, agentskills.io e AGENTS.md — incluindo as duas confusões clássicas (os dois "ACP"; MCP × A2A como vertical × horizontal);
+2. **Distinguir** as fronteiras cobertas por MCP (Model Context Protocol), A2A (Agent-to-Agent) e ACP (Agent Client Protocol), agentskills.io e AGENTS.md — incluindo as duas confusões clássicas (os dois "ACP"; MCP × A2A como vertical × horizontal);
 3. **Analisar** a matriz de adoção medida no código e localizar um harness real nela;
 4. **Avaliar** a saúde de um protocolo por adoção medida e governança (fundação neutra × vendor único), em vez de por marketing;
 5. **Decidir** quais protocolos um harness novo precisa falar para não ficar fora das arquiteturas de composição dos outros.
@@ -37,7 +37,7 @@ Duas confusões a desfazer: (1) "ACP" designa dois protocolos distintos — o da
 
 ### A matriz de adoção — medida no código, não no marketing
 
-O diferencial deste capítulo: cruzamos os protocolos com as **11 avaliações do benchmark** (evidência por arquivo, ver `benchmark/avaliacoes/`). Nenhum comparativo externo tem esta coluna de verdade:
+O diferencial deste capítulo: cruzamos os protocolos com as **11 avaliações de harnesses do benchmark** (mais os 4 frameworks da rodada frameworks-1) (evidência por arquivo, ver `benchmark/avaliacoes/`). Nenhum comparativo externo tem esta coluna de verdade:
 
 | Harness | MCP client | MCP server | ACP | A2A | SKILL.md / agentskills | AGENTS.md (ou equiv.) |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|

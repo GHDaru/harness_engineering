@@ -44,6 +44,7 @@ Isso não é um detalhe: um livro sobre a disciplina de instrumentar bem os agen
 - **Fundamentos** (capítulo 01): as definições formais, os artigos canônicos e a taxonomia de problemas que organiza tudo o que vem depois.
 - **Capítulos 02–13**: uma funcionalidade por capítulo. Cada um define o problema, apresenta os padrões de implementação conhecidos e mostra, com evidência, como cada harness estudado implementa.
 - **Convergências e tendências** (capítulo 14): o que a indústria já padronizou, onde ainda há divergência real, e a "cláusula de expiração" — a tese de que todo componente de harness existe porque o modelo ainda não faz aquilo sozinho, e deve ser desenhado sabendo que um dia será desnecessário.
+- **Capítulos 15–17**: as fronteiras — o harness embutido em produto (15), o harness que aprende com o uso (16) e a camada de protocolos que une o ecossistema (17).
 - **Benchmark** (`benchmark/`): a seção empírica — avaliações padronizadas, por dimensão, com notas 0–3 e evidência, de cada harness estudado, mais o comparativo consolidado.
 
 ## Os harnesses do estudo
@@ -59,6 +60,4 @@ Cada um foi escolhido por representar um *arquétipo* diferente (lógica de repl
 
 A lista completa — com **origem, versão, fork e commit exatos lidos** em cada avaliação, e o link para a análise e o diagnóstico de cada um — está no **[Apêndice — O estudo](apendice-estudo.md)**. O placar consolidado por dimensão está no [Comparativo](../benchmark/comparativo.md).
 
-Para explorar o ecossistema além do corpus deste estudo, o autor mantém a coleção viva **[Awesome Harness Engineering](https://github.com/GHDaru/awesome-harness-engineering)** — recursos, padrões e templates de harness engineering curados por problema, na mesma organização deste livro.
-
-Como referencial teórico, soma-se a lista curada **awesome-harness-engineering** (~426 recursos organizados por problema), de onde vêm a definição de harness usada no capítulo 01 e a taxonomia que estrutura os capítulos.
+Como referencial teórico e para explorar o ecossistema além do corpus, soma-se a coleção viva **[Awesome Harness Engineering](https://github.com/GHDaru/awesome-harness-engineering)** (~426 recursos organizados por problema, na mesma organização deste livro) — de onde vêm a definição de harness usada no capítulo 01 e a taxonomia que estrutura os capítulos.
