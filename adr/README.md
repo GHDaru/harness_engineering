@@ -12,4 +12,5 @@ Convenção: arquivos `NNNN-titulo-curto.md`, numerados em sequência. Status: `
 - [0005 — Template dos capítulos: um spec de motor, verificação por capítulo](0005-template-capitulos-um-spec.md) · Aceito
 - [0006 — Design system: entregáveis como componentes de tela](0006-design-system-componentes.md) · Aceito
 - [0007 — Cadência de revisão do livro vivo](0007-cadencia-livro-vivo.md) · Aceito
+- [0008 — Radar diário automatizado](0008-radar-diario-automatizado.md) · Aceito
 - [template](template.md)
