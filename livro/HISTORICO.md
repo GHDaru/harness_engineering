@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.51 — 2026-07-29 · radar diário: o livro vigia o próprio ecossistema (spec 056)
+- **Feature spec-kit oficial `056-radar-diario`** ([ADR 0008](../adr/0008-radar-diario-automatizado.md)): uma **sessão-agente agendada (1×/dia)** busca novidades do ecossistema (releases do corpus, protocolos, papers, ferramentas candidatas), avalia impacto por capítulo/Leitura executiva e mantém o **roadmap de auto-atualização** em [`radar/RADAR.md`](../radar/RADAR.md), com o bruto diário auditável em `radar/diario/`. O contrato do agente é versionado em [`radar/AGENTE.md`](../radar/AGENTE.md) — **escrita somente em `radar/`**; promover item a mudança no livro continua exigindo spec-kit com curadoria humana (a fronteira de autonomia dos caps. 07/16 aplicada ao próprio projeto). O radar é a fila de entrada do gatilho extraordinário do ADR 0007.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; decisão registrada em ADR com alternativas.
+
 ### Edição 0.50 — 2026-07-29 · Apêndice — Uso do livro (vivo) (spec 055)
 - **Feature spec-kit oficial `055-apendice-uso-vivo`** (ciclo specify→plan→tasks→implement): o livro passa a **expor a própria telemetria** — novo aparato [Apêndice — Uso do livro](apendice-uso.md), com uma **ilha viva** (`data-viz="uso-livro"`, JS puro) que consome o novo `GET /telemetry/publico`: projeção **estritamente agregada** (total, páginas distintas, contagens por página — sem sessões, sem timestamps, por isso pública). A página explica o que é medido e o que não é (consentimento da spec 054, sessões anônimas, direito ao esquecimento) e conecta o painel à cadência do livro vivo (ADR 0007): atenção dos leitores orienta a prioridade de revisão. No PDF a ilha é omitida (regra existente), com aviso no texto.
 - Verificação: suíte do backend 14/14 (teste do agregado público sem campos sensíveis); e2e com backend semeado (KPIs, barras, títulos legíveis, nota de privacidade) e fallback honesto sem backend; build/portão/corpus verdes.
