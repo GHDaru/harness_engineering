@@ -4,9 +4,39 @@
    Sem backend ou com erro: mensagem honesta. No PDF a ilha é ocultada. */
 (function () {
   "use strict";
+  var BACKEND = ((window.COMPANION || {}).backend || "").replace(/\/+$/, "");
+
+  // Contador de visitas no rodapé (spec 058): o clássico, do jeito honesto —
+  // total AGREGADO da telemetria consentida, com cache por sessão de leitura
+  // (1 requisição a cada 10 min, não por página). Sem backend: chip ausente.
+  function contadorRodape() {
+    var rodape = document.querySelector(".rodape");
+    if (!rodape || !BACKEND) return;
+    function render(total) {
+      if (!total || document.querySelector(".rodape-visitas")) return;
+      var a2 = document.createElement("a");
+      a2.className = "rodape-visitas";
+      a2.href = "apendice-uso.html";
+      a2.title = "Visitas registradas com consentimento — veja como medimos";
+      a2.textContent = "📈 " + Number(total).toLocaleString("pt-BR") + " visitas registradas";
+      rodape.appendChild(document.createTextNode(" · "));
+      rodape.appendChild(a2);
+    }
+    var cache = null;
+    try { cache = JSON.parse(sessionStorage.getItem("uso_total") || "null"); } catch (e) {}
+    if (cache && Date.now() - cache.ts < 600000) { render(cache.total); return; }
+    fetch(BACKEND + "/telemetry/publico").then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return;
+        try { sessionStorage.setItem("uso_total", JSON.stringify({ total: d.total, ts: Date.now() })); } catch (e) {}
+        render(d.total);
+      }).catch(function () {});
+  }
+  if (document.readyState !== "loading") contadorRodape();
+  else document.addEventListener("DOMContentLoaded", contadorRodape);
+
   var alvo = document.querySelector('[data-viz="uso-livro"]');
   if (!alvo) return;
-  var BACKEND = ((window.COMPANION || {}).backend || "").replace(/\/+$/, "");
 
   function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
   function titulo(slug) {
