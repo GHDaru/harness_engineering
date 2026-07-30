@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>decisor-zero · etapa 01</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { max-width: 720px; margin: 3rem auto; padding: 0 1rem; line-height: 1.5; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #8884; padding: .5rem .75rem; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    button { margin-top: 1rem; padding: .5rem 1rem; cursor: pointer; }
+    .aviso { border-left: 4px solid #d97706; padding: .5rem .75rem; margin-top: 1rem;
+             background: #d9770614; }
+  </style>
+</head>
+<body>
+  <h1>Etapa 01 — a matriz de decisão</h1>
+  <p>A tabela agora é um objeto validado (<code>MatrizDecisao</code>). Clique no botão
+     para ver a agregação ingênua do capítulo 01 — e por que ela não serve.</p>
+  <div id="tabela">carregando…</div>
+  <button id="btn">Calcular a soma crua (o jeito errado)</button>
+  <div id="resultado"></div>
+  <script>
+    let caso;
+    fetch("/api/caso-ancora").then(r => r.json()).then(c => {
+      caso = c;
+      const seta = d => d === "custo" ? "↓" : "↑";
+      document.getElementById("tabela").innerHTML =
+        `<table><tr><th>Alternativa</th>${c.criterios.map(cr =>
+          `<th>${cr.nome} (${cr.unidade}) ${seta(cr.direcao)}</th>`).join("")}</tr>` +
+        c.alternativas.map((a, i) =>
+          `<tr><td>${a}</td>${c.desempenhos[i].map(x =>
+            `<td>${x.toLocaleString("pt-BR")}</td>`).join("")}</tr>`).join("") +
+        `</table>`;
+    });
+    document.getElementById("btn").onclick = async () => {
+      const r = await fetch("/api/matriz/soma-crua", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          alternativas: caso.alternativas,
+          criterios: caso.criterios,
+          desempenhos: caso.desempenhos,
+        }),
+      });
+      const corpo = await r.json();
+      document.getElementById("resultado").innerHTML =
+        `<div class="aviso"><strong>⚠ ${corpo.aviso}</strong><br>
+         Ranking da soma crua: ${corpo.ranking.join(" &gt; ")}<br>
+         O "vencedor" é o apartamento mais caro — a escala do preço engoliu os
+         outros critérios. A saída: normalizar (cap. 03) e agregar direito (cap. 04).</div>`;
+    };
+  </script>
+</body>
+</html>

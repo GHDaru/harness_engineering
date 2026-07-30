@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>decisor-zero · etapa 00</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { max-width: 720px; margin: 3rem auto; padding: 0 1rem; line-height: 1.5; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #8884; padding: .5rem .75rem; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    caption { caption-side: bottom; font-size: .85rem; opacity: .7; padding-top: .5rem; }
+  </style>
+</head>
+<body>
+  <h1>Etapa 00 — o caso âncora</h1>
+  <p>Quatro apartamentos, quatro critérios em conflito. Nenhum vence em tudo —
+     e ainda não temos nenhum método. É exatamente essa a dor que o livro resolve,
+     um capítulo (e uma etapa) por vez.</p>
+  <div id="tabela">carregando…</div>
+  <script>
+    fetch("/api/caso-ancora").then(r => r.json()).then(caso => {
+      const seta = d => d === "custo" ? "↓" : "↑";
+      const cab = caso.criterios.map(c =>
+        `<th>${c.nome} (${c.unidade}) ${seta(c.direcao)}</th>`).join("");
+      const linhas = caso.alternativas.map(a =>
+        `<tr><td>${a.nome}</td>${a.desempenhos.map(x =>
+          `<td>${x.toLocaleString("pt-BR")}</td>`).join("")}</tr>`).join("");
+      document.getElementById("tabela").innerHTML =
+        `<table><caption>${caso.titulo} — servido por /api/caso-ancora</caption>
+           <tr><th>Alternativa</th>${cab}</tr>${linhas}</table>`;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+# Publica o livro no GitHub Pages (ADR 0004).
+# ATENÇÃO (ADR 0001): este workflow só executa quando `decisor/` virar a RAIZ do seu
+# próprio repositório — o GitHub só lê workflows de .github/ na raiz. Etapa manual
+# única após a extração: Settings → Pages → Source: GitHub Actions.
+name: Publicar o livro (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+    paths: ["livro/**", "mkdocs.yml", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install mkdocs-material
+      - run: mkdocs build --strict
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: site }
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

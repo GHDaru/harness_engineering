@@ -1,0 +1,57 @@
+# Publicação do livro (ADR 0004). Portão: `mkdocs build --strict`.
+site_name: "Decisão Multicritério — do julgamento ao algoritmo"
+site_description: >-
+  Livro vivo: métodos quantitativos de decisão multicritério (MCDA), do zero à
+  aplicação real — com uma etapa de código executável por capítulo.
+site_url: https://ghdaru.github.io/decisor-multicriterio/
+repo_url: https://github.com/ghdaru/harness_engineering
+edit_uri: ""
+
+docs_dir: livro
+site_dir: site
+
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle: { icon: material/brightness-7, name: "Tema escuro" }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle: { icon: material/brightness-4, name: "Tema claro" }
+  features:
+    - navigation.footer
+    - navigation.sections
+    - content.code.copy
+    - search.suggest
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.superfences
+
+extra_javascript:
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+# Links repo-relativos (código das etapas, ADRs, .specify) resolvem no GitHub,
+# não no site — rebaixados a info para o --strict vigiar só os links do livro.
+validation:
+  links:
+    unrecognized_links: info
+    absolute_links: info
+
+nav:
+  - Início: index.md
+  - Sumário: SUMARIO.md
+  - Capítulos:
+      - "00 — Introdução": capitulos/00-introducao.md
+      - "01 — O problema multicritério": capitulos/01-problema-multicriterio.md
+  - Aparato:
+      - Bibliografia: bibliografia.md
+      - Histórico (livro vivo): HISTORICO.md
+      - Guia editorial: GUIA-EDITORIAL.md

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Decisor</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { max-width: 860px; margin: 2.5rem auto; padding: 0 1rem; line-height: 1.5; }
+    h1 { margin-bottom: .25rem; }
+    .sub { opacity: .7; margin-top: 0; }
+    textarea { width: 100%; min-height: 260px; font-family: ui-monospace, monospace;
+               font-size: .85rem; }
+    button { padding: .5rem 1.1rem; cursor: pointer; margin-right: .5rem; }
+    table { border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #8884; padding: .45rem .8rem; }
+    .erro { color: #dc2626; white-space: pre-wrap; }
+    small a { color: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Decisor <span style="font-size:.55em;opacity:.6">v0</span></h1>
+  <p class="sub">Monte seu problema multicritério, salve e ranqueie.
+    Método disponível: SAW (cap. 04 do livro). Frontend v0 — evolução registrada no ADR 0002.</p>
+
+  <p>Edite o problema (o exemplo é o caso âncora do livro):</p>
+  <textarea id="problema"></textarea>
+  <p>
+    <button id="salvar">Salvar decisão</button>
+    <button id="ranquear" disabled>Ranquear (SAW)</button>
+  </p>
+  <div id="saida"></div>
+
+  <script>
+    const exemplo = {
+      titulo: "Escolha de apartamento",
+      problema: {
+        alternativas: ["A1 — Centro", "A2 — Jardim", "A3 — Parque", "A4 — Estação"],
+        criterios: [
+          { nome: "Preço", direcao: "custo", unidade: "R$" },
+          { nome: "Área", direcao: "beneficio", unidade: "m²" },
+          { nome: "Deslocamento", direcao: "custo", unidade: "min" },
+          { nome: "Bairro", direcao: "beneficio", unidade: "1–5" }
+        ],
+        desempenhos: [
+          [450000, 62, 15, 4],
+          [380000, 70, 35, 3],
+          [520000, 85, 25, 5],
+          [340000, 55, 20, 2]
+        ],
+        pesos: [0.35, 0.25, 0.25, 0.15]
+      }
+    };
+    const area = document.getElementById("problema");
+    const saida = document.getElementById("saida");
+    const btnRank = document.getElementById("ranquear");
+    area.value = JSON.stringify(exemplo, null, 2);
+    let decisaoId = null;
+
+    document.getElementById("salvar").onclick = async () => {
+      saida.innerHTML = "";
+      let corpo;
+      try { corpo = JSON.parse(area.value); }
+      catch { saida.innerHTML = `<p class="erro">JSON inválido.</p>`; return; }
+      const r = await fetch("/api/decisoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(corpo),
+      });
+      const resposta = await r.json();
+      if (!r.ok) {
+        saida.innerHTML = `<p class="erro">Erro de modelagem:\n${JSON.stringify(resposta.detail, null, 2)}</p>`;
+        return;
+      }
+      decisaoId = resposta.id;
+      btnRank.disabled = false;
+      saida.innerHTML = `<p>Decisão <strong>#${resposta.id} — ${resposta.titulo}</strong> salva.</p>`;
+    };
+
+    btnRank.onclick = async () => {
+      const r = await fetch(`/api/decisoes/${decisaoId}/ranking?metodo=saw`, { method: "POST" });
+      const resposta = await r.json();
+      if (!r.ok) {
+        saida.innerHTML = `<p class="erro">${JSON.stringify(resposta.detail)}</p>`;
+        return;
+      }
+      saida.innerHTML =
+        `<h3>${resposta.decisao} — ranking ${resposta.metodo.toUpperCase()}</h3>
+         <table><tr><th>#</th><th>Alternativa</th><th>Escore</th></tr>` +
+        resposta.ranking.map(l =>
+          `<tr><td>${l.posicao}</td><td>${l.alternativa}</td><td>${l.escore.toFixed(4)}</td></tr>`
+        ).join("") + `</table>
+        <p><small>Como o escore é calculado — e por que outro método pode discordar —
+        está no <a href="https://github.com/ghdaru">livro</a>, caps. 03–04 e 11.</small></p>`;
+    };
+  </script>
+</body>
+</html>

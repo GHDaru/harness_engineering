@@ -1,0 +1,53 @@
+# Hard gates da DoD (constituição, Princípio VII; herança do Maestro §12).
+# Ativa quando `decisor/` virar a raiz do seu próprio repositório (ADR 0001).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Testes do decisor-zero (worked examples dos capítulos)
+        run: |
+          pip install -r decisor-zero/requirements.txt
+          for etapa in decisor-zero/etapas/*/tests; do
+            (cd "$(dirname "$etapa")" && python -m pytest tests/ -q)
+          done
+      - name: Testes do produto (app/backend)
+        run: |
+          pip install -r app/backend/requirements.txt
+          cd app/backend && python -m pytest tests/ -q
+
+  livro:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Build estrito do livro (link quebrado = vermelho)
+        run: |
+          pip install mkdocs-material
+          mkdocs build --strict
+
+  changelog:
+    # Forcing function do CHANGELOG (Maestro, ADR 0006 de lá): toda PR registra
+    # sua entrada em [Unreleased]. Bypass: label skip-changelog.
+    if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'skip-changelog')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - run: |
+          if git diff --name-only "${{ github.event.pull_request.base.sha }}...HEAD" | grep -qx "CHANGELOG.md"; then
+            echo "CHANGELOG.md atualizado ✓"
+          else
+            echo "::error::Toda PR adiciona entrada em [Unreleased] no CHANGELOG.md (ou use a label skip-changelog)."
+            exit 1
+          fi
