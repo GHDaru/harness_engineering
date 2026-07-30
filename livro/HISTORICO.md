@@ -32,6 +32,11 @@
 
 ## Edições
 
+### Edição 0.53 — 2026-07-30 · contador de visitas no rodapé (spec 058)
+- **Feature spec-kit oficial `058-contador-visitas`**: o clássico contador de visitas, do jeito honesto — o rodapé de todas as páginas ganha o chip `📈 N visitas registradas`, alimentado pelo **agregado público da telemetria consentida** (`/telemetry/publico`, spec 055), com cache por sessão de leitura (1 requisição/10 min) e **link para o Apêndice — Uso do livro** (o contador como porta de entrada da página de transparência). Sem número na capa e sem "você é a visita #N" — visitantes sem consentimento não contam, então não existe ordinal verdadeiro a atribuir. Backend fora do ar ⇒ o chip simplesmente não aparece.
+- Verificação: e2e 6/6 (chip com total e link; cache na 2ª página sem novo fetch; ausência silenciosa sem backend).
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.52 — 2026-07-30 · Knowledge Graph do livro: apêndice interativo, sempre em sincronia (spec 057)
 - **Feature spec-kit oficial `057-knowledge-graph`** (ciclo specify→plan→tasks→implement): novo aparato [Apêndice — Grafo do livro](apendice-grafo.md), com o mapa de conexões do livro **interativo** (força dirigida em canvas, JS puro, zero dependências): 4 tipos de nó (18 capítulos · 16 sistemas do corpus · 6 conceitos · 13 etapas do harness-zero) e arestas com peso = menções reais no texto. Interações: arrasto, zoom, hover, clique (isola a vizinhança + painel com link para a página), filtros por tipo.
 - **O sincronismo é estrutural, não processo**: a extração (`publicar/grafo.mjs`) é **determinística, sem LLM**, e roda dentro do `npm run build` — toda mudança publicada do livro regenera o grafo (52 nós / 324 arestas nesta edição). O portão de qualidade agora falha o build se o grafo regredir (18 capítulos, ≥40 nós, ≥100 arestas). Cada aresta é evidência textual verificável (Princípio I aplicado a visualização).

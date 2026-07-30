@@ -308,3 +308,7 @@ abbr[title] { text-decoration: underline dotted; text-decoration-thickness: 1px;
 .kg-p-x { position: absolute; top: .3rem; right: .4rem; border: none; background: none; color: var(--muted);
   font-size: 1rem; cursor: pointer; }
 .kg-off { color: var(--muted); font-size: .85rem; }
+
+/* Contador de visitas no rodapé (spec 058) */
+.rodape-visitas { color: var(--muted); text-decoration: none; font-variant-numeric: tabular-nums; }
+.rodape-visitas:hover { color: var(--prat); }
