@@ -290,3 +290,21 @@ abbr[title] { text-decoration: underline dotted; text-decoration-thickness: 1px;
 .uso-n { text-align: right; font-variant-numeric: tabular-nums; }
 .uso-nota, .uso-off { font-size: .8rem; color: var(--muted); }
 @media (max-width: 560px) { .uso-linha { grid-template-columns: 1fr; gap: .15rem; } .uso-n { text-align: left; } }
+
+/* Knowledge Graph (spec 057) */
+.kg { position: relative; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--sidebar); }
+.kg canvas { display: block; cursor: grab; }
+.kg-legenda { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; margin-top: .6rem; }
+.kg-filtro { display: inline-flex; align-items: center; gap: .35rem; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--sidebar); color: var(--muted); font-size: .78rem; padding: .22rem .7rem; cursor: pointer; }
+.kg-filtro.on { color: var(--fg); border-color: var(--prat); }
+.kg-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.kg-dica { margin-left: auto; font-size: .72rem; color: var(--muted); }
+.kg-painel { position: absolute; top: 10px; right: 10px; max-width: 260px; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 10px; padding: .6rem 2rem .6rem .8rem; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+.kg-p-t { font-weight: 700; font-size: .9rem; display: flex; align-items: center; gap: .4rem; }
+.kg-p-sub { color: var(--muted); font-size: .74rem; margin: .15rem 0 .35rem; }
+.kg-p-link { font-size: .8rem; font-weight: 600; }
+.kg-p-x { position: absolute; top: .3rem; right: .4rem; border: none; background: none; color: var(--muted);
+  font-size: 1rem; cursor: pointer; }
+.kg-off { color: var(--muted); font-size: .85rem; }

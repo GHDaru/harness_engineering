@@ -17,6 +17,7 @@ import { execSync } from "node:child_process";
 import MarkdownIt from "markdown-it";
 import anchor from "markdown-it-anchor";
 import * as esbuild from "esbuild";
+import { gerarGrafo } from "./grafo.mjs";
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const RAIZ = resolve(AQUI, "..");
@@ -229,6 +230,7 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
 <script src="${rel}assets/app.js"></script>
 <script src="${rel}assets/viz.js" defer></script>
 <script src="${rel}assets/uso.js" defer></script>
+<script src="${rel}assets/grafo.js" defer></script>
 ${companionSnippet(chapter)}
 </body></html>`;
 }
@@ -327,6 +329,7 @@ cpSync(resolve(AQUI, "tema/harness-diagrama.svg"), resolve(SAIDA, "assets/harnes
 cpSync(resolve(AQUI, "tema/companion.css"), resolve(SAIDA, "assets/companion.css"));
 cpSync(resolve(AQUI, "tema/companion.js"), resolve(SAIDA, "assets/companion.js"));
 cpSync(resolve(AQUI, "tema/uso.js"), resolve(SAIDA, "assets/uso.js"));
+cpSync(resolve(AQUI, "tema/grafo.js"), resolve(SAIDA, "assets/grafo.js"));
 writeFileSync(resolve(SAIDA, ".nojekyll"), "");
 
 // Bundle das ilhas de visualização React (P2). Dados embutidos em build-time.
@@ -409,6 +412,14 @@ mkdirSync(resolve(SAIDA, "md"), { recursive: true });
   }
   const cabecalho = `# ${sumario.titulo}\n\n> ${sumario.subtitulo}\n>\n> ${versaoDoLivro()} · DOI ${DOI} · fonte: https://github.com/GHDaru/harness_engineering · site: ${SITE}\n\n---\n\n`;
   writeFileSync(resolve(SAIDA, "md", "engenharia-de-harness.md"), cabecalho + partesMd.join("\n\n---\n\n") + "\n");
+}
+
+// Knowledge Graph (spec 057): derivado do conteúdo A CADA build — muda o livro,
+// muda o grafo, sem passo manual.
+{
+  const grafo = gerarGrafo(itens, RAIZ, versaoDoLivro());
+  writeFileSync(resolve(SAIDA, "assets/grafo.json"), JSON.stringify(grafo));
+  console.log(`✓ Grafo do livro: ${grafo.nos.length} nós, ${grafo.arestas.length} arestas`);
 }
 
 // index = tela-capa (splash) full-screen; porta de entrada.

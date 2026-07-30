@@ -32,6 +32,12 @@
 
 ## Edições
 
+### Edição 0.52 — 2026-07-30 · Knowledge Graph do livro: apêndice interativo, sempre em sincronia (spec 057)
+- **Feature spec-kit oficial `057-knowledge-graph`** (ciclo specify→plan→tasks→implement): novo aparato [Apêndice — Grafo do livro](apendice-grafo.md), com o mapa de conexões do livro **interativo** (força dirigida em canvas, JS puro, zero dependências): 4 tipos de nó (18 capítulos · 16 sistemas do corpus · 6 conceitos · 13 etapas do harness-zero) e arestas com peso = menções reais no texto. Interações: arrasto, zoom, hover, clique (isola a vizinhança + painel com link para a página), filtros por tipo.
+- **O sincronismo é estrutural, não processo**: a extração (`publicar/grafo.mjs`) é **determinística, sem LLM**, e roda dentro do `npm run build` — toda mudança publicada do livro regenera o grafo (52 nós / 324 arestas nesta edição). O portão de qualidade agora falha o build se o grafo regredir (18 capítulos, ≥40 nós, ≥100 arestas). Cada aresta é evidência textual verificável (Princípio I aplicado a visualização).
+- Verificação: e2e Playwright 7/7 (dados, filtros, clique/painel/link) + screenshots nos 2 temas; build/portão/corpus verdes.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.51 — 2026-07-29 · radar diário: o livro vigia o próprio ecossistema (spec 056)
 - **Feature spec-kit oficial `056-radar-diario`** ([ADR 0008](../adr/0008-radar-diario-automatizado.md)): uma **sessão-agente agendada (1×/dia)** busca novidades do ecossistema (releases do corpus, protocolos, papers, ferramentas candidatas), avalia impacto por capítulo/Leitura executiva e mantém o **roadmap de auto-atualização** em [`radar/RADAR.md`](../radar/RADAR.md), com o bruto diário auditável em `radar/diario/`. O contrato do agente é versionado em [`radar/AGENTE.md`](../radar/AGENTE.md) — **escrita somente em `radar/`**; promover item a mudança no livro continua exigindo spec-kit com curadoria humana (a fronteira de autonomia dos caps. 07/16 aplicada ao próprio projeto). O radar é a fila de entrada do gatilho extraordinário do ADR 0007.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; decisão registrada em ADR com alternativas.

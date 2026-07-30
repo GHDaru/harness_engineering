@@ -57,6 +57,19 @@ for (const item of itens) {
   if (!html.includes('class="pagcards"')) erro("sem N02 (.pagcards)");
 }
 
+// Knowledge Graph (spec 057): existe, cobre os 18 capítulos e tem tamanho sane.
+{
+  const gPath = resolve(DOCS, "assets/grafo.json");
+  if (!existsSync(gPath)) falhas.push("assets/grafo.json ausente");
+  else {
+    const g = JSON.parse(readFileSync(gPath, "utf8"));
+    const caps = g.nos.filter((n) => n.tipo === "capitulo").length;
+    if (caps !== 18) falhas.push(`grafo: esperados 18 capítulos, há ${caps}`);
+    if (g.nos.length < 40) falhas.push(`grafo: só ${g.nos.length} nós (<40)`);
+    if (g.arestas.length < 100) falhas.push(`grafo: só ${g.arestas.length} arestas (<100)`);
+  }
+}
+
 // Livro completo para download (spec 045)
 if (!existsSync(resolve(DOCS, "md", "engenharia-de-harness.md"))) falhas.push("consolidado md/engenharia-de-harness.md ausente");
 const sum = readFileSync(resolve(DOCS, "sumario.html"), "utf8");

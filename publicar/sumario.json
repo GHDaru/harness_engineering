@@ -132,6 +132,11 @@
           "teaser": "Como o livro é lido: telemetria agregada, ao vivo."
         },
         {
+          "arquivo": "livro/apendice-grafo.md",
+          "titulo": "Apêndice — Grafo do livro",
+          "teaser": "O mapa de conexões do livro, interativo e sempre em sincronia."
+        },
+        {
           "arquivo": "livro/bibliografia.md",
           "titulo": "Bibliografia",
           "teaser": "Fontes científicas e da indústria, verificadas."
