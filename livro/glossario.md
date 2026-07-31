@@ -6,6 +6,9 @@ As siglas deste livro, **por extenso**, com uma explicação curta e o **context
 
 - **MCP — Model Context Protocol.** Protocolo aberto que padroniza como um harness pluga ferramentas, dados e prompts externos ao modelo. *Aparece em:* cap. 06 (MCP) e cap. 17 (Protocolos).
 - **ACP — Agent Client Protocol.** Protocolo (origem Zed) para a conversa **agente ↔ editor/cliente**. Não confundir com o *Agent Communication Protocol* da IBM (também "ACP"), encerrado e fundido ao A2A. *Aparece em:* cap. 13 (Interfaces), cap. 17.
+- **MRTR — Multi Round-Trip Requests.** Padrão da spec MCP 2026-07-28 que substitui as requisições iniciadas pelo servidor (sampling/elicitation): o servidor responde `input_required` e o cliente retenta com as respostas. *Aparece em:* cap. 06.
+- **DCR — Dynamic Client Registration.** Registro dinâmico de clientes OAuth; depreciado na spec MCP 2026-07-28 em favor do CIMD. *Aparece em:* cap. 06.
+- **CIMD — Client ID Metadata Documents.** Sucessor do DCR na autorização do MCP: a identidade do cliente vem de um documento de metadados. *Aparece em:* cap. 06.
 - **A2A — Agent-to-Agent.** Protocolo de **delegação entre agentes** (origem Google, doado à Linux Foundation). *Aparece em:* cap. 10 (Subagentes), cap. 17.
 - **LSP — Language Server Protocol.** Padrão que inspirou os protocolos de agente: separa a "inteligência" (server) da interface (client). *Aparece em:* cap. 11, cap. 12, cap. 14.
 - **RPC — Remote Procedure Call.** Chamar um procedimento em outro processo/máquina como se fosse local; base de vários protocolos. *Aparece em:* caps. 05, 06, 10 e 12.

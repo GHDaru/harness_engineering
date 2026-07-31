@@ -133,6 +133,7 @@ function marcarCallouts(html) {
 // glossário mirroreia as mesmas expansões. Só siglas de 3+ letras (evita ruído).
 const SIGLAS = {
   MCP: "Model Context Protocol", ACP: "Agent Client Protocol", A2A: "Agent-to-Agent",
+  MRTR: "Multi Round-Trip Requests", CIMD: "Client ID Metadata Documents", DCR: "Dynamic Client Registration",
   LSP: "Language Server Protocol", RPC: "Remote Procedure Call",
   MAST: "Multi-Agent System Failure Taxonomy", RAG: "Retrieval-Augmented Generation",
   LLM: "Large Language Model", GPT: "Generative Pre-trained Transformer",

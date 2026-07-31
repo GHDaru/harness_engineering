@@ -1,6 +1,6 @@
 # 17 — A Camada de Protocolos: o tecido conjuntivo entre harnesses
 
-> **Estado da arte capturado em 2026-07** · última revisão 2026-07-28 · [histórico e registro de expiração](../HISTORICO.md)
+> **Estado da arte capturado em 2026-07** · última revisão 2026-07-31 · [histórico e registro de expiração](../HISTORICO.md)
 
 ## Objetivos de aprendizagem
 
@@ -89,6 +89,8 @@ transversais: AGENTS.md (instruções por projeto) · SKILL.md (procedimentos po
 1. **Protocolo é dimensão de sobrevivência, não de feature**: o Aider, referência técnica em três dimensões, está fora do ecossistema de composição inteiro por não falar MCP/ACP. Em um mercado que compõe harnesses, não falar os protocolos é ficar de fora das arquiteturas dos outros.
 2. **A cláusula de expiração não se aplica aqui** (cap. 14): protocolos são fronteira com o mundo — o scaffolding que *resta* quando os modelos melhoram. Investir em protocolo é o investimento de harness com maior meia-vida.
 3. **Para o benchmark**: a matriz acima vira seção permanente do comparativo, atualizada a cada rodada. Protocolos não recebem nota 0–3 como harnesses — são avaliados por **adoção medida** (a matriz) e **saúde de governança** (fundação neutra > vendor único).
+
+**Adendo (2026-07-31):** a spec MCP **2026-07-28** ([anúncio](https://blog.modelcontextprotocol.io/posts/2026-07-28/)) reforça a tese deste capítulo por outro ângulo: núcleo stateless, framework de extensões e a **primeira política formal de depreciação** (12 meses) são o comportamento típico de protocolo saindo da adolescência e entrando na fase de infraestrutura — versionamento disciplinado importa mais que features. A adoção da nova versão pela coorte entra na matriz na próxima rodada.
 
 ### Leitura executiva
 
