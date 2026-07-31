@@ -200,6 +200,25 @@ table.viz-heat { border-collapse: collapse; width: 100%; font-size: .9rem; displ
   .splash-ctas { justify-content: center; }
 }
 
+/* ===== News na capa (spec 062) — destaque da novidade + edição corrente ===== */
+.splash-news { max-width: 52ch; text-align: left; margin: 0 0 .8rem;
+  background: rgba(224,162,74,.12); border: 1px solid rgba(224,162,74,.35);
+  border-left: 3px solid #e0a24a; border-radius: 12px; padding: .7rem 1rem; }
+.splash-news-k { display: block; font-size: .66rem; letter-spacing: .08em; text-transform: uppercase;
+  color: #e0a24a; font-weight: 700; margin-bottom: .25rem; }
+.splash-news-imp { color: #f2c98a; }
+.splash-news p { margin: 0; font-size: .88rem; line-height: 1.5; color: #dbe4f2; }
+.splash-news p a { color: #a9c6f2; }
+.splash-news-mais { display: inline-block; margin-top: .3rem; font-size: .78rem; font-weight: 600;
+  color: #e0a24a; text-decoration: none; }
+.splash-news-mais:hover { text-decoration: underline; }
+.splash-vedicao { max-width: 52ch; text-align: left; font-size: .78rem; color: #7f8fa8; margin: 0 0 1.4rem; }
+.splash-vedicao b { color: #aeb9c9; font-variant-numeric: tabular-nums; }
+.splash-vedicao a { color: #8aa0bd; }
+@media (max-width: 820px) {
+  .splash-news, .splash-vedicao { margin-left: auto; margin-right: auto; }
+}
+
 /* ===== Experiência de entrada (spec 021) — sumário repaginado ===== */
 .pagina-index .conteudo { max-width: 76rem; padding: 2.2rem 2.6rem 4rem; }
 .pagina-index .markdown { max-width: none; }
