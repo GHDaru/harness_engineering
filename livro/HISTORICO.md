@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.57 — 2026-07-31 · o jornal chega à capa: novidades no splash (spec 062)
+- **Feature spec-kit oficial `062-news-capa`**: correção de alvo da 061 — o pedido era a **capa** (`index.html`). O splash agora exibe, entre os CTAs e os créditos: (1) **destaque** — card âmbar `splash-news` com a última notícia do Radar (data, badge de impacto, link "ver o Radar completo"); (2) **menos destaque** — linha `splash-vedicao` "📖 Nesta edição". Mesmas fontes e mesma postura da 061 (parse falho ⇒ bloco omitido); o bloco da entrada permanece como aprovado. Portão novo: fonte parseia ⇒ a capa noticia.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.56 — 2026-07-31 · news na entrada: a última do Radar + a edição corrente (spec 061)
 - **Feature spec-kit oficial `061-news-entrada`**: a entrada do livro ganhou uma faixa de **jornal vivo**, derivada no build sem curadoria extra: (1) **destaque** — card âmbar com a notícia mais recente e relevante do [Radar](../radar/RADAR.md) (data, impacto, item com link e "ver o Radar completo"); (2) **menos destaque** — a linha "📖 Nesta edição (vX.Y.0 · data): título — Histórico", parseada da última entrada deste arquivo. **Auto-atualização estrutural**: o agente diário escreve no RADAR ⇒ a capa muda no build seguinte; edição nova aqui ⇒ idem. Parse falhou ⇒ bloco omitido (a entrada nunca quebra).
 - Verificação: e2e 4/4 (conteúdo real do MCP 2026-07-28, impacto A, versão e link do Histórico) + screenshot.

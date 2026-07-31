@@ -70,6 +70,21 @@ for (const item of itens) {
   }
 }
 
+// News na capa (spec 062): se as fontes do jornal parseiam, a capa noticia.
+// Condicional de propósito — parse falho omite o bloco sem quebrar o build (R3).
+{
+  const indexHtml = readFileSync(resolve(DOCS, "index.html"), "utf8");
+  const radar = existsSync(resolve(RAIZ, "radar/RADAR.md")) ? readFileSync(resolve(RAIZ, "radar/RADAR.md"), "utf8") : "";
+  const temNoticia = radar.split("\n").some((l) => {
+    const c = l.split("|").map((x) => x.trim());
+    return c.length >= 7 && /^\d{4}-\d{2}-\d{2}$/.test(c[1]) && !c[2].includes("(inicial)");
+  });
+  const hist = readFileSync(resolve(RAIZ, "livro/HISTORICO.md"), "utf8");
+  const temEdicao = /^###\s+Edição\s+\d+\.\d+\s+—\s+\d{4}-\d{2}-\d{2}\s+·\s+.+$/m.test(hist);
+  if (temNoticia && !indexHtml.includes('class="splash-news"')) falhas.push("capa: RADAR tem notícia mas index.html não tem .splash-news");
+  if (temEdicao && !indexHtml.includes('class="splash-vedicao"')) falhas.push("capa: HISTORICO tem edição mas index.html não tem .splash-vedicao");
+}
+
 // Livro completo para download (spec 045)
 if (!existsSync(resolve(DOCS, "md", "engenharia-de-harness.md"))) falhas.push("consolidado md/engenharia-de-harness.md ausente");
 const sum = readFileSync(resolve(DOCS, "sumario.html"), "utf8");

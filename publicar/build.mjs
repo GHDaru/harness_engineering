@@ -265,6 +265,32 @@ function dataDaUltimaModificacao() {
   return new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(d);
 }
 
+// Jornal vivo (specs 061/062): a última notícia do Radar e a edição corrente,
+// parseadas dos arquivos-fonte a cada build. Parse falho -> null -> bloco omitido.
+function noticiaDoRadar() {
+  try {
+    const radar = readFileSync(resolve(RAIZ, "radar/RADAR.md"), "utf8");
+    for (const linha of radar.split("\n")) {
+      const cels = linha.split("|").map((c) => c.trim());
+      if (cels.length < 7 || !/^\d{4}-\d{2}-\d{2}$/.test(cels[1])) continue;
+      if (cels[2].includes("(inicial)")) continue;
+      const impacto = (cels[4].match(/[ABC]/) || [])[0] || "";
+      return { data: cels[1], itemHtml: md.renderInline(cels[2]), impacto };
+    }
+  } catch {}
+  return null;
+}
+function ultimaEdicao() {
+  try {
+    const hist = readFileSync(resolve(RAIZ, "livro/HISTORICO.md"), "utf8");
+    const m = hist.match(/^###\s+Edição\s+(\d+\.\d+)\s+—\s+(\d{4}-\d{2}-\d{2})\s+·\s+(.+)$/m);
+    if (m) return { versao: `v${m[1]}.0`, data: m[2], titulo: m[3].replace(/\s*\(spec \d+\)\s*$/, "") };
+  } catch {}
+  return null;
+}
+const noticia = noticiaDoRadar();
+const edicao = ultimaEdicao();
+
 // Tela-capa (splash) full-screen: porta de entrada do site, sem sidebar.
 function paginaSplash() {
   const versao = versaoDoLivro();
@@ -298,6 +324,12 @@ function paginaSplash() {
       <a class="btn btn-escuro" href="comparativo.html">Benchmark</a>
       <a class="btn btn-escuro" href="guia-editorial.html">Guia Editorial</a>
     </div>
+    ${noticia
+      ? `<div class="splash-news"><span class="splash-news-k">🗞 Novidade · ${noticia.data}${noticia.impacto ? ` · <b class="splash-news-imp">impacto ${noticia.impacto}</b>` : ""}</span><p>${noticia.itemHtml}</p><a class="splash-news-mais" href="${GITHUB_BASE}radar/RADAR.md">ver o Radar completo →</a></div>`
+      : ""}
+    ${edicao
+      ? `<p class="splash-vedicao">📖 Nesta edição (<b>${edicao.versao}</b> · ${edicao.data}): ${edicao.titulo} — <a href="historico.html">Histórico</a></p>`
+      : ""}
     <p class="splash-creditos"><strong><a href="autor.html">Gilsiley Henrique Darú</a></strong> — edição, direção e orquestração · <a class="splash-linkedin" href="https://www.linkedin.com/in/gilsiley-dar%C3%BA/">LinkedIn</a><br><strong>Claude (Anthropic)</strong> — pesquisa e geração de texto (co-autoria) · <strong>GPT (OpenAI)</strong> — imagem de capa</p>
     <p class="splash-versao"><span class="splash-versao-num">${versao}</span> · atualizado em ${atualizado}</p>
     <p class="splash-doi"><a href="https://doi.org/10.5281/zenodo.21632412">DOI: 10.5281/zenodo.21632412</a></p>
@@ -452,29 +484,7 @@ const pillsEnt = sumario.partes.filter((p) => !partesCartao.has(p.nome)).flatMap
 
 // News da entrada (spec 061): derivado do RADAR (agente diário) e do HISTORICO.
 // Parse falhou -> bloco omitido; a entrada nunca quebra por causa do jornal.
-function noticiaDoRadar() {
-  try {
-    const radar = readFileSync(resolve(RAIZ, "radar/RADAR.md"), "utf8");
-    for (const linha of radar.split("\n")) {
-      const cels = linha.split("|").map((c) => c.trim());
-      if (cels.length < 7 || !/^\d{4}-\d{2}-\d{2}$/.test(cels[1])) continue;
-      if (cels[2].includes("(inicial)")) continue;
-      const impacto = (cels[4].match(/[ABC]/) || [])[0] || "";
-      return { data: cels[1], itemHtml: md.renderInline(cels[2]), impacto };
-    }
-  } catch {}
-  return null;
-}
-function ultimaEdicao() {
-  try {
-    const hist = readFileSync(resolve(RAIZ, "livro/HISTORICO.md"), "utf8");
-    const m = hist.match(/^###\s+Edição\s+(\d+\.\d+)\s+—\s+(\d{4}-\d{2}-\d{2})\s+·\s+(.+)$/m);
-    if (m) return { versao: `v${m[1]}.0`, data: m[2], titulo: m[3].replace(/\s*\(spec \d+\)\s*$/, "") };
-  } catch {}
-  return null;
-}
-const noticia = noticiaDoRadar();
-const edicao = ultimaEdicao();
+// (Parsers e consts vivem antes do splash — spec 062 os consome na capa também.)
 const blocoNews = (noticia
   ? `<div class="ent-news"><span class="ent-news-k">🗞 Radar do livro vivo · ${noticia.data}${noticia.impacto ? ` · impacto ${noticia.impacto}` : ""}</span><p>${noticia.itemHtml}</p><a class="ent-news-mais" href="${GITHUB_BASE}radar/RADAR.md">ver o Radar completo →</a></div>`
   : "") + (edicao
