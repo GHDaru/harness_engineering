@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" role="img" aria-labelledby="t d">
+  <title id="t">harness-um — a implementação de referência do livro Engenharia de Harness</title>
+  <desc id="d">Emblema: um numeral 1 âmbar luminoso no centro de um anel de 12 segmentos azuis (os capítulos 02–13), sobre fundo azul-escuro de blueprint; ao lado, o nome harness-um.</desc>
+  <defs>
+    <linearGradient id="ambar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2c98a"/>
+      <stop offset="1" stop-color="#e0a24a"/>
+    </linearGradient>
+    <radialGradient id="brilho" cx="0.5" cy="0.45" r="0.6">
+      <stop offset="0" stop-color="#e0a24a" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#e0a24a" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grade" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0v40" fill="none" stroke="#16294a" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="960" height="420" rx="28" fill="#0d1a30"/>
+  <rect width="960" height="420" rx="28" fill="url(#grade)"/>
+
+  <!-- emblema -->
+  <g transform="translate(210,210)">
+    <circle r="150" fill="url(#brilho)"/>
+    <!-- anel de 12 segmentos: os capítulos 02–13 envolvendo o núcleo -->
+    <circle r="132" fill="none" stroke="#78aeff" stroke-width="20"
+            stroke-dasharray="55.1 14" stroke-linecap="round" transform="rotate(-83)"/>
+    <circle r="132" fill="none" stroke="#2c4a7c" stroke-width="20" stroke-opacity="0.35"/>
+    <!-- núcleo: o "1" -->
+    <g fill="url(#ambar)">
+      <polygon points="-14,-78 22,-78 22,58 -14,58 -14,-38 -46,-16 -46,-52"/>
+      <rect x="-46" y="58" width="92" height="20" rx="6"/>
+    </g>
+    <circle r="96" fill="none" stroke="#e0a24a" stroke-width="2" stroke-opacity="0.35"/>
+  </g>
+
+  <!-- marca -->
+  <g font-family="'Segoe UI', 'Inter', -apple-system, sans-serif">
+    <text x="430" y="196" font-size="72" font-weight="800" letter-spacing="-2">
+      <tspan fill="#eaeef6">harness-</tspan><tspan fill="#e0a24a">um</tspan>
+    </text>
+    <text x="434" y="248" font-size="24" fill="#9fb0c9">a implementação de referência do livro</text>
+    <text x="434" y="282" font-size="24" fill="#9fb0c9" font-style="italic">Engenharia de Harness</text>
+    <text x="434" y="336" font-size="14" fill="#6f7f98" letter-spacing="0.04em">12 SEGMENTOS = CAPÍTULOS 02–13 · NÚCLEO = O AGENTE</text>
+  </g>
+</svg>

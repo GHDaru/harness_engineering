@@ -32,6 +32,12 @@
 
 ## Edições
 
+### Edição 0.58 — 2026-07-31 · harness-um: o livro inteiro, executável (spec 063)
+- **Feature spec-kit oficial `063-harness-um`**: nasce a **implementação de referência** do livro — [`harness-um/`](../harness-um/README.md), um pacote Python com as features dos capítulos 02–13 num sistema coeso: loop com orçamento (02), contexto em camadas (03), compactação (04), ferramentas com esquema pela assinatura (05), cliente MCP stateless pós-2026-07-28 (06), política permitir/perguntar/negar (07), MEMORIA.md + sessões JSONL (08), plano-artefato (09), subagente só-leitura com contexto limpo (10), verificação pós-mutação (11), ganchos vetáveis + habilidades SKILL.md (12) e REPL (13). **Linguagem ubíqua em português** (o código fala a língua do livro; a borda `provedores.py` é a camada anticorrupção). 19 testes offline via `ProvedorEco`, rodando no CI a cada push.
+- **Nome**: "harness-um" (progressão do harness-zero) — decisão do editor após o alerta de colisão: "OpenHarness" já é um sistema do corpus (HKUDS). O apêndice registra a escolha.
+- Novo [apêndice](apendice-harness-um.md) com a **figura oficial** (núcleo "1" âmbar + anel de 12 segmentos = capítulos 02–13), a tabela da linguagem ubíqua e o "como baixar e rodar".
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria e decisões de nome/hospedagem humanas.
+
 ### Edição 0.57 — 2026-07-31 · o jornal chega à capa: novidades no splash (spec 062)
 - **Feature spec-kit oficial `062-news-capa`**: correção de alvo da 061 — o pedido era a **capa** (`index.html`). O splash agora exibe, entre os CTAs e os créditos: (1) **destaque** — card âmbar `splash-news` com a última notícia do Radar (data, badge de impacto, link "ver o Radar completo"); (2) **menos destaque** — linha `splash-vedicao` "📖 Nesta edição". Mesmas fontes e mesma postura da 061 (parse falho ⇒ bloco omitido); o bloco da entrada permanece como aprovado. Portão novo: fonte parseia ⇒ a capa noticia.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
