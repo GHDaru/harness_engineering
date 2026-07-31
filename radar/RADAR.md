@@ -5,10 +5,11 @@
 
 ## ⚠ Leituras executivas possivelmente invalidadas
 
-*(vazio — nenhuma em risco na criação, 2026-07-29)*
+- **Cap. 06 (MCP)** — a spec **2026-07-28** removeu o handshake `initialize` e o `Mcp-Session-Id` (núcleo stateless), **depreciou Sampling/Roots/Logging e o transporte HTTP+SSE**, e substituiu elicitation/sampling por MRTR. A Leitura executiva atual celebra exatamente o que foi depreciado. → promover a spec de revisão (impacto A; ver diário 2026-07-31).
 
 ## Itens
 
 | Data | Item (com link) | Capítulo | Impacto | Ação sugerida | Status |
 |---|---|---|---|---|---|
+| 2026-07-31 | [MCP spec 2026-07-28](https://blog.modelcontextprotocol.io/posts/2026-07-28/) — núcleo stateless, MRTR, extensões, cache ttlMs, depreciações (Sampling/Roots/Logging/SSE/DCR) | 06 (A), 17 (B), etapa 07 (B), 03/04 (C) | **A** | revisar cap. 06 (lifecycle/Leitura executiva), nota no 17 e na etapa 07 | novo |
 | 2026-07-29 | *(inicial)* Radar criado; primeira varredura na próxima execução agendada | — | — | — | novo |
