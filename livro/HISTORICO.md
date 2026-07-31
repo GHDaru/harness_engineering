@@ -32,6 +32,13 @@
 
 ## Edições
 
+### Edição 0.61 — 2026-07-31 · leitura integral verificada: as citações agora são do texto (spec 066)
+- **Feature spec-kit oficial `066-papers-integrais`**: o editor liberou o arXiv na política de rede do Environment (acesso completo — registrado no diário do Radar como **a única exceção até o momento**, pela dinâmica do livro vivo) e os dois preprints da edição 0.60 foram **relidos na íntegra** pelos mesmos agentes, com mandato de deltas verbatim.
+- **Cap. 11 corrigido**: duas frases que circulavam como citação do paper da AI2 eram **paráfrases de agregadores** — substituídas pelo verbatim real (§4.3 e §5.2), com os números das Tabelas 1–3 (evolução de harness piora o GPT-5.4 sem testes unitários; held-out +0,6). Lição de método no diário: paráfrase de agregador vira "citação" em um dia de circulação.
+- **Cap. 04 corrigido e ampliado**: ganho do GLM-4.7-Flash era +5,5/+6,8 (não "+3,1"); nuance de baseline explicitada; e o achado pró-harness da Tabela 1 — **trocar só o sumarizador move +6,5 pontos** ("compaction is a performance-critical decision process") — devolve à tese do capítulo o que a "terceira via" parecia tirar.
+- **Bibliografia**: os dois itens perdem a ressalva "texto integral pendente"; autores/afiliações completados (Tsinghua/Z.AI; AI2/UW/indep.).
+- **IA (A3)**: agente **Claude Code (Anthropic)**; decisão de rede e curadoria humanas.
+
 ### Edição 0.60 — 2026-07-31 · os papers do Radar entram no livro + conferência A2A (spec 065)
 - **Feature spec-kit oficial `065-papers-a2a`**: promoção dos dois itens restantes da varredura de 2026-07-31. Três agentes de leitura; **arXiv bloqueado no ambiente** (registrado no diário do Radar) ⇒ dois papers avaliados pelo abstract com marcação explícita; o survey **lido na íntegra** (62 pp.).
 - **Cap. 04** ganha o adendo "a terceira via": [CompactionRL](https://arxiv.org/abs/2607.05378) — compactação **aprendida no treino** (RL com sumarização no loop, recompensa de tarefa, +7,0 Pass@1 SWE-bench Verified) e a limitação reveladora: ganhos não transferem sem compactação ⇒ acoplamento modelo↔harness — o argumento mais forte até agora para a compactação nativa de provedor.
