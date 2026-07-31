@@ -15,6 +15,7 @@
 - ✓ **Recursive Agent Harnesses** — arXiv [2606.13643](https://arxiv.org/abs/2606.13643). Achado da validação; avaliar aderência (harnesses compostos — conecta com caps. 10 e 15).
 - ✓ **ReAct: Synergizing Reasoning and Acting in Language Models** (Yao et al.) — arXiv [2210.03629](https://arxiv.org/abs/2210.03629). O paper seminal do loop raciocínio+ação.
 - ✓ **Li, Xinzhe** *A Review of Prominent Paradigms for LLM-Based Agents: Tool Use, Planning (Including RAG), and Feedback Learning* — COLING 2025, pp. 9760–9779 ([aclanthology](https://aclanthology.org/2025.coling-main.652/); arXiv 2406.05804).
+- ✓ **Agent Systems with Harness Engineering** (Tang, Peng, Chen et al., RUC/Gaoling) — OpenReview [nM5tDHrQsx](https://openreview.net/forum?id=nM5tDHrQsx) · [PDF + curadoria](https://github.com/RUCAIBox/awesome-agent-harness) (maio/2026; **sem versão arXiv**; PDF de 62 pp. lido na íntegra, spec 065). O segundo survey no recorte do livro — e o complemento do âncora acima: taxonomia scaffold-side convergente com a nossa (workflow/memória/skills/multi-agente) mais um terço inteiro que o livro não cobre (**treinamento agêntico**: RL, recompensas, infra de rollout). A tese central citável: harness engineering como "the joint optimization of both components" (modelo⇄scaffold). Ressalvas de rigor: sem seção de limitações, sem metodologia de survey declarada, amostra de sistemas reais n=3 — e permissões, extensibilidade e interfaces (fortes no nosso benchmark) tratadas como direções futuras, não componentes de primeira classe.
 
 ### História e proveniência (cap. 01 §2–3) — adicionadas na revisão de rigor
 
@@ -55,6 +56,7 @@
 - ⭐ ✓ **MemGPT: Towards LLMs as Operating Systems** (Packer et al.) — arXiv [2310.08560](https://arxiv.org/abs/2310.08560). A formulação "memória virtual" que antecipou a escada de compactação.
 - ✓ **ContextBudget: Budget-Aware Context Management for Long-Horizon Search Agents** — arXiv [2604.01664](https://arxiv.org/abs/2604.01664).
 - ✓ **The Missing Memory Hierarchy: Demand Paging for LLM Context Windows** — arXiv [2603.09023](https://arxiv.org/abs/2603.09023).
+- ✓ **CompactionRL: Reinforcement Learning with Context Compaction for Long-Horizon Agents** — arXiv [2607.05378](https://arxiv.org/abs/2607.05378) (preprint, jul/2026). A "terceira via" do adendo do capítulo: sumarização aprendida no treino, recompensa de tarefa, +7,0 Pass@1 no SWE-bench Verified — e a limitação reveladora (ganhos não transferem sem compactação = acoplamento modelo↔harness). ID↔título validados por busca independente; **texto integral pendente** (arXiv inacessível deste ambiente) — leitura dirigida na janela 2026-10.
 - ✓ Lost in the Middle (cap. 03) — fundamenta *o que* preservar.
 
 ## Cap. 05 — Ferramentas
@@ -137,6 +139,7 @@ Fontes da indústria (docs/vendor/praticantes) na linha do Cap. 06 abaixo.
 - ✓ **Tülu 3 / RLVR** (Lambert et al., Ai2) — arXiv [2411.15124](https://arxiv.org/abs/2411.15124). Reinforcement Learning with Verifiable Rewards: um verificador determinístico é sinal e recompensa mais difícil de fraudar.
 - ~ **Reward Hacking in Language Model Agents (AI Safety Gridworlds)** — arXiv [2606.15385](https://arxiv.org/abs/2606.15385); **Do Coding Agents Deceive Us? (Capped Evaluation with Randomized Tests)** — arXiv [2606.07379](https://arxiv.org/abs/2606.07379). O agente joga contra o verificador → held-out/randomizado + testes imutáveis. *(recentes; ID por busca cruzada.)*
 - ✓ **The 2025 AI Agent Index** — arXiv [2602.17753](https://arxiv.org/abs/2602.17753) (FAccT '26).
+- ✓ **Rethinking the Evaluation of Harness Evolution for Agents** (AI2/UW) — arXiv [2607.12227](https://arxiv.org/abs/2607.12227) (preprint, jul/2026). O paper de método do adendo do capítulo: evolução automática de harness não supera consistentemente test-time scaling sob orçamento equiparado, e generaliza mal em held-out — as três regras (orçamento equiparado, separação busca/avaliação, benchmark sensível a design) valem para qualquer avaliação de harness, inclusive a deste livro. ID↔título validados por busca independente; **texto integral pendente** (arXiv inacessível deste ambiente) — leitura dirigida na janela 2026-10.
 
 ## Cap. 12 — Extensibilidade
 

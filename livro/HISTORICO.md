@@ -32,6 +32,14 @@
 
 ## Edições
 
+### Edição 0.60 — 2026-07-31 · os papers do Radar entram no livro + conferência A2A (spec 065)
+- **Feature spec-kit oficial `065-papers-a2a`**: promoção dos dois itens restantes da varredura de 2026-07-31. Três agentes de leitura; **arXiv bloqueado no ambiente** (registrado no diário do Radar) ⇒ dois papers avaliados pelo abstract com marcação explícita; o survey **lido na íntegra** (62 pp.).
+- **Cap. 04** ganha o adendo "a terceira via": [CompactionRL](https://arxiv.org/abs/2607.05378) — compactação **aprendida no treino** (RL com sumarização no loop, recompensa de tarefa, +7,0 Pass@1 SWE-bench Verified) e a limitação reveladora: ganhos não transferem sem compactação ⇒ acoplamento modelo↔harness — o argumento mais forte até agora para a compactação nativa de provedor.
+- **Cap. 11** ganha o adendo "três regras": [Rethinking the Evaluation of Harness Evolution](https://arxiv.org/abs/2607.12227) (AI2/UW) — evolução automática de harness não supera test-time scaling sob orçamento equiparado; regras (orçamento equiparado, held-out, benchmark sensível a design) adotadas como dever de casa do próprio benchmark do livro (validade convergente).
+- **Bibliografia**: 3 itens novos — incluindo o survey **Agent Systems with Harness Engineering** (RUC, maio/2026, OpenReview — a busca o datara de julho; corrigido no diário), com nota de rigor (sem limitações declaradas, sem metodologia de survey, n=3 sistemas) e o mapeamento taxonomia-a-taxonomia (converge no scaffold; diverge em permissões/extensibilidade/interfaces — fortes aqui, futuras lá; treinamento agêntico — forte lá, ausente aqui).
+- **Cap. 17**: conferência do A2A concluída — v1.0 já estava coberto; adendo enriquecido (3 camadas, v1.0.1 com **mecanismo formal de extensões**, fonte primária) e a simetria editorial: MCP e A2A chegaram no mesmo trimestre a "extensões formais em vez de features no núcleo".
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.59 — 2026-07-31 · o corpus cresce: Grok Build e Pi (rodada ext-1, spec 064)
 - **Feature spec-kit oficial `064-corpus-ext`**: primeira **promoção Radar→corpus** — o Radar achou (varredura de 2026-07-31), o editor aprovou e forkou, dois agentes de leitura varreram os clones congelados e o instrumento padrão (HARNESS_EVAL) foi aplicado. Corpus: 16 → **18**; rodada **ext-1**, sem tocar as fotos das rodadas 1/2.
 - **[Grok Build (xAI)](../benchmark/avaliacoes/grok-build.md): 35/36** — plataforma máxima; ⭐ em permissões (autorização de shell por **AST** tree-sitter + sandbox kernel-enforced fail-closed), subagentes (**worktrees CoW/BTRFS confirmadas no código**) e extensibilidade (compat poliglota: lê artefatos de Claude/Cursor e porta tools do codex/opencode). Distintivo: workflows Rhai com **replay determinístico**. Gap: zero evals comportamentais.
