@@ -450,6 +450,37 @@ const blocosCartao = sumario.partes
   .join("");
 const pillsEnt = sumario.partes.filter((p) => !partesCartao.has(p.nome)).flatMap((p) => p.itens).map(pillEnt).join("");
 
+// News da entrada (spec 061): derivado do RADAR (agente diário) e do HISTORICO.
+// Parse falhou -> bloco omitido; a entrada nunca quebra por causa do jornal.
+function noticiaDoRadar() {
+  try {
+    const radar = readFileSync(resolve(RAIZ, "radar/RADAR.md"), "utf8");
+    for (const linha of radar.split("\n")) {
+      const cels = linha.split("|").map((c) => c.trim());
+      if (cels.length < 7 || !/^\d{4}-\d{2}-\d{2}$/.test(cels[1])) continue;
+      if (cels[2].includes("(inicial)")) continue;
+      const impacto = (cels[4].match(/[ABC]/) || [])[0] || "";
+      return { data: cels[1], itemHtml: md.renderInline(cels[2]), impacto };
+    }
+  } catch {}
+  return null;
+}
+function ultimaEdicao() {
+  try {
+    const hist = readFileSync(resolve(RAIZ, "livro/HISTORICO.md"), "utf8");
+    const m = hist.match(/^###\s+Edição\s+(\d+\.\d+)\s+—\s+(\d{4}-\d{2}-\d{2})\s+·\s+(.+)$/m);
+    if (m) return { versao: `v${m[1]}.0`, data: m[2], titulo: m[3].replace(/\s*\(spec \d+\)\s*$/, "") };
+  } catch {}
+  return null;
+}
+const noticia = noticiaDoRadar();
+const edicao = ultimaEdicao();
+const blocoNews = (noticia
+  ? `<div class="ent-news"><span class="ent-news-k">🗞 Radar do livro vivo · ${noticia.data}${noticia.impacto ? ` · impacto ${noticia.impacto}` : ""}</span><p>${noticia.itemHtml}</p><a class="ent-news-mais" href="${GITHUB_BASE}radar/RADAR.md">ver o Radar completo →</a></div>`
+  : "") + (edicao
+  ? `<p class="ent-vedicao">📖 Nesta edição (<b>${edicao.versao}</b> · ${edicao.data}): ${edicao.titulo} — <a href="historico.html">Histórico</a></p>`
+  : "");
+
 const corpoSumario = `<section class="entrada">
   <div class="ent-hero">
     <img class="ent-capa" src="assets/capa.png" width="1024" height="1536" loading="eager" alt="Capa do livro Engenharia de Harness">
@@ -466,6 +497,7 @@ const corpoSumario = `<section class="entrada">
       </div>
     </div>
   </div>
+  ${blocoNews}
   <a class="ent-retomar" id="ent-retomar" href="#" hidden>
     <span class="ent-ret-l"><span class="ent-ret-lab">Continue lendo</span><span class="ent-ret-cap" id="ent-ret-cap"></span></span>
     <span class="ent-btn ent-btn-a">Retomar ▶</span>

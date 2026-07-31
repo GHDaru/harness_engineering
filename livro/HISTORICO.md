@@ -32,6 +32,11 @@
 
 ## Edições
 
+### Edição 0.56 — 2026-07-31 · news na entrada: a última do Radar + a edição corrente (spec 061)
+- **Feature spec-kit oficial `061-news-entrada`**: a entrada do livro ganhou uma faixa de **jornal vivo**, derivada no build sem curadoria extra: (1) **destaque** — card âmbar com a notícia mais recente e relevante do [Radar](../radar/RADAR.md) (data, impacto, item com link e "ver o Radar completo"); (2) **menos destaque** — a linha "📖 Nesta edição (vX.Y.0 · data): título — Histórico", parseada da última entrada deste arquivo. **Auto-atualização estrutural**: o agente diário escreve no RADAR ⇒ a capa muda no build seguinte; edição nova aqui ⇒ idem. Parse falhou ⇒ bloco omitido (a entrada nunca quebra).
+- Verificação: e2e 4/4 (conteúdo real do MCP 2026-07-28, impacto A, versão e link do Histórico) + screenshot.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.55 — 2026-07-31 · MCP 2026-07-28: o primeiro gatilho extraordinário exercido (spec 060)
 - **Feature spec-kit oficial `060-mcp-2026-07-28`**, promovida do **Radar** (diário 2026-07-31, impacto A) — o fluxo do ADR 0007/0008 funcionando de ponta a ponta: aviso → pesquisa com fontes oficiais → registro no radar → spec → revisão.
 - **Cap. 06**: nova seção "§6 A guinada stateless — a spec 2026-07-28" (fim do handshake `initialize` e do `Mcp-Session-Id`; MRTR no lugar de sampling/elicitation; extensões formais; cache `ttlMs` como contrato; primeira política de depreciação — 12 meses — cobrindo Sampling/Roots/Logging/HTTP+SSE/DCR→CIMD); **Leitura executiva reescrita** (o que a coorte roda × o que se escreve hoje); "o que roubar" corrigido (fallback SSE agora é depreciado); fonte oficial adicionada; revisão 2026-07-31.
