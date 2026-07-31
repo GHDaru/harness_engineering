@@ -32,6 +32,10 @@
 
 ## Edições
 
+### Edição 0.54 — 2026-07-31 · favicon (spec 059)
+- **Feature spec-kit `059-favicon`**: o site ganhou favicon na identidade do livro — **núcleo âmbar (o modelo) envolto pelo anel segmentado (o harness)**, a mesma metáfora da capa e do diagrama do cap. 00. `favicon.svg` (nítido em qualquer escala) + PNG 32px + apple-touch-icon 180px, nos dois templates (páginas e splash). Conferido visualmente em 16/32/180px nos dois fundos.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.53 — 2026-07-30 · contador de visitas no rodapé (spec 058)
 - **Feature spec-kit oficial `058-contador-visitas`**: o clássico contador de visitas, do jeito honesto — o rodapé de todas as páginas ganha o chip `📈 N visitas registradas`, alimentado pelo **agregado público da telemetria consentida** (`/telemetry/publico`, spec 055), com cache por sessão de leitura (1 requisição/10 min) e **link para o Apêndice — Uso do livro** (o contador como porta de entrada da página de transparência). Sem número na capa e sem "você é a visita #N" — visitantes sem consentimento não contam, então não existe ordinal verdadeiro a atribuir. Backend fora do ar ⇒ o chip simplesmente não aparece.
 - Verificação: e2e 6/6 (chip com total e link; cache na 2ª página sem novo fetch; ausência silenciosa sem backend).
