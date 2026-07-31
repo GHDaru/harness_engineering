@@ -137,6 +137,11 @@
           "teaser": "O mapa de conexões do livro, interativo e sempre em sincronia."
         },
         {
+          "arquivo": "livro/apendice-harness-um.md",
+          "titulo": "Apêndice — harness-um (a referência)",
+          "teaser": "O livro inteiro, executável: as features dos capítulos 02–13 num harness de referência, com linguagem ubíqua em português."
+        },
+        {
           "arquivo": "livro/bibliografia.md",
           "titulo": "Bibliografia",
           "teaser": "Fontes científicas e da indústria, verificadas."
