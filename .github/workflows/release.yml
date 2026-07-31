@@ -1,13 +1,19 @@
-name: Release por tag
+name: Release
 
-# Toda tag anotada v* vira uma GitHub Release automaticamente, com as notas
-# tiradas da MENSAGEM DA TAG (fonte única: quem cria a tag escreve as notas).
-# A Release, por sua vez, dispara o webhook do Zenodo -> DOI de versão.
-# Criar release = git tag -a vX.Y.Z -m "notas..." && git push origin vX.Y.Z
+# Duas portas para o mesmo destino:
+#  1) push de tag anotada v* (quando criada localmente com permissão de tags);
+#  2) workflow_dispatch com input `version` — o job cria a tag E a Release,
+#     com notas lidas de releases/<version>.md (fonte única versionada).
+# A Release dispara o webhook do Zenodo -> DOI de versão.
 
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versão a lançar (ex.: v0.62.0); precisa de releases/<version>.md"
+        required: true
 
 permissions:
   contents: write
@@ -17,10 +23,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Criar a Release a partir da tag anotada
+      - name: Criar a Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" \
-            --title "${GITHUB_REF_NAME} — Engenharia de Harness" \
-            --notes-from-tag --verify-tag
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            V="${{ inputs.version }}"
+            test -f "releases/${V}.md" || { echo "releases/${V}.md ausente"; exit 1; }
+            gh release create "$V" --target "${GITHUB_SHA}" \
+              --title "$V — Engenharia de Harness" --notes-file "releases/${V}.md"
+          else
+            gh release create "${GITHUB_REF_NAME}" \
+              --title "${GITHUB_REF_NAME} — Engenharia de Harness" \
+              --notes-from-tag --verify-tag
+          fi
