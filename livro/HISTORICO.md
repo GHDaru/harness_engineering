@@ -32,6 +32,12 @@
 
 ## Edições
 
+### Edição 0.55 — 2026-07-31 · MCP 2026-07-28: o primeiro gatilho extraordinário exercido (spec 060)
+- **Feature spec-kit oficial `060-mcp-2026-07-28`**, promovida do **Radar** (diário 2026-07-31, impacto A) — o fluxo do ADR 0007/0008 funcionando de ponta a ponta: aviso → pesquisa com fontes oficiais → registro no radar → spec → revisão.
+- **Cap. 06**: nova seção "§6 A guinada stateless — a spec 2026-07-28" (fim do handshake `initialize` e do `Mcp-Session-Id`; MRTR no lugar de sampling/elicitation; extensões formais; cache `ttlMs` como contrato; primeira política de depreciação — 12 meses — cobrindo Sampling/Roots/Logging/HTTP+SSE/DCR→CIMD); **Leitura executiva reescrita** (o que a coorte roda × o que se escreve hoje); "o que roubar" corrigido (fallback SSE agora é depreciado); fonte oficial adicionada; revisão 2026-07-31.
+- **Cap. 17**: adendo — a guinada stateless + política de depreciação como sinal de protocolo em fase de infraestrutura. **Etapa 07 do harness-zero**: nota de época na docstring (o handshake ensinado é o protocolo 2025-06). **Cap. 04**: `ttlMs` como o protocolo absorvendo cache. **Glossário/motor**: MRTR, CIMD e DCR. **Bibliografia**: release verificada por fetch direto.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; gatilho reportado pelo editor humano; fontes verificadas nesta sessão.
+
 ### Edição 0.54 — 2026-07-31 · favicon (spec 059)
 - **Feature spec-kit `059-favicon`**: o site ganhou favicon na identidade do livro — **núcleo âmbar (o modelo) envolto pelo anel segmentado (o harness)**, a mesma metáfora da capa e do diagrama do cap. 00. `favicon.svg` (nítido em qualquer escala) + PNG 32px + apple-touch-icon 180px, nos dois templates (páginas e splash). Conferido visualmente em 16/32/180px nos dois fundos.
 - **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.

@@ -11,6 +11,9 @@ Esta etapa implementa o LADO CLIENTE do MCP no transporte stdio
 incluído (`servidor_mcp_exemplo.py` — leia-o: são ~60 linhas):
 
     initialize  →  handshake (versão, capabilities)
+                   [nota de época: a spec 2026-07-28 REMOVEU este handshake
+                    (núcleo stateless); o fluxo abaixo é o protocolo 2025-06,
+                    válido na janela de depreciação de 12 meses]
     tools/list  →  o servidor DECLARA suas ferramentas (com schemas)
     tools/call  →  o harness executa sem saber quem implementou
 
