@@ -211,6 +211,9 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
 <meta property="og:description" content="${sumario.subtitulo}">
 <meta property="og:image" content="${SITE}assets/capa-social.png">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="${rel}assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="${rel}assets/favicon-32.png">
+<link rel="apple-touch-icon" href="${rel}assets/apple-touch-icon.png">
 <link rel="stylesheet" href="${rel}assets/estilo.css">
 </head><body${ehIndex ? ' class="pagina-index"' : hero ? ' class="pagina-capitulo"' : ""} data-slug="${slug}" data-titulo="${tituloPagina.replace(/"/g, "&quot;")}">
 <button id="alt-tema" aria-label="Alternar tema">◐</button>
@@ -275,6 +278,9 @@ function paginaSplash() {
 <meta property="og:description" content="${sumario.subtitulo}">
 <meta property="og:image" content="${SITE}assets/capa-social.png">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="assets/estilo.css">
 </head><body class="splash-body">
 <main class="splash">
@@ -330,6 +336,9 @@ cpSync(resolve(AQUI, "tema/companion.css"), resolve(SAIDA, "assets/companion.css
 cpSync(resolve(AQUI, "tema/companion.js"), resolve(SAIDA, "assets/companion.js"));
 cpSync(resolve(AQUI, "tema/uso.js"), resolve(SAIDA, "assets/uso.js"));
 cpSync(resolve(AQUI, "tema/grafo.js"), resolve(SAIDA, "assets/grafo.js"));
+cpSync(resolve(AQUI, "tema/favicon.svg"), resolve(SAIDA, "assets/favicon.svg"));
+cpSync(resolve(AQUI, "tema/favicon-32.png"), resolve(SAIDA, "assets/favicon-32.png"));
+cpSync(resolve(AQUI, "tema/apple-touch-icon.png"), resolve(SAIDA, "assets/apple-touch-icon.png"));
 writeFileSync(resolve(SAIDA, ".nojekyll"), "");
 
 // Bundle das ilhas de visualização React (P2). Dados embutidos em build-time.

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Favicon "Engenharia de Harness": núcleo âmbar (o modelo) envolto pelo
+       anel segmentado (o harness). Mesma metáfora da capa e do diagrama do cap. 00. -->
+  <rect width="64" height="64" rx="14" fill="#0d1a30"/>
+  <g fill="none" stroke="#78aeff" stroke-width="6" stroke-linecap="round">
+    <path d="M 32 10 A 22 22 0 0 1 51.05 21"/>
+    <path d="M 54 32 A 22 22 0 0 1 43 51.05"/>
+    <path d="M 32 54 A 22 22 0 0 1 12.95 43"/>
+    <path d="M 10 32 A 22 22 0 0 1 21 12.95"/>
+  </g>
+  <circle cx="32" cy="32" r="11" fill="#e0a24a"/>
+  <circle cx="32" cy="32" r="15.5" fill="none" stroke="#e0a24a" stroke-width="1.6" opacity=".45"/>
+</svg>
