@@ -1,14 +1,14 @@
 name: Release
 
-# Duas portas para o mesmo destino:
-#  1) push de tag anotada v* (quando criada localmente com permissão de tags);
-#  2) workflow_dispatch com input `version` — o job cria a tag E a Release,
-#     com notas lidas de releases/<version>.md (fonte única versionada).
+# Release dirigida por ARQUIVO (a porta que funciona do agente): commitar
+# releases/vX.Y.Z.md na main cria a tag vX.Y.Z e a Release com essas notas,
+# se ainda não existirem (idempotente). Porta extra: workflow_dispatch pela UI.
 # A Release dispara o webhook do Zenodo -> DOI de versão.
 
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
+    paths: ["releases/**"]
   workflow_dispatch:
     inputs:
       version:
@@ -23,17 +23,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Criar a Release
+      - name: Criar Releases pendentes (uma por releases/v*.md sem release)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            V="${{ inputs.version }}"
-            test -f "releases/${V}.md" || { echo "releases/${V}.md ausente"; exit 1; }
-            gh release create "$V" --target "${GITHUB_SHA}" \
-              --title "$V — Engenharia de Harness" --notes-file "releases/${V}.md"
+            LISTA="releases/${{ inputs.version }}.md"
           else
-            gh release create "${GITHUB_REF_NAME}" \
-              --title "${GITHUB_REF_NAME} — Engenharia de Harness" \
-              --notes-from-tag --verify-tag
+            LISTA=$(ls releases/v*.md 2>/dev/null || true)
           fi
+          for f in $LISTA; do
+            V=$(basename "$f" .md)
+            if gh release view "$V" >/dev/null 2>&1; then
+              echo "já existe: $V"
+            else
+              gh release create "$V" --target "${GITHUB_SHA}" \
+                --title "$V — Engenharia de Harness" --notes-file "$f"
+              echo "criada: $V"
+            fi
+          done
