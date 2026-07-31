@@ -1,0 +1,26 @@
+name: Release por tag
+
+# Toda tag anotada v* vira uma GitHub Release automaticamente, com as notas
+# tiradas da MENSAGEM DA TAG (fonte única: quem cria a tag escreve as notas).
+# A Release, por sua vez, dispara o webhook do Zenodo -> DOI de versão.
+# Criar release = git tag -a vX.Y.Z -m "notas..." && git push origin vX.Y.Z
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Criar a Release a partir da tag anotada
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "${GITHUB_REF_NAME} — Engenharia de Harness" \
+            --notes-from-tag --verify-tag
