@@ -6,8 +6,12 @@
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
-// Os 16 sistemas do corpus (apêndice do estudo), com variantes de grafia.
+// Os 18 sistemas do corpus (apêndice do estudo; 16 originais + ext-1), com variantes de grafia.
 const HARNESSES = [
+  // "Pi" isolado colide com π/inglês; casar só a grafia exata com fronteiras estritas
+  // e o nome composto do Grok Build.
+  { id: "grok-build", rotulo: "Grok Build", re: /\bGrok\s+Build\b/g },
+  { id: "pi", rotulo: "Pi", re: /(?<![\wπ])Pi(?![\w])/g },
   { id: "opencode", rotulo: "opencode", re: /\bopencode\b/gi },
   { id: "gemini-cli", rotulo: "gemini-cli", re: /\bgemini-cli\b/gi },
   { id: "openharness", rotulo: "OpenHarness", re: /\bOpenHarness\b/gi },

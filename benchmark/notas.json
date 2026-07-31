@@ -1,431 +1,479 @@
 {
-  "_nota": "Fonte machine-readable das notas do benchmark, espelho de benchmark/comparativo.md. Usado pelas visualizações do site (publicar/viz/). Ao reavaliar, atualizar AMBOS. Escala 0-3 por dimensão.",
-  "capturado_em": "2026-07",
-  "dimensoes": [
-    "Loop",
-    "Contexto",
-    "Compactação",
-    "Ferramentas",
-    "MCP",
-    "Permissões/sandbox",
-    "Memória/estado",
-    "Planejamento",
-    "Subagentes",
-    "Verificação/evals",
-    "Extensibilidade",
-    "Interfaces"
+ "_nota": "Fonte machine-readable das notas do benchmark, espelho de benchmark/comparativo.md. Usado pelas visualizações do site (publicar/viz/). Ao reavaliar, atualizar AMBOS. Escala 0-3 por dimensão.",
+ "capturado_em": "2026-07",
+ "dimensoes": [
+  "Loop",
+  "Contexto",
+  "Compactação",
+  "Ferramentas",
+  "MCP",
+  "Permissões/sandbox",
+  "Memória/estado",
+  "Planejamento",
+  "Subagentes",
+  "Verificação/evals",
+  "Extensibilidade",
+  "Interfaces"
+ ],
+ "categorias": {
+  "codigo": {
+   "titulo": "Harnesses de código",
+   "harnesses": [
+    {
+     "nome": "gemini-cli",
+     "notas": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3
+     ],
+     "total": 36
+    },
+    {
+     "nome": "Codex CLI",
+     "notas": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      2,
+      3,
+      3,
+      3,
+      3
+     ],
+     "total": 35
+    },
+    {
+     "nome": "Goose",
+     "notas": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      2,
+      3,
+      2,
+      3,
+      3,
+      3,
+      3
+     ],
+     "total": 34
+    },
+    {
+     "nome": "opencode",
+     "notas": [
+      3,
+      3,
+      3,
+      2,
+      3,
+      2,
+      3,
+      2,
+      2,
+      2,
+      3,
+      3
+     ],
+     "total": 31
+    },
+    {
+     "nome": "OpenHarness",
+     "notas": [
+      2,
+      2,
+      3,
+      3,
+      2,
+      2,
+      3,
+      2,
+      3,
+      2,
+      3,
+      2
+     ],
+     "total": 29
+    },
+    {
+     "nome": "Aider",
+     "notas": [
+      2,
+      3,
+      2,
+      3,
+      0,
+      2,
+      3,
+      2,
+      2,
+      3,
+      3,
+      3
+     ],
+     "total": 28
+    },
+    {
+     "nome": "OpenHands*",
+     "notas": [
+      2,
+      3,
+      2,
+      2,
+      3,
+      3,
+      3,
+      1,
+      2,
+      0,
+      3,
+      3
+     ],
+     "total": 27
+    },
+    {
+     "nome": "Grok Build",
+     "notas": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      2,
+      3,
+      3
+     ],
+     "total": 35,
+     "rodada": "ext-1"
+    },
+    {
+     "nome": "Pi",
+     "notas": [
+      3,
+      3,
+      3,
+      3,
+      0,
+      1,
+      2,
+      1,
+      1,
+      3,
+      3,
+      3
+     ],
+     "total": 26,
+     "rodada": "ext-1"
+    }
+   ]
+  },
+  "pessoais": {
+   "titulo": "Agentes pessoais self-hosted",
+   "suplementares": [
+    "Aprendizado",
+    "Proatividade"
+   ],
+   "harnesses": [
+    {
+     "nome": "OpenClaw",
+     "notas": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3
+     ],
+     "total": 36,
+     "supl": [
+      1,
+      3
+     ]
+    },
+    {
+     "nome": "Hermes",
+     "notas": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      2,
+      3,
+      3,
+      3,
+      3
+     ],
+     "total": 35,
+     "supl": [
+      3,
+      2
+     ]
+    },
+    {
+     "nome": "IronClaw",
+     "notas": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      2,
+      2,
+      3,
+      3,
+      3
+     ],
+     "total": 34,
+     "supl": [
+      2,
+      3
+     ]
+    },
+    {
+     "nome": "ohmo",
+     "notas": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      2,
+      3,
+      2,
+      3,
+      3,
+      3,
+      3
+     ],
+     "total": 34,
+     "supl": [
+      2,
+      3
+     ]
+    }
+   ]
+  },
+  "embutidos": {
+   "titulo": "Harnesses embutidos",
+   "harnesses": [
+    {
+     "nome": "n8n",
+     "notas": [
+      3,
+      2,
+      1,
+      3,
+      3,
+      2,
+      3,
+      1,
+      3,
+      2,
+      3,
+      3
+     ],
+     "total": 29
+    }
+   ]
+  }
+ },
+ "frameworks": {
+  "titulo": "Frameworks de harness",
+  "eixosA": [
+   "A1 Loop/orq.",
+   "A2 Estado/durab.",
+   "A3 Tools/schemas",
+   "A4 Multi-agente",
+   "A5 HITL",
+   "A6 Streaming"
   ],
-  "categorias": {
-    "codigo": {
-      "titulo": "Harnesses de código",
-      "harnesses": [
-        {
-          "nome": "gemini-cli",
-          "notas": [
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3
-          ],
-          "total": 36
-        },
-        {
-          "nome": "Codex CLI",
-          "notas": [
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            2,
-            3,
-            3,
-            3,
-            3
-          ],
-          "total": 35
-        },
-        {
-          "nome": "Goose",
-          "notas": [
-            3,
-            3,
-            3,
-            3,
-            3,
-            2,
-            3,
-            2,
-            3,
-            3,
-            3,
-            3
-          ],
-          "total": 34
-        },
-        {
-          "nome": "opencode",
-          "notas": [
-            3,
-            3,
-            3,
-            2,
-            3,
-            2,
-            3,
-            2,
-            2,
-            2,
-            3,
-            3
-          ],
-          "total": 31
-        },
-        {
-          "nome": "OpenHarness",
-          "notas": [
-            2,
-            2,
-            3,
-            3,
-            2,
-            2,
-            3,
-            2,
-            3,
-            2,
-            3,
-            2
-          ],
-          "total": 29
-        },
-        {
-          "nome": "Aider",
-          "notas": [
-            2,
-            3,
-            2,
-            3,
-            0,
-            2,
-            3,
-            2,
-            2,
-            3,
-            3,
-            3
-          ],
-          "total": 28
-        },
-        {
-          "nome": "OpenHands*",
-          "notas": [
-            2,
-            3,
-            2,
-            2,
-            3,
-            3,
-            3,
-            1,
-            2,
-            0,
-            3,
-            3
-          ],
-          "total": 27
-        }
-      ]
-    },
-    "pessoais": {
-      "titulo": "Agentes pessoais self-hosted",
-      "suplementares": [
-        "Aprendizado",
-        "Proatividade"
-      ],
-      "harnesses": [
-        {
-          "nome": "OpenClaw",
-          "notas": [
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3
-          ],
-          "total": 36,
-          "supl": [
-            1,
-            3
-          ]
-        },
-        {
-          "nome": "Hermes",
-          "notas": [
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            2,
-            3,
-            3,
-            3,
-            3
-          ],
-          "total": 35,
-          "supl": [
-            3,
-            2
-          ]
-        },
-        {
-          "nome": "IronClaw",
-          "notas": [
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            2,
-            2,
-            3,
-            3,
-            3
-          ],
-          "total": 34,
-          "supl": [
-            2,
-            3
-          ]
-        },
-        {
-          "nome": "ohmo",
-          "notas": [
-            3,
-            3,
-            3,
-            3,
-            3,
-            2,
-            3,
-            2,
-            3,
-            3,
-            3,
-            3
-          ],
-          "total": 34,
-          "supl": [
-            2,
-            3
-          ]
-        }
-      ]
-    },
-    "embutidos": {
-      "titulo": "Harnesses embutidos",
-      "harnesses": [
-        {
-          "nome": "n8n",
-          "notas": [
-            3,
-            2,
-            1,
-            3,
-            3,
-            2,
-            3,
-            1,
-            3,
-            2,
-            3,
-            3
-          ],
-          "total": 29
-        }
-      ]
-    }
-  },
-  "frameworks": {
-    "titulo": "Frameworks de harness",
-    "eixosA": [
-      "A1 Loop/orq.",
-      "A2 Estado/durab.",
-      "A3 Tools/schemas",
-      "A4 Multi-agente",
-      "A5 HITL",
-      "A6 Streaming"
+  "eixosD": [
+   "D1 Observabilidade",
+   "D2 Testes/evals",
+   "D3 Ergonomia",
+   "D4 Ecossistema"
+  ],
+  "itens": [
+   {
+    "nome": "OpenAI Agents SDK",
+    "A": [
+     3,
+     3,
+     3,
+     3,
+     3,
+     3
     ],
-    "eixosD": [
-      "D1 Observabilidade",
-      "D2 Testes/evals",
-      "D3 Ergonomia",
-      "D4 Ecossistema"
+    "totalA": 18,
+    "D": [
+     2,
+     3,
+     3,
+     3
     ],
-    "itens": [
-      {
-        "nome": "OpenAI Agents SDK",
-        "A": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
-        ],
-        "totalA": 18,
-        "D": [
-          2,
-          3,
-          3,
-          3
-        ],
-        "totalD": 11
-      },
-      {
-        "nome": "CrewAI",
-        "A": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
-        ],
-        "totalA": 18,
-        "D": [
-          2,
-          3,
-          3,
-          3
-        ],
-        "totalD": 11
-      },
-      {
-        "nome": "software-agent-sdk",
-        "A": [
-          3,
-          3,
-          3,
-          3,
-          3,
-          3
-        ],
-        "totalA": 18,
-        "D": [
-          2,
-          3,
-          3,
-          3
-        ],
-        "totalD": 11
-      },
-      {
-        "nome": "LangGraph",
-        "A": [
-          3,
-          3,
-          2,
-          2,
-          3,
-          3
-        ],
-        "totalA": 16,
-        "D": [
-          2,
-          3,
-          2,
-          3
-        ],
-        "totalD": 10
-      }
-    ]
-  },
-  "expiracao": [
-    {
-      "componente": "Compactação (cap. 04)",
-      "existe": "janelas são finitas e caras",
-      "expira": "contexto longo ficar barato e confiável",
-      "estado": "🟡",
-      "rotulo": "em movimento",
-      "evidencia": "Mudou de dono antes de expirar: compaction na API da Anthropic (compact-2026-01-12) e compactação remota v2 do Codex. Migrou do harness para a plataforma."
-    },
-    {
-      "componente": "Prompt por família de modelo (cap. 03)",
-      "existe": "modelos respondem diferente a instruções",
-      "expira": "instruction-following convergir",
-      "estado": "🔵",
-      "rotulo": "aberta",
-      "evidencia": "Ainda divergente; Codex tornou o prompt server-driven por modelo (2026) — reforço, não expiração."
-    },
-    {
-      "componente": "Plan mode imposto (cap. 09)",
-      "existe": "modelos agem precipitadamente",
-      "expira": "modelos planejarem sob risco espontaneamente",
-      "estado": "🔵",
-      "rotulo": "aberta",
-      "evidencia": "Planejamento seguiu como a dimensão mais fraca da indústria em todas as rodadas (2026-07); o n8n depreciou seu Plan-and-Execute Agent — o plano explícito recuou para trabalho longo, não expirou."
-    },
-    {
-      "componente": "Policy engine / aprovações (cap. 07)",
-      "existe": "modelos não são confiáveis com ações destrutivas",
-      "expira": "confiabilidade calibrada e verificável",
-      "estado": "🔵",
-      "rotulo": "aberta",
-      "evidencia": "Consenso 2026: injection tratada como não-resolvível; esforço migrou para blast radius."
-    },
-    {
-      "componente": "Verificação externa (cap. 11)",
-      "existe": "a auto-correção intrínseca não basta (o modelo não se conserta sozinho)",
-      "expira": "modelos verificarem o próprio trabalho de forma confiável",
-      "estado": "🔵",
-      "evidencia": "\"LLMs Cannot Self-Correct Reasoning Yet\" (2310.01798) e o reward hacking (o agente apaga asserts/patcha o pytest) empurraram a indústria para verificador externo e imutável (testes held-out, verify-on-stop) — 2026-07."
-    },
-    {
-      "componente": "Aprendizado auto-evolutivo (cap. 16)",
-      "existe": "cláusula invertida",
-      "expira": "nunca — o harness escreve scaffolding em vez de esperar o modelo",
-      "estado": "🔵",
-      "rotulo": "aberta",
-      "evidencia": "Hermes e gemini-cli fecharam o ciclo (2026-07); é auto-expansão, não expiração."
-    },
-    {
-      "componente": "Sandbox / contenção (cap. 07)",
-      "existe": "é sobre o mundo, não sobre o modelo",
-      "expira": "nunca (fronteira, não prótese)",
-      "estado": "🔴",
-      "rotulo": "não-expira",
-      "evidencia": "Confirmado nas 3 rodadas; contenção é o scaffolding que resta quando o modelo melhora."
-    },
-    {
-      "componente": "Protocolos (MCP/A2A/ACP/AGENTS.md — cap. 17)",
-      "existe": "interoperabilidade entre sistemas",
-      "expira": "nunca (fronteira com o mundo)",
-      "estado": "🔴",
-      "rotulo": "não-expira",
-      "evidencia": "MCP, goose e AGENTS.md doados à Agentic AI Foundation / Linux Foundation (dez/2025); MCP em 10/11 harnesses e o ACP fundido no A2A sob a LF (ago/2025) — a fronteira se institucionaliza, não desaparece."
-    }
+    "totalD": 11
+   },
+   {
+    "nome": "CrewAI",
+    "A": [
+     3,
+     3,
+     3,
+     3,
+     3,
+     3
+    ],
+    "totalA": 18,
+    "D": [
+     2,
+     3,
+     3,
+     3
+    ],
+    "totalD": 11
+   },
+   {
+    "nome": "software-agent-sdk",
+    "A": [
+     3,
+     3,
+     3,
+     3,
+     3,
+     3
+    ],
+    "totalA": 18,
+    "D": [
+     2,
+     3,
+     3,
+     3
+    ],
+    "totalD": 11
+   },
+   {
+    "nome": "LangGraph",
+    "A": [
+     3,
+     3,
+     2,
+     2,
+     3,
+     3
+    ],
+    "totalA": 16,
+    "D": [
+     2,
+     3,
+     2,
+     3
+    ],
+    "totalD": 10
+   }
   ]
+ },
+ "expiracao": [
+  {
+   "componente": "Compactação (cap. 04)",
+   "existe": "janelas são finitas e caras",
+   "expira": "contexto longo ficar barato e confiável",
+   "estado": "🟡",
+   "rotulo": "em movimento",
+   "evidencia": "Mudou de dono antes de expirar: compaction na API da Anthropic (compact-2026-01-12) e compactação remota v2 do Codex. Migrou do harness para a plataforma."
+  },
+  {
+   "componente": "Prompt por família de modelo (cap. 03)",
+   "existe": "modelos respondem diferente a instruções",
+   "expira": "instruction-following convergir",
+   "estado": "🔵",
+   "rotulo": "aberta",
+   "evidencia": "Ainda divergente; Codex tornou o prompt server-driven por modelo (2026) — reforço, não expiração."
+  },
+  {
+   "componente": "Plan mode imposto (cap. 09)",
+   "existe": "modelos agem precipitadamente",
+   "expira": "modelos planejarem sob risco espontaneamente",
+   "estado": "🔵",
+   "rotulo": "aberta",
+   "evidencia": "Planejamento seguiu como a dimensão mais fraca da indústria em todas as rodadas (2026-07); o n8n depreciou seu Plan-and-Execute Agent — o plano explícito recuou para trabalho longo, não expirou."
+  },
+  {
+   "componente": "Policy engine / aprovações (cap. 07)",
+   "existe": "modelos não são confiáveis com ações destrutivas",
+   "expira": "confiabilidade calibrada e verificável",
+   "estado": "🔵",
+   "rotulo": "aberta",
+   "evidencia": "Consenso 2026: injection tratada como não-resolvível; esforço migrou para blast radius."
+  },
+  {
+   "componente": "Verificação externa (cap. 11)",
+   "existe": "a auto-correção intrínseca não basta (o modelo não se conserta sozinho)",
+   "expira": "modelos verificarem o próprio trabalho de forma confiável",
+   "estado": "🔵",
+   "evidencia": "\"LLMs Cannot Self-Correct Reasoning Yet\" (2310.01798) e o reward hacking (o agente apaga asserts/patcha o pytest) empurraram a indústria para verificador externo e imutável (testes held-out, verify-on-stop) — 2026-07."
+  },
+  {
+   "componente": "Aprendizado auto-evolutivo (cap. 16)",
+   "existe": "cláusula invertida",
+   "expira": "nunca — o harness escreve scaffolding em vez de esperar o modelo",
+   "estado": "🔵",
+   "rotulo": "aberta",
+   "evidencia": "Hermes e gemini-cli fecharam o ciclo (2026-07); é auto-expansão, não expiração."
+  },
+  {
+   "componente": "Sandbox / contenção (cap. 07)",
+   "existe": "é sobre o mundo, não sobre o modelo",
+   "expira": "nunca (fronteira, não prótese)",
+   "estado": "🔴",
+   "rotulo": "não-expira",
+   "evidencia": "Confirmado nas 3 rodadas; contenção é o scaffolding que resta quando o modelo melhora."
+  },
+  {
+   "componente": "Protocolos (MCP/A2A/ACP/AGENTS.md — cap. 17)",
+   "existe": "interoperabilidade entre sistemas",
+   "expira": "nunca (fronteira com o mundo)",
+   "estado": "🔴",
+   "rotulo": "não-expira",
+   "evidencia": "MCP, goose e AGENTS.md doados à Agentic AI Foundation / Linux Foundation (dez/2025); MCP em 10/11 harnesses e o ACP fundido no A2A sob a LF (ago/2025) — a fronteira se institucionaliza, não desaparece."
+  }
+ ],
+ "rodadas": {
+  "ext-1": {
+   "data": "2026-07-31",
+   "sistemas": [
+    "Grok Build",
+    "Pi"
+   ],
+   "origem": "promoção Radar (spec 064)"
+  }
+ }
 }
