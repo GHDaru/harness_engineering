@@ -11,17 +11,19 @@ import { fileURLToPath } from "node:url";
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const RAIZ = resolve(AQUI, "..");
-const DOCS = resolve(RAIZ, "docs");
+const EN = process.env.LIVRO_LANG === "en";
+const DOCS = resolve(RAIZ, EN ? "docs/en" : "docs");
+const ASSETS = resolve(RAIZ, "docs/assets");
 const PDFS = resolve(DOCS, "pdf");
 mkdirSync(PDFS, { recursive: true });
-const sumario = JSON.parse(readFileSync(resolve(AQUI, "sumario.json"), "utf8"));
+const sumario = JSON.parse(readFileSync(resolve(AQUI, EN ? "sumario.en.json" : "sumario.json"), "utf8"));
 const slugDe = (a) => basename(a).replace(/\.md$/, "").toLowerCase();
 
 // versão (mesma lógica do build)
 const hist = readFileSync(resolve(RAIZ, "livro/HISTORICO.md"), "utf8");
 const mv = hist.match(/^###\s+Edição\s+(\d+)\.(\d+)/m);
 const versao = mv ? `v${mv[1]}.${mv[2]}.0` : "v0.0.0";
-const dataStr = new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date());
+const dataStr = new Intl.DateTimeFormat(EN ? "en-US" : "pt-BR", { dateStyle: "long" }).format(new Date());
 const DOI = "10.5281/zenodo.21632412";
 
 // Extrai o conteúdo e, quando houver, a linha de meta do cabeçalho C01.
@@ -77,22 +79,22 @@ function secao(item, solo = false) {
   return `<section class="cap${solo ? " solo" : ""}">${cabeca}${ext.corpo}</section>`;
 }
 
-const docHtml = (corpo, capa) => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+const docHtml = (corpo, capa) => `<!doctype html><html lang="${EN ? "en" : "pt-BR"}"><head><meta charset="utf-8">
 <style>${CSS}</style></head><body>${capa}${corpo}</body></html>`;
 
 const capaLivro = `<div class="capa-pdf">
-  <img src="${resolve(DOCS, "assets/capa.png")}" alt="Capa">
+  <img src="${resolve(ASSETS, "capa.png")}" alt="Capa">
   <h1>${sumario.titulo}</h1>
   <div class="sub">${sumario.subtitulo}</div>
-  <div class="meta">Gilsiley Henrique Darú · com co-autoria de IA (Claude, Anthropic)<br>
-  ${versao} · gerado em ${dataStr}<br>DOI ${DOI} · ghdaru.github.io/harness_engineering</div>
+  <div class="meta">Gilsiley Henrique Darú · ${EN ? "with AI co-authorship (Claude, Anthropic)" : "com co-autoria de IA (Claude, Anthropic)"}<br>
+  ${versao} · ${EN ? "generated on" : "gerado em"} ${dataStr}<br>DOI ${DOI} · ghdaru.github.io/harness_engineering</div>
 </div>`;
 
 const rodape = (rotulo) =>
   `<div style="width:100%;text-align:center;font-size:8px;color:#888;">${rotulo} · ${versao} — <span class="pageNumber"></span>/<span class="totalPages"></span></div>`;
 
 const playwright = await import(process.env.PLAYWRIGHT_LIB || "playwright");
-const browser = await (playwright.default || playwright).chromium.launch();
+const browser = await (playwright.default || playwright).chromium.launch(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {});
 const page = await browser.newPage();
 
 async function imprimir(html, saida, rotulo) {
@@ -108,21 +110,21 @@ async function imprimir(html, saida, rotulo) {
 let corpo = "";
 for (const parte of sumario.partes) {
   corpo += `<h1 class="parte">${parte.nome}</h1>`;
-  for (const item of parte.itens) corpo += secao(item);
+  for (const item of parte.itens) { if (item.arquivo) corpo += secao(item); }
 }
-await imprimir(docHtml(corpo, capaLivro), resolve(PDFS, "engenharia-de-harness.pdf"), "Engenharia de Harness");
-console.log("✓ PDF do livro: docs/pdf/engenharia-de-harness.pdf");
+await imprimir(docHtml(corpo, capaLivro), resolve(PDFS, EN ? "harness-engineering.pdf" : "engenharia-de-harness.pdf"), sumario.titulo);
+console.log(`✓ PDF do livro [${EN ? "en" : "pt"}]: ${EN ? "docs/en" : "docs"}/pdf/`);
 
 // 2) Um PDF por capítulo numerado
 let avulsos = 0;
 for (const parte of sumario.partes) {
   for (const item of parte.itens) {
-    if (!/^\s*\d+\s*—/.test(item.titulo)) continue;
+    if (!item.arquivo || !/^\s*\d+\s*—/.test(item.titulo)) continue;
     const s = secao(item, true);
     if (!s) continue;
-    await imprimir(docHtml(s, ""), resolve(PDFS, `${slugDe(item.arquivo)}.pdf`), `Engenharia de Harness · ${item.titulo}`);
+    await imprimir(docHtml(s, ""), resolve(PDFS, `${slugDe(item.arquivo)}.pdf`), `${sumario.titulo} · ${item.titulo}`);
     avulsos++;
   }
 }
 await browser.close();
-console.log(`✓ PDFs por capítulo: ${avulsos} em docs/pdf/`);
+console.log(`✓ PDFs por capítulo [${EN ? "en" : "pt"}]: ${avulsos}`);

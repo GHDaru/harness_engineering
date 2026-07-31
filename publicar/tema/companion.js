@@ -18,12 +18,13 @@
   }
   var SID = get("cmp_sid", ""); if (!SID) { SID = uuid(); set("cmp_sid", SID); }
   var MODE = get("cmp_mode", CFG.mode || "progressivo");
+  var LANG_EN = (CFG.lang === "en"); // spec 067: superficie principal traduzida
+  function tx(pt, en) { return LANG_EN ? en : pt; }
   // Estados de layout (spec 053): float (padrão) | dock (sidebar) | max (dock largo).
   var DOCK = get("cmp_dock", "float"); if (["float","dock","max"].indexOf(DOCK) < 0) DOCK = "float";
   // Consentimento (spec 054): versão do texto; mudou o texto => nova versão => novo aceite.
   var CONSENT_V = "v1";
-  var CONSENT_TXT = "As conversas com o companion são usadas para o aprimoramento vivo deste livro. " +
-    "Nunca compartilhe dados pessoais (nome completo, email, documentos, senhas) no chat.";
+  var CONSENT_TXT = tx("As conversas com o companion são usadas para o aprimoramento vivo deste livro. Nunca compartilhe dados pessoais (nome completo, email, documentos, senhas) no chat.", "Conversations with the companion feed the living improvement of this book. Never share personal data (full name, email, documents, passwords) in the chat.");
   function consentiu() { return get("cmp_consent", "").indexOf(CONSENT_V + ":") === 0; }
   function aceitarConsent() {
     set("cmp_consent", CONSENT_V + ":" + Date.now());
@@ -54,7 +55,7 @@
   // --- DOM ---
   var root = el("div", "cmp"); root.id = "companion"; root.setAttribute("data-open", "false");
 
-  var launcher = el("button", "cmp-launcher"); launcher.setAttribute("aria-label", "Abrir o companion do livro");
+  var launcher = el("button", "cmp-launcher"); launcher.setAttribute("aria-label", tx("Abrir o companion do livro", "Open the book companion"));
   launcher.innerHTML = "💬";
 
   var panel = el("section", "cmp-panel"); panel.setAttribute("role", "dialog");
@@ -86,11 +87,11 @@
 
   var form = el("form", "cmp-form cmp-entrada");
   var pal = el("div", "cmp-pal"); pal.hidden = true; // paleta de comandos (/)
-  var input = el("textarea", "cmp-input"); input.rows = 3; input.placeholder = "Pergunte sobre o livro…";
+  var input = el("textarea", "cmp-input"); input.rows = 3; input.placeholder = tx("Pergunte sobre o livro…", "Ask about the book…");
   input.setAttribute("aria-label", "Sua mensagem");
   var linha = el("div", "cmp-ent-linha");
   var dica = el("span", "cmp-ent-dica", "Enter envia · Shift+Enter quebra linha · / comandos");
-  var send = el("button", "cmp-send cmp-send-rot", "Enviar ➤"); send.type = "submit"; send.setAttribute("aria-label", "Enviar");
+  var send = el("button", "cmp-send cmp-send-rot", tx("Enviar ➤", "Send ➤")); send.type = "submit"; send.setAttribute("aria-label", "Enviar");
   linha.appendChild(dica); linha.appendChild(send);
   form.appendChild(pal); form.appendChild(input); form.appendChild(linha);
 
@@ -135,7 +136,7 @@
     capTag.textContent = CHAPTER ? ("cap. " + CHAPTER) : "capa";
     byokSelo.hidden = !byok();
     byokSelo.title = byok() ? ("Usando sua chave (" + byokMask() + ") — clique para remover") : "";
-    capsT.textContent = "O que posso fazer agora" + (MODE === "avancado" ? " (avançado)" : (CHAPTER ? " (até o cap. " + CHAPTER + ")" : ""));
+    capsT.textContent = tx("O que posso fazer agora", "What I can do now") + (MODE === "avancado" ? " (avançado)" : (CHAPTER ? " (até o cap. " + CHAPTER + ")" : ""));
     chips.innerHTML = "";
     var lista = capsRicas
       ? capsRicas.map(function (c) { return { rotulo: c.rotulo, descricao: c.descricao, libera_no_capitulo: c.libera_no_capitulo, on: !!c.ativa }; })
@@ -551,7 +552,7 @@
     if (!ok && !consentCard.childNodes.length) {
       consentCard.appendChild(el("div", "cmp-consent-t", "Antes de conversar…"));
       consentCard.appendChild(el("p", null, CONSENT_TXT));
-      var bt = el("button", "cmp-send cmp-send-rot", "Entendi e aceito");
+      var bt = el("button", "cmp-send cmp-send-rot", tx("Entendi e aceito", "Got it, I accept"));
       bt.addEventListener("click", function () { aceitarConsent(); renderConsent(); banner && banner.remove(); oferecerTour(); input.focus(); });
       consentCard.appendChild(bt);
     }
@@ -563,7 +564,7 @@
     if (consentiu()) return;
     banner = el("div", "cmp-banner");
     var tx = el("span", null, "💬 " + CONSENT_TXT);
-    var bt = el("button", "cmp-banner-bt", "Entendi e aceito");
+    var bt = el("button", "cmp-banner-bt", tx("Entendi e aceito", "Got it, I accept"));
     bt.addEventListener("click", function () { aceitarConsent(); banner.remove(); banner = null; renderConsent(); oferecerTour(); });
     banner.appendChild(tx); banner.appendChild(bt);
     document.body.appendChild(banner);

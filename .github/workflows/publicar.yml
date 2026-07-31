@@ -52,7 +52,7 @@ jobs:
         run: npm run pdf
         working-directory: publicar
       - name: Limpar temporario de impressao
-        run: rm -f docs/_print.html
+        run: rm -f docs/_print.html docs/en/_print.html
       # Requer que o Pages esteja habilitado uma vez no repositório
       # (Settings → Pages → Source: GitHub Actions). O token do Actions não
       # tem permissão para criar o site sozinho — é a única etapa manual.

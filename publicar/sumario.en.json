@@ -1,0 +1,60 @@
+{
+  "titulo": "Harness Engineering",
+  "subtitulo": "A living book on the scaffolding that surrounds AI agents",
+  "companion_backend": "https://harnessengineering-production.up.railway.app",
+  "partes": [
+    {
+      "nome": "Opening",
+      "itens": [
+        { "arquivo": "livro/en/00-introduction.md", "titulo": "00 — Introduction", "teaser": "What a harness is and why it matters." },
+        { "arquivo": "livro/en/01-foundations.md", "titulo": "01 — Foundations", "teaser": "Vocabulary, the expiration clause, a map of the territory." }
+      ]
+    },
+    {
+      "nome": "Chapters by capability",
+      "itens": [
+        { "arquivo": "livro/en/chapters/02-agent-loop.md", "titulo": "02 — The Agent Loop", "teaser": "The cycle that turns a chat into an agent." },
+        { "arquivo": "livro/en/chapters/03-context-delivery.md", "titulo": "03 — Context Delivery", "teaser": "Assembling the right context at the right time." },
+        { "arquivo": "livro/en/chapters/04-compaction.md", "titulo": "04 — Compaction", "teaser": "Fitting the window without losing the thread." },
+        { "arquivo": "livro/en/chapters/05-tool-design.md", "titulo": "05 — Tool Design", "teaser": "The contract between the model and the world." },
+        { "arquivo": "livro/en/chapters/06-mcp.md", "titulo": "06 — MCP", "teaser": "The protocol that plugs in external tools." },
+        { "arquivo": "livro/en/chapters/07-permissions-sandboxing.md", "titulo": "07 — Permissions & Sandboxing", "teaser": "Power with containment: the golden rule." },
+        { "arquivo": "livro/en/chapters/08-memory-state.md", "titulo": "08 — Memory & State", "teaser": "What the agent remembers across turns and sessions." },
+        { "arquivo": "livro/en/chapters/09-planning.md", "titulo": "09 — Planning", "teaser": "Thinking before acting, when the task calls for it." },
+        { "arquivo": "livro/en/chapters/10-subagents-orchestration.md", "titulo": "10 — Subagents & Orchestration", "teaser": "Divide and conquer for large tasks." },
+        { "arquivo": "livro/en/chapters/11-verification-evals.md", "titulo": "11 — Verification & Evals", "teaser": "How to know the agent got it right." },
+        { "arquivo": "livro/en/chapters/12-extensibility.md", "titulo": "12 — Extensibility", "teaser": "Hooks, plugins, and a harness that grows." },
+        { "arquivo": "livro/en/chapters/13-interfaces.md", "titulo": "13 — Interfaces", "teaser": "CLI, IDE, web: where humans meet the agent." },
+        { "arquivo": "livro/en/14-convergences.md", "titulo": "14 — Convergences & Trends", "teaser": "Where the discipline is heading." },
+        { "arquivo": "livro/en/chapters/15-embedded-harness.md", "titulo": "15 — The Embedded Harness", "teaser": "When the harness becomes the product." },
+        { "arquivo": "livro/en/chapters/16-learning-self-improvement.md", "titulo": "16 — Learning & Self-Improvement", "teaser": "A harness that learns from use." },
+        { "arquivo": "livro/en/chapters/17-protocol-layer.md", "titulo": "17 — The Protocol Layer", "teaser": "The standards that bind the ecosystem." }
+      ]
+    },
+    {
+      "nome": "Benchmark",
+      "itens": [
+        { "arquivo": "livro/en/comparative.md", "titulo": "Harness Comparison", "teaser": "Real harnesses compared dimension by dimension." }
+      ]
+    },
+    {
+      "nome": "Book apparatus",
+      "itens": [
+        { "arquivo": "livro/en/glossary.md", "titulo": "Glossary", "teaser": "Acronyms spelled out, with explanation and context." },
+        { "arquivo": "livro/en/appendix-study.md", "titulo": "Appendix — The study", "teaser": "Every harness evaluated: origin, frozen fork/commit, full analyses." },
+        { "arquivo": "livro/en/appendix-usage.md", "titulo": "Appendix — Book usage", "teaser": "How the book is read: live aggregated telemetry." },
+        { "arquivo": "livro/en/appendix-graph.md", "titulo": "Appendix — Book graph", "teaser": "The book's connection map, interactive and always in sync." },
+        { "arquivo": "livro/en/appendix-harness-um.md", "titulo": "Appendix — harness-um (the reference)", "teaser": "The whole book, executable: chapters 02–13 as features." },
+        { "arquivo": "livro/en/bibliography.md", "titulo": "Bibliography", "teaser": "Scientific and industry sources, verified." },
+        { "externo": "../historico.html", "titulo": "History & Expiration Log (PT)", "teaser": "Editions and the expiration scoreboard — operational log, kept in Portuguese." },
+        { "arquivo": "livro/en/editorial-guide.md", "titulo": "Editorial Guide", "teaser": "How the book is written (method and methodologies)." }
+      ]
+    },
+    {
+      "nome": "About",
+      "itens": [
+        { "arquivo": "livro/en/author.md", "titulo": "About the author", "teaser": "Who directs this living book." }
+      ]
+    }
+  ]
+}
