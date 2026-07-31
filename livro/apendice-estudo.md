@@ -30,6 +30,15 @@ Este apêndice **mostra o trabalho executado**: a lista completa dos harnesses q
 | **OpenAI Agents SDK** | frameworks | [github.com/openai/openai-agents-python](https://github.com/openai/openai-agents-python) | v0.18.3 | fork GHDaru, commit 5976333 | 2026-07 | [avaliação](../benchmark/avaliacoes/openai-agents-sdk.md) |
 | **Software Agent SDK (OpenHands)** | frameworks | [github.com/OpenHands/software-agent-sdk](https://github.com/OpenHands/software-agent-sdk) | v1.37.1 | fork GHDaru, commit 99342c4 | 2026-07 | [avaliação](../benchmark/avaliacoes/software-agent-sdk.md) |
 
+## Extensão ext-1 (2026-07-31): a primeira promoção Radar→corpus
+
+O corpus cresceu de 16 para **18** pelo caminho que o próprio livro institucionalizou: o [Radar diário](https://github.com/GHDaru/harness_engineering/blob/main/radar/RADAR.md) encontrou os candidatos (varredura de 2026-07-31), o editor aprovou a promoção, os repositórios foram forkados para leitura congelada e o mesmo instrumento (`HARNESS_EVAL.md`) foi aplicado — rodada **ext-1**, sem tocar as fotos das rodadas 1/2. Ambos passam o teste de inclusão do cap. 01 §4 (código aberto + harness de propósito geral + adoção/representatividade): o Grok Build pela abertura de um harness comercial completo; o Pi como **caso deliberadamente atípico** (a lógica de replicação de Yin pedia um contraponto minimalista, e faltava um no corpus).
+
+| Harness | Categoria | Origem | Versão/snapshot | Fork/commit lido | Avaliado em | Análise |
+|---|---|---|---|---|---|---|
+| **Grok Build (xAI)** | harnesses de código | [github.com/xai-org/grok-build](https://github.com/xai-org/grok-build) | snapshot 2026-07 (aberto em 2026-07-15, Apache 2.0) | fork GHDaru/grok-build, commit dd04f39 | 2026-07-31 (rodada ext-1) | [avaliação](../benchmark/avaliacoes/grok-build.md) |
+| **Pi (Earendil Labs)** | harnesses de código | [github.com/badlogic/pi-mono](https://github.com/badlogic/pi-mono) | snapshot 2026-07-31 | fork GHDaru/pi, commit 7846534 | 2026-07-31 (rodada ext-1) | [avaliação](../benchmark/avaliacoes/pi.md) |
+
 ## Diagnóstico consolidado
 
 Os **resultados por dimensão** (notas 0–3, com evidência) e o diagnóstico comparativo estão no [Comparativo dos Harnesses](../benchmark/comparativo.md) — incluindo o heatmap interativo. Cada avaliação individual traz, além das notas: o **arquétipo observado** do harness, os pontos fortes com caminhos de arquivo, e a seção **"o que roubar"** (padrões que merecem ser levados para outros harnesses).

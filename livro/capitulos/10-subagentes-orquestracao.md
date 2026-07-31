@@ -61,9 +61,11 @@ O eixo de decisão da dimensão é a tensão Anthropic × Cognition. Orchestrato
 
 A fronteira que a rodada 2 tornou concreta: o subagente pode ser *outro harness*. O OpenClaw orquestra Claude Code, Gemini CLI, opencode e Codex como subagentes via runtime **ACP**; o OpenHands (Canvas) orquestra Claude Code, Codex e Gemini via perfis **ACP**; o gemini-cli é cliente **e servidor A2A**. Com o ACP-IBM (Agent Communication Protocol) convergindo no A2A sob a Linux Foundation, o *agent card* vira o contrato universal de delegação entre sistemas. A orquestração deixou de ser interna ao harness e virou interoperabilidade (cap. 17).
 
+> **Adendo da rodada ext-1 (2026-07-31): o isolamento de *workspace* virou infraestrutura.** O corpus isolava o **contexto** do subagente; o [Grok Build](../../benchmark/avaliacoes/grok-build.md) (xAI, aberto em 2026-07-15) fecha a outra metade — o **filesystem**. Cada `spawn_subagent` com isolamento ativo recebe uma **git worktree própria** criada por uma crate dedicada (`xai-fast-worktree`: CoW paralelo, snapshots BTRFS O(1), overlayfs, metadata com auto-GC), com merge de volta como operação de protocolo (`x.ai/git/worktree/apply`) e fallback gracioso para o workspace compartilhado. A lição não é "usar worktrees" (vários harnesses têm); é o investimento em torná-las **baratas o bastante para o agente usar sem pensar** — subagentes paralelos que editam deixam de brigar pelo working tree. Confirmado no código (`agent/subagent/handle_request.rs`), não só no anúncio.
+
 ### Leitura executiva
 
-O que está mais moderno: subagente como isolamento de contexto com contrato explícito; a escolha de coordenação (handoff × tool × supervisor × ledger); guardrails motivados por modos de falha reais (MAST); e a delegação cross-vendor via A2A. **O que roubar:** dê a cada subagente um contrato (objetivo/formato/tools/fronteiras) e contexto isolado; limite profundidade e degrade permissões por profundidade; compare sempre com um single-agent compute-matched; e, se orquestrar entre sistemas, fale A2A.
+O que está mais moderno: subagente como isolamento de contexto com contrato explícito; a escolha de coordenação (handoff × tool × supervisor × ledger); guardrails motivados por modos de falha reais (MAST); a delegação cross-vendor via A2A; e — desde a rodada ext-1 — o isolamento de workspace por worktree barata (Grok Build). **O que roubar:** dê a cada subagente um contrato (objetivo/formato/tools/fronteiras) e contexto isolado; limite profundidade e degrade permissões por profundidade; compare sempre com um single-agent compute-matched; se subagentes editam em paralelo, isole o filesystem (worktree), não só o contexto; e, se orquestrar entre sistemas, fale A2A.
 
 ## Mão na massa — harness-zero, etapa 9
 
@@ -110,6 +112,12 @@ Subagentes como child-runs no mesmo pipeline, com gates/checkpoints unificados e
 
 ### OpenHands / ohmo (rodada 2)
 OpenHands: primitivas do SDK (`openhands.sdk.subagent`) + **AgentProfiles** por organização, incluindo perfis **ACP** — o Canvas orquestra Claude Code, Codex e Gemini. ohmo: Agent/Task/Team/SendMessage herdados; assimetria observada (`/tasks run` bloqueado remotamente, tools equivalentes disponíveis ao modelo).
+
+### Grok Build (rodada ext-1) — worktrees como infraestrutura ⭐
+`agent/subagent/handle_request.rs`: `spawn_subagent` com `capability_mode` **intersectado** com o toolset do tipo (`intersect_capability_modes`), profundidade máx. 1, `resume_from`, contratos de I/O entre personas; isolamento por `WorktreeBuilder…worktree_kind(WorktreeKind::Subagent)` sobre `xai-fast-worktree` (CoW + BTRFS O(1) + auto-GC), merge via `x.ai/git/worktree/apply`; agentes de plugin proibidos de declarar `mcpServers`/hooks/`bypassPermissions`.
+
+### Pi (rodada ext-1) — a recusa documentada
+Sem subagentes no core, por manifesto ("There's many ways to do this. Spawn pi instances via tmux, or build your own"); o exemplo primeiro-classe `examples/extensions/subagent/` spawna **processos `pi` completos** (isolamento real de contexto) com 4 personas e 3 workflows — a feature existe como prova de que a superfície de extensão basta.
 
 ### n8n (rodada 2) — agente como tool de agente
 **AI Agent Tool** (`AgentTool.node.ts` v3): um agente completo como tool de outro — o V3 roda o loop do sub-agente inline (`resolveSubAgentRequest`), com proibição de HITL aninhado; **ToolWorkflow** (sub-workflows como tools). Orquestração hierárquica visual.

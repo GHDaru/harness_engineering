@@ -1,28 +1,33 @@
-# Comparativo Consolidado — Rodadas 1 e 2
+# Comparativo Consolidado — Rodadas 1, 2 e ext-1
 
-> 11 harnesses avaliados por leitura sistemática de código, 12 dimensões (0–3) + 2 suplementares. Rodada 1: 2026-07-24 (opencode, gemini-cli, OpenHarness). Rodada 2: 2026-07-24 (Codex CLI, Goose, Aider, OpenHands, OpenClaw, Hermes, IronClaw, n8n). Ver [metodologia](README.md).
+> 13 harnesses avaliados por leitura sistemática de código, 12 dimensões (0–3) + 2 suplementares. Rodada 1: 2026-07-24 (opencode, gemini-cli, OpenHarness). Rodada 2: 2026-07-24 (Codex CLI, Goose, Aider, OpenHands, OpenClaw, Hermes, IronClaw, n8n). Rodada **ext-1**: 2026-07-31 (**Grok Build**, **Pi** — primeira promoção Radar→corpus). Ver [metodologia](README.md).
 
 <div data-viz="benchmark-codigo"></div>
 
 ## Categoria: harnesses de código
 
-| # | Dimensão | opencode | gemini-cli | OpenHarness | **Codex CLI** | **Goose** | **Aider** | **OpenHands*** |
-|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 1 | Loop | 3 | 3 | 2 | 3 | 3 | 2 | 2 |
-| 2 | Contexto | 3 | 3 | 2 | 3 | 3 | **3** | 3 |
-| 3 | Compactação | 3 | 3 | 3 | 3 | 3 | 2 | 2 |
-| 4 | Ferramentas | 2 | 3 | 3 | 3 | 3 | 3 | 2 |
-| 5 | MCP | 3 | 3 | 2 | 3 | 3 | **0** | 3 |
-| 6 | Permissões/sandbox | 2 | 3 | 2 | **3⭐** | 2 | 2 | 3 |
-| 7 | Memória/estado | 3 | 3 | 3 | 3 | 3 | 3 | 3 |
-| 8 | Planejamento | 2 | 3 | 2 | 2 | 2 | 2 | 1 |
-| 9 | Subagentes | 2 | 3 | 3 | 3 | 3 | 2 | 2 |
-| 10 | Verificação/evals | 2 | 3 | 2 | 3 | 3 | 3 | 0* |
-| 11 | Extensibilidade | 3 | 3 | 3 | 3 | 3 | 3 | 3 |
-| 12 | Interfaces | 3 | 3 | 2 | 3 | 3 | 3 | 3 |
-| | **Total** | **31** | **36** | **29** | **35** | **34** | **28** | **27*** |
+| # | Dimensão | opencode | gemini-cli | OpenHarness | **Codex CLI** | **Goose** | **Aider** | **OpenHands*** | **Grok Build** | **Pi** |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | Loop | 3 | 3 | 2 | 3 | 3 | 2 | 2 | 3 | 3 |
+| 2 | Contexto | 3 | 3 | 2 | 3 | 3 | **3** | 3 | 3 | 3 |
+| 3 | Compactação | 3 | 3 | 3 | 3 | 3 | 2 | 2 | 3 | **3⭐** |
+| 4 | Ferramentas | 2 | 3 | 3 | 3 | 3 | 3 | 2 | 3 | 3 |
+| 5 | MCP | 3 | 3 | 2 | 3 | 3 | **0** | 3 | 3 | **0** |
+| 6 | Permissões/sandbox | 2 | 3 | 2 | **3⭐** | 2 | 2 | 3 | **3⭐** | 1 |
+| 7 | Memória/estado | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 2 |
+| 8 | Planejamento | 2 | 3 | 2 | 2 | 2 | 2 | 1 | 3 | 1 |
+| 9 | Subagentes | 2 | 3 | 3 | 3 | 3 | 2 | 2 | **3⭐** | 1 |
+| 10 | Verificação/evals | 2 | 3 | 2 | 3 | 3 | 3 | 0* | 2 | 3 |
+| 11 | Extensibilidade | 3 | 3 | 3 | 3 | 3 | 3 | 3 | **3⭐** | **3⭐** |
+| 12 | Interfaces | 3 | 3 | 2 | 3 | 3 | 3 | 3 | 3 | 3 |
+| | **Total** | **31** | **36** | **29** | **35** | **34** | **28** | **27*** | **35** | **26** |
 
 \* OpenHands: o repo avaliado é o control-plane (Agent Canvas); o núcleo (loop, condenser, evals SWE-bench) migrou para `software-agent-sdk` — o total subestima o projeto completo. O SDK entra na fila.
+
+**Leitura da rodada ext-1 (2026-07-31):**
+1. **Os extremos do espectro chegaram juntos.** O Grok Build (35) empata com o Codex CLI cobrindo tudo com profundidade industrial — inclusive lendo os artefatos dos concorrentes (AGENTS/CLAUDE/Cursor/`.mcp.json`) e portando as tools do codex e do opencode. O Pi (26) pontua 3 em **tudo que aceita** e 0–1 em tudo que recusa por manifesto — o perfil serrilhado não é imaturidade, é tese ("adapt pi to your workflows, not the other way around"), e cada exclusão existe como extensão de exemplo testada.
+2. **A dimensão 6 continua separando produto de projeto** — e o Grok Build sobe a régua: autorização de shell por **AST** (tree-sitter-bash), fecho do bypass `mv secret x && cat x`, sandbox kernel-enforced fail-closed. O Pi é o contraexemplo deliberado (1): terceiriza o boundary ao SO e argumenta que sandbox in-process é teatro.
+3. **Evals comportamentais seguem sendo o gap mais comum** — o Grok Build tem 26k testes de mecanismo e zero de competência (nota 10 = 2); o Pi, na contramão, é o único da rodada com bancada de A/B de configurações de harness (`evalHarnessTable`) e artefatos de eval no formato nativo de sessão.
 
 ## Categoria: agentes pessoais self-hosted
 
