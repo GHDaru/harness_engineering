@@ -32,6 +32,13 @@
 
 ## Edições
 
+### Edição 0.62 — 2026-07-31 · o livro fala inglês (spec 067)
+- **Feature spec-kit oficial `067-livro-en`**: o livro vira **multiidioma** — rodada inglês, em [`/en/`](https://ghdaru.github.io/harness_engineering/en/) espelhado com slugs ingleses. **27 páginas traduzidas** (18 capítulos + benchmark + aparato) por 6 agentes em paralelo sob contrato de tradução (glossário fixo, seções canônicas, estrutura 1:1 verificada, citações em inglês verbatim).
+- **PT permanece a fonte canônica; a tradução é artefato derivado com selo de sincronia**: cada fonte EN declara `fonte+edição+hash` do original; o build compara com o PT atual e mostra "in sync" ou o aviso âmbar de tradução atrasada — dívida de tradução é sempre visível, e o portão de qualidade falha se o selo mentir. Regra permanente: toda spec que edite `livro/` inclui o passo "traduzir o delta".
+- **UX**: seletor PT·EN (pill textual, sem bandeiras) em todas as páginas, levando à MESMA página no outro idioma; preferência gravada; capa PT com navegador em inglês ganha convite discreto (nunca redirect); `hreflang` correto. Ficam em PT com aviso: Histórico, Radar e o conteúdo do card de news (registros operacionais).
+- **Paridade**: PDFs e Markdown completos EN (`harness-engineering.pdf/.md`) no mesmo CI; grafo interativo com rótulos/URLs ingleses; superfície principal do companion em EN (demais strings do widget: limitação conhecida). RAG segue só no PT canônico.
+- **IA (A3)**: agente **Claude Code (Anthropic)** (motor i18n + 6 tradutores-agentes); decisões de UX e curadoria humanas.
+
 ### Edição 0.61 — 2026-07-31 · leitura integral verificada: as citações agora são do texto (spec 066)
 - **Feature spec-kit oficial `066-papers-integrais`**: o editor liberou o arXiv na política de rede do Environment (acesso completo — registrado no diário do Radar como **a única exceção até o momento**, pela dinâmica do livro vivo) e os dois preprints da edição 0.60 foram **relidos na íntegra** pelos mesmos agentes, com mandato de deltas verbatim.
 - **Cap. 11 corrigido**: duas frases que circulavam como citação do paper da AI2 eram **paráfrases de agregadores** — substituídas pelo verbatim real (§4.3 e §5.2), com os números das Tabelas 1–3 (evolução de harness piora o GPT-5.4 sem testes unitários; held-out +0,6). Lição de método no diário: paráfrase de agregador vira "citação" em um dia de circulação.

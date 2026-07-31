@@ -52,7 +52,8 @@ class BookIndex:
         return len(dados)
 
     def _carregar(self, repo_root: Path) -> None:
-        fontes = sorted((repo_root / "livro").rglob("*.md"))
+        fontes = sorted(f for f in (repo_root / "livro").rglob("*.md")
+                        if "en" not in f.relative_to(repo_root / "livro").parts[:1])
         comp = repo_root / "benchmark" / "comparativo.md"
         if comp.exists():
             fontes.append(comp)

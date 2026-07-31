@@ -20,7 +20,8 @@
   var slug = corpo.getAttribute("data-slug");
   var titulo = corpo.getAttribute("data-titulo");
   var ehIndex = corpo.classList.contains("pagina-index");
-  var CHAVE_ULT = "hz_ultimo";
+  var LANG = corpo.getAttribute("data-lang") || "pt";
+  var CHAVE_ULT = "hz_ultimo" + (LANG === "en" ? "_en" : "");
 
   // Ao abrir um capítulo (não o sumário), grava como "último lido".
   if (slug && !ehIndex && slug !== "sumario") {
@@ -40,4 +41,26 @@
       }
     } catch (e) {}
   }
+})();
+
+// i18n (spec 067): preferência de idioma + convite discreto na capa.
+(function () {
+  var corpo = document.body;
+  var lang = corpo.getAttribute("data-lang") || "pt";
+  var pill = document.querySelector(".lang-pill a[data-lang-alvo]");
+  if (pill) pill.addEventListener("click", function () {
+    try { localStorage.setItem("hz_lang", pill.getAttribute("data-lang-alvo")); } catch (e) {}
+  });
+  try { localStorage.setItem("hz_lang_visto_" + lang, "1"); } catch (e) {}
+  // Convite: só na capa PT, navegador em inglês, sem preferência gravada. Nunca redirect.
+  if (!corpo.classList.contains("splash-body") || lang !== "pt") return;
+  var pref = null; try { pref = localStorage.getItem("hz_lang"); } catch (e) {}
+  var navEn = (navigator.language || "").toLowerCase().indexOf("en") === 0;
+  if (pref || !navEn) return;
+  var ctas = document.querySelector(".splash-ctas");
+  if (!ctas) return;
+  var p = document.createElement("p");
+  p.className = "lang-sugestao";
+  p.innerHTML = '\ud83c\udf10 This book is also available in <a href="en/index.html">English</a>.';
+  ctas.parentNode.insertBefore(p, ctas.nextSibling);
 })();

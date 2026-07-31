@@ -13,7 +13,7 @@
 
   function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
 
-  fetch("assets/grafo.json").then(function (r) {
+  fetch((alvo.dataset && alvo.dataset.src) || "assets/grafo.json").then(function (r) {
     if (!r.ok) throw new Error("HTTP " + r.status);
     return r.json();
   }).then(iniciar).catch(function () {

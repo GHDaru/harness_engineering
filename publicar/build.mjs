@@ -1,15 +1,22 @@
 // Motor do livro — Markdown (livro/) -> site HTML navegável (docs/).
 // App próprio (não framework): usa markdown-it como biblioteca de parsing;
 // o motor em si — navegação, tema, callouts, ilhas de visualização — é nosso.
-// Uso: node build.mjs   (a partir de publicar/)
+// Uso: node build.mjs                (passada PT -> docs/)
+//      LIVRO_LANG=en node build.mjs  (passada EN -> docs/en/; RODAR APÓS a PT)
+//
+// i18n (spec 067): o PT é a fonte canônica; o EN é artefato derivado. Cada
+// fonte EN carrega na 1ª linha `<!-- i18n fonte:<pt> edicao:X hash:<md5-8> -->`;
+// o build compara o hash com o fonte PT atual e gera o SELO DE SINCRONIA
+// (em dia / atrasado) — tradução velha nunca finge ser atual.
 //
 // Convenções de conteúdo reconhecidas:
-//  - 1º blockquote iniciando com "**Estado da arte capturado em" -> selo de data (livro vivo)
-//  - Seções ## cujo título casa um tipo pedagógico -> callout com estilo próprio (Diátaxis/Bloom)
-//  - Links internos .md -> reescritos para .html
-//  - <div data-viz="..."> -> ilha reservada para componente React (P2); no MVP vira placeholder
+//  - 1º blockquote "**Estado da arte capturado em/State of the art captured in" -> selo de data
+//  - Seções ## de tipos pedagógicos -> callout próprio (Diátaxis/Bloom)
+//  - Links internos .md -> reescritos para .html; links .html passam intactos
+//  - <div data-viz="..."> -> ilha de visualização
 
 import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync, rmSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { dirname, resolve, basename } from "node:path";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -21,18 +28,146 @@ import { gerarGrafo } from "./grafo.mjs";
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const RAIZ = resolve(AQUI, "..");
-const SAIDA = resolve(RAIZ, "docs");
+const EN = process.env.LIVRO_LANG === "en";
+const LANG = EN ? "en" : "pt";
+const SAIDA = resolve(RAIZ, EN ? "docs/en" : "docs");
+const A = EN ? "../assets/" : "assets/"; // assets são compartilhados na raiz de docs/
 
-const sumario = JSON.parse(readFileSync(resolve(AQUI, "sumario.json"), "utf8"));
+const sumario = JSON.parse(readFileSync(resolve(AQUI, EN ? "sumario.en.json" : "sumario.json"), "utf8"));
+const sumarioOutro = JSON.parse(readFileSync(resolve(AQUI, EN ? "sumario.json" : "sumario.en.json"), "utf8"));
 
-// Lista linear de itens (para prev/next) + slug estável por arquivo.
-const itens = sumario.partes.flatMap((p) => p.itens.map((i) => ({ ...i, parte: p.nome })));
+// Lista linear de itens publicáveis (para prev/next); itens `externo` ficam só na navegação.
 const slugDe = (arquivo) => basename(arquivo).replace(/\.md$/, "").toLowerCase();
+const itens = sumario.partes.flatMap((p) => p.itens.map((i) => ({ ...i, parte: p.nome }))).filter((i) => i.arquivo);
 itens.forEach((i) => (i.slug = slugDe(i.arquivo)));
 const slugsPublicados = new Set(itens.map((i) => i.slug));
+
+// Par de idioma por POSIÇÃO no sumário (os dois sumários são espelhados).
+const parDe = { index: "index", sumario: "sumario" };
+sumario.partes.forEach((p, pi) =>
+  p.itens.forEach((i, ii) => {
+    const o = sumarioOutro.partes[pi]?.itens?.[ii];
+    if (i.arquivo && o?.arquivo) parDe[slugDe(i.arquivo)] = slugDe(o.arquivo);
+  })
+);
+const hrefOutroIdioma = (slug) => (EN ? `../${parDe[slug] || "sumario"}.html` : `en/${parDe[slug] || "sumario"}.html`);
+
 const GITHUB_BASE = "https://github.com/GHDaru/harness_engineering/blob/main/";
-const SITE = "https://ghdaru.github.io/harness_engineering/"; // base absoluta p/ og:image
+const SITE = "https://ghdaru.github.io/harness_engineering/";
 const DOI = "10.5281/zenodo.21632412";
+
+// Dicionário do chrome (spec 067). O conteúdo vem do Markdown; isto é só a moldura.
+const T = EN
+  ? {
+      htmlLang: "en",
+      temaAria: "Toggle theme",
+      linkCapa: "↩ cover",
+      sumarioTitulo: "Contents",
+      seloVivo: "Living book — see History",
+      estadoArte: "state of the art",
+      revisao: "revised",
+      minLeitura: "min read",
+      dlMd: "Download this chapter's source Markdown",
+      dlPdf: "Open this chapter's PDF",
+      capKicker: "Ch.",
+      anterior: "← previous",
+      proximo: "next →",
+      rodape: `Living book · generated from Markdown by our own engine · <a href="https://github.com/GHDaru/harness_engineering">source on GitHub</a>`,
+      bibliografiaHtml: "bibliography.html",
+      verCitacao: "see in the Bibliography",
+      splashDesc: "An empirical study of the discipline of building the <em>scaffolding</em> around AI agents — theory, a benchmark of real harnesses, and a hands-on build from scratch.",
+      splashAlt: "Cover of Harness Engineering: a glowing amber AI core wrapped in an engineering harness with loop, tool, permission, memory and verification modules, over a dark-blue blueprint background.",
+      entrarLivro: "Enter the book →",
+      benchmarkBtn: "Benchmark",
+      guiaBtn: "Editorial Guide",
+      hrefComparativo: "comparative.html",
+      hrefGuia: "editorial-guide.html",
+      hrefHistorico: "../historico.html",
+      newsKicker: "🗞 News",
+      newsPt: " · item in Portuguese",
+      verRadar: "see the full Radar →",
+      nestaEdicao: "This edition",
+      historicoNome: "History",
+      creditos: `<strong><a href="author.html">Gilsiley Henrique Darú</a></strong> — editing, direction and orchestration · <a class="splash-linkedin" href="https://www.linkedin.com/in/gilsiley-dar%C3%BA/">LinkedIn</a><br><strong>Claude (Anthropic)</strong> — research and text generation (co-authorship) · <strong>GPT (OpenAI)</strong> — cover image`,
+      atualizadoEm: "updated on",
+      kickerEntrada: "Living book",
+      comecar: "▶ Start from the beginning — 00",
+      pdfLivro: "pdf/harness-engineering.pdf",
+      mdLivro: "md/harness-engineering.md",
+      pdfLivroTitulo: "Full book as PDF",
+      mdLivroTitulo: "Full book as Markdown (LLM-friendly)",
+      continueLendo: "Continue reading",
+      retomar: "Resume ▶",
+      trilha: [
+        ["01-foundations.html", "Track · 1", "Foundations", "The book's vocabulary and thesis."],
+        ["02-agent-loop.html", "Track · 2", "Capabilities", "The 16 components, one per chapter."],
+        ["comparative.html", "Track · 3", "Benchmark", "Real harnesses, compared."],
+        ["https://github.com/GHDaru/harness_engineering/tree/main/harness-zero", "Track · 4", "Hands-on", "Build harness-zero, step by step."],
+      ],
+      partesCartao: new Set(["Opening", "Chapters by capability"]),
+      pillsRotulo: "Benchmark · Apparatus · About",
+      dataLocale: "en-US",
+      sincOk: (ed) => `🌐 English translation · in sync with the Portuguese original (edition ${ed})`,
+      sincAtras: (ed) => `⏳ The Portuguese original has changed since this translation (made at edition ${ed}) — the latest content is in the PT version`,
+      lerPt: "read in PT",
+      outroIdioma: "PT",
+      outroIdiomaTitulo: "Ler em português",
+    }
+  : {
+      htmlLang: "pt-BR",
+      temaAria: "Alternar tema",
+      linkCapa: "↩ capa",
+      sumarioTitulo: "Sumário",
+      seloVivo: "Livro vivo — ver Histórico",
+      estadoArte: "estado da arte",
+      revisao: "revisão",
+      minLeitura: "min de leitura",
+      dlMd: "Baixar o Markdown-fonte deste capítulo",
+      dlPdf: "Abrir o PDF deste capítulo",
+      capKicker: "Cap.",
+      anterior: "← anterior",
+      proximo: "próximo →",
+      rodape: `Livro vivo · gerado do Markdown pelo motor próprio · <a href="https://github.com/GHDaru/harness_engineering">fonte no GitHub</a>`,
+      bibliografiaHtml: "bibliografia.html",
+      verCitacao: "ver na Bibliografia",
+      splashDesc: "Um estudo empírico da disciplina de construir o <em>scaffolding</em> que envolve agentes de IA — teoria, benchmark de harnesses reais e uma construção prática do zero.",
+      splashAlt: "Capa de Engenharia de Harness: um núcleo de IA luminoso, em âmbar, envolto por um harness de engenharia com módulos de loop, ferramenta, permissões, memória e verificação, sobre fundo azul-escuro com traços de blueprint.",
+      entrarLivro: "Entrar no livro →",
+      benchmarkBtn: "Benchmark",
+      guiaBtn: "Guia Editorial",
+      hrefComparativo: "comparativo.html",
+      hrefGuia: "guia-editorial.html",
+      hrefHistorico: "historico.html",
+      newsKicker: "🗞 Novidade",
+      newsPt: "",
+      verRadar: "ver o Radar completo →",
+      nestaEdicao: "Nesta edição",
+      historicoNome: "Histórico",
+      creditos: `<strong><a href="autor.html">Gilsiley Henrique Darú</a></strong> — edição, direção e orquestração · <a class="splash-linkedin" href="https://www.linkedin.com/in/gilsiley-dar%C3%BA/">LinkedIn</a><br><strong>Claude (Anthropic)</strong> — pesquisa e geração de texto (co-autoria) · <strong>GPT (OpenAI)</strong> — imagem de capa`,
+      atualizadoEm: "atualizado em",
+      kickerEntrada: "Livro vivo",
+      comecar: "▶ Começar do início — 00",
+      pdfLivro: "pdf/engenharia-de-harness.pdf",
+      mdLivro: "md/engenharia-de-harness.md",
+      pdfLivroTitulo: "Livro completo em PDF",
+      mdLivroTitulo: "Livro completo em Markdown (bom para LLMs)",
+      continueLendo: "Continue lendo",
+      retomar: "Retomar ▶",
+      trilha: [
+        ["01-fundamentos.html", "Trilha · 1", "Fundamentos", "O vocabulário e a tese do livro."],
+        ["02-loop-do-agente.html", "Trilha · 2", "Funcionalidades", "Os 16 componentes, um por capítulo."],
+        ["comparativo.html", "Trilha · 3", "Benchmark", "10 harnesses reais comparados."],
+        ["https://github.com/GHDaru/harness_engineering/tree/main/harness-zero", "Trilha · 4", "Mão na massa", "Construa o harness-zero, etapa a etapa."],
+      ],
+      partesCartao: new Set(["Abertura", "Capítulos por funcionalidade"]),
+      pillsRotulo: "Benchmark · Aparato · Sobre",
+      dataLocale: "pt-BR",
+      sincOk: null,
+      sincAtras: null,
+      lerPt: "",
+      outroIdioma: "EN",
+      outroIdiomaTitulo: "Read in English",
+    };
 
 // Chat-companion (feature 017): URL do backend + espelho leve do registro de
 // capacidades (fonte-de-verdade do gating é o backend; aqui é só exibição).
@@ -51,13 +186,12 @@ const COMPANION_CAPS = [
   { chave: "subagentes", rotulo: "Subagentes", libera: 10 },
   { chave: "evals", rotulo: "Verificação", libera: 11 },
 ];
-// Deriva o capítulo da página a partir do título ("02 — …" -> 2; capa/aparato -> 0).
 const capituloDe = (titulo) => parseInt((String(titulo).match(/^\s*(\d+)/) || [])[1], 10) || 0;
 function companionSnippet(chapter) {
-  const cfg = JSON.stringify({ backend: COMPANION_BACKEND, chapter, mode: "progressivo", capabilities: COMPANION_CAPS });
+  const cfg = JSON.stringify({ backend: COMPANION_BACKEND, chapter, mode: "progressivo", lang: LANG, capabilities: COMPANION_CAPS });
   return `<script>window.COMPANION=${cfg.replace(/</g, "\\u003c")}</script>
-<link rel="stylesheet" href="assets/companion.css">
-<script src="assets/companion.js" defer></script>`;
+<link rel="stylesheet" href="${A}companion.css">
+<script src="${A}companion.js" defer></script>`;
 }
 
 // linkify: false de propósito — num livro técnico, "AGENTS.md"/"app.py" no texto
@@ -67,21 +201,18 @@ const md = new MarkdownIt({ html: true, linkify: false, typographer: false }).us
   slugify: (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
 });
 
-// Reescrita de links internos, resolvida a partir do diretório do arquivo-fonte
-// (env.srcDir): página publicada -> .html local; qualquer outro alvo do repo
-// (estudos/, código, arquivos não publicados) -> fonte no GitHub. Assim nenhum
-// link interno fica quebrado e o que não é capítulo aponta para o código-fonte.
+// Reescrita de links internos: .md publicado -> .html local; .html passa
+// intacto (links cross-idioma como ../historico.html); resto -> GitHub.
 const defaultLinkOpen = md.renderer.rules.link_open || ((t, i, o, e, s) => s.renderToken(t, i, o));
 md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   const href = tokens[idx].attrGet("href");
-  if (href && !/^https?:|^#|^mailto:|^\/\//.test(href)) {
+  if (href && !/^https?:|^#|^mailto:|^\/\//.test(href) && !/\.html(#|$)/.test(href)) {
     const [alvo, hash] = href.split("#");
     const ancora = hash ? "#" + hash : "";
     const slug = basename(alvo).replace(/\.md$/i, "").toLowerCase();
     if (/\.md$/i.test(alvo) && slugsPublicados.has(slug)) {
       tokens[idx].attrSet("href", slug + ".html" + ancora);
     } else {
-      // caminho relativo ao arquivo-fonte -> caminho relativo à raiz do repo
       const repoRel = path.posix.normalize(path.posix.join(env.srcDir || ".", alvo)).replace(/^(\.\.\/)+/, "");
       tokens[idx].attrSet("href", GITHUB_BASE + repoRel + ancora);
     }
@@ -89,37 +220,51 @@ md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   return defaultLinkOpen(tokens, idx, options, env, self);
 };
 
-// Extrai a data de captura do 1º blockquote, se houver.
+// Datação (PT e EN): o selo do livro vivo.
+const RE_CAPTURA = /(?:Estado da arte capturado em|State of the art captured in)/;
 function extrairData(markdown) {
-  const m = markdown.match(/^>\s*\*\*Estado da arte capturado em([^*]+)\*\*([^\n]*)/m);
-  return m ? ("Estado da arte capturado em" + m[1] + m[2]).replace(/\[.*?\]\(.*?\)/g, "").replace(/·\s*$/, "").trim() : null;
+  const m = markdown.match(new RegExp("^>\\s*\\*\\*(" + RE_CAPTURA.source + "[^*]+)\\*\\*([^\\n]*)", "m"));
+  return m ? (m[1] + m[2]).replace(/\[.*?\]\(.*?\)/g, "").replace(/·\s*$/, "").trim() : null;
 }
-
-// Datas separadas para o cabeçalho de capítulo (C01 absorve o C02): captura e revisão.
 function extrairDatas(markdown) {
-  const cap = (markdown.match(/Estado da arte capturado em\s+(\d{4}-\d{2}(?:-\d{2})?)/) || [])[1] || null;
-  const rev = (markdown.match(/última revisão\s+(\d{4}-\d{2}-\d{2})/) || [])[1] || null;
+  const cap = (markdown.match(new RegExp(RE_CAPTURA.source + "\\s+(\\d{4}-\\d{2}(?:-\\d{2})?)")) || [])[1] || null;
+  const rev = (markdown.match(/(?:última revisão|last revised)\s+(\d{4}-\d{2}-\d{2})/) || [])[1] || null;
   return { cap, rev };
 }
 
-// Carga estimada de leitura (Sweller: expectativa de esforço): ~200 palavras/min,
-// descontando blocos de código (lidos em outro ritmo).
+// Selo de sincronia (spec 067): lê o cabeçalho i18n da fonte EN e compara o
+// hash com o fonte PT ATUAL. Sem cabeçalho -> sem selo (páginas PT).
+function seloDeSincronia(markdown, slug) {
+  const m = markdown.match(/^<!--\s*i18n\s+fonte:(\S+)\s+edicao:(\S+)\s+hash:([0-9a-f]{8})\s*-->/);
+  if (!m) return "";
+  const [, fonte, edicao, hash] = m;
+  let atual = "";
+  try {
+    atual = createHash("md5").update(readFileSync(resolve(RAIZ, fonte))).digest("hex").slice(0, 8);
+  } catch {}
+  const emDia = atual && atual === hash;
+  const alvoPt = `../${parDe[slug] || "sumario"}.html`;
+  return emDia
+    ? `<div class="sinc sinc-ok">${T.sincOk(edicao)}</div>`
+    : `<div class="sinc sinc-atras">${T.sincAtras(edicao)} — <a href="${alvoPt}">${T.lerPt}</a></div>`;
+}
+
+// Carga estimada de leitura (Sweller): ~200 palavras/min, sem blocos de código.
 function tempoDeLeitura(markdown) {
   const semCodigo = markdown.replace(/```[\s\S]*?```/g, " ");
   const palavras = (semCodigo.match(/\S+/g) || []).length;
   return Math.max(1, Math.round(palavras / 200));
 }
 
-// Callouts: marca seções pedagógicas conhecidas com uma classe para o CSS estilizar.
+// Callouts pedagógicos (PT/EN).
 const TIPOS = [
-  { re: /objetivos de aprendizagem/i, cls: "callout-objetivos", rotulo: "Objetivos" },
-  { re: /^verifica/i, cls: "callout-verificacao", rotulo: "Verificação" },
-  { re: /mão na massa/i, cls: "callout-pratica", rotulo: "Mão na massa" },
-  { re: /o que roubar/i, cls: "callout-roubar", rotulo: "O que roubar" },
-  { re: /^apêndice/i, cls: "callout-apendice", rotulo: "Apêndice" },
+  { re: /objetivos de aprendizagem|learning objectives/i, cls: "callout-objetivos" },
+  { re: /^verifica|^check your understanding/i, cls: "callout-verificacao" },
+  { re: /mão na massa|hands-on/i, cls: "callout-pratica" },
+  { re: /o que roubar|what to steal/i, cls: "callout-roubar" },
+  { re: /^apêndice|^appendix/i, cls: "callout-apendice" },
 ];
 function marcarCallouts(html) {
-  // Envolve cada bloco <h2>..</h2> ... até o próximo <h2> quando o título casa um tipo.
   return html.replace(/<h2([^>]*)>([\s\S]*?)<\/h2>/g, (full, attrs, titulo) => {
     const limpo = titulo.replace(/<[^>]+>/g, "").trim();
     const tipo = TIPOS.find((t) => t.re.test(limpo));
@@ -127,10 +272,7 @@ function marcarCallouts(html) {
   });
 }
 
-// Siglas "abertas" (spec 023): o motor envolve cada ocorrência conhecida em
-// <abbr title="Por Extenso">, de forma NÃO-invasiva (não altera o Markdown-fonte)
-// e HTML-safe (pula code/pre/links/títulos). Fonte única aqui; a página do
-// glossário mirroreia as mesmas expansões. Só siglas de 3+ letras (evita ruído).
+// Siglas "abertas" (spec 023) — fonte única; o glossário mirroreia.
 const SIGLAS = {
   MCP: "Model Context Protocol", ACP: "Agent Client Protocol", A2A: "Agent-to-Agent",
   MRTR: "Multi Round-Trip Requests", CIMD: "Client ID Metadata Documents", DCR: "Dynamic Client Registration",
@@ -148,20 +290,16 @@ const SIGLAS = {
 };
 const RE_SIGLAS = new RegExp("\\b(" + Object.keys(SIGLAS).sort((a, b) => b.length - a.length).join("|") + ")\\b", "g");
 const TAGS_PROT = /^(pre|code|a|abbr|h[1-6]|script|style)$/i;
-// Citações (E01): menções textuais a "arXiv NNNN.NNNNN" fora de links viram
-// link para a Bibliografia (que, por sua vez, linka a fonte). MVP honesto:
-// âncora na página da bibliografia; âncoras por entrada ficam para depois (ADR 0004).
 function ligarCitacoes(texto) {
   return texto.replace(/arXiv\s+(\d{4}\.\d{4,5})/g,
-    (m, id) => `<a class="cita" href="bibliografia.html" title="ver na Bibliografia">arXiv ${id}</a>`);
+    (m, id) => `<a class="cita" href="${T.bibliografiaHtml}" title="${T.verCitacao}">arXiv ${id}</a>`);
 }
 
-// C08 LeituraExecutiva (spec 043): envolve a seção "### Leitura executiva" num
-// painel destacado. O h3 vira o rótulo do painel (CSS); a âncora é preservada.
+// C08 LeituraExecutiva (spec 043) — PT/EN.
 function marcarLeituraExec(html) {
   return html.replace(/(<h3[^>]*>[\s\S]*?<\/h3>)([\s\S]*?)(?=<h[1-3][\s>]|$)/g, (full, h3, resto) => {
     const limpo = h3.replace(/<[^>]+>/g, "").trim();
-    if (!/^leitura executiva/i.test(limpo)) return full;
+    if (!/^(leitura executiva|executive summary)/i.test(limpo)) return full;
     return `<div class="leitura-exec">${h3}${resto}</div>`;
   });
 }
@@ -183,27 +321,39 @@ function abrirSiglas(html) {
 }
 
 // "02 — Loop do Agente" -> { num: "02", texto: "Loop do Agente" }.
-// num só quando o prefixo é numérico (capítulo); o texto sempre perde o prefixo.
 const dividirTitulo = (t) => {
   const p = t.split("—");
   if (p.length < 2) return { num: "", texto: t.trim() };
   return { num: /^\s*\d+\s*$/.test(p[0]) ? p[0].trim() : "", texto: p.slice(1).join("—").trim() };
 };
 
-function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data, ehIndex, chapter = 0, slug = "", hero = null }) {
-  const rel = ehIndex ? "" : "";
-  // N02 PaginaçãoEmCartões (spec 043, V2): cartão com badge numerado — a mesma
-  // linguagem dos cartões da entrada (número = "clique para ir a um capítulo").
+// Seletor de idioma (spec 067): pill PT·EN presente em todas as páginas.
+function pillIdioma(slug) {
+  const alvo = hrefOutroIdioma(slug);
+  const atual = EN ? "EN" : "PT";
+  const outro = T.outroIdioma;
+  return `<nav class="lang-pill" aria-label="Idioma / Language"><span class="lang-atual">${atual}</span><a href="${alvo}" title="${T.outroIdiomaTitulo}" data-lang-alvo="${EN ? "pt" : "en"}">${outro}</a></nav>`;
+}
+function hreflangs(slug) {
+  const aqui = EN ? `en/${slug}.html` : `${slug}.html`;
+  const la = EN ? `${parDe[slug] || "sumario"}.html` : `en/${parDe[slug] || "sumario"}.html`;
+  const pt = EN ? la : aqui, en = EN ? aqui : la;
+  return `<link rel="alternate" hreflang="pt-BR" href="${SITE}${pt}">
+<link rel="alternate" hreflang="en" href="${SITE}${en}">
+<link rel="alternate" hreflang="x-default" href="${SITE}${pt}">`;
+}
+
+function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data, ehIndex, chapter = 0, slug = "", hero = null, sinc = "" }) {
   const navBtn = (item, dir) => {
     if (!item) return `<span></span>`;
     const { num, texto } = dividirTitulo(item.titulo);
     const badge = num ? `<span class="pag-badge">${num}</span>` : "";
-    const rotulo = dir === "prev" ? "← anterior" : "próximo →";
+    const rotulo = dir === "prev" ? T.anterior : T.proximo;
     return `<a class="pagcard${dir === "next" ? " next" : ""}" href="${item.slug}.html">${badge}<span class="pag-tx"><span class="pag-dir">${rotulo}</span><span class="pag-tt">${texto}</span></span></a>`;
   };
-  const selo = data ? `<div class="selo-data" title="Livro vivo — ver Histórico">🕒 ${data}</div>` : "";
+  const selo = data ? `<div class="selo-data" title="${T.seloVivo}">🕒 ${data}</div>` : "";
   return `<!doctype html>
-<html lang="pt-BR"><head>
+<html lang="${T.htmlLang}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${tituloPagina} · ${tituloLivro}</title>
 <meta name="description" content="${sumario.subtitulo}">
@@ -212,35 +362,37 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
 <meta property="og:description" content="${sumario.subtitulo}">
 <meta property="og:image" content="${SITE}assets/capa-social.png">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" type="image/svg+xml" href="${rel}assets/favicon.svg">
-<link rel="icon" type="image/png" sizes="32x32" href="${rel}assets/favicon-32.png">
-<link rel="apple-touch-icon" href="${rel}assets/apple-touch-icon.png">
-<link rel="stylesheet" href="${rel}assets/estilo.css">
-</head><body${ehIndex ? ' class="pagina-index"' : hero ? ' class="pagina-capitulo"' : ""} data-slug="${slug}" data-titulo="${tituloPagina.replace(/"/g, "&quot;")}">
-<button id="alt-tema" aria-label="Alternar tema">◐</button>
+${hreflangs(slug)}
+<link rel="icon" type="image/svg+xml" href="${A}favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="${A}favicon-32.png">
+<link rel="apple-touch-icon" href="${A}apple-touch-icon.png">
+<link rel="stylesheet" href="${A}estilo.css">
+</head><body${ehIndex ? ' class="pagina-index"' : hero ? ' class="pagina-capitulo"' : ""} data-slug="${slug}" data-lang="${LANG}" data-titulo="${tituloPagina.replace(/"/g, "&quot;")}">
+<button id="alt-tema" aria-label="${T.temaAria}">◐</button>
+${pillIdioma(slug)}
 <div class="layout">
   <aside class="sidebar">
     <a class="marca" href="sumario.html">${tituloLivro}</a>
-    <a class="link-capa" href="index.html">↩ capa</a>
+    <a class="link-capa" href="index.html">${T.linkCapa}</a>
     ${navLateral}
   </aside>
   <main class="conteudo">
+    ${sinc}
     ${hero || selo}
     <article class="markdown">${corpo}</article>
     <nav class="pagcards">${navBtn(prev, "prev")}${navBtn(next, "next")}</nav>
-    <footer class="rodape">Livro vivo · gerado do Markdown pelo motor próprio · <a href="https://github.com/GHDaru/harness_engineering">fonte no GitHub</a></footer>
+    <footer class="rodape">${T.rodape}</footer>
   </main>
 </div>
-<script src="${rel}assets/app.js"></script>
-<script src="${rel}assets/viz.js" defer></script>
-<script src="${rel}assets/uso.js" defer></script>
-<script src="${rel}assets/grafo.js" defer></script>
+<script src="${A}app.js"></script>
+<script src="${A}viz.js" defer></script>
+<script src="${A}uso.js" defer></script>
+<script src="${A}grafo.js" defer></script>
 ${companionSnippet(chapter)}
 </body></html>`;
 }
 
-// Versão do livro: fonte única = a última edição declarada em HISTORICO.md.
-// "### Edição 0.11 — …" -> "v0.11.0". Fallback seguro se nada casar.
+// Versão do livro: fonte única = a última edição declarada em HISTORICO.md (PT, canônico).
 function versaoDoLivro() {
   try {
     const hist = readFileSync(resolve(RAIZ, "livro/HISTORICO.md"), "utf8");
@@ -250,8 +402,6 @@ function versaoDoLivro() {
   return "v0.0.0";
 }
 
-// Data da última modificação: data do último commit (fiel à mudança real de
-// conteúdo). Sem git / repo raso -> data do build. Nunca quebra o build.
 function dataDaUltimaModificacao() {
   let d;
   try {
@@ -262,11 +412,11 @@ function dataDaUltimaModificacao() {
   } catch {
     d = new Date();
   }
-  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(d);
+  return new Intl.DateTimeFormat(T.dataLocale, { dateStyle: "long" }).format(d);
 }
 
-// Jornal vivo (specs 061/062): a última notícia do Radar e a edição corrente,
-// parseadas dos arquivos-fonte a cada build. Parse falho -> null -> bloco omitido.
+// Jornal vivo (specs 061/062): fontes operacionais são PT; na edição EN o
+// conteúdo do item permanece PT com marcação honesta (decisão da spec 067).
 function noticiaDoRadar() {
   try {
     const radar = readFileSync(resolve(RAIZ, "radar/RADAR.md"), "utf8");
@@ -290,13 +440,14 @@ function ultimaEdicao() {
 }
 const noticia = noticiaDoRadar();
 const edicao = ultimaEdicao();
+const impactoRotulo = (i) => (EN ? `impact ${i}` : `impacto ${i}`);
 
 // Tela-capa (splash) full-screen: porta de entrada do site, sem sidebar.
 function paginaSplash() {
   const versao = versaoDoLivro();
   const atualizado = dataDaUltimaModificacao();
   return `<!doctype html>
-<html lang="pt-BR"><head>
+<html lang="${T.htmlLang}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${sumario.titulo}</title>
 <meta name="description" content="${sumario.subtitulo}">
@@ -305,36 +456,39 @@ function paginaSplash() {
 <meta property="og:description" content="${sumario.subtitulo}">
 <meta property="og:image" content="${SITE}assets/capa-social.png">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<link rel="stylesheet" href="assets/estilo.css">
-</head><body class="splash-body">
+${hreflangs("index")}
+<link rel="icon" type="image/svg+xml" href="${A}favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="${A}favicon-32.png">
+<link rel="apple-touch-icon" href="${A}apple-touch-icon.png">
+<link rel="stylesheet" href="${A}estilo.css">
+</head><body class="splash-body" data-lang="${LANG}">
+${pillIdioma("index")}
 <main class="splash">
   <div class="splash-arte">
-    <img src="assets/capa.png" width="1024" height="1536" loading="eager"
-      alt="Capa de Engenharia de Harness: um núcleo de IA luminoso, em âmbar, envolto por um harness de engenharia com módulos de loop, ferramenta, permissões, memória e verificação, sobre fundo azul-escuro com traços de blueprint.">
+    <img src="${A}capa.png" width="1024" height="1536" loading="eager"
+      alt="${T.splashAlt}">
   </div>
   <div class="splash-texto">
     <h1>${sumario.titulo}</h1>
     <p class="splash-sub">${sumario.subtitulo}</p>
-    <p class="splash-desc">Um estudo empírico da disciplina de construir o <em>scaffolding</em> que envolve agentes de IA — teoria, benchmark de harnesses reais e uma construção prática do zero.</p>
+    <p class="splash-desc">${T.splashDesc}</p>
     <div class="splash-ctas">
-      <a class="btn btn-primario btn-grande" href="sumario.html">Entrar no livro →</a>
-      <a class="btn btn-escuro" href="comparativo.html">Benchmark</a>
-      <a class="btn btn-escuro" href="guia-editorial.html">Guia Editorial</a>
+      <a class="btn btn-primario btn-grande" href="sumario.html">${T.entrarLivro}</a>
+      <a class="btn btn-escuro" href="${T.hrefComparativo}">${T.benchmarkBtn}</a>
+      <a class="btn btn-escuro" href="${T.hrefGuia}">${T.guiaBtn}</a>
     </div>
     ${noticia
-      ? `<div class="splash-news"><span class="splash-news-k">🗞 Novidade · ${noticia.data}${noticia.impacto ? ` · <b class="splash-news-imp">impacto ${noticia.impacto}</b>` : ""}</span><p>${noticia.itemHtml}</p><a class="splash-news-mais" href="${GITHUB_BASE}radar/RADAR.md">ver o Radar completo →</a></div>`
+      ? `<div class="splash-news"><span class="splash-news-k">${T.newsKicker} · ${noticia.data}${noticia.impacto ? ` · <b class="splash-news-imp">${impactoRotulo(noticia.impacto)}</b>` : ""}${T.newsPt}</span><p>${noticia.itemHtml}</p><a class="splash-news-mais" href="${GITHUB_BASE}radar/RADAR.md">${T.verRadar}</a></div>`
       : ""}
     ${edicao
-      ? `<p class="splash-vedicao">📖 Nesta edição (<b>${edicao.versao}</b> · ${edicao.data}): ${edicao.titulo} — <a href="historico.html">Histórico</a></p>`
+      ? `<p class="splash-vedicao">📖 ${T.nestaEdicao} (<b>${edicao.versao}</b> · ${edicao.data}): ${edicao.titulo} — <a href="${T.hrefHistorico}">${T.historicoNome}</a></p>`
       : ""}
-    <p class="splash-creditos"><strong><a href="autor.html">Gilsiley Henrique Darú</a></strong> — edição, direção e orquestração · <a class="splash-linkedin" href="https://www.linkedin.com/in/gilsiley-dar%C3%BA/">LinkedIn</a><br><strong>Claude (Anthropic)</strong> — pesquisa e geração de texto (co-autoria) · <strong>GPT (OpenAI)</strong> — imagem de capa</p>
-    <p class="splash-versao"><span class="splash-versao-num">${versao}</span> · atualizado em ${atualizado}</p>
+    <p class="splash-creditos">${T.creditos}</p>
+    <p class="splash-versao"><span class="splash-versao-num">${versao}</span> · ${T.atualizadoEm} ${atualizado}</p>
     <p class="splash-doi"><a href="https://doi.org/10.5281/zenodo.21632412">DOI: 10.5281/zenodo.21632412</a></p>
   </div>
 </main>
+<script src="${A}app.js"></script>
 ${companionSnippet(0)}
 </body></html>`;
 }
@@ -346,6 +500,7 @@ function montarNavLateral(atualSlug) {
         `<div class="nav-parte">${p.nome}</div><ul>` +
         p.itens
           .map((i) => {
+            if (!i.arquivo) return `<li><a href="${i.externo}">${i.titulo}</a></li>`;
             const s = slugDe(i.arquivo);
             const ativo = s === atualSlug ? ' class="ativo"' : "";
             return `<li><a${ativo} href="${s}.html">${i.titulo}</a></li>`;
@@ -358,34 +513,38 @@ function montarNavLateral(atualSlug) {
 
 // --- build ---
 if (existsSync(SAIDA)) rmSync(SAIDA, { recursive: true, force: true });
-mkdirSync(resolve(SAIDA, "assets"), { recursive: true });
-cpSync(resolve(AQUI, "tema/estilo.css"), resolve(SAIDA, "assets/estilo.css"));
-cpSync(resolve(AQUI, "tema/app.js"), resolve(SAIDA, "assets/app.js"));
-cpSync(resolve(AQUI, "tema/capa.png"), resolve(SAIDA, "assets/capa.png"));
-cpSync(resolve(AQUI, "tema/capa-social.png"), resolve(SAIDA, "assets/capa-social.png"));
-cpSync(resolve(AQUI, "tema/autor.png"), resolve(SAIDA, "assets/autor.png"));
-cpSync(resolve(AQUI, "tema/harness-diagrama.svg"), resolve(SAIDA, "assets/harness-diagrama.svg"));
-cpSync(resolve(RAIZ, "harness-um/assets/harness-um.svg"), resolve(SAIDA, "assets/harness-um.svg"));
-cpSync(resolve(AQUI, "tema/companion.css"), resolve(SAIDA, "assets/companion.css"));
-cpSync(resolve(AQUI, "tema/companion.js"), resolve(SAIDA, "assets/companion.js"));
-cpSync(resolve(AQUI, "tema/uso.js"), resolve(SAIDA, "assets/uso.js"));
-cpSync(resolve(AQUI, "tema/grafo.js"), resolve(SAIDA, "assets/grafo.js"));
-cpSync(resolve(AQUI, "tema/favicon.svg"), resolve(SAIDA, "assets/favicon.svg"));
-cpSync(resolve(AQUI, "tema/favicon-32.png"), resolve(SAIDA, "assets/favicon-32.png"));
-cpSync(resolve(AQUI, "tema/apple-touch-icon.png"), resolve(SAIDA, "assets/apple-touch-icon.png"));
-writeFileSync(resolve(SAIDA, ".nojekyll"), "");
+mkdirSync(SAIDA, { recursive: true });
 
-// Bundle das ilhas de visualização React (P2). Dados embutidos em build-time.
-await esbuild.build({
-  entryPoints: [resolve(AQUI, "viz/index.jsx")],
-  bundle: true,
-  minify: true,
-  format: "iife",
-  loader: { ".json": "json" },
-  jsx: "automatic",
-  outfile: resolve(SAIDA, "assets/viz.js"),
-  logLevel: "warning",
-});
+if (!EN) {
+  mkdirSync(resolve(SAIDA, "assets"), { recursive: true });
+  cpSync(resolve(AQUI, "tema/estilo.css"), resolve(SAIDA, "assets/estilo.css"));
+  cpSync(resolve(AQUI, "tema/app.js"), resolve(SAIDA, "assets/app.js"));
+  cpSync(resolve(AQUI, "tema/capa.png"), resolve(SAIDA, "assets/capa.png"));
+  cpSync(resolve(AQUI, "tema/capa-social.png"), resolve(SAIDA, "assets/capa-social.png"));
+  cpSync(resolve(AQUI, "tema/autor.png"), resolve(SAIDA, "assets/autor.png"));
+  cpSync(resolve(AQUI, "tema/harness-diagrama.svg"), resolve(SAIDA, "assets/harness-diagrama.svg"));
+  cpSync(resolve(RAIZ, "harness-um/assets/harness-um.svg"), resolve(SAIDA, "assets/harness-um.svg"));
+  cpSync(resolve(AQUI, "tema/companion.css"), resolve(SAIDA, "assets/companion.css"));
+  cpSync(resolve(AQUI, "tema/companion.js"), resolve(SAIDA, "assets/companion.js"));
+  cpSync(resolve(AQUI, "tema/uso.js"), resolve(SAIDA, "assets/uso.js"));
+  cpSync(resolve(AQUI, "tema/grafo.js"), resolve(SAIDA, "assets/grafo.js"));
+  cpSync(resolve(AQUI, "tema/favicon.svg"), resolve(SAIDA, "assets/favicon.svg"));
+  cpSync(resolve(AQUI, "tema/favicon-32.png"), resolve(SAIDA, "assets/favicon-32.png"));
+  cpSync(resolve(AQUI, "tema/apple-touch-icon.png"), resolve(SAIDA, "assets/apple-touch-icon.png"));
+  writeFileSync(resolve(SAIDA, ".nojekyll"), "");
+
+  // Bundle das ilhas de visualização React (P2). Dados embutidos em build-time.
+  await esbuild.build({
+    entryPoints: [resolve(AQUI, "viz/index.jsx")],
+    bundle: true,
+    minify: true,
+    format: "iife",
+    loader: { ".json": "json" },
+    jsx: "automatic",
+    outfile: resolve(SAIDA, "assets/viz.js"),
+    logLevel: "warning",
+  });
+}
 
 let gerados = 0;
 for (let k = 0; k < itens.length; k++) {
@@ -397,52 +556,52 @@ for (let k = 0; k < itens.length; k++) {
   }
   const bruto = readFileSync(caminho, "utf8");
   const data = extrairData(bruto);
+  const sinc = EN ? seloDeSincronia(bruto, item.slug) : "";
   let corpo = marcarCallouts(md.render(bruto, { srcDir: dirname(item.arquivo) }));
   corpo = marcarLeituraExec(corpo); // C08 (spec 043)
+  if (EN) corpo = corpo.replace(/(src|href)="assets\//g, '$1="../assets/'); // assets compartilhados na raiz
+  if (EN) corpo = corpo.replace('<div data-viz="grafo-livro">', '<div data-viz="grafo-livro" data-src="../assets/grafo.en.json">');
 
-  // C01 CabeçalhoDeCapítulo (spec 043, variante B "faixa editorial"): só páginas
-  // com número de capítulo. Absorve o C02 (datação) e mostra a carga de leitura.
-  // O h1 e o blockquote de datação do Markdown saem do corpo (o herói já os mostra).
+  // C01 CabeçalhoDeCapítulo (spec 043, variante B): só páginas numeradas.
   let hero = null;
   const { num, texto } = dividirTitulo(item.titulo);
   if (num) {
     const { cap, rev } = extrairDatas(bruto);
     const chips = [
-      cap ? `<span title="Livro vivo — ver Histórico">🕒 estado da arte ${cap}</span>` : "",
-      rev ? `<span>revisão ${rev}</span>` : "",
-      `<span>📖 ~${tempoDeLeitura(bruto)} min de leitura</span>`,
-      `<a class="cap-dl" href="md/${item.slug}.md" download title="Baixar o Markdown-fonte deste capítulo">⬇ md</a>`,
-      `<a class="cap-dl" href="pdf/${item.slug}.pdf" title="Abrir o PDF deste capítulo">⬇ pdf</a>`,
+      cap ? `<span title="${T.seloVivo}">🕒 ${T.estadoArte} ${cap}</span>` : "",
+      rev ? `<span>${T.revisao} ${rev}</span>` : "",
+      `<span>📖 ~${tempoDeLeitura(bruto)} ${T.minLeitura}</span>`,
+      `<a class="cap-dl" href="md/${item.slug}.md" download title="${T.dlMd}">⬇ md</a>`,
+      `<a class="cap-dl" href="pdf/${item.slug}.pdf" title="${T.dlPdf}">⬇ pdf</a>`,
     ].join("");
     hero = `<header class="cap-hero"><div class="cap-num" aria-hidden="true">${num}</div>
-<div class="cap-kicker">${item.parte} · Cap. ${num}</div>
+<div class="cap-kicker">${item.parte} · ${T.capKicker} ${num}</div>
 <h1>${texto}</h1>
 ${item.teaser ? `<p class="cap-teaser">${item.teaser}</p>` : ""}
 <div class="cap-meta">${chips}</div></header>`;
     corpo = corpo.replace(/<h1[^>]*>[\s\S]*?<\/h1>\s*/, "");
-    corpo = corpo.replace(/<blockquote>\s*<p><strong>Estado da arte capturado em[\s\S]*?<\/blockquote>\s*/, "");
+    corpo = corpo.replace(new RegExp("<blockquote>\\s*<p><strong>" + RE_CAPTURA.source + "[\\s\\S]*?<\\/blockquote>\\s*"), "");
   }
 
-  if (item.slug !== "glossario") corpo = abrirSiglas(corpo); // "abre" siglas fora do próprio glossário
+  if (item.slug !== "glossario" && item.slug !== "glossary") corpo = abrirSiglas(corpo);
   const html = pagina({
     tituloLivro: sumario.titulo,
     tituloPagina: item.titulo,
     corpo,
     navLateral: montarNavLateral(item.slug),
-    prev: k === 0 ? { slug: "sumario", titulo: "Sumário" } : itens[k - 1],
+    prev: k === 0 ? { slug: "sumario", titulo: T.sumarioTitulo } : itens[k - 1],
     next: itens[k + 1],
     data,
     chapter: capituloDe(item.titulo),
     slug: item.slug,
     hero,
+    sinc,
   });
   writeFileSync(resolve(SAIDA, `${item.slug}.html`), html);
   gerados++;
 }
 
-// Downloads (spec 045): fontes .md publicados em docs/md/ + consolidado do
-// livro inteiro (ordem do sumário, cabeçalho com versão/DOI). Os PDFs são
-// gerados por pdf.mjs em docs/pdf/ (no CI, após o build).
+// Downloads (spec 045): fontes .md publicados + consolidado (por idioma).
 mkdirSync(resolve(SAIDA, "md"), { recursive: true });
 {
   const partesMd = [];
@@ -454,91 +613,110 @@ mkdirSync(resolve(SAIDA, "md"), { recursive: true });
     partesMd.push(bruto.trim());
   }
   const cabecalho = `# ${sumario.titulo}\n\n> ${sumario.subtitulo}\n>\n> ${versaoDoLivro()} · DOI ${DOI} · fonte: https://github.com/GHDaru/harness_engineering · site: ${SITE}\n\n---\n\n`;
-  writeFileSync(resolve(SAIDA, "md", "engenharia-de-harness.md"), cabecalho + partesMd.join("\n\n---\n\n") + "\n");
+  writeFileSync(resolve(SAIDA, T.mdLivro), cabecalho + partesMd.join("\n\n---\n\n") + "\n");
 }
 
-// Knowledge Graph (spec 057): derivado do conteúdo A CADA build — muda o livro,
-// muda o grafo, sem passo manual.
-{
+// Knowledge Graph (spec 057): derivado do conteúdo PT a cada build. Na passada
+// EN, os nós de capítulo são remapeados para rótulos/URLs EN (grafo.en.json).
+if (!EN) {
   const grafo = gerarGrafo(itens, RAIZ, versaoDoLivro());
   writeFileSync(resolve(SAIDA, "assets/grafo.json"), JSON.stringify(grafo));
   console.log(`✓ Grafo do livro: ${grafo.nos.length} nós, ${grafo.arestas.length} arestas`);
+} else {
+  try {
+    const grafo = JSON.parse(readFileSync(resolve(RAIZ, "docs/assets/grafo.json"), "utf8"));
+    const tituloEnDe = {};
+    itens.forEach((i) => (tituloEnDe[parDe[i.slug]] = i)); // slug PT -> item EN
+    for (const n of grafo.nos) {
+      if (n.tipo !== "capitulo") continue;
+      const ptSlug = (n.url || "").replace(/\.html$/, "");
+      const itemEn = tituloEnDe[ptSlug];
+      if (itemEn) {
+        n.url = `${itemEn.slug}.html`;
+        n.rotulo = dividirTitulo(itemEn.titulo).num ? `${dividirTitulo(itemEn.titulo).num} ${dividirTitulo(itemEn.titulo).texto}` : itemEn.titulo;
+      }
+    }
+    writeFileSync(resolve(RAIZ, "docs/assets/grafo.en.json"), JSON.stringify(grafo));
+  } catch (e) {
+    console.warn("  aviso: grafo.en.json não gerado:", e.message);
+  }
 }
 
-// index = tela-capa (splash) full-screen; porta de entrada.
+// index = tela-capa (splash); porta de entrada (por idioma).
 writeFileSync(resolve(SAIDA, "index.html"), paginaSplash());
 
-// sumario.html = a EXPERIÊNCIA DE ENTRADA (spec 021): hero + retomar + trilha +
-// cartões por parte + pills do aparato. A sidebar (índice completo) vem de pagina().
+// sumario.html = a EXPERIÊNCIA DE ENTRADA (spec 021), por idioma.
 const cartaoEnt = (i) => {
   const s = slugDe(i.arquivo);
   const { num, texto } = dividirTitulo(i.titulo);
   return `<a class="ent-card" href="${s}.html">${num ? `<span class="ent-badge">${num}</span>` : ""}<span class="ent-ct">${texto}</span>${i.teaser ? `<span class="ent-cd">${i.teaser}</span>` : ""}</a>`;
 };
-const pillEnt = (i) => `<a class="ent-pill" href="${slugDe(i.arquivo)}.html">${dividirTitulo(i.titulo).texto}</a>`;
-const partesCartao = new Set(["Abertura", "Capítulos por funcionalidade"]);
+const pillEnt = (i) =>
+  i.arquivo
+    ? `<a class="ent-pill" href="${slugDe(i.arquivo)}.html">${dividirTitulo(i.titulo).texto}</a>`
+    : `<a class="ent-pill" href="${i.externo}">${dividirTitulo(i.titulo).texto}</a>`;
 const blocosCartao = sumario.partes
-  .filter((p) => partesCartao.has(p.nome))
+  .filter((p) => T.partesCartao.has(p.nome))
   .map((p) => `<div class="ent-parte"><span>${p.nome}</span><i></i></div><div class="ent-grid">${p.itens.map(cartaoEnt).join("")}</div>`)
   .join("");
-const pillsEnt = sumario.partes.filter((p) => !partesCartao.has(p.nome)).flatMap((p) => p.itens).map(pillEnt).join("");
+const pillsEnt = sumario.partes.filter((p) => !T.partesCartao.has(p.nome)).flatMap((p) => p.itens).map(pillEnt).join("");
 
-// News da entrada (spec 061): derivado do RADAR (agente diário) e do HISTORICO.
-// Parse falhou -> bloco omitido; a entrada nunca quebra por causa do jornal.
-// (Parsers e consts vivem antes do splash — spec 062 os consome na capa também.)
+// News da entrada (spec 061) — fontes PT; chrome no idioma da página.
 const blocoNews = (noticia
-  ? `<div class="ent-news"><span class="ent-news-k">🗞 Radar do livro vivo · ${noticia.data}${noticia.impacto ? ` · impacto ${noticia.impacto}` : ""}</span><p>${noticia.itemHtml}</p><a class="ent-news-mais" href="${GITHUB_BASE}radar/RADAR.md">ver o Radar completo →</a></div>`
+  ? `<div class="ent-news"><span class="ent-news-k">${EN ? "🗞 Living-book Radar" : "🗞 Radar do livro vivo"} · ${noticia.data}${noticia.impacto ? ` · ${impactoRotulo(noticia.impacto)}` : ""}${T.newsPt}</span><p>${noticia.itemHtml}</p><a class="ent-news-mais" href="${GITHUB_BASE}radar/RADAR.md">${T.verRadar}</a></div>`
   : "") + (edicao
-  ? `<p class="ent-vedicao">📖 Nesta edição (<b>${edicao.versao}</b> · ${edicao.data}): ${edicao.titulo} — <a href="historico.html">Histórico</a></p>`
+  ? `<p class="ent-vedicao">📖 ${T.nestaEdicao} (<b>${edicao.versao}</b> · ${edicao.data}): ${edicao.titulo} — <a href="${T.hrefHistorico}">${T.historicoNome}</a></p>`
   : "");
+
+const trilhaHtml = T.trilha
+  .map(([href, n, b, s]) => `<a class="ent-step" href="${href}"><span class="ent-step-n">${n}</span><b>${b}</b><span>${s}</span></a>`)
+  .join("\n    ");
 
 const corpoSumario = `<section class="entrada">
   <div class="ent-hero">
-    <img class="ent-capa" src="assets/capa.png" width="1024" height="1536" loading="eager" alt="Capa do livro Engenharia de Harness">
+    <img class="ent-capa" src="${A}capa.png" width="1024" height="1536" loading="eager" alt="${T.splashAlt}">
     <div class="ent-hero-txt">
-      <div class="ent-kicker">Livro vivo · ${versaoDoLivro()} · DOI ${DOI}</div>
+      <div class="ent-kicker">${T.kickerEntrada} · ${versaoDoLivro()} · DOI ${DOI}</div>
       <h1 class="ent-titulo">${sumario.titulo}</h1>
       <p class="ent-sub">${sumario.subtitulo}</p>
       <div class="ent-ctas">
-        <a class="ent-btn ent-btn-a" href="00-introducao.html">▶ Começar do início — 00</a>
-        <a class="ent-btn" href="comparativo.html">Benchmark</a>
-        <a class="ent-btn" href="guia-editorial.html">Guia Editorial</a>
-        <a class="ent-btn" href="pdf/engenharia-de-harness.pdf" title="Livro completo em PDF">⬇ PDF</a>
-        <a class="ent-btn" href="md/engenharia-de-harness.md" download title="Livro completo em Markdown (bom para LLMs)">⬇ Markdown</a>
+        <a class="ent-btn ent-btn-a" href="${itens[0].slug}.html">${T.comecar}</a>
+        <a class="ent-btn" href="${T.hrefComparativo}">${T.benchmarkBtn}</a>
+        <a class="ent-btn" href="${T.hrefGuia}">${T.guiaBtn}</a>
+        <a class="ent-btn" href="${T.pdfLivro}" title="${T.pdfLivroTitulo}">⬇ PDF</a>
+        <a class="ent-btn" href="${T.mdLivro}" download title="${T.mdLivroTitulo}">⬇ Markdown</a>
       </div>
     </div>
   </div>
   ${blocoNews}
   <a class="ent-retomar" id="ent-retomar" href="#" hidden>
-    <span class="ent-ret-l"><span class="ent-ret-lab">Continue lendo</span><span class="ent-ret-cap" id="ent-ret-cap"></span></span>
-    <span class="ent-btn ent-btn-a">Retomar ▶</span>
+    <span class="ent-ret-l"><span class="ent-ret-lab">${T.continueLendo}</span><span class="ent-ret-cap" id="ent-ret-cap"></span></span>
+    <span class="ent-btn ent-btn-a">${T.retomar}</span>
   </a>
   <div class="ent-trilha">
-    <a class="ent-step" href="01-fundamentos.html"><span class="ent-step-n">Trilha · 1</span><b>Fundamentos</b><span>O vocabulário e a tese do livro.</span></a>
-    <a class="ent-step" href="02-loop-do-agente.html"><span class="ent-step-n">Trilha · 2</span><b>Funcionalidades</b><span>Os 16 componentes, um por capítulo.</span></a>
-    <a class="ent-step" href="comparativo.html"><span class="ent-step-n">Trilha · 3</span><b>Benchmark</b><span>10 harnesses reais comparados.</span></a>
-    <a class="ent-step" href="https://github.com/GHDaru/harness_engineering/tree/main/harness-zero"><span class="ent-step-n">Trilha · 4</span><b>Mão na massa</b><span>Construa o harness-zero, etapa a etapa.</span></a>
+    ${trilhaHtml}
   </div>
   ${blocosCartao}
-  <div class="ent-parte"><span>Benchmark · Aparato · Sobre</span><i></i></div>
+  <div class="ent-parte"><span>${T.pillsRotulo}</span><i></i></div>
   <div class="ent-pills">${pillsEnt}</div>
 </section>`;
 writeFileSync(
   resolve(SAIDA, "sumario.html"),
   pagina({
     tituloLivro: sumario.titulo,
-    tituloPagina: "Sumário",
+    tituloPagina: T.sumarioTitulo,
     corpo: corpoSumario,
     navLateral: montarNavLateral("sumario"),
     prev: null,
     next: itens[0],
     data: null,
     ehIndex: true,
+    slug: "sumario",
   })
 );
 
-// Portão de qualidade (T402): todo link interno .html gerado deve apontar para
-// uma página que existe. Link quebrado FALHA o build (e, portanto, o CI).
+// Portão de qualidade (T402): links internos .html apontam para páginas
+// existentes NO MESMO idioma; "../" cruza para o outro idioma (validado lá).
 const paginas = new Set(itens.map((i) => `${i.slug}.html`).concat("index.html", "sumario.html"));
 const quebrados = [];
 for (const i of [...itens, { slug: "index" }, { slug: "sumario" }]) {
@@ -547,8 +725,9 @@ for (const i of [...itens, { slug: "index" }, { slug: "sumario" }]) {
   const html = readFileSync(arq, "utf8");
   for (const m of html.matchAll(/href="([^"]+)"/g)) {
     const href = m[1];
-    if (/^https?:|^#|^mailto:|^\/\//.test(href)) continue; // externos não são conferidos aqui
+    if (/^https?:|^#|^mailto:|^\/\//.test(href)) continue;
     if (!/\.html(#|$)/.test(href)) continue;
+    if (href.includes("../") || href.startsWith("en/")) continue; // cruza idiomas
     const alvo = basename(href.split("#")[0]);
     if (!paginas.has(alvo)) quebrados.push(`${i.slug}.html → ${href}`);
   }
@@ -559,4 +738,4 @@ if (quebrados.length) {
   process.exit(1);
 }
 
-console.log(`✓ Livro gerado: ${gerados} capítulos + capa em docs/ (links internos OK)`);
+console.log(`✓ Livro gerado [${LANG}]: ${gerados} páginas + capa em ${EN ? "docs/en/" : "docs/"} (links internos OK)`);
