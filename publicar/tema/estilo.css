@@ -360,3 +360,52 @@ abbr[title] { text-decoration: underline dotted; text-decoration-thickness: 1px;
 .ent-news-mais:hover { text-decoration: underline; }
 .ent-vedicao { margin: .5rem 0 0; font-size: .8rem; color: var(--muted); }
 .ent-vedicao b { font-variant-numeric: tabular-nums; }
+
+/* ===== Radar-jornal (spec 071) — o diário do Radar como site de notícias ===== */
+.jornal { max-width: 62rem; }
+.jr-masthead { border-bottom: 3px double var(--borda, #c8c2b4); padding-bottom: 1rem; margin-bottom: 1.4rem; }
+.jr-marca { font-size: 1.7rem; letter-spacing: -.5px; }
+.jr-marca b { color: var(--prat, #b06d0f); }
+.jr-tagline { color: var(--muted); font-size: .92rem; max-width: 60ch; margin: .4rem 0 .8rem; }
+.jr-tabs { display: flex; gap: .5rem; flex-wrap: wrap; }
+.jr-tab { font: 600 .8rem/1 system-ui, sans-serif; padding: .45rem .9rem; border-radius: 999px;
+  border: 1px solid var(--borda, #c8c2b4); text-decoration: none; color: var(--muted); }
+.jr-tab.ativo { background: var(--prat, #b06d0f); color: #fff; border-color: transparent; }
+.jr-edicao { margin: 0 0 2.6rem; }
+.jr-data { display: flex; align-items: baseline; gap: .5rem; margin: 0 0 1rem;
+  border-bottom: 1px solid var(--borda, #e2ddd2); padding-bottom: .4rem; }
+.jr-data span { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.jr-data b { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.jr-hoje { background: rgba(224,162,74,.15); color: var(--prat, #b06d0f); border-radius: 999px;
+  padding: .2rem .7rem; font: 700 .68rem/1 system-ui; text-transform: uppercase; letter-spacing: .06em; }
+.jr-card { border: 1px solid var(--borda, #e2ddd2); border-radius: 14px; padding: 1.1rem 1.3rem; margin: 0 0 1rem;
+  background: var(--painel, rgba(127,127,127,.04)); }
+.jr-lead { border-left: 4px solid var(--prat, #b06d0f); }
+.jr-lead h3 { font-size: 1.45rem; line-height: 1.2; margin: .3rem 0 .6rem; }
+.jr-card h3 { margin: .3rem 0 .5rem; }
+.jr-kicker { display: flex; gap: .5rem; align-items: center; }
+.jr-manchete-tag { font: 700 .66rem/1 system-ui; text-transform: uppercase; letter-spacing: .08em; color: var(--prat, #b06d0f); }
+.jr-imp { font: 700 .66rem/1 system-ui; text-transform: uppercase; letter-spacing: .06em;
+  border-radius: 999px; padding: .25rem .7rem; }
+.jr-imp-a { background: rgba(220,72,72,.14); color: #c04040; }
+.jr-imp-b { background: rgba(224,162,74,.16); color: #a06a1a; }
+.jr-imp-c { background: rgba(120,174,255,.14); color: #4a78c0; }
+.jr-corpo { font-size: .95rem; }
+.jr-corpo p { margin: .4rem 0; }
+.jr-fontes { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; margin-top: .7rem;
+  border-top: 1px dashed var(--borda, #e2ddd2); padding-top: .55rem; }
+.jr-fontes > span { font: 700 .66rem/1 system-ui; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.jr-fonte { font: 600 .74rem/1 system-ui; padding: .3rem .65rem; border-radius: 999px;
+  border: 1px solid var(--borda, #d8d2c4); text-decoration: none; color: var(--texto, #333); }
+.jr-fonte:hover { border-color: var(--prat, #b06d0f); color: var(--prat, #b06d0f); }
+.jr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 1rem; margin: 0 0 1rem; }
+.jr-grid .jr-card { margin: 0; }
+.jr-caixa { border-radius: 12px; padding: .9rem 1.1rem; margin: 0 0 .9rem; font-size: .9rem; }
+.jr-caixa h4, .jr-caixa summary { font: 700 .72rem/1.3 system-ui; text-transform: uppercase; letter-spacing: .07em; margin: 0 0 .4rem; }
+.jr-descartes { background: rgba(127,127,127,.06); border: 1px dashed var(--borda, #c8c2b4); }
+.jr-risco { background: rgba(220,72,72,.07); border: 1px solid rgba(220,72,72,.25); }
+.jr-risco h4 { color: #c04040; }
+.jr-consultas { background: rgba(120,174,255,.06); border: 1px solid rgba(120,174,255,.2); }
+.jr-consultas summary { cursor: pointer; color: #4a78c0; }
+.jr-outra { background: rgba(224,162,74,.07); border: 1px solid rgba(224,162,74,.25); }
+.jr-rodape { color: var(--muted); font-size: .85rem; border-top: 3px double var(--borda, #c8c2b4); padding-top: .8rem; }
