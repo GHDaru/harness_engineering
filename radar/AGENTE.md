@@ -12,7 +12,7 @@ Alimentar o livro vivo com um roadmap de auto-atualização priorizado. Você **
 
 1. **Contexto**: leia `radar/RADAR.md`, a entrada diária anterior em `radar/diario/`, o placar de expiração em `livro/HISTORICO.md` e as "Leituras executivas" dos capítulos que for avaliar.
 2. **Busca** (WebSearch; 6–10 consultas objetivas):
-   - releases/mudanças relevantes dos 16 sistemas do corpus (ver `livro/apendice-estudo.md`);
+   - releases/mudanças relevantes dos 18 sistemas do corpus (ver `livro/apendice-estudo.md`);
    - protocolos (MCP, A2A, ACP) e specs novas;
    - ferramentas/harnesses novos candidatos ao estudo (teste de inclusão do cap. 01 §4);
    - papers novos sobre as dimensões do benchmark.
