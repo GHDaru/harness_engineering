@@ -32,6 +32,14 @@
 
 ## Edições
 
+### Correção 2026-08-01 · o banner de consentimento nunca aparecia
+- **Defeito de uma linha, efeito silencioso**: em `publicar/tema/companion.js`, dentro de `montarBanner()`, uma variável local `var tx` sombreava a função `tx(pt, en)` do escopo do módulo. Como `var` é içado para o topo da função, na linha seguinte `tx` já era um elemento DOM, e a chamada `tx("Entendi e aceito", …)` lançava `TypeError` — em **PT e EN**, no carregamento de toda página.
+- **Consequência**: `montarBanner()` abortava e, com ele, a `telemetria()` chamada logo depois no mesmo bootstrap. Ou seja, (1) **nenhum leitor novo viu o banner de consentimento** e (2) **nenhum evento de navegação foi registrado** por quem não consentisse pelo painel do chat. **Os números do [Apêndice — Uso do livro](apendice-uso.md) subcontam** o período anterior a esta correção; leia-os com essa ressalva.
+- **Por que passou despercebido**: o cartão de consentimento *dentro* do painel do chat usa a função `tx` correta e seguia funcionando — o caminho testado à mão estava íntegro; o quebrado era o que aparece sozinho, sem clique.
+- **Verificação** (Chromium/Playwright sobre o `docs/` construído, antes e depois): antes, `['tx is not a function']` e banner ausente nas duas edições; depois, nenhum erro e banner presente. Build verde: 18 capítulos + aparato em PT e EN.
+- **Origem do achado**: o motor foi portado para outro livro vivo, e o mesmo defeito apareceu lá — reuso como forma de teste.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; diagnóstico, correção e verificação. Enquadrada como correção trivial (exceção do Princípio VII), com decisão humana explícita.
+
 ### Edição 0.62 — 2026-07-31 · o livro fala inglês (spec 067)
 - **Feature spec-kit oficial `067-livro-en`**: o livro vira **multiidioma** — rodada inglês, em [`/en/`](https://ghdaru.github.io/harness_engineering/en/) espelhado com slugs ingleses. **27 páginas traduzidas** (18 capítulos + benchmark + aparato) por 6 agentes em paralelo sob contrato de tradução (glossário fixo, seções canônicas, estrutura 1:1 verificada, citações em inglês verbatim).
 - **PT permanece a fonte canônica; a tradução é artefato derivado com selo de sincronia**: cada fonte EN declara `fonte+edição+hash` do original; o build compara com o PT atual e mostra "in sync" ou o aviso âmbar de tradução atrasada — dívida de tradução é sempre visível, e o portão de qualidade falha se o selo mentir. Regra permanente: toda spec que edite `livro/` inclui o passo "traduzir o delta".
