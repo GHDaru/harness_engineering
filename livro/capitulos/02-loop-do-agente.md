@@ -1,6 +1,6 @@
 # 02 — Loop do Agente
 
-> **Estado da arte capturado em 2026-07** · última revisão 2026-07-25 · [histórico e registro de expiração](../HISTORICO.md)
+> **Estado da arte capturado em 2026-07** · última revisão 2026-08-01 · [histórico e registro de expiração](../HISTORICO.md)
 >
 > Esqueleto v3 — corpo com o estado da arte; tratamento por repositório no Apêndice A (complementação online).
 
@@ -14,7 +14,19 @@
 
 ## O problema
 
-O loop é o coração do harness: envia contexto ao modelo, recebe uma decisão (texto e/ou tool calls), executa, realimenta e repete — até que alguém decida parar. As perguntas de projeto: quem decide parar? como os resultados e erros voltam? o que acontece quando dá errado? o loop sobrevive a um reinício?
+O loop é o coração do harness: envia contexto ao modelo, recebe uma decisão (texto e/ou **tool calls** — pedidos estruturados de ação: "execute tal ferramenta com tais argumentos"), executa, realimenta e repete — até que alguém decida parar.
+
+**Um turno completo, em câmera lenta.** Você digita: "o teste `test_login` falhou, corrija". O que o loop faz:
+
+1. Monta o contexto (regras do projeto + sua mensagem) e **chama o modelo**;
+2. O modelo não responde com texto — responde com uma tool call: `executar_shell("pytest test_login")`;
+3. O harness **executa de verdade** e devolve a saída (o traceback do erro) ao modelo, como se fosse uma nova mensagem;
+4. O modelo agora *viu* o erro e emite outra tool call: `editar_arquivo("auth.py", …)`;
+5. O harness executa (talvez pedindo sua aprovação — cap. 07) e devolve o resultado;
+6. Nova chamada ao modelo, que pede o teste de novo; desta vez passa;
+7. O modelo responde **só com texto** ("corrigido: era o cookie expirado") — e é *isso* que encerra o turno: **sem tool call, o loop para**.
+
+Sete passos, três chamadas ao modelo, duas execuções reais. Todo o resto deste capítulo são as perguntas difíceis escondidas nesse ciclo: quem decide parar (e se o modelo nunca parar?), como os erros voltam, o que acontece quando o processo morre no passo 5, quanto isso pode custar. As perguntas de projeto: quem decide parar? como os resultados e erros voltam? o que acontece quando dá errado? o loop sobrevive a um reinício?
 
 ## Fundamentos científicos
 

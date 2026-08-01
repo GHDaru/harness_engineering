@@ -1,8 +1,10 @@
 # 00 — Introdução
 
-> **Estado da arte capturado em 2026-07** · última revisão 2026-07-28 · [histórico e registro de expiração](HISTORICO.md)
+> **Estado da arte capturado em 2026-07** · última revisão 2026-08-01 · [histórico e registro de expiração](HISTORICO.md)
 
 ## Agente = modelo + harness
+
+Comece por uma pergunta que qualquer pessoa que já usou um chat de IA consegue fazer: por que o ChatGPT *responde* sobre o seu problema, mas não *resolve* o seu problema? Ele explica como corrigir o bug — mas não abre o arquivo, não roda o teste, não confere se funcionou. A resposta curta: um chat é só o **modelo**. Para o modelo *agir* — mexer em arquivos, executar comandos, verificar o próprio trabalho e parar na hora certa — é preciso construir uma estrutura inteira em volta dele. Essa estrutura é o assunto deste livro.
 
 Quando um agente de IA resolve uma tarefa real — corrigir um bug, migrar um módulo, responder com base em dezenas de arquivos — duas coisas distintas estão trabalhando. A primeira é o **modelo**: a rede que lê contexto e decide o próximo passo. A segunda é tudo o que está em volta dele: quem monta o contexto que ele lê, quem executa as ferramentas que ele invoca, quem decide o que ele pode ou não fazer, quem lembra o que aconteceu ontem, quem verifica se o resultado está certo. Esse "tudo em volta" é o **harness** — em tradução livre, o arreio, o andaime, o *scaffolding*.
 
@@ -15,7 +17,7 @@ A fórmula que organiza este livro é simples:
   <figcaption>O modelo no centro; o harness — o andaime — em volta. Cada bloco é um capítulo deste livro.</figcaption>
 </figure>
 
-O modelo é intercambiável e melhora a cada geração. O harness é engenharia de software clássica — e é nele que a maioria dos agentes falha ou tem sucesso. Dois produtos usando exatamente o mesmo modelo entregam resultados radicalmente diferentes conforme a qualidade do harness: como o contexto chega ao modelo, quais ferramentas ele tem, como os erros retornam, o que acontece quando a janela de contexto acaba.
+O modelo é intercambiável e melhora a cada geração. O harness é engenharia de software clássica — e é nele que a maioria dos agentes falha ou tem sucesso. Dois produtos usando exatamente o mesmo modelo entregam resultados radicalmente diferentes conforme a qualidade do harness: como o contexto chega ao modelo, quais ferramentas ele tem, como os erros retornam, o que acontece quando a **janela de contexto** (o limite de texto que o modelo consegue "enxergar" de uma vez) acaba.
 
 **Engenharia de harness** é a disciplina de projetar esse scaffolding: entrega de contexto, interfaces de ferramentas, artefatos de planejamento, loops de verificação, sistemas de memória e sandboxes.
 
@@ -39,6 +41,14 @@ Por transparência — e coerência com a regra de evidência acima — este liv
 
 Isso não é um detalhe: um livro sobre a disciplina de instrumentar bem os agentes de IA usa essa mesma disciplina para se escrever, e a expõe. O método completo — pesquisa dupla verificada por busca cruzada, ciclo spec-driven, revisão e datação — está documentado no [Guia Editorial §6](GUIA-EDITORIAL.md), com um *survey* das metodologias de escrita tradicionais e da era-IA que o fundamentam.
 
+## Como ler este livro — três portas de entrada
+
+O livro foi escrito para ser denso; esta seção existe para que a densidade não seja uma parede. Escolha a sua porta:
+
+- **Se você está chegando agora** (usou chats de IA, mas nunca construiu um agente): leia 00→01→02 em sequência, sem pressa, usando o [Glossário](glossario.md) como apoio — toda sigla do livro está lá, por extenso e explicada (na versão online, basta passar o mouse sobre a sigla). Depois do 02, os capítulos 03–13 podem ser lidos em qualquer ordem: cada um é autocontido e abre definindo o próprio problema.
+- **Se você já opera um agente** (usa Claude Code, Codex, Cursor ou similares e quer entender o que há por dentro): a **Leitura executiva** ao fim de cada capítulo é o seu atalho — o estado da arte da dimensão em um parágrafo, com a seção "o que roubar". Vá direto aos capítulos do seu interesse e desça ao corpo quando quiser a evidência.
+- **Se você constrói harnesses**: o livro inteiro é seu, incluindo os Apêndices A (evidência por repositório, com caminhos de arquivo), o [Benchmark](../benchmark/comparativo.md) e as duas trilhas práticas — o **harness-zero** (construção didática, uma feature por etapa) e o **harness-um** (a implementação de referência completa, [apêndice próprio](apendice-harness-um.md)).
+
 ## Estrutura do livro
 
 - **Fundamentos** (capítulo 01): as definições formais, os artigos canônicos e a taxonomia de problemas que organiza tudo o que vem depois.
@@ -49,9 +59,9 @@ Isso não é um detalhe: um livro sobre a disciplina de instrumentar bem os agen
 
 ## Os harnesses do estudo
 
-O estudo cobre, até esta edição, **dezesseis sistemas de código aberto**, avaliados por leitura sistemática de código em quatro arquétipos (o método está no [capítulo 01, §6](01-fundamentos.md)):
+O estudo cobre, até esta edição, **dezoito sistemas de código aberto**, avaliados por leitura sistemática de código em quatro arquétipos (o método está no [capítulo 01, §6](01-fundamentos.md)):
 
-- **Harnesses de código** — opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands;
+- **Harnesses de código** — opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build e Pi;
 - **Agentes pessoais self-hosted** — OpenClaw, Hermes Agent, IronClaw, ohmo;
 - **Harnesses embutidos** — n8n (nó AI Agent);
 - **Frameworks** — LangGraph, CrewAI, OpenAI Agents SDK (Software Development Kit), Software Agent SDK.

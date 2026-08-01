@@ -1,6 +1,6 @@
 # 01 — Fundamentos
 
-> **Estado da arte capturado em 2026-07** · última revisão 2026-07-28 · [histórico e registro de expiração](HISTORICO.md)
+> **Estado da arte capturado em 2026-07** · última revisão 2026-08-01 · [histórico e registro de expiração](HISTORICO.md)
 
 Este capítulo fixa o vocabulário, a **origem** e o **método** do livro. Antes de comparar harnesses (capítulos 02–13) é preciso responder três perguntas que a primeira edição deixou em aberto: *o que é* um harness, *de onde ele veio* (e o que havia antes), e *com que rigor* este livro o estuda.
 
@@ -15,6 +15,8 @@ Com o princípio orientador:
 > O foco é o *harness*, não o modelo. Cada componente existe porque o modelo não consegue fazê-lo sozinho — e os melhores harnesses são projetados sabendo que esses componentes se tornarão desnecessários conforme os modelos melhoram.
 
 Note o termo central: **scaffolding** (andaime). É a metáfora do livro — a estrutura provisória erguida em volta de algo em construção, que sustenta o trabalho e depois é removida. Guarde a palavra: ela reaparece no subtítulo, no título de cada parte e na §8 (a cláusula de expiração).
+
+> **Para quem está chegando agora — uma imagem que sustenta o livro inteiro.** Pense no modelo como um profissional brilhante no primeiro dia de trabalho numa empresa que ele não conhece: capaz, mas sem mesa, sem acesso aos sistemas, sem saber as regras da casa — e com memória que zera a cada conversa. O harness é tudo que a empresa monta em volta dele: o dossiê do projeto que ele lê ao chegar (contexto, cap. 03), as ferramentas na bancada (cap. 05), o crachá que define onde pode entrar (permissões, cap. 07), o caderno de anotações que sobrevive ao fim do expediente (memória, cap. 08), o supervisor que revisa a entrega antes de ela sair (verificação, cap. 11) — e o expediente em si, o ritmo de trabalhar-conferir-continuar (o loop, cap. 02). Quando os capítulos ficarem técnicos, volte a esta imagem: cada dimensão do livro é uma peça desse escritório.
 
 ## 2. O que havia antes — e por que não eram agentes
 
@@ -53,11 +55,13 @@ A literatura da disciplina converge numa definição do harness como uma **camad
 
 Um sistema sem qualquer um dos quatro **não é um harness completo**: um chatbot com ferramentas mas sem loop é um "function caller"; um loop sem controle é um incidente esperando acontecer; ferramentas sem gestão de contexto colapsam em tarefas longas. **Esta é a definição operacional que serve de teste de inclusão** do estudo (§5–6).
 
+**As quatro peças numa tarefa real.** Peça a um agente: "o teste `test_login` está falhando, corrija". O que acontece, peça a peça: a **gestão de contexto** monta o que o modelo vai enxergar (as regras do projeto, a mensagem, talvez o arquivo do teste); o modelo lê e decide pedir uma ação — "rode o teste e me mostre o erro" — que a **interface de ferramentas** executa de verdade no terminal; o resultado volta, o modelo propõe editar um arquivo, e os **mecanismos de controle** decidem se essa edição pode acontecer direto ou se precisa da sua aprovação; aplicada a edição, o **loop** realimenta o modelo com o novo estado — teste passa? — e repete o ciclo até o critério de parada. Quatro peças, um turno de trabalho. Os capítulos 02–13 são este parágrafo em câmera lenta.
+
 ## 5. De onde vêm os harnesses deste estudo
 
 O corpus é **de código aberto** (o Princípio II do livro: a fonte-base é o código) e se divide em quatro arquétipos — os mesmos do capítulo 00:
 
-- **Harnesses de código** (opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands): implementações de referência que juntam as quatro peças num executável.
+- **Harnesses de código** (opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build, Pi): implementações de referência que juntam as quatro peças num executável.
 - **Agentes pessoais self-hosted** (OpenClaw, Hermes Agent, IronClaw, ohmo): o harness a serviço de uma pessoa, com identidade, memória e canais próprios.
 - **Harnesses embutidos** (n8n, nó AI Agent): o loop como componente dentro de um produto maior.
 - **Frameworks** (LangGraph, CrewAI, OpenAI Agents SDK, Software Agent SDK): expõem loop, estado e ferramentas como primitivas programáveis.
@@ -67,6 +71,8 @@ O **teste de inclusão** é a definição da §4: entra quem tem *loop + ferrame
 ## 6. O método do estudo (rigor)
 
 Este livro **lê o código-fonte de harnesses reais**, os compara por dimensões e depois **constrói um harness do zero**. Isso não é "opinião de engenheiro": é um desenho de pesquisa híbrido que se apoia em tradições metodológicas consolidadas. Explicitá-las converte o livro de coletânea de impressões em **estudo empírico auditável** — coerente com o Princípio I ("evidência acima de retórica").
+
+**Em linguagem simples, antes dos nomes técnicos:** o método é (1) escolher sistemas que representem *tipos* diferentes de harness, não os mais famosos; (2) ler o código de cada um seguindo **o mesmo roteiro de perguntas**, anotando o arquivo exato que prova cada resposta; (3) dar notas por uma régua fixa e publicada, para que qualquer pessoa possa discordar olhando a mesma evidência; e (4) construir um harness do zero para testar se os padrões extraídos realmente se sustentam. Os parágrafos a seguir dão os nomes formais de cada uma dessas escolhas e de onde elas vêm — são a genealogia do rigor, e podem ser lidos em diagonal na primeira passada.
 
 **Duas fases, dois motores.**
 - **Fase 1 — descritiva/comparativa:** um **estudo de casos múltiplos** (Yin) apoiado em **Mining Software Repositories** (Hassan, 2008), tratando cada repositório como *dado primário*. A unidade de análise é **o código-fonte**, não o material de marketing nem o comportamento observado em uso.

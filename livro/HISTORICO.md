@@ -32,6 +32,12 @@
 
 ## Edições
 
+### Edição 0.63 — 2026-08-01 · revisão de nivelamento: a porta de entrada alargada (spec 069)
+- **Feature spec-kit oficial `069-nivelamento`** (origem: parecer editorial simulado para busca de editora): os caps. 00–02 ganharam **chão sem perder teto** — ponte "por que o ChatGPT responde mas não resolve" e seção **"Como ler este livro — três portas de entrada"** (00); a imagem-âncora do "profissional no primeiro dia" + as quatro peças numa tarefa real + preâmbulo leigo da metodologia (01); **um turno completo em câmera lenta** (7 passos) antes do vocabulário técnico (02). Glosas de "janela de contexto" e "tool call" no primeiro uso. Nada removido: as adições são pontes.
+- De brinde, a revisão pegou uma desatualização real: os caps. 00/01 ainda diziam **dezesseis** sistemas — corrigido para **dezoito** com Grok Build e Pi nas listas.
+- **Delta traduzido no mesmo ciclo** (regra da 067): os 3 capítulos EN espelhados, hashes renovados, selos de sincronia verdes.
+- **IA (A3)**: agente **Claude Code (Anthropic)** atuando como editor-revisor; curadoria humana.
+
 ### Correção 2026-08-01 · o banner de consentimento nunca aparecia
 - **Defeito de uma linha, efeito silencioso**: em `publicar/tema/companion.js`, dentro de `montarBanner()`, uma variável local `var tx` sombreava a função `tx(pt, en)` do escopo do módulo. Como `var` é içado para o topo da função, na linha seguinte `tx` já era um elemento DOM, e a chamada `tx("Entendi e aceito", …)` lançava `TypeError` — em **PT e EN**, no carregamento de toda página.
 - **Consequência**: `montarBanner()` abortava e, com ele, a `telemetria()` chamada logo depois no mesmo bootstrap. Ou seja, (1) **nenhum leitor novo viu o banner de consentimento** e (2) **nenhum evento de navegação foi registrado** por quem não consentisse pelo painel do chat. **Os números do [Apêndice — Uso do livro](apendice-uso.md) subcontam** o período anterior a esta correção; leia-os com essa ressalva.
