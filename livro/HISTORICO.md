@@ -32,6 +32,14 @@
 
 ## Edições
 
+### Edição 0.65 — 2026-08-01 · o Radar vira jornal (spec 071)
+- **Feature spec-kit oficial `071-radar-jornal`**: o diário do Radar agora é diagramado como **site de notícias** em [`radar.html`](https://ghdaru.github.io/harness_engineering/radar.html) — masthead com o contrato editorial, abas por edição, **manchete** (achado de maior impacto do dia), cards com badge A/B/C e **chips de fontes por domínio** (estilo jornalístico: toda afirmação com fonte clicável), e caixas de transparência ("como esta edição foi apurada", "da redação: o que ficou de fora — e por quê", "leituras executivas em risco"). Parser tolerante: diário fora do formato vira matéria corrida — o jornal nunca quebra. Os links "ver o Radar completo" da capa e da entrada (PT/EN) apontam para o jornal.
+- **IA (A3)**: agente **Claude Code (Anthropic)** como UX/UI e implementador; validação do editor sobre o site real (hoje + 1 dia).
+
+### Edição 0.64 — 2026-08-01 · companion 100% bilíngue (spec 070)
+- **Feature spec-kit oficial `070-companion-en`**: fechada a limitação declarada na 067 — **todas** as strings visíveis do widget (paleta, tour, Bastidores, sugestão, BYOK, plano de ensino, tooltips, erros, até o separador decimal dos tokens) passam por `tx(pt, en)`: 120 chamadas, PT byte-idêntico, sem sombreamento de `tx` (a lição do fix de 01/08 virou guarda-corpo do ciclo).
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.63 — 2026-08-01 · revisão de nivelamento: a porta de entrada alargada (spec 069)
 - **Feature spec-kit oficial `069-nivelamento`** (origem: parecer editorial simulado para busca de editora): os caps. 00–02 ganharam **chão sem perder teto** — ponte "por que o ChatGPT responde mas não resolve" e seção **"Como ler este livro — três portas de entrada"** (00); a imagem-âncora do "profissional no primeiro dia" + as quatro peças numa tarefa real + preâmbulo leigo da metodologia (01); **um turno completo em câmera lenta** (7 passos) antes do vocabulário técnico (02). Glosas de "janela de contexto" e "tool call" no primeiro uso. Nada removido: as adições são pontes.
 - De brinde, a revisão pegou uma desatualização real: os caps. 00/01 ainda diziam **dezesseis** sistemas — corrigido para **dezoito** com Grok Build e Pi nas listas.

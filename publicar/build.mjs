@@ -25,6 +25,7 @@ import MarkdownIt from "markdown-it";
 import anchor from "markdown-it-anchor";
 import * as esbuild from "esbuild";
 import { gerarGrafo } from "./grafo.mjs";
+import { gerarJornal } from "./jornal.mjs";
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const RAIZ = resolve(AQUI, "..");
@@ -478,7 +479,7 @@ ${pillIdioma("index")}
       <a class="btn btn-escuro" href="${T.hrefGuia}">${T.guiaBtn}</a>
     </div>
     ${noticia
-      ? `<div class="splash-news"><span class="splash-news-k">${T.newsKicker} · ${noticia.data}${noticia.impacto ? ` · <b class="splash-news-imp">${impactoRotulo(noticia.impacto)}</b>` : ""}${T.newsPt}</span><p>${noticia.itemHtml}</p><a class="splash-news-mais" href="${GITHUB_BASE}radar/RADAR.md">${T.verRadar}</a></div>`
+      ? `<div class="splash-news"><span class="splash-news-k">${T.newsKicker} · ${noticia.data}${noticia.impacto ? ` · <b class="splash-news-imp">${impactoRotulo(noticia.impacto)}</b>` : ""}${T.newsPt}</span><p>${noticia.itemHtml}</p><a class="splash-news-mais" href="${EN ? "../radar.html" : "radar.html"}">${T.verRadar}</a></div>`
       : ""}
     ${edicao
       ? `<p class="splash-vedicao">📖 ${T.nestaEdicao} (<b>${edicao.versao}</b> · ${edicao.data}): ${edicao.titulo} — <a href="${T.hrefHistorico}">${T.historicoNome}</a></p>`
@@ -663,7 +664,7 @@ const pillsEnt = sumario.partes.filter((p) => !T.partesCartao.has(p.nome)).flatM
 
 // News da entrada (spec 061) — fontes PT; chrome no idioma da página.
 const blocoNews = (noticia
-  ? `<div class="ent-news"><span class="ent-news-k">${EN ? "🗞 Living-book Radar" : "🗞 Radar do livro vivo"} · ${noticia.data}${noticia.impacto ? ` · ${impactoRotulo(noticia.impacto)}` : ""}${T.newsPt}</span><p>${noticia.itemHtml}</p><a class="ent-news-mais" href="${GITHUB_BASE}radar/RADAR.md">${T.verRadar}</a></div>`
+  ? `<div class="ent-news"><span class="ent-news-k">${EN ? "🗞 Living-book Radar" : "🗞 Radar do livro vivo"} · ${noticia.data}${noticia.impacto ? ` · ${impactoRotulo(noticia.impacto)}` : ""}${T.newsPt}</span><p>${noticia.itemHtml}</p><a class="ent-news-mais" href="${EN ? "../radar.html" : "radar.html"}">${T.verRadar}</a></div>`
   : "") + (edicao
   ? `<p class="ent-vedicao">📖 ${T.nestaEdicao} (<b>${edicao.versao}</b> · ${edicao.data}): ${edicao.titulo} — <a href="${T.hrefHistorico}">${T.historicoNome}</a></p>`
   : "");
@@ -715,9 +716,28 @@ writeFileSync(
   })
 );
 
+// Radar-jornal (spec 071): docs/radar.html — o diário do Radar diagramado
+// como site de notícias (PT-only; registro operacional, decisão da 067).
+if (!EN) {
+  const jornal = gerarJornal(RAIZ, md, versaoDoLivro());
+  if (jornal) {
+    writeFileSync(
+      resolve(SAIDA, "radar.html"),
+      pagina({
+        tituloLivro: sumario.titulo,
+        tituloPagina: "Radar — o jornal do livro vivo",
+        corpo: jornal,
+        navLateral: montarNavLateral("radar"),
+        prev: null, next: null, data: null, slug: "radar",
+      })
+    );
+    console.log("✓ Radar-jornal: docs/radar.html");
+  }
+}
+
 // Portão de qualidade (T402): links internos .html apontam para páginas
 // existentes NO MESMO idioma; "../" cruza para o outro idioma (validado lá).
-const paginas = new Set(itens.map((i) => `${i.slug}.html`).concat("index.html", "sumario.html"));
+const paginas = new Set(itens.map((i) => `${i.slug}.html`).concat("index.html", "sumario.html", EN ? [] : ["radar.html"]));
 const quebrados = [];
 for (const i of [...itens, { slug: "index" }, { slug: "sumario" }]) {
   const arq = resolve(SAIDA, `${i.slug}.html`);
