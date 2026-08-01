@@ -563,10 +563,10 @@
   function montarBanner() {
     if (consentiu()) return;
     banner = el("div", "cmp-banner");
-    var tx = el("span", null, "💬 " + CONSENT_TXT);
+    var texto = el("span", null, "💬 " + CONSENT_TXT);
     var bt = el("button", "cmp-banner-bt", tx("Entendi e aceito", "Got it, I accept"));
     bt.addEventListener("click", function () { aceitarConsent(); banner.remove(); banner = null; renderConsent(); oferecerTour(); });
-    banner.appendChild(tx); banner.appendChild(bt);
+    banner.appendChild(texto); banner.appendChild(bt);
     document.body.appendChild(banner);
   }
   function telemetria() {
