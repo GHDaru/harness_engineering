@@ -1,7 +1,7 @@
-<!-- i18n fonte:livro/capitulos/02-loop-do-agente.md edicao:0.61 hash:355566c4 -->
+<!-- i18n fonte:livro/capitulos/02-loop-do-agente.md edicao:0.63 hash:bf91a7a0 -->
 # 02 — Agent Loop
 
-> **State of the art captured in 2026-07** · last revised 2026-07-25 · [history and expiration log](../historico.html)
+> **State of the art captured in 2026-07** · last revised 2026-08-01 · [history and expiration log](../historico.html)
 >
 > Skeleton v3 — body with the state of the art; per-repository treatment in Appendix A (online supplement).
 
@@ -15,7 +15,19 @@
 
 ## The problem
 
-The loop is the heart of the harness: it sends context to the model, receives a decision (text and/or tool calls), executes, feeds back and repeats — until someone decides to stop. The design questions: who decides to stop? how do results and errors come back? what happens when things go wrong? does the loop survive a restart?
+The loop is the heart of the harness: it sends context to the model, receives a decision (text and/or **tool calls** — structured requests for action: "run this tool with these arguments"), executes, feeds back and repeats — until someone decides to stop.
+
+**One full turn, in slow motion.** You type: "the `test_login` test failed, fix it". What the loop does:
+
+1. Assembles the context (project rules + your message) and **calls the model**;
+2. The model does not answer with text — it answers with a tool call: `run_shell("pytest test_login")`;
+3. The harness **actually executes it** and returns the output (the error traceback) to the model, as if it were a new message;
+4. The model has now *seen* the error and emits another tool call: `edit_file("auth.py", …)`;
+5. The harness executes (perhaps asking for your approval — ch. 07) and returns the result;
+6. A new call to the model, which asks for the test again; this time it passes;
+7. The model answers **with text only** ("fixed: it was the expired cookie") — and *that* is what ends the turn: **no tool call, the loop stops**.
+
+Seven steps, three model calls, two real executions. Everything else in this chapter is the hard questions hiding in that cycle: who decides to stop (and what if the model never stops?), how errors come back, what happens when the process dies at step 5, how much this can cost. The design questions: who decides to stop? how do results and errors come back? what happens when things go wrong? does the loop survive a restart?
 
 ## Scientific foundations
 
