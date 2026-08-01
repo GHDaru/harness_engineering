@@ -38,6 +38,7 @@
 - **UX**: seletor PT·EN (pill textual, sem bandeiras) em todas as páginas, levando à MESMA página no outro idioma; preferência gravada; capa PT com navegador em inglês ganha convite discreto (nunca redirect); `hreflang` correto. Ficam em PT com aviso: Histórico, Radar e o conteúdo do card de news (registros operacionais).
 - **Paridade**: PDFs e Markdown completos EN (`harness-engineering.pdf/.md`) no mesmo CI; grafo interativo com rótulos/URLs ingleses; superfície principal do companion em EN (demais strings do widget: limitação conhecida). RAG segue só no PT canônico.
 - **IA (A3)**: agente **Claude Code (Anthropic)** (motor i18n + 6 tradutores-agentes); decisões de UX e curadoria humanas.
+- 🏷 **Release congelada** (spec 068): [GitHub v0.62.0](https://github.com/GHDaru/harness_engineering/releases/tag/v0.62.0) · **DOI desta versão: [10.5281/zenodo.21724433](https://doi.org/10.5281/zenodo.21724433)** (o DOI-conceito 10.5281/zenodo.21632412 segue resolvendo para a versão mais recente). Mecanismo permanente: release = commitar `releases/vX.Y.Z.md` na main (o CI cria tag e Release; o Zenodo cunha o DOI).
 
 ### Edição 0.61 — 2026-07-31 · leitura integral verificada: as citações agora são do texto (spec 066)
 - **Feature spec-kit oficial `066-papers-integrais`**: o editor liberou o arXiv na política de rede do Environment (acesso completo — registrado no diário do Radar como **a única exceção até o momento**, pela dinâmica do livro vivo) e os dois preprints da edição 0.60 foram **relidos na íntegra** pelos mesmos agentes, com mandato de deltas verbatim.
