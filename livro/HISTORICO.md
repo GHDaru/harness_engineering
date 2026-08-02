@@ -32,6 +32,11 @@
 
 ## Edições
 
+### Edição 0.66 — 2026-08-02 · o jornal atualiza sozinho (spec 072)
+- **Feature spec-kit oficial `072-radar-publica-site`** (infraestrutura, 1 linha): `radar/**` entrou nos paths do workflow de publicação — o commit diário do agente do Radar agora reconstrói o site, e o [Radar-jornal](https://ghdaru.github.io/harness_engineering/radar.html) publica a edição do dia sem esperar o próximo push editorial. Fecha o ciclo da spec 071: apuração agendada → jornal no ar, sem toque humano.
+- **Origem**: nota de manutenção da execução agendada de 2026-08-02 — o agente do Radar detectou a lacuna mas não pôde corrigi-la (regra dura: escrita só em `radar/`), registrou e o editor promoveu ("promova"). O contrato funcionando como projetado.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; curadoria humana.
+
 ### Edição 0.65 — 2026-08-01 · o Radar vira jornal (spec 071)
 - **Feature spec-kit oficial `071-radar-jornal`**: o diário do Radar agora é diagramado como **site de notícias** em [`radar.html`](https://ghdaru.github.io/harness_engineering/radar.html) — masthead com o contrato editorial, abas por edição, **manchete** (achado de maior impacto do dia), cards com badge A/B/C e **chips de fontes por domínio** (estilo jornalístico: toda afirmação com fonte clicável), e caixas de transparência ("como esta edição foi apurada", "da redação: o que ficou de fora — e por quê", "leituras executivas em risco"). Parser tolerante: diário fora do formato vira matéria corrida — o jornal nunca quebra. Os links "ver o Radar completo" da capa e da entrada (PT/EN) apontam para o jornal.
 - **IA (A3)**: agente **Claude Code (Anthropic)** como UX/UI e implementador; validação do editor sobre o site real (hoje + 1 dia).

@@ -11,6 +11,7 @@ on:
       - "publicar/**"
       - "benchmark/**"
       - "harness-um/**"
+      - "radar/**"
       - ".github/workflows/publicar.yml"
   workflow_dispatch:
 
