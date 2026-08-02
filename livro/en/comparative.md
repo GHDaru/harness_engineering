@@ -1,27 +1,27 @@
-<!-- i18n fonte:benchmark/comparativo.md edicao:0.61 hash:9acff625 -->
-# Consolidated Comparison — Rounds 1, 2 and ext-1
+<!-- i18n fonte:benchmark/comparativo.md edicao:0.67 hash:a3570821 -->
+# Consolidated Comparison — Rounds 1, 2, ext-1 and ext-2
 
-> 13 harnesses evaluated by systematic code reading, 12 dimensions (0–3) + 2 supplementary. Round 1: 2026-07-24 (opencode, gemini-cli, OpenHarness). Round 2: 2026-07-24 (Codex CLI, Goose, Aider, OpenHands, OpenClaw, Hermes, IronClaw, n8n). Round **ext-1**: 2026-07-31 (**Grok Build**, **Pi** — first Radar→corpus promotion). See the [methodology](../../benchmark/README.md) (in Portuguese).
+> 15 harnesses evaluated by systematic code reading, 12 dimensions (0–3) + 2 supplementary. Round 1: 2026-07-24 (opencode, gemini-cli, OpenHarness). Round 2: 2026-07-24 (Codex CLI, Goose, Aider, OpenHands, OpenClaw, Hermes, IronClaw, n8n). Round **ext-1**: 2026-07-31 (**Grok Build**, **Pi**). Round **ext-2**: 2026-08-02 (**Kimi Code**, **QM** — the latter inaugurating the *organizational agents* category). See the [methodology](../../benchmark/README.md) (in Portuguese).
 
 <div data-viz="benchmark-codigo"></div>
 
 ## Category: coding harnesses
 
-| # | Dimension | opencode | gemini-cli | OpenHarness | **Codex CLI** | **Goose** | **Aider** | **OpenHands*** | **Grok Build** | **Pi** |
-|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 1 | Loop | 3 | 3 | 2 | 3 | 3 | 2 | 2 | 3 | 3 |
-| 2 | Context | 3 | 3 | 2 | 3 | 3 | **3** | 3 | 3 | 3 |
-| 3 | Compaction | 3 | 3 | 3 | 3 | 3 | 2 | 2 | 3 | **3⭐** |
-| 4 | Tools | 2 | 3 | 3 | 3 | 3 | 3 | 2 | 3 | 3 |
-| 5 | MCP | 3 | 3 | 2 | 3 | 3 | **0** | 3 | 3 | **0** |
-| 6 | Permissions/sandbox | 2 | 3 | 2 | **3⭐** | 2 | 2 | 3 | **3⭐** | 1 |
-| 7 | Memory/state | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 2 |
-| 8 | Planning | 2 | 3 | 2 | 2 | 2 | 2 | 1 | 3 | 1 |
-| 9 | Subagents | 2 | 3 | 3 | 3 | 3 | 2 | 2 | **3⭐** | 1 |
-| 10 | Verification/evals | 2 | 3 | 2 | 3 | 3 | 3 | 0* | 2 | 3 |
-| 11 | Extensibility | 3 | 3 | 3 | 3 | 3 | 3 | 3 | **3⭐** | **3⭐** |
-| 12 | Interfaces | 3 | 3 | 2 | 3 | 3 | 3 | 3 | 3 | 3 |
-| | **Total** | **31** | **36** | **29** | **35** | **34** | **28** | **27*** | **35** | **26** |
+| # | Dimension | opencode | gemini-cli | OpenHarness | **Codex CLI** | **Goose** | **Aider** | **OpenHands*** | **Grok Build** | **Pi** | **Kimi Code** |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | Loop | 3 | 3 | 2 | 3 | 3 | 2 | 2 | 3 | 3 | 3 |
+| 2 | Context | 3 | 3 | 2 | 3 | 3 | **3** | 3 | 3 | 3 | 3 |
+| 3 | Compaction | 3 | 3 | 3 | 3 | 3 | 2 | 2 | 3 | **3⭐** | 3 |
+| 4 | Tools | 2 | 3 | 3 | 3 | 3 | 3 | 2 | 3 | 3 | 3 |
+| 5 | MCP | 3 | 3 | 2 | 3 | 3 | **0** | 3 | 3 | **0** | 2 |
+| 6 | Permissions/sandbox | 2 | 3 | 2 | **3⭐** | 2 | 2 | 3 | **3⭐** | 1 | 2 |
+| 7 | Memory/state | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 2 | 2 |
+| 8 | Planning | 2 | 3 | 2 | 2 | 2 | 2 | 1 | 3 | 1 | 3 |
+| 9 | Subagents | 2 | 3 | 3 | 3 | 3 | 2 | 2 | **3⭐** | 1 | 3 |
+| 10 | Verification/evals | 2 | 3 | 2 | 3 | 3 | 3 | 0* | 2 | 3 | 2 |
+| 11 | Extensibility | 3 | 3 | 3 | 3 | 3 | 3 | 3 | **3⭐** | **3⭐** | 3 |
+| 12 | Interfaces | 3 | 3 | 2 | 3 | 3 | 3 | 3 | 3 | 3 | **3⭐** |
+| | **Total** | **31** | **36** | **29** | **35** | **34** | **28** | **27*** | **35** | **26** | **32** |
 
 \* OpenHands: the repo evaluated is the control-plane (Agent Canvas); the core (loop, condenser, SWE-bench evals) migrated to `software-agent-sdk` — the total underestimates the full project. The SDK joins the queue.
 
@@ -29,6 +29,33 @@
 1. **The two extremes of the spectrum arrived together.** Grok Build (35) ties with Codex CLI, covering everything with industrial depth — including reading its competitors' artifacts (AGENTS/CLAUDE/Cursor/`.mcp.json`) and porting codex's and opencode's tools. Pi (26) scores 3 on **everything it accepts** and 0–1 on everything it refuses by manifesto — the jagged profile is not immaturity, it is a thesis ("adapt pi to your workflows, not the other way around"), and every exclusion exists as a tested example extension.
 2. **Dimension 6 keeps separating product from project** — and Grok Build raises the bar: shell authorization by **AST** (tree-sitter-bash), closing the `mv secret x && cat x` bypass, kernel-enforced fail-closed sandbox. Pi is the deliberate counterexample (1): it outsources the boundary to the OS and argues that in-process sandboxing is theater.
 3. **Behavioral evals are still the most common gap** — Grok Build has 26k mechanism tests and zero competence tests (score 10 = 2); Pi, going the other way, is the only one in the round with an A/B bench for harness configurations (`evalHarnessTable`) and eval artifacts in the native session format.
+
+**Reading of round ext-2 (2026-08-02):**
+1. **The second verticalized vendor confirms the pattern — and the divergence.** Kimi Code (32) repeats Grok Build's move (own model → own harness, open), but with the opposite bet: where xAI went for the maximal platform in Rust with a kernel-enforced sandbox, Moonshot went for **structured autonomy** — a goal mode with a state machine and budgets (turns/tokens/time), a swarm of up to 128 subagents, cron exposed to the model — on top of weak enforcement (no OS sandbox; bash authorized by string glob in the production engine, with the AST parser ready but only consumed in the experimental v2). The detail nobody else has: **harness↔API co-design** — the Kimi API gained the `dynamically_loaded_tools` capability to serve the harness's *progressive tool disclosure*, with documented degradation for other providers. The vendor changed the model to serve the harness.
+2. **Cross-pollination inside the corpus became routine**: Kimi Code's TUI is a vendored fork of `pi-tui` (acknowledged in the README); QM brings Pi, OpenCode, Codex and Claude Code as pluggable *engines*. The corpus stopped being a list of competitors and became a supply chain.
+3. **Behavioral evals remain the divider** in ext-2 as well: Kimi Code has 1,137 mechanism test files and zero competence evals; QM, going the other way, runs **multiplayer E2E against real Slack with an LLM judge** — the most complete implementation of dimension 10 outside gemini-cli.
+
+## Category: organizational agents *(new in ext-2)*
+
+| # | Dimension | **QM** |
+|---|---|:---:|
+| 1 | Loop | 3 |
+| 2 | Context | **3⭐** |
+| 3 | Compaction | 3 |
+| 4 | Tools | 3 |
+| 5 | MCP | 1 |
+| 6 | Permissions/sandbox | 3 |
+| 7 | Memory/state | 3 |
+| 8 | Planning | 1 |
+| 9 | Subagents | 2 |
+| 10 | Verification/evals | **3⭐** |
+| 11 | Extensibility | 3 |
+| 12 | Interfaces | 3 |
+| | **Total (1–12)** | **31** |
+| 13 | **Learning** (suppl.) | 2 |
+| 14 | **Proactivity** (suppl.) | **3⭐** |
+
+QM (Y Combinator) inaugurates the category: the first harness in the corpus whose unit of design is the **organization**, not one user's session — scopes (person/team/room/org), context filtered by the *entitlement* of everyone present in the conversation (`context-filter.ts`), recipient consent for autonomous deliveries, and auditing as core primitives. The agent loop is a **swappable dependency** (Pi, OpenCode, Codex or Claude Code by configuration), with the session portable across engines via a re-seedable "tape". It is the loop-commoditization thesis written in `package.json` — and the reason the category is new: on the classic dimensions it scores like a mature harness (31/36), but what defines it does not fit them.
 
 ## Category: self-hosted personal agents
 

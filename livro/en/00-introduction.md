@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/00-introducao.md edicao:0.63 hash:33bd7907 -->
+<!-- i18n fonte:livro/00-introducao.md edicao:0.67 hash:351930ad -->
 # 00 — Introduction
 
 > **State of the art captured in 2026-07** · last revised 2026-08-01 · [history and expiration log](../historico.html)
@@ -60,14 +60,15 @@ This book was written to be dense; this section exists so the density is not a w
 
 ## The harnesses in the study
 
-As of this edition, the study covers **eighteen open source systems**, evaluated through systematic code reading across four archetypes (the method is in [chapter 01, §6](01-foundations.md)):
+As of this edition, the study covers **twenty open source systems**, evaluated through systematic code reading across five archetypes (the method is in [chapter 01, §6](01-foundations.md)):
 
-- **Coding harnesses** — opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build and Pi;
+- **Coding harnesses** — opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build, Pi and Kimi Code;
 - **Self-hosted personal agents** — OpenClaw, Hermes Agent, IronClaw, ohmo;
+- **Organizational agents** — QM;
 - **Embedded harnesses** — n8n (AI Agent node);
 - **Frameworks** — LangGraph, CrewAI, OpenAI Agents SDK (Software Development Kit), Software Agent SDK.
 
-Each was chosen for representing a different *archetype* (replication logic, not sampling): mature provider-agnostic product (opencode), big-tech control regime (gemini-cli), readable didactic port (OpenHarness), sandbox-first (Codex CLI), MCP-native (Goose), context-first (Aider), academic eval culture (OpenHands), and so on.
+Each was chosen for representing a different *archetype* (replication logic, not sampling): mature provider-agnostic product (opencode), big-tech control regime (gemini-cli), readable didactic port (OpenHarness), sandbox-first (Codex CLI), MCP-native (Goose), context-first (Aider), academic eval culture (OpenHands), whole-organization agent with a swappable loop (QM), and so on.
 
 The full list — with the **exact origin, version, fork and commit read** in each evaluation, and the link to each one's analysis and diagnosis — is in the **[Appendix — The study](appendix-study.md)**. The consolidated per-dimension scoreboard is in the [Comparative](comparative.md).
 

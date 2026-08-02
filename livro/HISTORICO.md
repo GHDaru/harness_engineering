@@ -32,6 +32,12 @@
 
 ## Edições
 
+### Edição 0.67 — 2026-08-02 · rodada ext-2: o corpus vai a vinte — e ganha uma quinta categoria (spec 073)
+- **Feature spec-kit oficial `073-ext2-qm-kimi`**: segunda promoção Radar→corpus. **[Kimi Code](../benchmark/avaliacoes/kimi-code.md) (Moonshot AI, 32/36)** — segundo vendor de modelo verticalizando no harness, com co-design harness↔API (a API do Kimi ganhou capability para servir a *progressive tool disclosure* do harness) e autonomia estruturada (goal mode com budgets, swarm de 128 subagentes) sobre enforcement fraco. **[QM](../benchmark/avaliacoes/qm.md) (Y Combinator, 31/36)** — não coube na taxonomia e **inaugurou a categoria "agentes organizacionais"**: escopos, contexto filtrado por entitlement da audiência, consentimento de destinatário e auditoria como primitivas; o loop do agente é motor trocável (Pi, OpenCode, Codex, Claude Code) com a sessão portável via "fita".
+- Leituras congeladas: fork GHDaru/kimi-code commit `e22479a`; fork GHDaru/qm commit `7f2c916`. Notas no [comparativo](../benchmark/comparativo.md) (leitura da rodada ext-2: polinização cruzada no corpus — a TUI do Kimi Code é fork da do Pi; o QM traz 4 membros do corpus como dependências) e em `notas.json`.
+- Livro: caps. 00/01 (vinte sistemas, cinco arquétipos), Apêndice do estudo (seção ext-2), radar (contrato a 20; QM e Kimi Code promovidos). **Delta traduzido no mesmo ciclo** (00/01/apêndice do estudo/comparativo EN, selos renovados).
+- **IA (A3)**: agente **Claude Code (Anthropic)** — dois avaliadores em paralelo sobre os clones congelados; curadoria humana (aprovação do editor e revisão das notas).
+
 ### Edição 0.66 — 2026-08-02 · o jornal atualiza sozinho (spec 072)
 - **Feature spec-kit oficial `072-radar-publica-site`** (infraestrutura, 1 linha): `radar/**` entrou nos paths do workflow de publicação — o commit diário do agente do Radar agora reconstrói o site, e o [Radar-jornal](https://ghdaru.github.io/harness_engineering/radar.html) publica a edição do dia sem esperar o próximo push editorial. Fecha o ciclo da spec 071: apuração agendada → jornal no ar, sem toque humano.
 - **Origem**: nota de manutenção da execução agendada de 2026-08-02 — o agente do Radar detectou a lacuna mas não pôde corrigi-la (regra dura: escrita só em `radar/`), registrou e o editor promoveu ("promova"). O contrato funcionando como projetado.
