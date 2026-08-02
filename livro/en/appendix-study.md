@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/apendice-estudo.md edicao:0.61 hash:bfa30c3b -->
+<!-- i18n fonte:livro/apendice-estudo.md edicao:0.67 hash:cfb57505 -->
 # Appendix — The study: the harnesses evaluated
 
 This appendix **shows the work**: the full list of harnesses that went through the study, with **where they came from** (upstream repository), **the exact snapshot that was read** (fork/commit/snapshot — the materialization of the method's cutoff date, ch. 01 §6) and the link to the **complete evaluation** of each one. The instrument used in every evaluation is the same: the [`HARNESS_EVAL.md`](https://github.com/GHDaru/harness_engineering/blob/main/benchmark/template/HARNESS_EVAL.md) template (and [`FRAMEWORK_EVAL.md`](https://github.com/GHDaru/harness_engineering/blob/main/benchmark/template/FRAMEWORK_EVAL.md) for frameworks), applied through systematic code reading following the [benchmark methodology](https://github.com/GHDaru/harness_engineering/blob/main/benchmark/README.md) (in Portuguese).
@@ -39,6 +39,15 @@ The corpus grew from 16 to **18** through the very path the book itself institut
 |---|---|---|---|---|---|---|
 | **Grok Build (xAI)** | coding harnesses | [github.com/xai-org/grok-build](https://github.com/xai-org/grok-build) | snapshot 2026-07 (opened on 2026-07-15, Apache 2.0) | fork GHDaru/grok-build, commit dd04f39 | 2026-07-31 (round ext-1) | [evaluation](../../benchmark/avaliacoes/grok-build.html) |
 | **Pi (Earendil Labs)** | coding harnesses | [github.com/badlogic/pi-mono](https://github.com/badlogic/pi-mono) | snapshot 2026-07-31 | fork GHDaru/pi, commit 7846534 | 2026-07-31 (round ext-1) | [evaluation](../../benchmark/avaliacoes/pi.html) |
+
+## Extension ext-2 (2026-08-02): the second promotion — and a new category
+
+The corpus grew from 18 to **20** through the same path: the Radar confirmed QM in a primary source (2026-08-02 sweep) and the critical reading of a vendor marketing article led to Kimi Code, verified at the source; the editor approved, the repositories were forked and the instrument applied — round **ext-2**. Kimi Code enters under the same criterion as Grok Build (the second model vendor opening a complete harness — the pattern became a trend, ch. 14). QM did not fit any existing archetype and **inaugurates the "organizational agents" category**: the unit of design is the organization (scopes, audience-based permissions, consent, auditing), and the agent loop is a swappable engine — indeed, **Pi itself, evaluated in ext-1, is a dependency here** (`package.json`). Yin's replication logic called for exactly this: a case that would test the limits of the taxonomy.
+
+| Harness | Category | Origin | Version/snapshot | Fork/commit read | Evaluated on | Analysis |
+|---|---|---|---|---|---|---|
+| **Kimi Code (Moonshot AI)** | coding harnesses | [github.com/MoonshotAI/kimi-code](https://github.com/MoonshotAI/kimi-code) | CLI 0.31.1 (opened ~2026-06, MIT) | fork GHDaru/kimi-code, commit e22479a | 2026-08-02 (round ext-2) | [evaluation](../../benchmark/avaliacoes/kimi-code.html) |
+| **QM (Y Combinator)** | organizational agents | [github.com/yc-software/qm](https://github.com/yc-software/qm) | snapshot 2026-07-31 (opened on 2026-07-31, MIT) | fork GHDaru/qm, commit 7f2c916 | 2026-08-02 (round ext-2) | [evaluation](../../benchmark/avaliacoes/qm.html) |
 
 ## Consolidated diagnosis
 

@@ -59,10 +59,11 @@ Um sistema sem qualquer um dos quatro **não é um harness completo**: um chatbo
 
 ## 5. De onde vêm os harnesses deste estudo
 
-O corpus é **de código aberto** (o Princípio II do livro: a fonte-base é o código) e se divide em quatro arquétipos — os mesmos do capítulo 00:
+O corpus é **de código aberto** (o Princípio II do livro: a fonte-base é o código) e se divide em cinco arquétipos — os mesmos do capítulo 00:
 
-- **Harnesses de código** (opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build, Pi): implementações de referência que juntam as quatro peças num executável.
+- **Harnesses de código** (opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build, Pi, Kimi Code): implementações de referência que juntam as quatro peças num executável.
 - **Agentes pessoais self-hosted** (OpenClaw, Hermes Agent, IronClaw, ohmo): o harness a serviço de uma pessoa, com identidade, memória e canais próprios.
+- **Agentes organizacionais** (QM): o harness a serviço de uma organização — escopos, permissões por audiência e auditoria como primitivas, com o loop do agente como motor trocável.
 - **Harnesses embutidos** (n8n, nó AI Agent): o loop como componente dentro de um produto maior.
 - **Frameworks** (LangGraph, CrewAI, OpenAI Agents SDK, Software Agent SDK): expõem loop, estado e ferramentas como primitivas programáveis.
 

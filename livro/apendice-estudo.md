@@ -39,6 +39,15 @@ O corpus cresceu de 16 para **18** pelo caminho que o próprio livro institucion
 | **Grok Build (xAI)** | harnesses de código | [github.com/xai-org/grok-build](https://github.com/xai-org/grok-build) | snapshot 2026-07 (aberto em 2026-07-15, Apache 2.0) | fork GHDaru/grok-build, commit dd04f39 | 2026-07-31 (rodada ext-1) | [avaliação](../benchmark/avaliacoes/grok-build.md) |
 | **Pi (Earendil Labs)** | harnesses de código | [github.com/badlogic/pi-mono](https://github.com/badlogic/pi-mono) | snapshot 2026-07-31 | fork GHDaru/pi, commit 7846534 | 2026-07-31 (rodada ext-1) | [avaliação](../benchmark/avaliacoes/pi.md) |
 
+## Extensão ext-2 (2026-08-02): a segunda promoção — e uma categoria nova
+
+O corpus cresceu de 18 para **20** pelo mesmo caminho: o Radar confirmou o QM em fonte primária (varredura de 2026-08-02) e a leitura crítica de um artigo de divulgação levou ao Kimi Code, verificado na fonte; o editor aprovou, os repositórios foram forkados e o instrumento aplicado — rodada **ext-2**. O Kimi Code entra pelo mesmo critério do Grok Build (segundo vendor de modelo abrindo um harness completo — o padrão virou tendência, cap. 14). O QM não coube em nenhum arquétipo existente e **inaugura a categoria "agentes organizacionais"**: a unidade de design é a organização (escopos, permissões por audiência, consentimento, auditoria), e o loop do agente é um motor trocável — inclusive **o próprio Pi, avaliado na ext-1, é aqui uma dependência** (`package.json`). A lógica de replicação de Yin pedia exatamente isso: um caso que testasse o limite da taxonomia.
+
+| Harness | Categoria | Origem | Versão/snapshot | Fork/commit lido | Avaliado em | Análise |
+|---|---|---|---|---|---|---|
+| **Kimi Code (Moonshot AI)** | harnesses de código | [github.com/MoonshotAI/kimi-code](https://github.com/MoonshotAI/kimi-code) | CLI 0.31.1 (aberto em ~2026-06, MIT) | fork GHDaru/kimi-code, commit e22479a | 2026-08-02 (rodada ext-2) | [avaliação](../benchmark/avaliacoes/kimi-code.md) |
+| **QM (Y Combinator)** | agentes organizacionais | [github.com/yc-software/qm](https://github.com/yc-software/qm) | snapshot 2026-07-31 (aberto em 2026-07-31, MIT) | fork GHDaru/qm, commit 7f2c916 | 2026-08-02 (rodada ext-2) | [avaliação](../benchmark/avaliacoes/qm.md) |
+
 ## Diagnóstico consolidado
 
 Os **resultados por dimensão** (notas 0–3, com evidência) e o diagnóstico comparativo estão no [Comparativo dos Harnesses](../benchmark/comparativo.md) — incluindo o heatmap interativo. Cada avaliação individual traz, além das notas: o **arquétipo observado** do harness, os pontos fortes com caminhos de arquivo, e a seção **"o que roubar"** (padrões que merecem ser levados para outros harnesses).

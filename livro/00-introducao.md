@@ -59,14 +59,15 @@ O livro foi escrito para ser denso; esta seção existe para que a densidade nã
 
 ## Os harnesses do estudo
 
-O estudo cobre, até esta edição, **dezoito sistemas de código aberto**, avaliados por leitura sistemática de código em quatro arquétipos (o método está no [capítulo 01, §6](01-fundamentos.md)):
+O estudo cobre, até esta edição, **vinte sistemas de código aberto**, avaliados por leitura sistemática de código em cinco arquétipos (o método está no [capítulo 01, §6](01-fundamentos.md)):
 
-- **Harnesses de código** — opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build e Pi;
+- **Harnesses de código** — opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build, Pi e Kimi Code;
 - **Agentes pessoais self-hosted** — OpenClaw, Hermes Agent, IronClaw, ohmo;
+- **Agentes organizacionais** — QM;
 - **Harnesses embutidos** — n8n (nó AI Agent);
 - **Frameworks** — LangGraph, CrewAI, OpenAI Agents SDK (Software Development Kit), Software Agent SDK.
 
-Cada um foi escolhido por representar um *arquétipo* diferente (lógica de replicação, não amostragem): produto maduro agnóstico de provedor (opencode), regime de controle de big tech (gemini-cli), port didático legível (OpenHarness), sandbox-first (Codex CLI), MCP-nativo (Goose), context-first (Aider), cultura de eval acadêmica (OpenHands), e assim por diante.
+Cada um foi escolhido por representar um *arquétipo* diferente (lógica de replicação, não amostragem): produto maduro agnóstico de provedor (opencode), regime de controle de big tech (gemini-cli), port didático legível (OpenHarness), sandbox-first (Codex CLI), MCP-nativo (Goose), context-first (Aider), cultura de eval acadêmica (OpenHands), agente da organização inteira com o loop trocável (QM), e assim por diante.
 
 A lista completa — com **origem, versão, fork e commit exatos lidos** em cada avaliação, e o link para a análise e o diagnóstico de cada um — está no **[Apêndice — O estudo](apendice-estudo.md)**. O placar consolidado por dimensão está no [Comparativo](../benchmark/comparativo.md).
 
