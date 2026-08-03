@@ -49,6 +49,7 @@ $Repos = @(
     @{ name = 'codex';                 upstream = 'openai/codex' }
     @{ name = 'goose';                 upstream = 'block/goose' }
     @{ name = 'aider';                 upstream = 'Aider-AI/aider' }
+    @{ name = 'grok-build';            upstream = 'xai-org/grok-build' }
     @{ name = 'OpenHands';             upstream = 'All-Hands-AI/OpenHands' }
     @{ name = 'software-agent-sdk';    upstream = 'OpenHands/software-agent-sdk' }
     # Agentes pessoais
