@@ -48,6 +48,10 @@ O corpus cresceu de 18 para **20** pelo mesmo caminho: o Radar confirmou o QM em
 | **Kimi Code (Moonshot AI)** | harnesses de código | [github.com/MoonshotAI/kimi-code](https://github.com/MoonshotAI/kimi-code) | CLI 0.31.1 (aberto em ~2026-06, MIT) | fork GHDaru/kimi-code, commit e22479a | 2026-08-02 (rodada ext-2) | [avaliação](../benchmark/avaliacoes/kimi-code.md) |
 | **QM (Y Combinator)** | agentes organizacionais | [github.com/yc-software/qm](https://github.com/yc-software/qm) | snapshot 2026-07-31 (aberto em 2026-07-31, MIT) | fork GHDaru/qm, commit 7f2c916 | 2026-08-02 (rodada ext-2) | [avaliação](../benchmark/avaliacoes/qm.md) |
 
+## Extensão ext-3 (2026-08-02): avaliado e **não incluído** — o teste de inclusão funcionando
+
+O método também documenta as recusas. O **Traycer** (Traycer AI) foi indicado pelo editor, forkado e avaliado com o instrumento completo (fork GHDaru/traycer, commit `65fc3d7`, MIT) — e **não passou o teste de inclusão** do cap. 01 §4: o repositório aberto (~513 mil linhas) contém clientes, CLI e um protocolo de orquestração notável, mas **nenhuma das quatro peças do harness** — o Host que executa loop, contexto, ferramentas e controle é binário fechado assinado, com nuvem obrigatória (o `AGENTS.md` do próprio repo declara que Host e backends não estão ali). A [avaliação completa](../benchmark/avaliacoes/traycer.md) (18/36) fica como registro: é o caso mais bem documentado do estudo de "open source" como estratégia de distribuição de cliente, e a evidência central do novo [Apêndice — A cadeia de suprimentos](apendice-supply-chain.md), para o qual a leitura rendeu o mapa de 18 harnesses orquestrados.
+
 ## Diagnóstico consolidado
 
 Os **resultados por dimensão** (notas 0–3, com evidência) e o diagnóstico comparativo estão no [Comparativo dos Harnesses](../benchmark/comparativo.md) — incluindo o heatmap interativo. Cada avaliação individual traz, além das notas: o **arquétipo observado** do harness, os pontos fortes com caminhos de arquivo, e a seção **"o que roubar"** (padrões que merecem ser levados para outros harnesses).

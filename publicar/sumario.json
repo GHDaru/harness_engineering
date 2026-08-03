@@ -127,6 +127,11 @@
           "teaser": "Todos os harnesses avaliados: origem, fork/commit e análises."
         },
         {
+          "arquivo": "livro/apendice-supply-chain.md",
+          "titulo": "Apêndice — A cadeia de suprimentos",
+          "teaser": "Quem consome quem no corpus: o mapa das dependências entre harnesses, com evidência por elo."
+        },
+        {
           "arquivo": "livro/apendice-uso.md",
           "titulo": "Apêndice — Uso do livro",
           "teaser": "Como o livro é lido: telemetria agregada, ao vivo."
