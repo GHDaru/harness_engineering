@@ -418,16 +418,24 @@ function dataDaUltimaModificacao() {
 
 // Jornal vivo (specs 061/062): fontes operacionais são PT; na edição EN o
 // conteúdo do item permanece PT com marcação honesta (decisão da spec 067).
+// A notícia da capa é o achado mais RECENTE do Radar (desempate: maior impacto,
+// depois ordem do arquivo). Escolher por dado e não pela primeira linha: o RADAR.md
+// é editado por um agente agendado e sua ordem física não é garantia de cronologia.
 function noticiaDoRadar() {
+  const peso = { A: 3, B: 2, C: 1, "": 0 };
   try {
     const radar = readFileSync(resolve(RAIZ, "radar/RADAR.md"), "utf8");
+    let melhor = null;
     for (const linha of radar.split("\n")) {
       const cels = linha.split("|").map((c) => c.trim());
       if (cels.length < 7 || !/^\d{4}-\d{2}-\d{2}$/.test(cels[1])) continue;
       if (cels[2].includes("(inicial)")) continue;
       const impacto = (cels[4].match(/[ABC]/) || [])[0] || "";
-      return { data: cels[1], itemHtml: md.renderInline(cels[2]), impacto };
+      const cand = { data: cels[1], item: cels[2], impacto };
+      if (!melhor || cand.data > melhor.data ||
+          (cand.data === melhor.data && peso[cand.impacto] > peso[melhor.impacto])) melhor = cand;
     }
+    if (melhor) return { data: melhor.data, itemHtml: md.renderInline(melhor.item), impacto: melhor.impacto };
   } catch {}
   return null;
 }

@@ -32,6 +32,13 @@
 
 ## Edições
 
+### Correção 2026-08-03 · a capa noticiava o dia anterior (spec 075)
+- **Defeito relatado pelo editor**: com o Radar do dia publicado e o jornal correto, o card de novidades da capa (e da entrada) ainda mostrava 02/08.
+- **Causa raiz**: `noticiaDoRadar()` (em `publicar/build.mjs`) devolvia a **primeira linha válida** da tabela de `radar/RADAR.md`, presumindo que o arquivo estivesse sempre em ordem cronológica reversa. Na varredura de 03/08 as linhas novas entraram abaixo de uma linha de 02/08 (a do Traycer, spec 074) — a ordem física deixou de refletir a cronologia e a capa passou a noticiar um item mais antigo (e **descartado**).
+- **Correção**: a notícia passa a ser escolhida por **dado** — data mais recente, desempate por impacto (A > B > C) e depois pela ordem do arquivo. Como higiene, a tabela do RADAR.md foi reordenada por data (nenhuma linha alterada). Verificado com tabela deliberadamente fora de ordem (escolhe 08-03/A ignorando a 08-02 no topo) e no site construído: capa e entrada, PT e EN, em 2026-08-03.
+- **Lição registrada**: arquivo mantido por agente agendado não garante ordenação — o motor não deve inferir semântica da posição física. Mesma família do defeito de `tx` (0.64): premissa silenciosa que só falha em produção.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; enquadrada como correção (Princípio VII) com decisão humana explícita.
+
 ### Edição 0.68 — 2026-08-02 · a cadeia de suprimentos vira apêndice — e o teste de inclusão recusa pela primeira vez (spec 074)
 - **Novo [Apêndice — A cadeia de suprimentos](apendice-supply-chain.md)** (PT+EN, nos sumários): o mapa de quem consome quem dentro do corpus, com evidência por elo — QM remendando o Pi com patch de segurança próprio (`package.json:58`), Kimi Code com a TUI do Pi vendorizada, software-agent-sdk orquestrando Codex/gemini-cli via ACP, Grok Build retomando sessões de Claude/Codex/Cursor, e três leituras editoriais (a pergunta "de quem é feito?", a sessão como interface de integração, o enforcement que não viaja pela cadeia).
 - **Rodada ext-3**: o **[Traycer](../benchmark/avaliacoes/traycer.md)** (indicação do editor, fork GHDaru/traycer @ `65fc3d7`, MIT) foi avaliado com o instrumento completo e é a **primeira recusa documentada do teste de inclusão** (18/36): ~513 mil linhas abertas de clientes/CLI/protocolo, mas o Host que executa as quatro peças é binário fechado + nuvem obrigatória. A leitura rendeu o mapa dos 18 harnesses que ele orquestra — evidência central do apêndice novo. Corpus permanece em 20.
