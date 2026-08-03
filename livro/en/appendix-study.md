@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/apendice-estudo.md edicao:0.67 hash:cfb57505 -->
+<!-- i18n fonte:livro/apendice-estudo.md edicao:0.68 hash:1f31765e -->
 # Appendix — The study: the harnesses evaluated
 
 This appendix **shows the work**: the full list of harnesses that went through the study, with **where they came from** (upstream repository), **the exact snapshot that was read** (fork/commit/snapshot — the materialization of the method's cutoff date, ch. 01 §6) and the link to the **complete evaluation** of each one. The instrument used in every evaluation is the same: the [`HARNESS_EVAL.md`](https://github.com/GHDaru/harness_engineering/blob/main/benchmark/template/HARNESS_EVAL.md) template (and [`FRAMEWORK_EVAL.md`](https://github.com/GHDaru/harness_engineering/blob/main/benchmark/template/FRAMEWORK_EVAL.md) for frameworks), applied through systematic code reading following the [benchmark methodology](https://github.com/GHDaru/harness_engineering/blob/main/benchmark/README.md) (in Portuguese).
@@ -48,6 +48,10 @@ The corpus grew from 18 to **20** through the same path: the Radar confirmed QM 
 |---|---|---|---|---|---|---|
 | **Kimi Code (Moonshot AI)** | coding harnesses | [github.com/MoonshotAI/kimi-code](https://github.com/MoonshotAI/kimi-code) | CLI 0.31.1 (opened ~2026-06, MIT) | fork GHDaru/kimi-code, commit e22479a | 2026-08-02 (round ext-2) | [evaluation](../../benchmark/avaliacoes/kimi-code.html) |
 | **QM (Y Combinator)** | organizational agents | [github.com/yc-software/qm](https://github.com/yc-software/qm) | snapshot 2026-07-31 (opened on 2026-07-31, MIT) | fork GHDaru/qm, commit 7f2c916 | 2026-08-02 (round ext-2) | [evaluation](../../benchmark/avaliacoes/qm.html) |
+
+## Extension ext-3 (2026-08-02): evaluated and **not included** — the inclusion test at work
+
+The method documents refusals too. **Traycer** (Traycer AI) was nominated by the editor, forked and evaluated with the full instrument (fork GHDaru/traycer, commit `65fc3d7`, MIT) — and **did not pass the inclusion test** of ch. 01 §4: the open repository (~513k lines) contains clients, a CLI and a remarkable orchestration protocol, but **none of the four harness pieces** — the Host that runs loop, context, tools and control is a signed closed binary with a mandatory cloud (the repo's own `AGENTS.md` states the Host and backends are not there). The [full evaluation](../../benchmark/avaliacoes/traycer.html) (18/36) stays on record: it is the study's best-documented case of "open source" as a client-distribution strategy, and the central evidence of the new [Appendix — The supply chain](appendix-supply-chain.md), for which the reading yielded the map of 18 orchestrated harnesses.
 
 ## Consolidated diagnosis
 
