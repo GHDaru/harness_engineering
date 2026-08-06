@@ -7,6 +7,9 @@ sem chave -> echo; sem DATABASE_URL -> memória. Sobe em qualquer lugar.
 
 from __future__ import annotations
 
+import hashlib
+import re
+import secrets
 import smtplib
 import time
 from collections import defaultdict, deque
@@ -124,6 +127,30 @@ class TelemetryIn(BaseModel):
 class GoalIn(BaseModel):
     session_id: str
     texto: str
+
+
+# ---- spec 080 ----
+
+class AssinarIn(BaseModel):
+    email: str
+    session_id: Optional[str] = None   # sessão anônima de quem pediu (para a fusão)
+    lang: str = "pt"
+
+
+class EntrarIn(BaseModel):
+    token: str
+    session_id: Optional[str] = None   # sessão anônima do navegador que abriu o link
+
+
+class ProgressoIn(BaseModel):
+    session_id: str
+    lang: str = "pt"
+    slug: str
+    titulo: str = ""
+
+
+class LeitorIn(BaseModel):
+    session_id: str
 
 
 # ------------------------------------------------------------------ rotas
@@ -249,6 +276,140 @@ def post_objetivo(inp: GoalIn) -> dict:
 @app.get("/objetivo")
 def get_objetivo(session_id: str) -> dict:
     return {"session_id": session_id, "objetivo": _store.get_goal(session_id)}
+
+
+# ---- spec 080: e-mail como chave de continuidade (link mágico) ----
+#
+# Não é login: sem senha, sem sessão autenticada, sem área restrita. O e-mail
+# aponta para um `session_id` canônico; adotar esse id é o que faz histórico,
+# objetivo, consentimento e progresso atravessarem dispositivos.
+
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")
+
+
+def _hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def _normalizar_email(bruto: str) -> str:
+    email = (bruto or "").strip().lower()
+    if len(email) > 254 or not _EMAIL_RE.match(email):
+        raise HTTPException(status_code=400, detail="e-mail inválido")
+    return email
+
+
+def _link_magico(token: str, lang: str) -> str:
+    base = config.SITE_URL.rstrip("/") + "/"
+    pagina = "en/entrar.html" if lang == "en" else "entrar.html"
+    return f"{base}{pagina}?t={token}"
+
+
+def _enviar_link_magico(email: str, token: str, lang: str) -> bool:
+    """Diferente da sugestão, aqui o envio NÃO é best-effort: se falhar, o leitor
+    precisa saber — ficou sem o link e não há outro caminho. Devolve o sucesso; o
+    token em si nunca sai daqui para a resposta HTTP nem para log."""
+    if not config.SMTP_HOST:
+        return False
+    link = _link_magico(token, lang)
+    en = lang == "en"
+    try:
+        msg = EmailMessage()
+        msg["Subject"] = ("[Harness Engineering] Your reading link" if en
+                          else "[Engenharia de Harness] Seu link de leitura")
+        msg["From"] = config.SMTP_USER or "companion@harness"
+        msg["To"] = email
+        msg.set_content(
+            (f"Open this link to pick your reading up where you left off:\n\n{link}\n\n"
+             f"It works once and expires in {config.MAGIC_LINK_TTL_MIN} minutes.\n"
+             "If you did not ask for it, ignore this message — nothing was created "
+             "under your name and you will not receive anything else.\n"
+             if en else
+             f"Abra este link para retomar sua leitura de onde parou:\n\n{link}\n\n"
+             f"Ele vale uma vez e expira em {config.MAGIC_LINK_TTL_MIN} minutos.\n"
+             "Se não foi você que pediu, ignore esta mensagem — nada foi criado em "
+             "seu nome e você não receberá mais nada.\n"))
+        with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT, timeout=20) as smtp:
+            smtp.starttls()
+            if config.SMTP_USER:
+                smtp.login(config.SMTP_USER, config.SMTP_PASS)
+            smtp.send_message(msg)
+        return True
+    except Exception:
+        return False
+
+
+@app.post("/assinar")
+def post_assinar(inp: AssinarIn, request: Request) -> dict:
+    """Envia o link mágico. A resposta é IDÊNTICA para e-mail novo e já cadastrado
+    — quem tem a caixa de entrada descobre; quem só tem o formulário, não."""
+    email = _normalizar_email(inp.email)
+    ip = request.client.host if request.client else "?"
+    if not _rate_ok(f"assin:{email}", limite=config.RATE_LIMIT_ASSINAR) or \
+       not _rate_ok(f"assin-ip:{ip}", limite=config.RATE_LIMIT_ASSINAR):
+        raise HTTPException(status_code=429, detail="muitos pedidos; tente mais tarde.")
+
+    if not _store.leitor_por_email(email):
+        # Sessão canônica com entropia do SERVIDOR — não derivada do e-mail e não
+        # gerada pelo navegador: este id passa a valer como credencial de fato.
+        _store.criar_leitor(email, "leitor-" + secrets.token_urlsafe(24))
+
+    token = secrets.token_urlsafe(32)
+    _store.salvar_link(_hash_token(token), email,
+                       time.time() + config.MAGIC_LINK_TTL_MIN * 60,
+                       (inp.session_id or "").strip())
+    enviado = _enviar_link_magico(email, token, "en" if inp.lang == "en" else "pt")
+    return {"ok": True, "enviado": enviado, "expira_min": config.MAGIC_LINK_TTL_MIN}
+
+
+@app.post("/entrar")
+def post_entrar(inp: EntrarIn) -> dict:
+    """Consome o link (uso único) e devolve a sessão canônica do leitor. Funde
+    as sessões anônimas envolvidas: a de quem pediu o link e a de quem o abriu —
+    por construção, a mesma pessoa. Quem conversou antes de assinar não perde
+    a conversa."""
+    dados = _store.consumir_link(_hash_token((inp.token or "").strip()), time.time())
+    if not dados:
+        raise HTTPException(status_code=400, detail="link inválido, expirado ou já usado")
+
+    email = dados["email"]
+    canonico = _store.leitor_por_email(email)
+    if not canonico:  # leitor apagado entre o pedido e o clique
+        canonico = _store.criar_leitor(email, "leitor-" + secrets.token_urlsafe(24))
+
+    for anonima in {(dados.get("origem") or "").strip(), (inp.session_id or "").strip()}:
+        if anonima and anonima != canonico and not _store.leitor_por_sessao(anonima):
+            _store.merge_session(anonima, canonico)
+
+    return {"ok": True, "email": email, "session_id": canonico,
+            "progresso": _store.get_progresso(canonico)}
+
+
+@app.get("/leitor")
+def get_leitor(session_id: str) -> dict:
+    return {"session_id": session_id, "email": _store.leitor_por_sessao(session_id)}
+
+
+@app.delete("/leitor")
+def delete_leitor(inp: LeitorIn) -> dict:
+    """Direito ao esquecimento (Princípio V): apaga leitor, sessão, mensagens,
+    progresso e links pendentes. Sessão sem leitor devolve `apagado: false`."""
+    return {"apagado": _store.apagar_leitor(inp.session_id)}
+
+
+@app.post("/progresso")
+def post_progresso(inp: ProgressoIn) -> dict:
+    slug = "".join(c for c in inp.slug.lower() if c.isalnum() or c in "-_.")[:80]
+    if not slug:
+        raise HTTPException(status_code=400, detail="slug inválido")
+    _store.ensure_session(inp.session_id)
+    _store.set_progresso(inp.session_id, "en" if inp.lang == "en" else "pt",
+                         slug, inp.titulo.strip()[:200])
+    return {"ok": True}
+
+
+@app.get("/progresso")
+def get_progresso(session_id: str) -> dict:
+    return {"session_id": session_id, "itens": _store.get_progresso(session_id)}
 
 
 @app.get("/suggestions")

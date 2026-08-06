@@ -32,6 +32,16 @@
 
 ## Edições
 
+### Edição 0.73 — 2026-08-06 · o e-mail como chave de continuidade, não como muro (spec 080)
+- **O defeito**: o leitor era anônimo **por navegador**. `cmp_sid` e `hz_ultimo` viviam só no `localStorage`, então quem lia no notebook e retomava no celular perdia tudo — progresso, objetivo declarado e a conversa inteira com o tutor. Num livro de 24 capítulos lido em sessões separadas por dias, perder o fio era o modo de falha mais provável.
+- **A solução, e o que ela deliberadamente não é**: um e-mail vira chave de continuidade — sem senha, sem cadastro, sem área restrita, sem informativo. O leitor informa o e-mail, recebe um **link mágico** de uso único (30 min, guardado só como hash SHA-256) e, ao abri-lo, o navegador **adota a sessão canônica** daquele leitor. **A navegação anônima segue completa**: nenhuma página, download ou função exige e-mail, e o convite é uma linha dispensável no rodapé do painel e sob o cartão "Retomar".
+- **O ponto de alavanca**: histórico, objetivo e consentimento já eram indexados por `session_id`. A feature inteira se reduziu a **trocar o `session_id` do navegador pelo canônico do leitor** — o resto seguiu de graça. Só o progresso de leitura, que nunca saía do `localStorage`, ganhou tabela.
+- **Fundir, não descartar**: quem conversa antes de assinar não perde a conversa. O link carrega a sessão anônima de quem o pediu, e `/entrar` funde mensagens, objetivo, consentimento, navegação e progresso na canônica — recusando fundir a sessão de **outro** leitor, o que virou teste.
+- **Decisões de segurança que valem registro**: a sessão canônica passa a ser gerada no **servidor** com entropia criptográfica (era `crypto.randomUUID()` do navegador — e este id sempre foi, de fato, uma credencial); a resposta de `/assinar` é idêntica para e-mail novo e já cadastrado (sem enumeração); o token sai da URL por `history.replaceState` assim que o POST parte; e sem SMTP a assinatura **falha visivelmente** em vez de mentir "enviado".
+- **Verificação**: 32 testes de backend (uso único, expiração, ausência de enumeração, fusão, direito ao esquecimento) e 34 asserções em navegador **nos dois idiomas**, incluindo a promessa central — o capítulo lido no navegador A aparece no cartão "Retomar" do navegador B.
+- **Pendente do editor**: `SMTP_HOST/PORT/USER/PASS` no Railway (ver `chat-companion/backend/EMAIL.md`). Até lá o código sobe e todo o resto funciona; o convite diz a verdade sobre o envio desligado.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; implementação, testes e verificação em navegador.
+
 ### Edição 0.72 — 2026-08-06 · o site deixa de depender do repositório (spec 083)
 - **Origem**: a verificação da ext-4 encontrou um link quebrado; a investigação mostrou **74 links** do site apontando para o repositório. Com a decisão editorial de **tornar o repositório privado**, isso deixava de ser incômodo e virava bloqueio: as **21 avaliações do benchmark — o ativo central do estudo — ficariam inacessíveis**.
 - **Correção**: o motor passa a publicar como páginas do site tudo o que é conteúdo e vivia só no repo — **41 páginas**: as 21 avaliações, a metodologia e os templates do benchmark, a mesa e o contrato do Radar, as 9 ADRs e os 6 estudos de apoio. Resultado: **74 → 7 links** para o repositório.

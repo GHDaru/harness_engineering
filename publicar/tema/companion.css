@@ -196,3 +196,26 @@ html.cmp-docked #alt-tema { right: calc(var(--cmp-dockw, 430px) + 1rem); }
 .cmp-tour-n { font-size: .68rem; color: var(--cmp-muted, #93a1b3); margin-bottom: .2rem; }
 .cmp-tour-bts { display: flex; align-items: center; justify-content: space-between; }
 .cmp-tour-skip { border: none; background: none; color: var(--cmp-muted, #93a1b3); cursor: pointer; font-size: .76rem; text-decoration: underline; }
+
+/* ===== Spec 080 — conta de leitura (link mágico) ===== */
+/* Convite discreto por contrato: uma linha no rodapé do painel, peso de nota de
+   rodapé, dispensável. Nunca modal, nunca interstitial. */
+.cmp-conta { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  padding: .4rem .9rem .6rem; border-top: 1px solid var(--cmp-line); background: var(--cmp-bot);
+  font-size: .72rem; color: var(--cmp-muted); }
+.cmp-conta[hidden] { display: none; }
+.cmp-conta-e { font-weight: 600; color: var(--cmp-fg); overflow-wrap: anywhere; }
+.cmp-conta-bt { border: none; background: none; color: var(--cmp-muted); cursor: pointer;
+  font: inherit; text-decoration: underline; padding: 0; }
+.cmp-conta-bt:hover { color: var(--cmp-fg); }
+.cmp-conta-conv { text-decoration: none; border: 1px dashed var(--cmp-line); border-radius: 999px;
+  padding: .22rem .7rem; }
+.cmp-conta-conv:hover { border-color: var(--cmp-accent, #2563eb); }
+.cmp-conta-perigo:hover { color: #e06c6c; }
+.cmp-assinarform[hidden] { display: none; }
+
+/* Convite no cartão "Retomar" do sumário — onde a perda de progresso dói. */
+.cmp-conv-retomar { margin: -.4rem 0 1.2rem; font-size: .82rem; color: var(--muted); }
+.cmp-conv-link { border: none; background: none; padding: 0; font: inherit;
+  color: inherit; text-decoration: underline; cursor: pointer; }
+.cmp-conv-link:hover { color: var(--texto); }

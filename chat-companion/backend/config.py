@@ -93,3 +93,11 @@ SMTP_PORT = _int("SMTP_PORT", 587)
 SMTP_USER = os.environ.get("SMTP_USER", "")
 SMTP_PASS = os.environ.get("SMTP_PASS", "")
 ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "")       # vazio -> /suggestions desabilitado
+
+# --- Subscrição por e-mail / link mágico (spec 080) ---
+# O e-mail é chave de continuidade, não login: sem senha, sem área restrita.
+# Reusa o MESMO SMTP das sugestões (ver EMAIL.md). Sem SMTP_HOST a assinatura
+# falha de forma VISÍVEL — o link nunca é devolvido na resposta HTTP.
+SITE_URL = os.environ.get("SITE_URL", "https://ghdaru.github.io/harness_engineering/")
+MAGIC_LINK_TTL_MIN = _int("MAGIC_LINK_TTL_MIN", 30)
+RATE_LIMIT_ASSINAR = _int("RATE_LIMIT_ASSINAR", 5)    # envios por janela, por e-mail e por IP

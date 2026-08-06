@@ -100,6 +100,9 @@ const T = EN
       htmlLang: "en",
       temaAria: "Toggle theme",
       linkCapa: "↩ cover",
+      entrarTitulo: "Reading link",
+      entrarCarregando: "Signing you in…",
+      entrarNota: "Reading links work once and expire in a few minutes. No password, no account — the e-mail only carries your progress from one device to the next.",
       sumarioTitulo: "Contents",
       seloVivo: "Living book — see History",
       estadoArte: "state of the art",
@@ -155,6 +158,9 @@ const T = EN
       htmlLang: "pt-BR",
       temaAria: "Alternar tema",
       linkCapa: "↩ capa",
+      entrarTitulo: "Link de leitura",
+      entrarCarregando: "Entrando…",
+      entrarNota: "Links de leitura valem uma vez e expiram em poucos minutos. Sem senha, sem cadastro — o e-mail só leva seu progresso de um aparelho para o outro.",
       sumarioTitulo: "Sumário",
       seloVivo: "Livro vivo — ver Histórico",
       estadoArte: "estado da arte",
@@ -542,6 +548,33 @@ ${companionSnippet(0)}
 </body></html>`;
 }
 
+// Entrada por link mágico (spec 080). Página deliberadamente minúscula: nem
+// sidebar, nem companion, nem telemetria. Ela existe por poucos segundos, entre
+// o clique no e-mail e o redirecionamento — todo o texto vem do `entrar.js`,
+// porque o resultado só se conhece depois da resposta do backend.
+function paginaEntrar() {
+  const cfg = JSON.stringify({ backend: COMPANION_BACKEND, lang: LANG });
+  return `<!doctype html>
+<html lang="${T.htmlLang}"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>${T.entrarTitulo} · ${sumario.titulo}</title>
+<link rel="icon" type="image/svg+xml" href="${A}favicon.svg">
+<link rel="stylesheet" href="${A}estilo.css">
+</head><body class="entrar-body" data-lang="${LANG}">
+<main class="entrar">
+  <a class="entrar-marca" href="index.html">${sumario.titulo}</a>
+  <div class="entrar-estado carregando" id="entrar-estado">
+    <h2>${T.entrarCarregando}</h2>
+  </div>
+  <p class="entrar-nota">${T.entrarNota}</p>
+</main>
+<script>window.COMPANION=${cfg.replace(/</g, "\\u003c")}</script>
+<script src="${A}app.js"></script>
+<script src="${A}entrar.js" defer></script>
+</body></html>`;
+}
+
 function montarNavLateral(atualSlug) {
   return sumario.partes
     .map(
@@ -576,6 +609,7 @@ if (!EN) {
   cpSync(resolve(AQUI, "tema/companion.css"), resolve(SAIDA, "assets/companion.css"));
   cpSync(resolve(AQUI, "tema/companion.js"), resolve(SAIDA, "assets/companion.js"));
   cpSync(resolve(AQUI, "tema/uso.js"), resolve(SAIDA, "assets/uso.js"));
+  cpSync(resolve(AQUI, "tema/entrar.js"), resolve(SAIDA, "assets/entrar.js"));
   cpSync(resolve(AQUI, "tema/grafo.js"), resolve(SAIDA, "assets/grafo.js"));
   cpSync(resolve(AQUI, "tema/favicon.svg"), resolve(SAIDA, "assets/favicon.svg"));
   cpSync(resolve(AQUI, "tema/favicon-32.png"), resolve(SAIDA, "assets/favicon-32.png"));
@@ -693,6 +727,7 @@ if (!EN) {
 
 // index = tela-capa (splash); porta de entrada (por idioma).
 writeFileSync(resolve(SAIDA, "index.html"), paginaSplash());
+writeFileSync(resolve(SAIDA, "entrar.html"), paginaEntrar());  // spec 080
 
 // sumario.html = a EXPERIÊNCIA DE ENTRADA (spec 021), por idioma.
 const cartaoEnt = (i) => {

@@ -452,3 +452,17 @@ abbr[title] { text-decoration: underline dotted; text-decoration-thickness: 1px;
 .jr-chip-n { display: inline-block; margin-left: .35rem; opacity: .55; font-variant-numeric: tabular-nums; }
 .jr-chip[disabled] { opacity: .38; cursor: not-allowed; }
 .jr-chip[disabled]:hover { border-color: var(--borda, #c8c2b4); }
+
+/* ===== Spec 080 — página de entrada por link mágico ===== */
+.entrar-body { display: grid; place-items: center; min-height: 100vh; padding: 2rem 1.2rem; }
+.entrar { max-width: 34rem; text-align: center; }
+.entrar-marca { display: block; font-weight: 700; text-decoration: none; color: var(--texto);
+  margin-bottom: 1.6rem; }
+.entrar-estado { border: 1px solid var(--borda, rgba(127,127,127,.35)); border-radius: 16px;
+  padding: 1.6rem 1.4rem; }
+.entrar-estado h2 { margin: 0 0 .5rem; font-size: 1.15rem; }
+.entrar-estado p { margin: 0 0 1rem; color: var(--muted); line-height: 1.5; }
+.entrar-estado.carregando { opacity: .7; }
+.entrar-estado.erro { border-color: #c0605a; }
+.entrar-estado.ok { border-color: #3d8a5c; }
+.entrar-nota { margin-top: 1.2rem; font-size: .78rem; color: var(--muted); line-height: 1.5; }
