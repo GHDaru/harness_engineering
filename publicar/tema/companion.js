@@ -43,6 +43,9 @@
   }
   // BYOK (spec 048): a chave vive SÓ no localStorage deste navegador; é lida
   // no momento do envio e nunca aparece em texto claro na tela.
+  // Conta de leitura (spec 080): o e-mail é chave de continuidade, não login.
+  // Quem manda é o SID — o e-mail apenas o recupera noutro aparelho.
+  var EMAIL = get("cmp_email", "");
   function byok() { return (get("cmp_byok", "") || "").trim(); }
   function byokMask() { var k = byok(); return k ? "…" + k.slice(-4) : ""; }
 
@@ -117,10 +120,20 @@
   var byokSave = el("button", "cmp-send", "✓"); byokSave.type = "submit"; byokSave.setAttribute("aria-label", tx("Salvar chave", "Save key"));
   byokForm.appendChild(byokTxt); byokForm.appendChild(byokSave);
   var consentCard = el("div", "cmp-consent"); consentCard.hidden = true;
+  // Conta de leitura (spec 080): convite discreto quando anônimo, identidade
+  // quando conectado. Uma linha no rodapé do painel — nunca um modal.
+  var assinarForm = el("form", "cmp-sugform cmp-assinarform"); assinarForm.hidden = true;
+  var assinarTxt = el("input", "cmp-input"); assinarTxt.type = "email";
+  assinarTxt.placeholder = tx("seu@email — recebe um link, sem senha", "you@email — you get a link, no password");
+  assinarTxt.setAttribute("aria-label", tx("Seu e-mail", "Your e-mail"));
+  var assinarSend = el("button", "cmp-send", "\u2709"); assinarSend.type = "submit";
+  assinarSend.setAttribute("aria-label", tx("Enviar o link de leitura", "Send the reading link"));
+  assinarForm.appendChild(assinarTxt); assinarForm.appendChild(assinarSend);
+  var contaBox = el("div", "cmp-conta"); contaBox.hidden = true;
   var status = el("div", "cmp-status"); status.setAttribute("role", "button"); status.tabIndex = 0;
   status.title = tx("Abrir os bastidores (contexto injetado, tokens, chamadas)", "Open behind the scenes (injected context, tokens, calls)");
   var aux = el("aside", "cmp-aux"); aux.hidden = true; aux.setAttribute("aria-label", tx("Bastidores do companion", "Companion behind the scenes"));
-  panel.appendChild(head); panel.appendChild(capsBox); panel.appendChild(msgs); panel.appendChild(sugForm); panel.appendChild(byokForm); panel.appendChild(consentCard); panel.appendChild(form); panel.appendChild(status);
+  panel.appendChild(head); panel.appendChild(capsBox); panel.appendChild(msgs); panel.appendChild(sugForm); panel.appendChild(byokForm); panel.appendChild(consentCard); panel.appendChild(assinarForm); panel.appendChild(form); panel.appendChild(status); panel.appendChild(contaBox);
   root.appendChild(launcher); root.appendChild(aux); root.appendChild(panel);
 
   // --- render ---
@@ -426,7 +439,10 @@
     { c: "/limpar", d: tx("apagar a conversa", "delete the conversation") },
     { c: "/bastidores", d: tx("ver contexto injetado, tokens e chamadas", "see injected context, tokens, and calls") },
     { c: "/plano", d: tx("declarar seu objetivo e receber um plano de ensino", "declare your goal and get a teaching plan") },
-    { c: "/tour", d: tx("rever o tour das funcionalidades do livro", "replay the tour of the book's features") }
+    { c: "/tour", d: tx("rever o tour das funcionalidades do livro", "replay the tour of the book's features") },
+    { c: "/assinar", d: tx("guardar progresso e conversas com um e-mail", "keep progress and chats with an e-mail") },
+    { c: "/sair", d: tx("desconectar este navegador (nada é apagado)", "sign this browser out (nothing is deleted)") },
+    { c: "/apagar", d: tx("apagar meu e-mail e tudo que está guardado", "delete my e-mail and everything stored") }
   ];
   var palSel = 0, palItens = [];
   function fecharPal() { pal.hidden = true; palItens = []; }
@@ -463,6 +479,10 @@
     if (/^\/limpar\b/i.test(t)) { limparConversa(); return; }
     if (/^\/bastidores\b/i.test(t)) { toggleAux(); return; }
     if (/^\/tour\b/i.test(t)) { iniciarTour(); return; }
+    var mAssinar = t.match(/^\/assinar\s*(.*)$/i);
+    if (mAssinar) { pedirAssinatura(mAssinar[1].trim()); return; }
+    if (/^\/sair\b/i.test(t)) { sairDaConta(); return; }
+    if (/^\/apagar\b/i.test(t)) { apagarConta(); return; }
     var mPlano = t.match(/^\/plano\s*(.*)$/i);
     if (mPlano) {
       var objetivo = mPlano[1].trim();
@@ -577,7 +597,7 @@
       consentCard.appendChild(el("div", "cmp-consent-t", tx("Antes de conversar…", "Before we chat…")));
       consentCard.appendChild(el("p", null, CONSENT_TXT));
       var bt = el("button", "cmp-send cmp-send-rot", tx("Entendi e aceito", "Got it, I accept"));
-      bt.addEventListener("click", function () { aceitarConsent(); renderConsent(); banner && banner.remove(); oferecerTour(); input.focus(); });
+      bt.addEventListener("click", function () { aceitarConsent(); renderConsent(); renderConta(); convidarNoRetomar(); banner && banner.remove(); oferecerTour(); input.focus(); });
       consentCard.appendChild(bt);
     }
   }
@@ -589,7 +609,7 @@
     banner = el("div", "cmp-banner");
     var texto = el("span", null, "💬 " + CONSENT_TXT);
     var bt = el("button", "cmp-banner-bt", tx("Entendi e aceito", "Got it, I accept"));
-    bt.addEventListener("click", function () { aceitarConsent(); banner.remove(); banner = null; renderConsent(); oferecerTour(); });
+    bt.addEventListener("click", function () { aceitarConsent(); banner.remove(); banner = null; renderConsent(); renderConta(); convidarNoRetomar(); oferecerTour(); });
     banner.appendChild(texto); banner.appendChild(bt);
     document.body.appendChild(banner);
   }
@@ -618,11 +638,130 @@
     enviarNav(slug, false);
   }
 
+  // --- Conta de leitura por link mágico (spec 080) ---
+  // Não bloqueia nada: a navegação anônima é completa e o convite é dispensável.
+  // O e-mail serve a UM propósito — entregar o link. Nenhum informativo.
+
+  function renderConta() {
+    contaBox.innerHTML = "";
+    // Sem aceite não se pede e-mail: o convite só existe depois do consentimento.
+    if (!BACKEND || !consentiu()) { contaBox.hidden = true; return; }
+    contaBox.hidden = false;
+    if (EMAIL) {
+      contaBox.appendChild(el("span", "cmp-conta-e", "✉ " + EMAIL));
+      var sair = el("button", "cmp-conta-bt", tx("sair", "sign out"));
+      sair.title = tx("Desconecta só este navegador; nada é apagado.", "Signs out this browser only; nothing is deleted.");
+      sair.addEventListener("click", sairDaConta);
+      var apagar = el("button", "cmp-conta-bt cmp-conta-perigo", tx("apagar", "delete"));
+      apagar.title = tx("Apaga seu e-mail, suas conversas e seu progresso do servidor.", "Deletes your e-mail, conversations, and progress from the server.");
+      apagar.addEventListener("click", apagarConta);
+      contaBox.appendChild(sair); contaBox.appendChild(apagar);
+    } else {
+      var conv = el("button", "cmp-conta-bt cmp-conta-conv",
+        tx("✉ guardar meu progresso", "✉ keep my progress"));
+      conv.title = tx("Um e-mail, um link. Sem senha, sem cadastro, sem informativo.",
+                      "One e-mail, one link. No password, no account, no newsletter.");
+      conv.addEventListener("click", function () { pedirAssinatura(""); });
+      contaBox.appendChild(conv);
+    }
+  }
+
+  function pedirAssinatura(email) {
+    open();
+    assinarForm.hidden = false;
+    addMsg("sys", tx(
+      "✉ Informe seu e-mail abaixo e eu envio um link. Ao abri-lo, seu progresso de leitura e suas conversas passam a acompanhar você em qualquer aparelho. Sem senha, sem cadastro e sem informativo — o e-mail serve só para o link. Para sair depois: /sair; para apagar tudo: /apagar.",
+      "✉ Enter your e-mail below and I'll send you a link. Opening it makes your reading progress and conversations follow you on any device. No password, no account, no newsletter — the e-mail is only for the link. To sign out later: /sair; to delete everything: /apagar."));
+    if (email) { assinarTxt.value = email; assinarForm.requestSubmit(); return; }
+    setTimeout(function () { assinarTxt.focus(); }, 60);  // open() foca a entrada em 30ms
+  }
+
+  assinarForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var mail = assinarTxt.value.trim(); if (!mail) return;
+    assinarSend.disabled = true;
+    api("/assinar", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email: mail, session_id: SID, lang: LANG_EN ? "en" : "pt" }) })
+      .then(function (d) {
+        assinarTxt.value = ""; assinarForm.hidden = true;
+        if (d && d.enviado) {
+          addMsg("sys", tx(
+            "✉ Link enviado para " + mail + ". Ele vale uma vez e expira em " + (d.expira_min || 30) + " minutos. Abra-o no aparelho em que quiser continuar lendo.",
+            "✉ Link sent to " + mail + ". It works once and expires in " + (d.expira_min || 30) + " minutes. Open it on the device where you want to keep reading."));
+        } else {
+          // Honestidade acima de conveniência: sem SMTP não há link, e dizer
+          // "enviado" seria mentira — o leitor esperaria um e-mail que não vem.
+          addMsg("sys", tx(
+            "✉ O envio de e-mail está desativado neste servidor agora, então o link não saiu. Sua leitura anônima segue normal — tente de novo mais tarde.",
+            "✉ E-mail delivery is switched off on this server right now, so no link was sent. Your anonymous reading continues as usual — try again later."));
+        }
+      })
+      .catch(function (err) {
+        addMsg("sys", tx("⚠️ Não consegui pedir o link (" + err.message + ").",
+                         "⚠️ I couldn't request the link (" + err.message + ")."));
+      })
+      .then(function () { assinarSend.disabled = false; });
+  });
+
+  function novaSessaoAnonima() {
+    SID = uuid(); set("cmp_sid", SID);
+    histLoaded = false; greeted = false;
+    EMAIL = ""; set("cmp_email", "");
+    msgs.innerHTML = ""; renderConta();
+  }
+
+  function sairDaConta() {
+    if (!EMAIL) { addMsg("sys", tx("Você já está navegando anonimamente.", "You are already browsing anonymously.")); return; }
+    if (!confirm(tx("Desconectar este navegador? Nada é apagado — o mesmo e-mail traz tudo de volta.",
+                    "Sign this browser out? Nothing is deleted — the same e-mail brings it all back."))) return;
+    novaSessaoAnonima();
+    addMsg("sys", tx("Pronto. Este navegador voltou a ser anônimo.", "Done. This browser is anonymous again."));
+  }
+
+  function apagarConta() {
+    if (!EMAIL) { addMsg("sys", tx("Não há nada guardado sob um e-mail nesta sessão.", "There is nothing stored under an e-mail in this session.")); return; }
+    if (!confirm(tx("Apagar seu e-mail, suas conversas e seu progresso do servidor? Isto não tem volta.",
+                    "Delete your e-mail, conversations, and progress from the server? This cannot be undone."))) return;
+    api("/leitor", { method: "DELETE", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ session_id: SID }) })
+      .catch(function () {})
+      .then(function () {
+        novaSessaoAnonima();
+        addMsg("sys", tx("Apagado. Nada seu permanece no servidor.", "Deleted. Nothing of yours remains on the server."));
+      });
+  }
+
+  // O e-mail no localStorage pode estar velho (o leitor apagou a conta noutro
+  // aparelho). Mesma lição do auto-reparo da telemetria (spec 078): confirmar
+  // com o servidor em vez de confiar no flag local para sempre.
+  function conferirConta() {
+    if (!BACKEND) return;
+    api("/leitor?session_id=" + encodeURIComponent(SID), {})
+      .then(function (d) {
+        var remoto = (d && d.email) || "";
+        if (remoto !== EMAIL) { EMAIL = remoto; set("cmp_email", remoto); renderConta(); }
+      }).catch(function () {});
+  }
+
+  // Convite no cartão "Retomar" do sumário — o lugar em que a perda dói.
+  function convidarNoRetomar() {
+    if (!BACKEND || EMAIL || !consentiu()) return;
+    var card = document.getElementById("ent-retomar");
+    if (!card || card.hidden || document.querySelector(".cmp-conv-retomar")) return;
+    var p = el("p", "cmp-conv-retomar");
+    p.appendChild(document.createTextNode(tx("Lendo em mais de um aparelho? ", "Reading on more than one device? ")));
+    var bt = el("button", "cmp-conv-link", tx("guarde seu progresso com um e-mail", "keep your progress with an e-mail"));
+    bt.addEventListener("click", function () { pedirAssinatura(""); });
+    p.appendChild(bt);
+    card.parentNode.insertBefore(p, card.nextSibling);
+  }
+
   renderCaps(); root.setAttribute("data-dock", DOCK); renderConsent();
   var bootFeito = false;
   function bootstrap() {
     if (bootFeito) return; bootFeito = true;
     document.body.appendChild(root); montarBanner(); telemetria();
+    renderConta(); conferirConta(); convidarNoRetomar();
   }
   document.addEventListener("DOMContentLoaded", bootstrap);
   if (document.readyState !== "loading") bootstrap();

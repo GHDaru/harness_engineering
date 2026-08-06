@@ -13,4 +13,5 @@ Convenção: arquivos `NNNN-titulo-curto.md`, numerados em sequência. Status: `
 - [0006 — Design system: entregáveis como componentes de tela](0006-design-system-componentes.md) · Aceito
 - [0007 — Cadência de revisão do livro vivo](0007-cadencia-livro-vivo.md) · Aceito
 - [0008 — Radar diário automatizado](0008-radar-diario-automatizado.md) · Aceito
+- [0009 — Continuidade de leitura por e-mail (link mágico), sem login](0009-continuidade-por-email.md) · Aceito
 - [template](template.md)

@@ -4,8 +4,11 @@ Duas implementações atrás da mesma porta (hexagonal por necessidade):
   - MemoryStore: dev e testes, sem banco, sem rede.
   - PostgresStore: produção, Neon Postgres (psycopg v3). Cria as tabelas na subida.
 
-Identidade é anônima: `session_id` é um id gerado pelo navegador. Nenhum dado
-pessoal é exigido. `delete_session` implementa o direito ao esquecimento (LGPD).
+Identidade é anônima por padrão: `session_id` é um id gerado pelo navegador e
+nenhum dado pessoal é exigido. A spec 080 acrescenta uma continuidade OPCIONAL —
+o leitor que quiser atravessar dispositivos informa um e-mail e recebe um link
+mágico; o e-mail apenas aponta para um `session_id` canônico, não vira login.
+`delete_session` e `apagar_leitor` implementam o direito ao esquecimento (LGPD).
 
 Nota didática: esta é a dor que a etapa 04 (cap. 08, Memória e Estado) formaliza.
 O companion, por ser produção, já precisa dela — as etapas ensinam depois.
@@ -34,6 +37,17 @@ class StorePort(Protocol):
     def nav_stats(self, limit: int = 500) -> dict: ...
     def set_goal(self, session_id: str, texto: str) -> None: ...
     def get_goal(self, session_id: str) -> Optional[str]: ...
+    # spec 080 — e-mail como chave de continuidade (link mágico)
+    def criar_leitor(self, email: str, session_id: str) -> str: ...
+    def leitor_por_email(self, email: str) -> Optional[str]: ...
+    def leitor_por_sessao(self, session_id: str) -> Optional[str]: ...
+    def apagar_leitor(self, session_id: str) -> bool: ...
+    def salvar_link(self, token_hash: str, email: str, expira_ts: float,
+                    origem_sid: str = "") -> None: ...
+    def consumir_link(self, token_hash: str, agora_ts: float) -> Optional[dict]: ...
+    def set_progresso(self, session_id: str, lang: str, slug: str, titulo: str) -> None: ...
+    def get_progresso(self, session_id: str) -> list[dict]: ...
+    def merge_session(self, origem: str, destino: str) -> None: ...
 
 
 # ----------------------------------------------------------- memória
@@ -94,6 +108,81 @@ class MemoryStore:
     def get_goal(self, session_id: str) -> Optional[str]:
         return getattr(self, "_goals", {}).get(session_id)
 
+    # ---- spec 080 ----
+    def criar_leitor(self, email: str, session_id: str) -> str:
+        self._leitores = getattr(self, "_leitores", {})   # email -> session_id
+        if email in self._leitores:
+            return self._leitores[email]
+        self.ensure_session(session_id)
+        self._leitores[email] = session_id
+        return session_id
+
+    def leitor_por_email(self, email: str) -> Optional[str]:
+        return getattr(self, "_leitores", {}).get(email)
+
+    def leitor_por_sessao(self, session_id: str) -> Optional[str]:
+        for mail, sid in getattr(self, "_leitores", {}).items():
+            if sid == session_id:
+                return mail
+        return None
+
+    def apagar_leitor(self, session_id: str) -> bool:
+        email = self.leitor_por_sessao(session_id)
+        if email is None:
+            return False
+        self._leitores.pop(email, None)
+        self._links = {h: v for h, v in getattr(self, "_links", {}).items()
+                       if v["email"] != email}
+        getattr(self, "_prog", {}).pop(session_id, None)
+        self.delete_session(session_id)
+        return True
+
+    def salvar_link(self, token_hash: str, email: str, expira_ts: float,
+                    origem_sid: str = "") -> None:
+        self._links = getattr(self, "_links", {})
+        self._links[token_hash] = {"email": email, "expira": expira_ts,
+                                   "origem": origem_sid, "usado": False}
+
+    def consumir_link(self, token_hash: str, agora_ts: float) -> Optional[dict]:
+        link = getattr(self, "_links", {}).get(token_hash)
+        if not link or link["usado"] or link["expira"] < agora_ts:
+            return None
+        link["usado"] = True
+        return {"email": link["email"], "origem": link["origem"]}
+
+    def set_progresso(self, session_id: str, lang: str, slug: str, titulo: str) -> None:
+        self._prog = getattr(self, "_prog", {})
+        self._prog.setdefault(session_id, {})[lang] = {
+            "lang": lang, "slug": slug, "titulo": titulo, "ts": time.time()}
+
+    def get_progresso(self, session_id: str) -> list[dict]:
+        return list(getattr(self, "_prog", {}).get(session_id, {}).values())
+
+    def merge_session(self, origem: str, destino: str) -> None:
+        if origem == destino:
+            return
+        self.ensure_session(destino)
+        msgs = self._msgs.pop(origem, [])
+        if msgs:
+            self._msgs[destino] = sorted(self._msgs.get(destino, []) + msgs,
+                                         key=lambda m: m["ts"])
+        goals = getattr(self, "_goals", {})
+        if origem in goals:
+            goals.setdefault(destino, goals[origem])
+            goals.pop(origem, None)
+        consents = getattr(self, "_consents", {})
+        if origem in consents:
+            consents.setdefault(destino, consents[origem])
+            consents.pop(origem, None)
+        for e in getattr(self, "_nav", []):
+            if e["session_id"] == origem:
+                e["session_id"] = destino
+        prog = getattr(self, "_prog", {})
+        for lang, item in prog.pop(origem, {}).items():
+            atual = prog.get(destino, {}).get(lang)
+            if not atual or atual["ts"] < item["ts"]:
+                prog.setdefault(destino, {})[lang] = item
+
 
 # ----------------------------------------------------------- postgres (neon)
 
@@ -152,6 +241,31 @@ class PostgresStore:
                     session_id TEXT PRIMARY KEY REFERENCES sessions(session_id) ON DELETE CASCADE,
                     texto TEXT NOT NULL,
                     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                );
+                -- spec 080: o e-mail é só um ponteiro para a sessão canônica.
+                -- Nenhuma senha, nenhum hash de senha, nenhum dado além do e-mail.
+                CREATE TABLE IF NOT EXISTS readers (
+                    email TEXT PRIMARY KEY,
+                    session_id TEXT UNIQUE NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                );
+                -- O token NUNCA é guardado em claro: só o SHA-256. Uso único.
+                CREATE TABLE IF NOT EXISTS magic_links (
+                    token_hash TEXT PRIMARY KEY,
+                    email TEXT NOT NULL,
+                    origem_sid TEXT NOT NULL DEFAULT '',
+                    expira_em TIMESTAMPTZ NOT NULL,
+                    usado_em TIMESTAMPTZ,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                );
+                CREATE INDEX IF NOT EXISTS idx_links_email ON magic_links(email);
+                CREATE TABLE IF NOT EXISTS progress (
+                    session_id TEXT NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
+                    lang TEXT NOT NULL,
+                    slug TEXT NOT NULL,
+                    titulo TEXT NOT NULL DEFAULT '',
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                    PRIMARY KEY (session_id, lang)
                 );
             """)
             conn.commit()
@@ -244,6 +358,112 @@ class PostgresStore:
             cur.execute("SELECT texto FROM goals WHERE session_id = %s", (session_id,))
             row = cur.fetchone()
         return row[0] if row else None
+
+    # ---- spec 080 ----
+    def criar_leitor(self, email: str, session_id: str) -> str:
+        """Idempotente: e-mail já cadastrado devolve a sessão canônica existente.
+        Esse retorno é o que garante que assinar duas vezes não perde o histórico."""
+        self.ensure_session(session_id)
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("INSERT INTO readers(email, session_id) VALUES (%s, %s) "
+                        "ON CONFLICT (email) DO NOTHING", (email, session_id))
+            conn.commit()
+            cur.execute("SELECT session_id FROM readers WHERE email = %s", (email,))
+            existente = cur.fetchone()[0]
+        if existente != session_id:  # já havia leitor: a sessão recém-criada é lixo
+            self.delete_session(session_id)
+        return existente
+
+    def leitor_por_email(self, email: str) -> Optional[str]:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("SELECT session_id FROM readers WHERE email = %s", (email,))
+            row = cur.fetchone()
+        return row[0] if row else None
+
+    def leitor_por_sessao(self, session_id: str) -> Optional[str]:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("SELECT email FROM readers WHERE session_id = %s", (session_id,))
+            row = cur.fetchone()
+        return row[0] if row else None
+
+    def apagar_leitor(self, session_id: str) -> bool:
+        email = self.leitor_por_sessao(session_id)
+        if email is None:
+            return False
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("DELETE FROM magic_links WHERE email = %s", (email,))
+            cur.execute("DELETE FROM readers WHERE email = %s", (email,))
+            # sessions ON DELETE CASCADE leva messages, consents, nav, goals e progress
+            cur.execute("DELETE FROM sessions WHERE session_id = %s", (session_id,))
+            conn.commit()
+        return True
+
+    def salvar_link(self, token_hash: str, email: str, expira_ts: float,
+                    origem_sid: str = "") -> None:
+        from datetime import datetime, timezone
+        expira = datetime.fromtimestamp(expira_ts, tz=timezone.utc)
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("INSERT INTO magic_links(token_hash, email, origem_sid, expira_em) "
+                        "VALUES (%s, %s, %s, %s) ON CONFLICT (token_hash) DO NOTHING",
+                        (token_hash, email, origem_sid, expira))
+            conn.commit()
+
+    def consumir_link(self, token_hash: str, agora_ts: float) -> Optional[dict]:
+        """Marca como usado e devolve o e-mail — numa única sentença condicional,
+        para que dois cliques simultâneos no mesmo link não passem os dois."""
+        from datetime import datetime, timezone
+        agora = datetime.fromtimestamp(agora_ts, tz=timezone.utc)
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("UPDATE magic_links SET usado_em = %s "
+                        "WHERE token_hash = %s AND usado_em IS NULL AND expira_em >= %s "
+                        "RETURNING email, origem_sid", (agora, token_hash, agora))
+            row = cur.fetchone()
+            conn.commit()
+        return {"email": row[0], "origem": row[1]} if row else None
+
+    def set_progresso(self, session_id: str, lang: str, slug: str, titulo: str) -> None:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("INSERT INTO progress(session_id, lang, slug, titulo) "
+                        "VALUES (%s, %s, %s, %s) ON CONFLICT (session_id, lang) DO UPDATE "
+                        "SET slug = EXCLUDED.slug, titulo = EXCLUDED.titulo, updated_at = now()",
+                        (session_id, lang, slug, titulo))
+            conn.commit()
+
+    def get_progresso(self, session_id: str) -> list[dict]:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("SELECT lang, slug, titulo, updated_at FROM progress "
+                        "WHERE session_id = %s", (session_id,))
+            rows = cur.fetchall()
+        return [{"lang": r[0], "slug": r[1], "titulo": r[2], "ts": r[3].timestamp()}
+                for r in rows]
+
+    def merge_session(self, origem: str, destino: str) -> None:
+        """Funde a sessão anônima na canônica. Quem assina depois de já ter
+        conversado não perde a conversa — foi o que motivou a fusão existir."""
+        if origem == destino:
+            return
+        self.ensure_session(destino)
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("UPDATE messages SET session_id = %s WHERE session_id = %s",
+                        (destino, origem))
+            cur.execute("UPDATE nav_events SET session_id = %s WHERE session_id = %s",
+                        (destino, origem))
+            # goals/consents/progress têm PK por sessão: só migram se o destino não tiver
+            cur.execute("INSERT INTO goals(session_id, texto) "
+                        "SELECT %s, texto FROM goals WHERE session_id = %s "
+                        "ON CONFLICT (session_id) DO NOTHING", (destino, origem))
+            cur.execute("INSERT INTO consents(session_id, versao) "
+                        "SELECT %s, versao FROM consents WHERE session_id = %s "
+                        "ON CONFLICT (session_id) DO NOTHING", (destino, origem))
+            cur.execute("INSERT INTO progress(session_id, lang, slug, titulo, updated_at) "
+                        "SELECT %s, lang, slug, titulo, updated_at FROM progress "
+                        "WHERE session_id = %s "
+                        "ON CONFLICT (session_id, lang) DO UPDATE "
+                        "SET slug = EXCLUDED.slug, titulo = EXCLUDED.titulo, "
+                        "    updated_at = EXCLUDED.updated_at "
+                        "WHERE progress.updated_at < EXCLUDED.updated_at", (destino, origem))
+            cur.execute("DELETE FROM sessions WHERE session_id = %s", (origem,))
+            conn.commit()
 
 
 def make_store(database_url: str) -> StorePort:
