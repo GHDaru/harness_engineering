@@ -15,7 +15,7 @@
 //  - Links internos .md -> reescritos para .html; links .html passam intactos
 //  - <div data-viz="..."> -> ilha de visualização
 
-import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync, rmSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, resolve, basename } from "node:path";
 import path from "node:path";
@@ -52,6 +52,43 @@ sumario.partes.forEach((p, pi) =>
   })
 );
 const hrefOutroIdioma = (slug) => (EN ? `../${parDe[slug] || "sumario"}.html` : `en/${parDe[slug] || "sumario"}.html`);
+
+// Páginas extras (spec 083): o repositório do livro passa a ser privado e TODO
+// acesso é pelo site — então o que antes era "veja no GitHub" precisa existir como
+// página. São os três corpos de conteúdo que viviam só no repo: as avaliações do
+// benchmark (o ativo central do estudo), a mesa e o contrato do Radar, e as ADRs.
+// PT-only, como o Radar e o Histórico (registros operacionais, decisão da 067).
+// O slug leva prefixo de grupo para não colidir com o que o sumário já publica
+// (radar/RADAR.md viraria "radar", que é o jornal; benchmark/README.md viraria
+// "readme"). O mapa é por caminho relativo ao repo, que é o que o reescritor de
+// links já calcula.
+function descobrirExtras() {
+  const extras = [];
+  const push = (arquivo, slug, titulo, grupo) => extras.push({ arquivo, slug, titulo, grupo });
+  const lista = (dir, filtro = () => true) => {
+    try { return readdirSync(resolve(RAIZ, dir)).filter((f) => f.endsWith(".md") && filtro(f)).sort(); }
+    catch { return []; }
+  };
+  for (const f of lista("benchmark/avaliacoes"))
+    push(`benchmark/avaliacoes/${f}`, `avaliacao-${f.replace(/\.md$/, "").toLowerCase()}`,
+         `Avaliação — ${f.replace(/\.md$/, "")}`, "Benchmark — avaliações");
+  push("benchmark/README.md", "benchmark-metodologia", "Benchmark — metodologia", "Benchmark");
+  for (const f of lista("benchmark/template"))
+    push(`benchmark/template/${f}`, `benchmark-template-${f.replace(/\.md$/, "").toLowerCase().replace(/_/g, "-")}`,
+         `Template — ${f.replace(/\.md$/, "")}`, "Benchmark");
+  push("radar/RADAR.md", "radar-mesa", "Radar — mesa de edição", "Radar");
+  push("radar/AGENTE.md", "radar-contrato", "Radar — contrato do agente", "Radar");
+  for (const f of lista("estudos"))
+    push(`estudos/${f}`, `estudo-${f.replace(/\.md$/, "").toLowerCase()}`, `Estudo — ${f.replace(/\.md$/, "")}`, "Estudos de apoio");
+  for (const f of lista("adr"))
+    push(`adr/${f}`, `adr-${f.replace(/\.md$/, "").toLowerCase()}`, `ADR ${f.replace(/\.md$/, "")}`, "Decisões (ADR)");
+  return extras.filter((e) => existsSync(resolve(RAIZ, e.arquivo)));
+}
+// O mapa vale nas DUAS passadas: as páginas são geradas só no PT (são registros
+// operacionais, decisão da 067), mas o EN precisa linká-las — com "../", porque
+// as páginas EN vivem em docs/en/ e as extras na raiz de docs/.
+const extras = descobrirExtras();
+const mapaExtras = new Map(extras.map((e) => [e.arquivo, (EN ? "../" : "") + e.slug]));
 
 const GITHUB_BASE = "https://github.com/GHDaru/harness_engineering/blob/main/";
 const SITE = "https://ghdaru.github.io/harness_engineering/";
@@ -211,10 +248,13 @@ md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
     const [alvo, hash] = href.split("#");
     const ancora = hash ? "#" + hash : "";
     const slug = basename(alvo).replace(/\.md$/i, "").toLowerCase();
+    const repoRel = path.posix.normalize(path.posix.join(env.srcDir || ".", alvo)).replace(/^(\.\.\/)+/, "");
     if (/\.md$/i.test(alvo) && slugsPublicados.has(slug)) {
       tokens[idx].attrSet("href", slug + ".html" + ancora);
+    } else if (mapaExtras.has(repoRel)) {
+      // spec 083: página extra publicada — o link deixa de ir ao repo privado
+      tokens[idx].attrSet("href", mapaExtras.get(repoRel) + ".html" + ancora);
     } else {
-      const repoRel = path.posix.normalize(path.posix.join(env.srcDir || ".", alvo)).replace(/^(\.\.\/)+/, "");
       tokens[idx].attrSet("href", GITHUB_BASE + repoRel + ancora);
     }
   }
@@ -726,6 +766,31 @@ writeFileSync(
 
 // Radar-jornal (spec 071): docs/radar.html — o diário do Radar diagramado
 // como site de notícias (PT-only; registro operacional, decisão da 067).
+// Páginas extras (spec 083): mesmo chrome do livro, sem prev/next (não são
+// leitura linear) e sem selo de data (não são capítulos).
+const paginasExtras = [];
+if (!EN) {
+  for (const e of extras) {
+    const bruto = readFileSync(resolve(RAIZ, e.arquivo), "utf8");
+    const corpo = abrirSiglas(md.render(bruto, { srcDir: path.posix.dirname(e.arquivo) }));
+    const volta = e.grupo.startsWith("Benchmark") ? `<a href="comparativo.html">↩ Comparativo</a>`
+      : e.grupo === "Radar" ? `<a href="radar.html">↩ Radar</a>`
+      : `<a href="sumario.html">↩ Sumário</a>`;
+    writeFileSync(
+      resolve(SAIDA, `${e.slug}.html`),
+      pagina({
+        tituloLivro: sumario.titulo,
+        tituloPagina: e.titulo,
+        corpo: `<p class="extra-volta">${volta} · <span class="extra-grupo">${e.grupo}</span></p>` + corpo,
+        navLateral: montarNavLateral(e.slug),
+        prev: null, next: null, data: null, slug: e.slug,
+      })
+    );
+    paginasExtras.push(`${e.slug}.html`);
+  }
+  console.log(`✓ Páginas extras [pt]: ${paginasExtras.length} (benchmark, radar, ADRs)`);
+}
+
 const paginasRadar = [];
 if (!EN) {
   const jornal = gerarJornal(RAIZ, md, versaoDoLivro());
@@ -749,9 +814,9 @@ if (!EN) {
 
 // Portão de qualidade (T402): links internos .html apontam para páginas
 // existentes NO MESMO idioma; "../" cruza para o outro idioma (validado lá).
-const paginas = new Set(itens.map((i) => `${i.slug}.html`).concat("index.html", "sumario.html", paginasRadar));
+const paginas = new Set(itens.map((i) => `${i.slug}.html`).concat("index.html", "sumario.html", paginasRadar, paginasExtras));
 const quebrados = [];
-for (const i of [...itens, { slug: "index" }, { slug: "sumario" }, ...paginasRadar.map((a) => ({ slug: a.replace(".html", "") }))]) {
+for (const i of [...itens, { slug: "index" }, { slug: "sumario" }, ...[...paginasRadar, ...paginasExtras].map((a) => ({ slug: a.replace(".html", "") }))]) {
   const arq = resolve(SAIDA, `${i.slug}.html`);
   if (!existsSync(arq)) continue;
   const html = readFileSync(arq, "utf8");

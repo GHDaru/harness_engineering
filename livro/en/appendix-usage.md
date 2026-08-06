@@ -21,6 +21,6 @@ Since edition 0.49, the site records **aggregate navigation**: which page was vi
 
 ## What it is for
 
-This panel is the same input that drives the **living book's cadence** ([ADR 0007](https://github.com/GHDaru/harness_engineering/blob/main/adr/0007-cadencia-livro-vivo.md), in Portuguese): chapters getting more reader attention take priority in the quarterly revision window, and ignored pages raise the right editorial question — is it lacking promotion, or lacking a rewrite?
+This panel is the same input that drives the **living book's cadence** ([ADR 0007](../adr-0007-cadencia-livro-vivo.html), in Portuguese): chapters getting more reader attention take priority in the quarterly revision window, and ignored pages raise the right editorial question — is it lacking promotion, or lacking a rewrite?
 
 It is also a miniature demonstration of what the book preaches: **instrumenting is the cheap half of verification** — the expensive half is deciding what to do with the number. The decision record lives, as always, in the [History](../historico.html) (in Portuguese).

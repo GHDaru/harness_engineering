@@ -1,7 +1,7 @@
 <!-- i18n fonte:benchmark/comparativo.md edicao:0.71 hash:46ae9db3 -->
 # Consolidated Comparison — Rounds 1, 2, ext-1, ext-2 and ext-4
 
-> 16 harnesses evaluated by systematic code reading, 12 dimensions (0–3) + 2 supplementary. Round 1: 2026-07-24 (opencode, gemini-cli, OpenHarness). Round 2: 2026-07-24 (Codex CLI, Goose, Aider, OpenHands, OpenClaw, Hermes, IronClaw, n8n). Round **ext-1**: 2026-07-31 (**Grok Build**, **Pi**). Round **ext-2**: 2026-08-02 (**Kimi Code**, **QM** — the latter inaugurating the *organizational agents* category). Round **ext-3**: 2026-08-02 (**Traycer** — evaluated and **not included**). Round **ext-4**: 2026-08-06 (**Prime Agent**). See the [methodology](../../benchmark/README.md) (in Portuguese).
+> 16 harnesses evaluated by systematic code reading, 12 dimensions (0–3) + 2 supplementary. Round 1: 2026-07-24 (opencode, gemini-cli, OpenHarness). Round 2: 2026-07-24 (Codex CLI, Goose, Aider, OpenHands, OpenClaw, Hermes, IronClaw, n8n). Round **ext-1**: 2026-07-31 (**Grok Build**, **Pi**). Round **ext-2**: 2026-08-02 (**Kimi Code**, **QM** — the latter inaugurating the *organizational agents* category). Round **ext-3**: 2026-08-02 (**Traycer** — evaluated and **not included**). Round **ext-4**: 2026-08-06 (**Prime Agent**). See the [methodology](../benchmark-metodologia.html) (in Portuguese).
 
 <div data-viz="benchmark-codigo"></div>
 

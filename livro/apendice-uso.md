@@ -20,6 +20,6 @@ Desde a edição 0.49, o site registra **navegação agregada**: qual página fo
 
 ## Para que serve
 
-Este painel é o mesmo insumo que orienta a **cadência do livro vivo** ([ADR 0007](https://github.com/GHDaru/harness_engineering/blob/main/adr/0007-cadencia-livro-vivo.md)): capítulos com mais atenção dos leitores têm prioridade na janela trimestral de revisão, e páginas ignoradas levantam a pergunta editorial certa — falta divulgação, ou falta reescrita?
+Este painel é o mesmo insumo que orienta a **cadência do livro vivo** ([ADR 0007](adr-0007-cadencia-livro-vivo.html)): capítulos com mais atenção dos leitores têm prioridade na janela trimestral de revisão, e páginas ignoradas levantam a pergunta editorial certa — falta divulgação, ou falta reescrita?
 
 É também uma demonstração em miniatura do que o livro prega: **instrumentar é a metade barata da verificação** — a metade cara é decidir o que fazer com o número. O registro de decisões fica, como sempre, no [Histórico](HISTORICO.md).

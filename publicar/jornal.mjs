@@ -152,7 +152,7 @@ const caixasHtml = (caixas) => caixas.map((c) =>
 
 const masthead = (sub) => `<header class="jr-masthead">
     <div class="jr-marca">🗞 <b>RADAR</b> — o jornal do livro vivo</div>
-    <p class="jr-tagline">Apurado diariamente por um agente sob <a href="${GH}radar/AGENTE.md">contrato editorial</a>; nada entra no livro sem curadoria humana. Toda afirmação com fonte verificável — itens incertos levam ⏳.</p>
+    <p class="jr-tagline">Apurado diariamente por um agente sob <a href="radar-contrato.html">contrato editorial</a>; nada entra no livro sem curadoria humana. Toda afirmação com fonte verificável — itens incertos levam ⏳.</p>
     ${sub}
   </header>`;
 
@@ -175,7 +175,7 @@ function montarCapa(edicoes, mesa, meses, versao) {
   const mesaHtml = mesa.abertos.length ? `<section class="jr-mesa">
     <h2>Na mesa <small>— o que espera decisão editorial</small></h2>
     <ul>${mesa.abertos.map((i) => `<li><i class="jr-imp jr-imp-${i.impacto.toLowerCase()}">${i.impacto}</i><div><b>cap. ${i.cap}</b> · ${i.html}<em>${i.acao}</em></div></li>`).join("")}</ul>
-    <a class="jr-mesa-mais" href="${GH}radar/RADAR.md">mesa completa${mesa.totalAbertos > MESA_MAX ? ` — mais ${mesa.totalAbertos - MESA_MAX} em aberto` : ""} ↗</a>
+    <a class="jr-mesa-mais" href="radar-mesa.html">mesa completa${mesa.totalAbertos > MESA_MAX ? ` — mais ${mesa.totalAbertos - MESA_MAX} em aberto` : ""} ↗</a>
   </section>` : "";
 
   const [lead, ...resto] = recentes[0] ? recentes[0].achados : [];
@@ -212,7 +212,7 @@ function montarCapa(edicoes, mesa, meses, versao) {
   </section>` : "<p>Sem edições ainda.</p>"}
   ${demais.length ? `<h2 class="jr-secao-t">Dias anteriores</h2>${diasHtml}` : ""}
   ${acervoLink}
-  <footer class="jr-rodape">A <a href="${GH}radar/RADAR.md">mesa de edição</a> (tabela priorizada, com status de promoção) · ${versao} · <a href="index.html">↩ capa</a></footer>
+  <footer class="jr-rodape">A <a href="radar-mesa.html">mesa de edição</a> (tabela priorizada, com status de promoção) · ${versao} · <a href="index.html">↩ capa</a></footer>
 </div>
 <script>
 (function () {
@@ -261,7 +261,7 @@ function montarAcervo(mes, edicoes, meses, versao) {
   ${nav}
   ${corpo}
   ${nav}
-  <footer class="jr-rodape"><a href="radar.html">↩ capa do Radar</a> · <a href="${GH}radar/RADAR.md">mesa de edição</a> · ${versao}</footer>
+  <footer class="jr-rodape"><a href="radar.html">↩ capa do Radar</a> · <a href="radar-mesa.html">mesa de edição</a> · ${versao}</footer>
 </div>`;
 }
 

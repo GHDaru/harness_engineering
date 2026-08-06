@@ -32,6 +32,13 @@
 
 ## Edições
 
+### Edição 0.72 — 2026-08-06 · o site deixa de depender do repositório (spec 083)
+- **Origem**: a verificação da ext-4 encontrou um link quebrado; a investigação mostrou **74 links** do site apontando para o repositório. Com a decisão editorial de **tornar o repositório privado**, isso deixava de ser incômodo e virava bloqueio: as **21 avaliações do benchmark — o ativo central do estudo — ficariam inacessíveis**.
+- **Correção**: o motor passa a publicar como páginas do site tudo o que é conteúdo e vivia só no repo — **41 páginas**: as 21 avaliações, a metodologia e os templates do benchmark, a mesa e o contrato do Radar, as 9 ADRs e os 6 estudos de apoio. Resultado: **74 → 7 links** para o repositório.
+- **Dois defeitos meus, encontrados na própria implementação**: o mapa de páginas extras existia só na passada PT, então os links EN continuavam indo ao GitHub (as páginas são PT-only, mas o EN precisa linká-las com `../`); e o `jornal.mjs` tinha os links do Radar **em código**, fora do alcance do reescritor.
+- **Fica registrado o que não foi resolvido**: os 7 links restantes apontam para **código** (`scripts/`, `harness-um/`, `chat-companion/`, `publicar/`). Com o repo privado, são becos sem saída — decisão do editor entre publicá-los, espelhar o código num repo público ou reescrever as menções.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; correção com verificação em navegador nas duas línguas.
+
 ### Edição 0.71 — 2026-08-06 · rodada ext-4: a primeira síntese confrontada (spec 082)
 - **Feature spec-kit oficial `082-ext4-prime-agent`.** O **[Prime Agent](../benchmark/avaliacoes/prime-agent.md)** (Prime Intellect, MIT, **31/36**) chegou por indicação do editor no dia do anúncio e foi o **primeiro candidato a ameaçar uma Leitura executiva** em vez de acrescentar um adendo. Corpus: 20 → **21**.
 - **O veredito do cap. 04: mantido, com ressalva.** O anúncio acusa: *"context compaction força o modelo a contornar o próprio scaffolding"*. O código diz outra coisa — as 1.398 linhas de `core/compaction/` seguem lá, **melhoradas**; o que mudou é **quem manda**: `compact.run()` virou chamável pelo agente, com handler que **agenda em vez de executar** (executar abortaria a célula que pediu), rodando mesmo com a compactação automática desligada, sob 12 testes. A escada de agressividade não ficou obsoleta: **a autoridade sobre ela migrou para o agente**. O capítulo ganhou a seção "A terceira fronteira" e a Leitura executiva ganhou ressalva datada, com a regra explícita: se o padrão se repetir noutros harnesses, o parágrafo será **reescrito, não emendado**.
