@@ -52,6 +52,16 @@ O corpus cresceu de 18 para **20** pelo mesmo caminho: o Radar confirmou o QM em
 
 O método também documenta as recusas. O **Traycer** (Traycer AI) foi indicado pelo editor, forkado e avaliado com o instrumento completo (fork GHDaru/traycer, commit `65fc3d7`, MIT) — e **não passou o teste de inclusão** do cap. 01 §4: o repositório aberto (~513 mil linhas) contém clientes, CLI e um protocolo de orquestração notável, mas **nenhuma das quatro peças do harness** — o Host que executa loop, contexto, ferramentas e controle é binário fechado assinado, com nuvem obrigatória (o `AGENTS.md` do próprio repo declara que Host e backends não estão ali). A [avaliação completa](../benchmark/avaliacoes/traycer.md) (18/36) fica como registro: é o caso mais bem documentado do estudo de "open source" como estratégia de distribuição de cliente, e a evidência central do novo [Apêndice — A cadeia de suprimentos](apendice-supply-chain.md), para o qual a leitura rendeu o mapa de 18 harnesses orquestrados.
 
+## Extensão ext-4 (2026-08-06): o corpus vai a 21 — e a primeira síntese confrontada
+
+O **Prime Agent** (Prime Intellect) chegou por indicação do editor no mesmo dia do anúncio e foi o primeiro candidato a ameaçar uma **Leitura executiva** em vez de acrescentar um adendo: o lançamento afirma que a compactação de contexto "força o modelo a contornar o próprio scaffolding". A leitura do código **manteve a síntese do cap. 04 e registrou uma ressalva** — a compactação não foi eliminada, foi *subordinada ao agente* (ver [cap. 04](capitulos/04-compactacao.md)).
+
+O achado estrutural da rodada é outro: **o Prime Agent é construído sobre o Pi** — mesmos quatro pacotes, LICENSE com dupla titularidade (Mario Zechner + Prime Intellect), README creditando o `pi-mono`. É o **quinto** consumidor do Pi registrado no [apêndice da cadeia de suprimentos](apendice-supply-chain.md), e fecha um argumento do cap. 12: o sistema de **menor nota do corpus** (Pi, 26/36 — que recusa metade das dimensões por manifesto) foi a base escolhida por um laboratório de fronteira para construir o harness mais radical do estudo.
+
+| Harness | Categoria | Origem | Versão/snapshot | Fork/commit lido | Avaliado em | Análise |
+|---|---|---|---|---|---|---|
+| **Prime Agent (Prime Intellect)** | harnesses de código | [github.com/PrimeIntellect-ai/prime-agent](https://github.com/PrimeIntellect-ai/prime-agent) | workspace 0.7.0 (MIT) | fork GHDaru/prime-agent, commit 0e0d233 | 2026-08-06 (rodada ext-4) | [avaliação](../benchmark/avaliacoes/prime-agent.md) |
+
 ## Diagnóstico consolidado
 
 Os **resultados por dimensão** (notas 0–3, com evidência) e o diagnóstico comparativo estão no [Comparativo dos Harnesses](../benchmark/comparativo.md) — incluindo o heatmap interativo. Cada avaliação individual traz, além das notas: o **arquétipo observado** do harness, os pontos fortes com caminhos de arquivo, e a seção **"o que roubar"** (padrões que merecem ser levados para outros harnesses).

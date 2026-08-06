@@ -1,26 +1,27 @@
-# Comparativo Consolidado — Rodadas 1, 2, ext-1 e ext-2
+# Comparativo Consolidado — Rodadas 1, 2, ext-1, ext-2 e ext-4
 
-> 15 harnesses avaliados por leitura sistemática de código, 12 dimensões (0–3) + 2 suplementares. Rodada 1: 2026-07-24 (opencode, gemini-cli, OpenHarness). Rodada 2: 2026-07-24 (Codex CLI, Goose, Aider, OpenHands, OpenClaw, Hermes, IronClaw, n8n). Rodada **ext-1**: 2026-07-31 (**Grok Build**, **Pi**). Rodada **ext-2**: 2026-08-02 (**Kimi Code**, **QM** — este inaugurando a categoria *agentes organizacionais*). Ver [metodologia](README.md).
+> 16 harnesses avaliados por leitura sistemática de código, 12 dimensões (0–3) + 2 suplementares. Rodada 1: 2026-07-24 (opencode, gemini-cli, OpenHarness). Rodada 2: 2026-07-24 (Codex CLI, Goose, Aider, OpenHands, OpenClaw, Hermes, IronClaw, n8n). Rodada **ext-1**: 2026-07-31 (**Grok Build**, **Pi**). Rodada **ext-2**: 2026-08-02 (**Kimi Code**, **QM** — este inaugurando a categoria *agentes organizacionais*). Rodada **ext-3**: 2026-08-02 (**Traycer** — avaliado e **não incluído**). Rodada **ext-4**: 2026-08-06 (**Prime Agent**). Ver [metodologia](README.md).
 
 <div data-viz="benchmark-codigo"></div>
 
 ## Categoria: harnesses de código
 
-| # | Dimensão | opencode | gemini-cli | OpenHarness | **Codex CLI** | **Goose** | **Aider** | **OpenHands*** | **Grok Build** | **Pi** | **Kimi Code** |
-|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 1 | Loop | 3 | 3 | 2 | 3 | 3 | 2 | 2 | 3 | 3 | 3 |
-| 2 | Contexto | 3 | 3 | 2 | 3 | 3 | **3** | 3 | 3 | 3 | 3 |
-| 3 | Compactação | 3 | 3 | 3 | 3 | 3 | 2 | 2 | 3 | **3⭐** | 3 |
-| 4 | Ferramentas | 2 | 3 | 3 | 3 | 3 | 3 | 2 | 3 | 3 | 3 |
-| 5 | MCP | 3 | 3 | 2 | 3 | 3 | **0** | 3 | 3 | **0** | 2 |
-| 6 | Permissões/sandbox | 2 | 3 | 2 | **3⭐** | 2 | 2 | 3 | **3⭐** | 1 | 2 |
-| 7 | Memória/estado | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 2 | 2 |
-| 8 | Planejamento | 2 | 3 | 2 | 2 | 2 | 2 | 1 | 3 | 1 | 3 |
-| 9 | Subagentes | 2 | 3 | 3 | 3 | 3 | 2 | 2 | **3⭐** | 1 | 3 |
-| 10 | Verificação/evals | 2 | 3 | 2 | 3 | 3 | 3 | 0* | 2 | 3 | 2 |
-| 11 | Extensibilidade | 3 | 3 | 3 | 3 | 3 | 3 | 3 | **3⭐** | **3⭐** | 3 |
-| 12 | Interfaces | 3 | 3 | 2 | 3 | 3 | 3 | 3 | 3 | 3 | **3⭐** |
-| | **Total** | **31** | **36** | **29** | **35** | **34** | **28** | **27*** | **35** | **26** | **32** |
+| # | Dimensão | opencode | gemini-cli | OpenHarness | **Codex CLI** | **Goose** | **Aider** | **OpenHands*** | **Grok Build** | **Pi** | **Kimi Code** | **Prime Agent** |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | Loop | 3 | 3 | 2 | 3 | 3 | 2 | 2 | 3 | 3 | 3 | 3 |
+| 2 | Contexto | 3 | 3 | 2 | 3 | 3 | **3** | 3 | 3 | 3 | 3 | 3 |
+| 3 | Compactação | 3 | 3 | 3 | 3 | 3 | 2 | 2 | 3 | **3⭐** | 3 | 3 |
+| 4 | Ferramentas | 2 | 3 | 3 | 3 | 3 | 3 | 2 | 3 | 3 | 3 | 3 |
+| 5 | MCP | 3 | 3 | 2 | 3 | 3 | **0** | 3 | 3 | **0** | 2 | 2 |
+| 6 | Permissões/sandbox | 2 | 3 | 2 | **3⭐** | 2 | 2 | 3 | **3⭐** | 1 | 2 | **1** |
+| 7 | Memória/estado | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 2 | 2 | 3 |
+| 8 | Planejamento | 2 | 3 | 2 | 2 | 2 | 2 | 1 | 3 | 1 | 3 | 2 |
+| 9 | Subagentes | 2 | 3 | 3 | 3 | 3 | 2 | 2 | **3⭐** | 1 | 3 | **3⭐** |
+| 10 | Verificação/evals | 2 | 3 | 2 | 3 | 3 | 3 | 0* | 2 | 3 | 2 | 2 |
+| 11 | Extensibilidade | 3 | 3 | 3 | 3 | 3 | 3 | 3 | **3⭐** | **3⭐** | 3 | 3 |
+| 12 | Interfaces | 3 | 3 | 2 | 3 | 3 | 3 | 3 | 3 | 3 | **3⭐** | 3 |
+| | **Total** | **31** | **36** | **29** | **35** | **34** | **28** | **27*** | **35** | **26** | **32** | **31** |
+| 13 | **Aprendizado** (supl.) | — | 3 | — | — | — | — | — | — | 2 | 1 | **3⭐** |
 
 \* OpenHands: o repo avaliado é o control-plane (Agent Canvas); o núcleo (loop, condenser, evals SWE-bench) migrou para `software-agent-sdk` — o total subestima o projeto completo. O SDK entra na fila.
 
@@ -33,6 +34,12 @@
 1. **O segundo vendor verticalizado confirma o padrão — e a divergência.** O Kimi Code (32) repete o movimento do Grok Build (modelo próprio → harness próprio, aberto), mas com aposta oposta: onde o xAI foi a plataforma máxima em Rust com sandbox kernel-enforced, a Moonshot foi de **autonomia estruturada** — goal mode com máquina de estados e budgets (turns/tokens/tempo), swarm de até 128 subagentes, cron exposto ao modelo — sobre enforcement fraco (sem sandbox de SO; bash autorizado por glob de string no engine em produção, com o parser AST pronto mas só no v2 experimental). O detalhe que nenhum outro tem: **co-design harness↔API** — a API do Kimi ganhou a capability `dynamically_loaded_tools` para servir a *progressive tool disclosure* do harness, com degradação documentada para outros provedores. O vendor mudou o modelo para servir o harness.
 2. **Polinização cruzada dentro do corpus virou rotina**: a TUI do Kimi Code é um fork vendorizado da `pi-tui` (agradecimento no README); o QM traz Pi, OpenCode, Codex e Claude Code como *motores* plugáveis. O corpus deixou de ser uma lista de concorrentes e virou uma cadeia de suprimentos.
 3. **Evals comportamentais seguem sendo o divisor** também na ext-2: o Kimi Code tem 1.137 arquivos de teste de mecanismo e zero evals de competência; o QM, na contramão, roda **E2E multiplayer contra Slack real com juiz LLM** — a implementação mais completa da dimensão 10 fora do gemini-cli.
+
+**Leitura da rodada ext-4 (2026-08-06):**
+1. **O anúncio e o código discordam — e o código venceu.** O lançamento afirma que *"fixed tool-calling schemas and context compaction force the model to work around its own scaffolding"*. Na leitura, a compactação **não foi eliminada nem enfraquecida**: as 1.398 linhas de `core/compaction/` herdadas do Pi continuam lá, com corte seguro, split turns e recuperação reativa de overflow — e ainda **melhoradas** (instruções customizadas, recálculo de `tokensBefore`). O que mudou é a **subordinação**: `compact.run()`/`compact.status()` viraram chamáveis pelo agente, com handler que **agenda em vez de executar** (executar abortaria a célula que pediu), rodando mesmo com auto-compaction desligada, sob 12 testes. A Leitura executiva do cap. 04 **não cai — ganha ressalva**: compactação deixou de ser evento involuntário do harness e virou um de vários mecanismos contra o crescimento de contexto, além de virar gatilho de destilação (`autoRefine.compact: true` por padrão).
+2. **O Pi virou substrato do corpus.** O Prime Agent é o **Pi por baixo** — mesmos quatro pacotes (`pi-agent-core`, `pi-ai`, `pi-coding-agent`, `pi-tui`), LICENSE com dupla titularidade (Mario Zechner + Prime Intellect). É o **quinto** consumidor do Pi no mapa da cadeia de suprimentos, e o mais radical: colapsou o *tool set* inteiro num **único tool `ipython`** e construiu por cima o REPL como superfície de programa. A ironia fecha o argumento do cap. 12: o sistema de **menor nota do corpus** (Pi, 26) — que recusa metade das dimensões por manifesto — foi a base escolhida por um laboratório de fronteira. A extensibilidade do Pi recebeu sua validação empírica mais forte.
+3. **A dimensão 13 tem um novo teto — e a 10 um novo piso.** O *Continual Harness* dá ao agente **CRUD do próprio estado** (prompt, memória, skill, spec de subagente) com escopo local/global, review gate a cada 25 turnos e rollback por snapshot: supera o Hermes e vira a referência da dimensão 13. Mas a **assimetria tese↔medição é gritante**: o repositório **não contém nenhum eval** — o `packages/evals` do Pi *desapareceu no fork* —, o `expectedOutcome` que o próprio `/refine` emite não é validado por nada, e a alegação de 95,5% no ARC-AGI-3 não tem artefato reprodutível no código. Um harness que se auto-modifica sem bancada de medição é a combinação mais arriscada que o benchmark já registrou.
+4. **Regressões herdadas para baixo.** Além dos evals, o **Project Trust do Pi foi removido** (grep por `trust` em `src/` → nada) e o tool único é execução de Python arbitrário, com filhos herdando cwd e permissões — daí o **1** na dimensão 6, abaixo do já baixo piso do Pi.
 
 ## Categoria: agentes organizacionais *(nova na ext-2)*
 

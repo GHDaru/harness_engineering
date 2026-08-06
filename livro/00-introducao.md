@@ -59,9 +59,9 @@ O livro foi escrito para ser denso; esta seção existe para que a densidade nã
 
 ## Os harnesses do estudo
 
-O estudo cobre, até esta edição, **vinte sistemas de código aberto**, avaliados por leitura sistemática de código em cinco arquétipos (o método está no [capítulo 01, §6](01-fundamentos.md)):
+O estudo cobre, até esta edição, **vinte e um sistemas de código aberto**, avaliados por leitura sistemática de código em cinco arquétipos (o método está no [capítulo 01, §6](01-fundamentos.md)):
 
-- **Harnesses de código** — opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build, Pi e Kimi Code;
+- **Harnesses de código** — opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build, Pi, Kimi Code e Prime Agent;
 - **Agentes pessoais self-hosted** — OpenClaw, Hermes Agent, IronClaw, ohmo;
 - **Agentes organizacionais** — QM;
 - **Harnesses embutidos** — n8n (nó AI Agent);
