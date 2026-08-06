@@ -24,7 +24,7 @@ Operacionaliza o Princípio VII. **Toda melhoria** — capítulo novo, **rodada 
 2. **checklist / clarify** — valide a qualidade do spec (`checklists/requirements.md`); use *clarify* quando houver ambiguidade real de escopo.
 3. **plan** — `plan.md` com o **Constitution Check** (portão): conformidade com os 7 princípios, sem segredo, sem identificador interno de modelo.
 4. **tasks** — `tasks.md` com tarefas verificáveis.
-5. **implement** — implemente e **verifique**: build verde, link-check, testes e screenshots (quando houver UI).
+5. **implement** — implemente e **verifique** percorrendo o [**checklist de verificação**](.specify/memory/checklist-verificacao.md): build verde (4 passos), tradução do delta com selo real, corpus do companion regenerado, nenhum link novo para o repositório (privado), verificação em navegador quando houver UI.
 6. **registrar** — atualize `livro/HISTORICO.md` (nova edição + modelo de IA usado) quando a mudança afeta o livro.
 7. **merge** — ao concluir e verificar, **merge para a `main`** (`git merge --no-ff NNN-nome`) e push. **O merge na `main` é o que publica** (deploy do Pages nos paths `livro/`, `publicar/`, `benchmark/`); por isso, acumule o trabalho na branch e faça **um** merge por lote.
 
