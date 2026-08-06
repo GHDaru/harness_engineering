@@ -32,6 +32,14 @@
 
 ## Edições
 
+### Correção 2026-08-05 · a telemetria estava zerada — e era permanente (spec 078)
+- **Defeito relatado pelo editor**: o [Apêndice — Uso do livro](apendice-uso.md) e o contador do rodapé marcavam **zero**. O backend estava de pé e o caminho funcionava (testado ao vivo: `/consent` seguido de `/telemetry` grava e o agregado sobe).
+- **Causa raiz — contrato quebrado entre cliente e servidor**: o aceite vivia em dois lugares. O cliente gravava o flag no `localStorage` e, com ele presente, **nunca mais mostrava o banner**; o servidor exigia a linha de consentimento daquela sessão e, sem ela, descartava a navegação devolvendo `{"ok": false}`. E o POST do aceite era `fetch(...).catch(function(){})` — **falha em silêncio**. Bastava o backend estar hibernando, ou quebrado (a janela do bug do `tx`, edição 0.64), no instante do aceite para o navegador entrar num estado de descarte **permanente e invisível**.
+- **Correção**: `{"ok": false}` passa a significar "reenvie o aceite e tente de novo" — o cliente re-posta o consentimento (o flag local prova que a pessoa aceitou) e repete a navegação, uma vez por carregamento. Sai o `sendBeacon`: beacon não devolve resposta, e sem resposta não há como detectar a dessincronia. Quem já estava dessincronizado **repara sozinho na próxima visita**.
+- **Verificação**: estado dessincronizado reproduzido em navegador real, com a sequência observada `telemetry → RECUSADO`, `consent → ok`, `telemetry → ok`.
+- **Ressalva de leitura**: os números do Apêndice continuam **subcontando** todo o período anterior a esta correção — soma-se à ressalva já registrada na edição 0.64.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; diagnóstico, correção e verificação. Correção (Princípio VII) com decisão humana explícita.
+
 ### Correção 2026-08-05 · o tutor não conhecia o próprio Radar (spec 077)
 - **Defeito relatado pelo editor**: perguntas ao companion sobre um sistema avaliado ("o que acharam do Grok Build?") ou sobre uma apuração do Radar não encontravam nada.
 - **Três causas independentes**, todas encontradas no diagnóstico: (1) **escopo** — o índice cobria só `livro/` e o comparativo; as **20 avaliações individuais** e o **Radar inteiro** estavam de fora; (2) **blocos** — markdown não separa linhas de tabela com linha em branco, então a mesa inteira do RADAR virava **um único bloco**, que casava com qualquer pergunta e era truncado em 600 caracteres antes de chegar ao modelo, cortando justamente a linha procurada; (3) **pontuação** — o score contava cada *ocorrência* de termo sem normalizar por tamanho, então bloco longo vencia bloco curto e exato.

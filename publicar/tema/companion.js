@@ -26,10 +26,20 @@
   var CONSENT_V = "v1";
   var CONSENT_TXT = tx("As conversas com o companion são usadas para o aprimoramento vivo deste livro. Nunca compartilhe dados pessoais (nome completo, email, documentos, senhas) no chat.", "Conversations with the companion feed the living improvement of this book. Never share personal data (full name, email, documents, passwords) in the chat.");
   function consentiu() { return get("cmp_consent", "").indexOf(CONSENT_V + ":") === 0; }
+  // O aceite vive em DOIS lugares: o flag local (que decide se o banner aparece)
+  // e a linha no servidor (que autoriza a telemetria). Se o POST falhar — backend
+  // hibernando, rede caindo — o flag local fica gravado e o banner nunca mais
+  // aparece: o leitor "consentiu" para sempre e o servidor descarta tudo, em
+  // silêncio. Por isso o POST devolve promessa e existe o reparo em telemetria().
+  function postConsent() {
+    if (!BACKEND) return Promise.resolve(false);
+    return fetch(BACKEND + "/consent", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ session_id: SID, versao: CONSENT_V }) })
+      .then(function (r) { return r.ok; }).catch(function () { return false; });
+  }
   function aceitarConsent() {
     set("cmp_consent", CONSENT_V + ":" + Date.now());
-    if (BACKEND) fetch(BACKEND + "/consent", { method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ session_id: SID, versao: CONSENT_V }) }).catch(function () {});
+    postConsent();
   }
   // BYOK (spec 048): a chave vive SÓ no localStorage deste navegador; é lida
   // no momento do envio e nunca aparece em texto claro na tela.
@@ -570,14 +580,29 @@
     banner.appendChild(texto); banner.appendChild(bt);
     document.body.appendChild(banner);
   }
+  // Auto-reparo (spec 078): o servidor responde {ok:false} quando não tem a linha
+  // de consentimento desta sessão. Antes isso era invisível e definitivo — a
+  // telemetria de quem tinha o flag local dessincronizado era descartada para
+  // sempre. Agora o {ok:false} é tratado como "reenvie o aceite e tente de novo",
+  // uma vez por carregamento. Sem sendBeacon aqui: beacon não devolve resposta,
+  // e sem resposta não há como detectar a dessincronia.
+  function enviarNav(slug, reparando) {
+    return fetch(BACKEND + "/telemetry", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ session_id: SID, slug: slug }), keepalive: true
+    }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (d && d.ok === false && !reparando) {
+          return postConsent().then(function (gravou) {
+            if (gravou) return enviarNav(slug, true);
+          });
+        }
+      }).catch(function () {});
+  }
   function telemetria() {
     if (!BACKEND || !consentiu()) return;
     var slug = (document.body.getAttribute("data-slug") || "").trim() || (location.pathname.split("/").pop() || "index").replace(/\.html$/, "");
-    var corpo = JSON.stringify({ session_id: SID, slug: slug });
-    try {
-      if (navigator.sendBeacon) { navigator.sendBeacon(BACKEND + "/telemetry", new Blob([corpo], { type: "application/json" })); return; }
-    } catch (e) {}
-    fetch(BACKEND + "/telemetry", { method: "POST", headers: { "content-type": "application/json" }, body: corpo, keepalive: true }).catch(function () {});
+    enviarNav(slug, false);
   }
 
   renderCaps(); root.setAttribute("data-dock", DOCK); renderConsent();
