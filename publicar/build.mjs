@@ -726,28 +726,32 @@ writeFileSync(
 
 // Radar-jornal (spec 071): docs/radar.html — o diário do Radar diagramado
 // como site de notícias (PT-only; registro operacional, decisão da 067).
+const paginasRadar = [];
 if (!EN) {
   const jornal = gerarJornal(RAIZ, md, versaoDoLivro());
   if (jornal) {
-    writeFileSync(
-      resolve(SAIDA, "radar.html"),
-      pagina({
-        tituloLivro: sumario.titulo,
-        tituloPagina: "Radar — o jornal do livro vivo",
-        corpo: jornal,
-        navLateral: montarNavLateral("radar"),
-        prev: null, next: null, data: null, slug: "radar",
-      })
-    );
-    console.log("✓ Radar-jornal: docs/radar.html");
+    for (const p of jornal) {
+      writeFileSync(
+        resolve(SAIDA, p.arquivo),
+        pagina({
+          tituloLivro: sumario.titulo,
+          tituloPagina: p.titulo,
+          corpo: p.html,
+          navLateral: montarNavLateral("radar"),
+          prev: null, next: null, data: null, slug: p.arquivo.replace(".html", ""),
+        })
+      );
+      paginasRadar.push(p.arquivo);
+    }
+    console.log(`✓ Radar-jornal: capa + ${jornal.length - 1} página(s) de acervo`);
   }
 }
 
 // Portão de qualidade (T402): links internos .html apontam para páginas
 // existentes NO MESMO idioma; "../" cruza para o outro idioma (validado lá).
-const paginas = new Set(itens.map((i) => `${i.slug}.html`).concat("index.html", "sumario.html", EN ? [] : ["radar.html"]));
+const paginas = new Set(itens.map((i) => `${i.slug}.html`).concat("index.html", "sumario.html", paginasRadar));
 const quebrados = [];
-for (const i of [...itens, { slug: "index" }, { slug: "sumario" }]) {
+for (const i of [...itens, { slug: "index" }, { slug: "sumario" }, ...paginasRadar.map((a) => ({ slug: a.replace(".html", "") }))]) {
   const arq = resolve(SAIDA, `${i.slug}.html`);
   if (!existsSync(arq)) continue;
   const html = readFileSync(arq, "utf8");

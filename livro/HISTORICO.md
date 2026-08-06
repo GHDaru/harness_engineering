@@ -32,6 +32,13 @@
 
 ## Edições
 
+### Edição 0.69 — 2026-08-05 · o jornal ganha capa e acervo (spec 076)
+- **Feature spec-kit oficial `076-radar-capa-acervo`**, com o editor no papel de aprovador de uma proposta de UX. O [Radar-jornal](https://ghdaru.github.io/harness_engineering/radar.html) tinha prazo de validade medido: com uma página só, a fita de abas viraria parede de datas em ~3 semanas e o HTML passaria de **3 MB em um ano**. Agora são duas camadas: **capa** com as 7 edições mais recentes (tamanho constante para sempre) e **acervo mensal** (`radar-AAAA-MM.html`), com o crescimento virando horizontal — nenhuma página passa de ~250 KB, em qualquer horizonte.
+- **A capa deixou de ser só cronologia.** Ganhou o **placar da semana** (edições, achados, quantos A/B, quantos promovidos) e a **mesa de edição** — os itens abertos de impacto A/B do `RADAR.md`, que é o dado mais acionável do Radar e não aparecia no site. O diagnóstico que originou a mudança: ninguém pergunta "o que aconteceu em 12 de agosto?"; pergunta "o que mudou no livro?" e "o que espera decisão?".
+- **Detalhes de acabamento que a inspeção visual pegou** (e que valem como padrão do projeto): o filtro por impacto mostra **contagem no chip** e desabilita o vazio — filtro que zera a página sem aviso é beco sem saída; e o resumo da mesa corta no travessão sem **partir link de markdown** (o primeiro corte vazava um `[` na tela).
+- O contrato do agente do Radar **não mudou**: ele segue escrevendo um arquivo por dia, sem saber que existe acervo.
+- **IA (A3)**: agente **Claude Code (Anthropic)** como UX/UI e implementador; decisões do editor (7 dias na capa, só A/B na mesa) e aprovação humana da proposta antes da implementação.
+
 ### Correção 2026-08-03 · a capa noticiava o dia anterior (spec 075)
 - **Defeito relatado pelo editor**: com o Radar do dia publicado e o jornal correto, o card de novidades da capa (e da entrada) ainda mostrava 02/08.
 - **Causa raiz**: `noticiaDoRadar()` (em `publicar/build.mjs`) devolvia a **primeira linha válida** da tabela de `radar/RADAR.md`, presumindo que o arquivo estivesse sempre em ordem cronológica reversa. Na varredura de 03/08 as linhas novas entraram abaixo de uma linha de 02/08 (a do Traycer, spec 074) — a ordem física deixou de refletir a cronologia e a capa passou a noticiar um item mais antigo (e **descartado**).
