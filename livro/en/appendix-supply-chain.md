@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/apendice-supply-chain.md edicao:0.68 hash:989be62e -->
+<!-- i18n fonte:livro/apendice-supply-chain.md edicao:0.71 hash:131c8808 -->
 # Appendix — The harness supply chain
 
 > Map captured on **2026-08-02** (rounds ext-2/ext-3). Like every state of the art in this book, it expires: check it against the [History](../historico.html).
@@ -24,6 +24,7 @@ Each row is a link verified by code reading at the frozen commit of the correspo
 | **Traycer** | Codex CLI | GUI+TUI engine | `codex app-server` (JSON-RPC) + PTY `codex resume` | `protocol/src/host/agent/tui/unary-schemas.ts:70-80` |
 | **Traycer** | opencode | engine **and substrate of its own inference** (per-user OpenCode server behind the Traycer backend) | PTY + server spawn with an account header | `protocol/src/common/schemas.ts:70-76`; `agent-runtime.ts:839-849` |
 | **Traycer** | **Pi** (and the Oh My Pi fork) | GUI engines — the fork *alone* motivated protocol version v6.0 | Pi's native RPC | `agent-runtime.ts:925-946`; `provider-schemas.ts:80-135` |
+| **Prime Agent** | **Pi** | **the entire base** — Pi's four packages, with the tool set collapsed into a single `ipython` and two new layers on top | thesis fork; LICENSE with dual copyright (Mario Zechner + Prime Intellect) | `LICENSE`; `packages/{agent,ai,coding-agent,tui}/package.json`; `README.md` |
 | **Traycer** | **Hermes**, **Kimi Code**, Cursor, +ACP | GUI engines (8+ providers via ACP: `hermes acp`, `kimi acp`, `grok agent stdio`, `qwen --acp`…) | ACP stdio processes / `@cursor/sdk` | `agent-runtime.ts:851-941`; `protocol/src/host/agent/shared.ts:35-43` |
 
 Add the **editorial production** links: Traycer materializes skills from public registries (anthropics/skills, vercel-labs) pinned by hash in a lockfile (`skills-lock.json`) for the agents that write its own repo — harness consumption starting before the product even exists.
@@ -34,7 +35,7 @@ Round **ext-3** evaluated [Traycer](../../benchmark/avaliacoes/traycer.html) (18
 
 ## Three readings
 
-1. **"What is it made of?" became an evaluation question.** A harness is no longer described only by what it does, but by the links it embeds. Pi today feeds **at least four systems** (QM as engine, Kimi Code as TUI, Traycer as provider — plus the Oh My Pi fork); a failure, a CVE or a license change in that single link propagates through the whole chain, exactly as in physical industry.
+1. **"What is it made of?" became an evaluation question.** A harness is no longer described only by what it does, but by the links it embeds. Pi today feeds **at least five systems** (QM as engine, Kimi Code as TUI, Traycer as provider, the Oh My Pi fork — and Prime Agent as its entire base); a failure, a CVE or a license change in that single link propagates through the whole chain, exactly as in physical industry.
 2. **The session became an integration interface.** Three different consumers (Grok Build, Traycer, QM) treat other harnesses' *sessions* as resumable artifacts — via native formats, versioned resume/fork anchors, or "tape" re-seeding. It is an emerging pattern with no standard: each one solves it by reverse-engineering the neighbor. If a session-interchange format ever standardizes (ch. 17), much of this map becomes compatibility code — the expiration clause applied to this very appendix.
 3. **Enforcement does not travel down the chain.** When QM runs Pi, the permissions are QM's (Pi has none); when Traycer drives 18 harnesses, the permission mode is a **relay** — and Traycer's A2A instruction even tells derived agents to operate in `full_access` by default. Whoever consumes a harness inherits its capabilities, but does **not** automatically inherit its controls — the weakest link in the chain sets the risk for the whole.
 

@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/apendice-estudo.md edicao:0.68 hash:1f31765e -->
+<!-- i18n fonte:livro/apendice-estudo.md edicao:0.71 hash:1a781be9 -->
 # Appendix — The study: the harnesses evaluated
 
 This appendix **shows the work**: the full list of harnesses that went through the study, with **where they came from** (upstream repository), **the exact snapshot that was read** (fork/commit/snapshot — the materialization of the method's cutoff date, ch. 01 §6) and the link to the **complete evaluation** of each one. The instrument used in every evaluation is the same: the [`HARNESS_EVAL.md`](https://github.com/GHDaru/harness_engineering/blob/main/benchmark/template/HARNESS_EVAL.md) template (and [`FRAMEWORK_EVAL.md`](https://github.com/GHDaru/harness_engineering/blob/main/benchmark/template/FRAMEWORK_EVAL.md) for frameworks), applied through systematic code reading following the [benchmark methodology](https://github.com/GHDaru/harness_engineering/blob/main/benchmark/README.md) (in Portuguese).
@@ -52,6 +52,16 @@ The corpus grew from 18 to **20** through the same path: the Radar confirmed QM 
 ## Extension ext-3 (2026-08-02): evaluated and **not included** — the inclusion test at work
 
 The method documents refusals too. **Traycer** (Traycer AI) was nominated by the editor, forked and evaluated with the full instrument (fork GHDaru/traycer, commit `65fc3d7`, MIT) — and **did not pass the inclusion test** of ch. 01 §4: the open repository (~513k lines) contains clients, a CLI and a remarkable orchestration protocol, but **none of the four harness pieces** — the Host that runs loop, context, tools and control is a signed closed binary with a mandatory cloud (the repo's own `AGENTS.md` states the Host and backends are not there). The [full evaluation](../../benchmark/avaliacoes/traycer.html) (18/36) stays on record: it is the study's best-documented case of "open source" as a client-distribution strategy, and the central evidence of the new [Appendix — The supply chain](appendix-supply-chain.md), for which the reading yielded the map of 18 orchestrated harnesses.
+
+## Extension ext-4 (2026-08-06): the corpus reaches 21 — and the first synthesis confronted
+
+**Prime Agent** (Prime Intellect) arrived through an editor's tip on announcement day and was the first candidate to threaten an **Executive summary** rather than add an addendum: the launch claims that context compaction "forces the model to work around its own scaffolding." Reading the code **upheld the ch. 04 synthesis and recorded a caveat** — compaction was not removed, it was *subordinated to the agent* (see [ch. 04](chapters/04-compaction.md)).
+
+The round's structural finding is another: **Prime Agent is built on Pi** — the same four packages, a LICENSE with dual copyright (Mario Zechner + Prime Intellect), a README crediting `pi-mono`. It is the **fifth** Pi consumer recorded in the [supply chain appendix](appendix-supply-chain.md), and it closes an argument from ch. 12: the **lowest-scoring system in the corpus** (Pi, 26/36 — which refuses half the dimensions by manifesto) was the base a frontier lab chose to build the study's most radical harness on.
+
+| Harness | Category | Origin | Version/snapshot | Fork/commit read | Evaluated on | Analysis |
+|---|---|---|---|---|---|---|
+| **Prime Agent (Prime Intellect)** | coding harnesses | [github.com/PrimeIntellect-ai/prime-agent](https://github.com/PrimeIntellect-ai/prime-agent) | workspace 0.7.0 (MIT) | fork GHDaru/prime-agent, commit 0e0d233 | 2026-08-06 (round ext-4) | [evaluation](../../benchmark/avaliacoes/prime-agent.html) |
 
 ## Consolidated diagnosis
 

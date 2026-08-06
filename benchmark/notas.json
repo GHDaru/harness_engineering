@@ -201,6 +201,25 @@
           ],
           "total": 32,
           "rodada": "ext-2"
+        },
+        {
+          "nome": "Prime Agent",
+          "notas": [
+            3,
+            3,
+            3,
+            3,
+            2,
+            1,
+            3,
+            2,
+            3,
+            2,
+            3,
+            3
+          ],
+          "total": 31,
+          "rodada": "ext-4"
         }
       ]
     },

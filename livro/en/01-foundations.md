@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/01-fundamentos.md edicao:0.67 hash:04f94fa5 -->
+<!-- i18n fonte:livro/01-fundamentos.md edicao:0.71 hash:5697b09a -->
 # 01 — Foundations
 
 > **State of the art captured in 2026-07** · last revised 2026-08-01 · [history and expiration log](../historico.html)
@@ -62,7 +62,7 @@ A system missing any of the four **is not a complete harness**: a chatbot with t
 
 The corpus is **open source** (the book's Principle II: the base source is the code) and splits into five archetypes — the same as in chapter 00:
 
-- **Coding harnesses** (opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build, Pi, Kimi Code): reference implementations that put the four pieces together in one executable.
+- **Coding harnesses** (opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build, Pi, Kimi Code, Prime Agent): reference implementations that put the four pieces together in one executable.
 - **Self-hosted personal agents** (OpenClaw, Hermes Agent, IronClaw, ohmo): the harness in the service of one person, with its own identity, memory and channels.
 - **Organizational agents** (QM): the harness in the service of an organization — scopes, audience-based permissions and auditing as primitives, with the agent loop as a swappable engine.
 - **Embedded harnesses** (n8n, AI Agent node): the loop as a component inside a larger product.

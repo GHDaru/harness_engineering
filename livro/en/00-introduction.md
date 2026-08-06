@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/00-introducao.md edicao:0.67 hash:351930ad -->
+<!-- i18n fonte:livro/00-introducao.md edicao:0.71 hash:141a4ed2 -->
 # 00 — Introduction
 
 > **State of the art captured in 2026-07** · last revised 2026-08-01 · [history and expiration log](../historico.html)
@@ -60,9 +60,9 @@ This book was written to be dense; this section exists so the density is not a w
 
 ## The harnesses in the study
 
-As of this edition, the study covers **twenty open source systems**, evaluated through systematic code reading across five archetypes (the method is in [chapter 01, §6](01-foundations.md)):
+As of this edition, the study covers **twenty-one open source systems**, evaluated through systematic code reading across five archetypes (the method is in [chapter 01, §6](01-foundations.md)):
 
-- **Coding harnesses** — opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build, Pi and Kimi Code;
+- **Coding harnesses** — opencode, gemini-cli, OpenHarness, Codex CLI, Goose, Aider, OpenHands, Grok Build, Pi, Kimi Code and Prime Agent;
 - **Self-hosted personal agents** — OpenClaw, Hermes Agent, IronClaw, ohmo;
 - **Organizational agents** — QM;
 - **Embedded harnesses** — n8n (AI Agent node);
