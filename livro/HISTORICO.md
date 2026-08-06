@@ -32,6 +32,13 @@
 
 ## Edições
 
+### Correção 2026-08-05 · o tour falava do chat com o chat fechado (spec 079)
+- **Defeito relatado pelo editor**: no passo do companion, o cartão do tour ficava "perdido na tela" — porque o chat não abria.
+- **Dois problemas encadeados**: o passo *Companion* mirava a **bolha do canto** e descrevia o que só existe com o painel aberto ("digite /", "passe o mouse nos chips"); e o passo *Bastidores* mirava `.cmp-status`, que **só existe dentro do painel** — com o chat fechado ele era filtrado e o tour rodava com **4 passos em vez de 5**, perdendo em silêncio justamente o passo que demonstra a tese do livro (tokens, chamadas, contexto injetado).
+- **Correção**: passos que falam do painel ganharam a marca `abrir` — o tour **abre o chat** ao chegar neles e remede as posições depois da animação. Verificado em navegador percorrendo o tour a partir do clique real no banner: 5 passos, painel aberto do 3 em diante, spotlight no lugar certo.
+- **Registrado de passagem**: o convite do tour só existe no fluxo do banner de consentimento — quem já aceitou nunca o recebe, só chega por `/tour`. Decisão implícita, agora explícita, para o editor confirmar ou mudar.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; correção (Princípio VII) com decisão humana explícita.
+
 ### Correção 2026-08-05 · a telemetria estava zerada — e era permanente (spec 078)
 - **Defeito relatado pelo editor**: o [Apêndice — Uso do livro](apendice-uso.md) e o contador do rodapé marcavam **zero**. O backend estava de pé e o caminho funcionava (testado ao vivo: `/consent` seguido de `/telemetry` grava e o agregado sobe).
 - **Causa raiz — contrato quebrado entre cliente e servidor**: o aceite vivia em dois lugares. O cliente gravava o flag no `localStorage` e, com ele presente, **nunca mais mostrava o banner**; o servidor exigia a linha de consentimento daquela sessão e, sem ela, descartava a navegação devolvendo `{"ok": false}`. E o POST do aceite era `fetch(...).catch(function(){})` — **falha em silêncio**. Bastava o backend estar hibernando, ou quebrado (a janela do bug do `tx`, edição 0.64), no instante do aceite para o navegador entrar num estado de descarte **permanente e invisível**.

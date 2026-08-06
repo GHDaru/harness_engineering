@@ -504,8 +504,13 @@
   var PASSOS_TOUR = [
     { alvo: ".sidebar", t: tx("Navegação", "Navigation"), d: tx("O sumário completo fica sempre à esquerda. A entrada do livro tem trilha guiada e o botão Retomar leva onde você parou.", "The full table of contents is always on the left. The book's entry page has a guided track, and the Resume button takes you back to where you stopped.") },
     { alvo: ".cap-hero", t: tx("Cabeçalho do capítulo", "Chapter header"), d: tx("Cada capítulo mostra a data do estado da arte, o tempo de leitura e os downloads ⬇ md/pdf deste capítulo.", "Each chapter shows its state-of-the-art date, the reading time, and the ⬇ md/pdf downloads for that chapter.") },
-    { alvo: ".cmp-launcher, .cmp-panel", t: "Companion", d: tx("Este é o tutor do livro. Digite / para ver os comandos; passe o mouse nos chips para saber o que cada capacidade faz e quando libera.", "This is the book's tutor. Type / to see the commands; hover over the chips to learn what each capability does and when it unlocks.") },
-    { alvo: ".cmp-status", t: tx("Bastidores", "Behind the scenes"), d: tx("Aqui o livro se demonstra: tokens, chamadas e o que foi injetado na conversa. Clique para abrir o painel.", "Here the book demonstrates itself: tokens, calls, and what was injected into the conversation. Click to open the panel.") },
+    // `abrir: true` (spec 079): estes dois passos falam de coisas que só existem
+    // com o painel aberto — os chips, o campo de comando, a barra de Bastidores.
+    // Com o chat fechado, o cartão descrevia uma interface invisível e se ancorava
+    // na bolha do canto; e o passo dos Bastidores era silenciosamente PULADO,
+    // porque `.cmp-status` nem existe no DOM. O tour abre o painel ao chegar aqui.
+    { alvo: ".cmp-panel", abrir: true, t: "Companion", d: tx("Este é o tutor do livro. Digite / para ver os comandos; passe o mouse nos chips para saber o que cada capacidade faz e quando libera.", "This is the book's tutor. Type / to see the commands; hover over the chips to learn what each capability does and when it unlocks.") },
+    { alvo: ".cmp-status", abrir: true, t: tx("Bastidores", "Behind the scenes"), d: tx("Aqui o livro se demonstra: tokens, chamadas e o que foi injetado na conversa. Clique para abrir o painel.", "Here the book demonstrates itself: tokens, calls, and what was injected into the conversation. Click to open the panel.") },
     { alvo: null, t: tx("Seu objetivo", "Your goal"), d: tx("Conte seu objetivo com /plano (ex.: /plano quero construir um agente para meu produto) e eu traço um plano de ensino pelos capítulos. Reveja este tour quando quiser com /tour.", "Share your goal with /plano (e.g.: /plano I want to build an agent for my product) and I'll lay out a teaching plan through the chapters. Replay this tour anytime with /tour.") }
   ];
   var tourOverlay = null, tourCard = null, tourIdx = 0;
@@ -514,9 +519,17 @@
     tourOverlay = tourCard = null; set("cmp_tour", "1");
   }
   function passoTour() {
-    var passos = PASSOS_TOUR.filter(function (px) { return !px.alvo || document.querySelector(px.alvo); });
+    // Passos com `abrir` nunca são filtrados: o alvo pode ainda não existir no DOM
+    // justamente porque o painel está fechado — é o passo que o abre.
+    var passos = PASSOS_TOUR.filter(function (px) { return px.abrir || !px.alvo || document.querySelector(px.alvo); });
     if (tourIdx >= passos.length) { fecharTour(); return; }
     var px = passos[tourIdx];
+    if (px.abrir && root.getAttribute("data-open") !== "true") {
+      open();
+      // o painel anima ao abrir; remede as posições depois que ele assentou
+      setTimeout(passoTour, 260);
+      return;
+    }
     var alvoEl = px.alvo ? document.querySelector(px.alvo) : null;
     if (!tourOverlay) { tourOverlay = el("div", "cmp-tour-ov"); document.body.appendChild(tourOverlay); }
     if (!tourCard) { tourCard = el("div", "cmp-tour-card"); document.body.appendChild(tourCard); }
