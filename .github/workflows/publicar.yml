@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write   # spec 077: o CI commita o corpus regenerado do companion
   pages: write
   id-token: write
 
@@ -52,6 +52,25 @@ jobs:
       - name: Gerar PDFs (livro completo + por capitulo)
         run: npm run pdf
         working-directory: publicar
+      # spec 077: o corpus do tutor inclui o Radar, que muda todo dia — e o agente
+      # do Radar so escreve em radar/. Sem isto o companion responderia sempre
+      # com um dia de atraso. Commita so se mudou; corpus.json nao esta nos paths
+      # do gatilho, entao este push nao re-dispara o workflow.
+      - name: Regenerar corpus do companion
+        run: python3 build_corpus.py
+        working-directory: chat-companion/backend
+      - name: Commitar corpus se mudou
+        run: |
+          if [ -n "$(git status --porcelain chat-companion/backend/corpus.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add chat-companion/backend/corpus.json
+            git commit -m "corpus: regenerado pelo CI"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          else
+            echo "corpus inalterado"
+          fi
       - name: Limpar temporario de impressao
         run: rm -f docs/_print.html docs/en/_print.html
       # Requer que o Pages esteja habilitado uma vez no repositório

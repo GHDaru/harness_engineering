@@ -32,6 +32,13 @@
 
 ## Edições
 
+### Correção 2026-08-05 · o tutor não conhecia o próprio Radar (spec 077)
+- **Defeito relatado pelo editor**: perguntas ao companion sobre um sistema avaliado ("o que acharam do Grok Build?") ou sobre uma apuração do Radar não encontravam nada.
+- **Três causas independentes**, todas encontradas no diagnóstico: (1) **escopo** — o índice cobria só `livro/` e o comparativo; as **20 avaliações individuais** e o **Radar inteiro** estavam de fora; (2) **blocos** — markdown não separa linhas de tabela com linha em branco, então a mesa inteira do RADAR virava **um único bloco**, que casava com qualquer pergunta e era truncado em 600 caracteres antes de chegar ao modelo, cortando justamente a linha procurada; (3) **pontuação** — o score contava cada *ocorrência* de termo sem normalizar por tamanho, então bloco longo vencia bloco curto e exato.
+- **Correções**: escopo ampliado (corpus de **738 → 1.406 blocos**), cada linha de tabela virou bloco próprio, e o score passou a contar **termos distintos** da pergunta com divisor logarítmico de tamanho. Verificado por consulta ao vivo: "Grok Build" agora traz a avaliação; "Microsoft Agent Harness" traz o diário do dia; "opencode × Anthropic" traz os dois diários da apuração.
+- **Frescor**: o Radar muda todo dia e seu agente só escreve em `radar/` — o CI passou a regenerar e commitar o `corpus.json`, senão o tutor responderia sempre com um dia de atraso.
+- **IA (A3)**: agente **Claude Code (Anthropic)**; diagnóstico, correção e verificação. Correção (Princípio VII) com decisão humana explícita.
+
 ### Edição 0.69 — 2026-08-05 · o jornal ganha capa e acervo (spec 076)
 - **Feature spec-kit oficial `076-radar-capa-acervo`**, com o editor no papel de aprovador de uma proposta de UX. O [Radar-jornal](https://ghdaru.github.io/harness_engineering/radar.html) tinha prazo de validade medido: com uma página só, a fita de abas viraria parede de datas em ~3 semanas e o HTML passaria de **3 MB em um ano**. Agora são duas camadas: **capa** com as 7 edições mais recentes (tamanho constante para sempre) e **acervo mensal** (`radar-AAAA-MM.html`), com o crescimento virando horizontal — nenhuma página passa de ~250 KB, em qualquer horizonte.
 - **A capa deixou de ser só cronologia.** Ganhou o **placar da semana** (edições, achados, quantos A/B, quantos promovidos) e a **mesa de edição** — os itens abertos de impacto A/B do `RADAR.md`, que é o dado mais acionável do Radar e não aparecia no site. O diagnóstico que originou a mudança: ninguém pergunta "o que aconteceu em 12 de agosto?"; pergunta "o que mudou no livro?" e "o que espera decisão?".

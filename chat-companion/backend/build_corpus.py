@@ -5,6 +5,10 @@ pasta do backend — o texto de `livro/` não vai junto. Este script varre o
 repositório completo (em dev/CI) e grava um `corpus.json` self-contained que
 o backend carrega no container.
 
+Escopo (spec 077): `livro/` + as avaliações do benchmark + o Radar (mesa e
+diários). O Radar muda TODO DIA — por isso o CI regenera este arquivo e o
+commita de volta, senão o tutor responderia sobre um Radar de ontem.
+
 Rodar (com o repositório completo presente):
     cd chat-companion/backend && python build_corpus.py
 
@@ -20,4 +24,4 @@ from ragindex import BookIndex
 idx = BookIndex(config.REPO_ROOT, corpus_path=None)
 destino = Path(__file__).resolve().parent / "corpus.json"
 n = idx.exportar(destino)
-print(f"corpus.json gerado: {n} blocos de {config.REPO_ROOT}/livro -> {destino}")
+print(f"corpus.json gerado: {n} blocos de {config.REPO_ROOT} (livro + benchmark + radar) -> {destino}")
