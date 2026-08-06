@@ -27,4 +27,12 @@
 - [x] T17 verificação em navegador (PT e EN) com backend stubado
 - [x] T18 `npm run build` 4 passos + alvos de repositório em `docs/` sem crescer
 - [x] T19 `HISTORICO.md` + checklist `.specify/memory/checklist-verificacao.md`
-- [ ] T20 merge `--no-ff` na `main`, push, CI verde conferido
+- [x] T20 merge `--no-ff` na `main` (`4a2ad95`) e push
+- [ ] T21 **bloqueado (lado GitHub, não do código)** — nenhuma execução do workflow foi
+  criada para `4a2ad95`. A última execução listada é a #90 (2026-08-06 13:24 UTC, merge da
+  spec 083), cujo job `build` fechou **verde em 74 s** e cujo job `deploy` falhou com
+  `deployment_queued` por 10 min → `Timeout reached, aborting!` — mesmo padrão nas execuções
+  86, 87 e 89. O workflow está `active`, o repositório segue **público** e o push chegou
+  (`pushed_at 18:16:17Z`); o `workflow_dispatch` manual foi recusado por permissão do
+  integrador. **Consequência: o site publicado está defasado desde a spec 082.** Ação do
+  editor: redisparar pela aba Actions quando a fila do Pages voltar.
