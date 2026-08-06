@@ -32,6 +32,13 @@
 
 ## Edições
 
+### Edição 0.70 — 2026-08-06 · o contrato do Radar aprende com o campo (spec 081)
+- **Origem incomum**: as duas mudanças foram **sugeridas pelo próprio agente do Radar**, em execuções seguidas, e ficaram esperando — ele detectou os padrões mas não podia mudar o contrato (regra dura: escrita só em `radar/`, e `AGENTE.md` *é* o processo). O editor aprovou; a spec implementou. É o ciclo do livro vivo funcionando na camada do método, não do conteúdo.
+- **O que o campo mostrou**: (1) **três execuções seguidas** com fato real e **data errada na fonte secundária** — o episódio Anthropic×terceiros (de jan–mar) vendido como notícia de agosto, o GA do framework da Microsoft confundido com o GA do harness; (2) um repositório com **194.982 estrelas** — mais que o maior do corpus — que teria entrado como candidato prioritário, e cuja API revelou **109.281 forks** (razão 1,8:1, quando projetos reais ficam em 10:1) e uma autodescrição de *"agent-managed museum exhibit… no human intervention"*, enquanto um press release pago o vendia como framework de produção.
+- **Três regras duras novas**: **agregador é pista, nunca fonte** (afirmar exige primária; sem ela, ⏳ dizendo qual falta); **a data merece verificação separada do fato**; e **candidato ao corpus passa pela API do repositório** antes de qualquer recomendação — licença, criação, último push e **estrelas × forks**, com razão abaixo de ~5:1 exigindo desconfiança explícita, mais a leitura da descrição que o repositório dá de si mesmo.
+- O caso concreto ficou **citado dentro do contrato**: regra sem história não é lembrada.
+- **IA (A3)**: agente **Claude Code (Anthropic)** — o agente do Radar propôs, este ciclo implementou; curadoria e aprovação humanas.
+
 ### Correção 2026-08-05 · o tour falava do chat com o chat fechado (spec 079)
 - **Defeito relatado pelo editor**: no passo do companion, o cartão do tour ficava "perdido na tela" — porque o chat não abria.
 - **Dois problemas encadeados**: o passo *Companion* mirava a **bolha do canto** e descrevia o que só existe com o painel aberto ("digite /", "passe o mouse nos chips"); e o passo *Bastidores* mirava `.cmp-status`, que **só existe dentro do painel** — com o chat fechado ele era filtrado e o tour rodava com **4 passos em vez de 5**, perdendo em silêncio justamente o passo que demonstra a tese do livro (tokens, chamadas, contexto injetado).
