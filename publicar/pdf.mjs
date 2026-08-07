@@ -82,12 +82,16 @@ function secao(item, solo = false) {
 const docHtml = (corpo, capa) => `<!doctype html><html lang="${EN ? "en" : "pt-BR"}"><head><meta charset="utf-8">
 <style>${CSS}</style></head><body>${capa}${corpo}</body></html>`;
 
+// spec 089: o mesmo endereço do build, sem protocolo nem barra — é rodapé impresso.
+const SITE_CURTO = (process.env.SITE_URL || "https://ghdaru.github.io/harness_engineering/")
+  .replace(/^https?:\/\//, "").replace(/\/*$/, "");
+
 const capaLivro = `<div class="capa-pdf">
   <img src="${resolve(ASSETS, "capa.png")}" alt="Capa">
   <h1>${sumario.titulo}</h1>
   <div class="sub">${sumario.subtitulo}</div>
   <div class="meta">Gilsiley Henrique Darú · ${EN ? "with AI co-authorship (Claude, Anthropic)" : "com co-autoria de IA (Claude, Anthropic)"}<br>
-  ${versao} · ${EN ? "generated on" : "gerado em"} ${dataStr}<br>DOI ${DOI} · ghdaru.github.io/harness_engineering</div>
+  ${versao} · ${EN ? "generated on" : "gerado em"} ${dataStr}<br>DOI ${DOI} · ${SITE_CURTO}</div>
 </div>`;
 
 const rodape = (rotulo) =>

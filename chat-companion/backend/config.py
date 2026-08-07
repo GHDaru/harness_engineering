@@ -48,11 +48,19 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "")             # vazio -> MemoryS
 
 # --- Rede / origens ---
 # Origens que podem chamar o backend. Default cobre o site publicado + dev local.
+#
+# spec 089: o domínio próprio entra no default ANTES de existir. CORS negado é a
+# falha mais traiçoeira desta migração — o site abre, o texto aparece, e só o
+# companion morre: chat, consentimento, telemetria e link mágico, todos em
+# silêncio, sem erro visível na página. Deixar a origem pré-autorizada custa nada
+# e remove o passo que seria esquecido no dia da virada.
 ALLOWED_ORIGINS = [
     o.strip()
     for o in os.environ.get(
         "ALLOWED_ORIGINS",
-        "https://ghdaru.github.io,http://localhost:8000,http://127.0.0.1:8000,http://localhost:5173",
+        "https://harness.ghdaru.com.br,"
+        "https://ghdaru.github.io,"
+        "http://localhost:8000,http://127.0.0.1:8000,http://localhost:5173",
     ).split(",")
     if o.strip()
 ]
