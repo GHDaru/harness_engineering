@@ -88,5 +88,12 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # O default do deploy-pages é abortar em 10 min. Em 2026-08-06 a fila do
+      # Pages passou a demorar mais que isso e quatro publicações seguidas
+      # (runs 86, 87, 89, 90) morreram em `deployment_queued` -> `Timeout
+      # reached, aborting!` com o job `build` VERDE em 74 s. Esperar mais é
+      # barato; republicar à mão não é.
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          timeout: 1200000   # 20 min (default 600000)
