@@ -73,6 +73,31 @@ jobs:
           fi
       - name: Limpar temporario de impressao
         run: rm -f docs/_print.html docs/en/_print.html
+
+      # spec 090: publicacao no Vercel, em paralelo ao Pages durante a transicao.
+      # O passo e INERTE ate o secret VERCEL_TOKEN existir -- `env.VERCEL_TOKEN`
+      # vazio pula o step, entao commitar isto nao quebra nada hoje.
+      #
+      # Por que --prebuilt: docs/ e GERADO e esta no .gitignore. Um projeto
+      # conectado ao git tentaria construir e nao acharia nada. Aqui o Actions
+      # constroi (e onde o Chromium dos PDFs funciona) e o Vercel so distribui.
+      # O formato e o Build Output API v3: .vercel/output/static/ + config.json.
+      - name: Publicar no Vercel
+        if: env.VERCEL_TOKEN != ''
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npm install -g vercel@latest
+          mkdir -p .vercel/output/static
+          cp -r docs/. .vercel/output/static/
+          printf '{"version":3}' > .vercel/output/config.json
+          # O nome tem hifen: nome de projeto no Vercel nao aceita sublinhado.
+          # `link` cria o projeto se ele ainda nao existir -- e assim que ele nasce.
+          vercel link --yes --project harness-engineering --token="$VERCEL_TOKEN"
+          vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" | tee /tmp/vercel-url.txt
+          echo "### Publicado no Vercel" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "$(tail -1 /tmp/vercel-url.txt)" >> "$GITHUB_STEP_SUMMARY"
       # Requer que o Pages esteja habilitado uma vez no repositório
       # (Settings → Pages → Source: GitHub Actions). O token do Actions não
       # tem permissão para criar o site sozinho — é a única etapa manual.
