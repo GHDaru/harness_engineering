@@ -96,8 +96,26 @@ ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "")       # vazio -> /suggestions de
 
 # --- Subscrição por e-mail / link mágico (spec 080) ---
 # O e-mail é chave de continuidade, não login: sem senha, sem área restrita.
-# Reusa o MESMO SMTP das sugestões (ver EMAIL.md). Sem SMTP_HOST a assinatura
-# falha de forma VISÍVEL — o link nunca é devolvido na resposta HTTP.
+# Sem transporte configurado a assinatura falha de forma VISÍVEL — o link nunca
+# é devolvido na resposta HTTP.
+#
+# Transporte do e-mail (spec 087). O egresso SMTP do PaaS é bloqueado — porta 587
+# com STARTTLS morre no timeout de socket inteiro, assinatura de firewall que
+# descarta pacote. API HTTP passa pelo mesmo caminho que o backend já usa para o
+# LLM. Resend tem precedência; SMTP fica como alternativa para quem hospedar
+# noutro lugar; sem os dois, o envio é honestamente "desligado".
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")          # nunca commitada
+RESEND_URL = os.environ.get("RESEND_URL", "https://api.resend.com/emails")
+EMAIL_FROM = os.environ.get("EMAIL_FROM", "Engenharia de Harness <onboarding@resend.dev>")
+
+
+def transporte_email() -> str:
+    """'resend' | 'smtp' | 'desligado' — fonte única para o /health e para o envio."""
+    if RESEND_API_KEY:
+        return "resend"
+    return "smtp" if SMTP_HOST else "desligado"
+
+
 SITE_URL = os.environ.get("SITE_URL", "https://ghdaru.github.io/harness_engineering/")
 MAGIC_LINK_TTL_MIN = _int("MAGIC_LINK_TTL_MIN", 30)
 RATE_LIMIT_ASSINAR = _int("RATE_LIMIT_ASSINAR", 5)    # envios por janela, por e-mail e por IP

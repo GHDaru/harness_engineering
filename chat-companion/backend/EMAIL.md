@@ -1,17 +1,96 @@
-# Email via Gmail — sugestões e link mágico
+# Email do companion — link mágico e sugestões
 
-O mesmo SMTP (STARTTLS + login) serve a **dois** usos, com exigências diferentes:
+O backend envia dois tipos de e-mail, com exigências diferentes:
 
-| Uso | Rota | Se o SMTP falhar |
+| Uso | Rota | Se falhar |
 |---|---|---|
-| Sugestões dos leitores | `/suggestion` | **best-effort** — a sugestão já está persistida no banco; o email é bônus |
-| Link mágico de leitura (spec 080) | `/assinar` | **falha visível** — sem email não há link, e o widget diz isso ao leitor |
+| Link mágico de leitura (spec 080) | `/assinar` | **falha visível** — sem e-mail não há link, e o widget diz isso ao leitor |
+| Sugestões dos leitores | `/suggestion` | **best-effort** — a sugestão já está persistida no banco; o e-mail é bônus |
 
-A diferença é deliberada: responder "enviado" quando nada saiu deixaria o leitor esperando
-um email que nunca chega. O link **nunca** aparece na resposta HTTP — só no email.
+A diferença é deliberada: responder "enviado" quando nada saiu deixaria o leitor esperando um
+e-mail que nunca chega. O link **nunca** aparece na resposta HTTP — só no e-mail.
 
-Para usar a conta Gmail do autor tanto para **enviar** (remetente) quanto para **receber**
-(destinatário):
+## Transporte (spec 087): API HTTP, não SMTP
+
+**O egresso SMTP do PaaS é bloqueado.** Medido: porta 587 com STARTTLS — o transporte correto —
+morre com `motivo: "conexao"` depois do timeout de socket **inteiro**, que é a assinatura de
+pacote descartado em silêncio por firewall (host inexistente falharia em menos de um segundo).
+Nenhum ajuste de porta, host ou credencial resolve isso.
+
+Por isso o e-mail sai por **API HTTP**, o mesmo caminho de rede que o backend já usa para o LLM.
+A decisão é do ambiente, e `GET /health` a publica no campo `email`:
+
+| `RESEND_API_KEY` | `SMTP_HOST` | `email` |
+|---|---|---|
+| definida | qualquer | `resend` |
+| vazia | definida | `smtp` |
+| vazia | vazia | `desligado` |
+
+### Configurar o Resend
+
+1. Conta em <https://resend.com> (o plano gratuito cobre 3.000/mês, 100/dia).
+2. **API Keys → Create API Key**, permissão de envio. Copie — ela só aparece uma vez.
+3. No serviço do backend (o mesmo em que `DATABASE_URL` está), defina:
+
+| Variável | Valor |
+|---|---|
+| `RESEND_API_KEY` | a chave criada |
+| `EMAIL_FROM` | opcional; o default `Engenharia de Harness <onboarding@resend.dev>` já funciona |
+
+4. Redeploy. `GET /health` tem de mostrar `"email":"resend"`.
+
+> **Domínio de teste vs. domínio próprio.** `onboarding@resend.dev` funciona de imediato, mas o
+> Resend só entrega para o e-mail **dono da conta**. Para enviar a qualquer leitor é preciso
+> verificar um domínio no painel (DNS: SPF + DKIM) e apontar `EMAIL_FROM` para ele.
+
+### Diagnóstico quando o e-mail não sai
+
+`POST /assinar` responde `{"enviado": false, "motivo": "<classe>"}`. O **detalhe** — status HTTP
+e corpo da resposta do provedor, ou o tipo da exceção — vai para o `stderr`, ou seja, o log do
+serviço. A chave da API e o token **nunca** entram em nenhum dos dois.
+
+| `motivo` | O que aconteceu | O que conferir |
+|---|---|---|
+| `desligado` | Nem `RESEND_API_KEY` nem `SMTP_HOST` — não tentou | Definir a chave e redeploy |
+| `auth` | 401/403 — a chave foi recusada | Chave copiada por inteiro; ainda ativa no painel |
+| `destinatario` | 400/422 — remetente ou destinatário recusado | `EMAIL_FROM` com domínio verificado; no domínio de teste, só a conta dona recebe |
+| `limite` | 429 — cota estourada | Plano do Resend |
+| `api` | 5xx do provedor | Log do serviço; tentar de novo |
+| `conexao` | Não chegou a falar com a API | Egresso do serviço; `RESEND_URL` |
+
+Um teste rápido, de fora:
+
+```bash
+curl -s https://harnessengineering-production.up.railway.app/health
+curl -s -X POST https://harnessengineering-production.up.railway.app/assinar \
+  -H 'content-type: application/json' -d '{"email":"SEU@EMAIL","lang":"pt"}'
+```
+
+> **NÃO diagnostique pelo tempo de resposta.** Eu tentei, e errei. `/assinar` faz várias idas ao
+> Neon **antes** de tocar o transporte, e cada `self._conn()` abre uma conexão nova — ~2 s cada.
+> Medido com o envio provadamente desligado: e-mail novo (cria leitor) **7,9 s**; e-mail já
+> cadastrado **4,0 s**; `GET /history`, que faz uma só ida ao banco, **2,0 s**. Quem responde à
+> pergunta são os campos `email` do `/health` e `motivo` do `/assinar` — não o cronômetro.
+
+## Antes de tudo: a variável chegou ao processo? (spec 085)
+
+`GET /health` lista os **nomes** das variáveis de ambiente que começam com `SMTP` — nunca os
+valores, e com `repr()` para que espaço em branco no nome apareça. Foi assim que se descobriu que
+as variáveis estavam noutra infraestrutura: a lista voltava vazia enquanto `DATABASE_URL` e
+`OPENAI_API_KEY` chegavam normalmente.
+
+| O que a lista mostra | O que significa |
+|---|---|
+| Lista **vazia** | Nenhuma variável chegou — serviço ou environment errado, ou variável compartilhada do projeto que este serviço não referencia |
+| `"'SMTP_HOST '"` com espaço | O Raw Editor criou a chave a partir de `SMTP_HOST =valor`. É outra chave; nunca casa |
+| Todas presentes e o transporte ainda `desligado` | O processo não reiniciou depois da mudança — redeploy |
+
+---
+
+# Alternativa: SMTP (se você hospedar fora deste PaaS)
+
+O caminho SMTP continua no código e é escolhido sozinho quando não há `RESEND_API_KEY`. Ele é
+útil para quem rodar o backend numa VPS, onde a porta 587 costuma estar aberta. Com Gmail:
 
 ## 1. Criar uma senha de app no Google
 
