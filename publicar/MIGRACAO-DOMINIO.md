@@ -9,30 +9,52 @@ telemetria; não há base de leitores a proteger).
 
 ## Ordem — cada passo é reversível até o último
 
-### 1. DNS (você)
+> **Correção de ordem (a primeira versão deste guia estava errada).** O DNS não vem primeiro: o
+> alvo do registro é o Vercel quem informa, ao adicionar o domínio. Projeto primeiro, DNS depois.
+
+### 1. Projeto no Vercel (você) — **em branco, sem conectar o repositório**
+
+Esta é a parte contraintuitiva, e a segunda correção: **não importe o repositório no Vercel.**
+
+O motivo é concreto: `docs/` é **gerado** e está no `.gitignore` — não existe no repositório. Um
+projeto conectado ao git tentaria construir a cada push, não acharia o `docs/`, e falharia. Pior:
+falharia *toda vez*, virando ruído permanente.
+
+O desenho certo é o inverso: o **GitHub Actions constrói** (é onde o Chromium dos PDFs já funciona
+há meses) e **envia o resultado pronto** ao Vercel. O Vercel é rede de distribuição, não servidor
+de build.
+
+Então, no painel do Vercel:
+
+1. Criar conta (o plano gratuito cobre isto de sobra).
+2. **Add New → Project → não importe repositório nenhum.** Se a interface insistir em pedir um
+   repositório, pule esta etapa: o projeto será criado sozinho no primeiro envio pela linha de
+   comando, no passo 3. Nesse caso vá direto ao passo 3 e volte aqui depois para o domínio.
+3. Em **Settings → Domains**, adicionar `harness.ghdaru.com.br`.
+4. O Vercel exibe então o **alvo do CNAME** — é esse valor que vai para o DNS no passo 2.
+
+### 2. DNS (você)
+
 No painel do `ghdaru.com.br`, criar **um** registro. O apex (`ghdaru.com.br`) **não é tocado** —
 sua aplicação atual continua intacta.
 
 | Tipo | Nome | Valor |
 |---|---|---|
-| CNAME | `harness` | o alvo que o Vercel indicar ao adicionar o domínio |
+| CNAME | `harness` | o alvo que o Vercel exibiu no passo 1 |
 
-### 2. Projeto no Vercel (você)
-Importar o repositório e, em **Settings → Domains**, adicionar `harness.ghdaru.com.br`. O Vercel
-mostra o alvo do CNAME e emite o certificado sozinho quando o DNS propagar.
+O certificado de segurança o Vercel emite sozinho assim que o DNS propagar (minutos a algumas
+horas). Enquanto não propaga, nada quebra: o site antigo continua no ar.
 
-**Não deixe o Vercel construir o site.** O build gera PDFs com Chromium, pesado demais para o
-plano gratuito. O desenho é: o GitHub Actions constrói (onde o Chromium já funciona há meses) e o
-Vercel só publica o `docs/` pronto. Em Settings → Build:
+### 3. Publicação pelo Actions (eu, quando você tiver a conta)
 
-- Framework Preset: **Other**
-- Build Command: *(vazio)*
-- Output Directory: `docs`
+Você gera um **token de acesso** no Vercel (Account Settings → Tokens) e o guarda como *secret*
+do repositório, com o nome `VERCEL_TOKEN`. Eu acrescento ao workflow o passo que envia o `docs/`
+pronto (`vercel deploy --prebuilt --prod`), e o primeiro envio cria o projeto se ele ainda não
+existir.
 
-### 3. Publicação pelo Actions (eu, quando o projeto existir)
-O workflow passa a terminar com `vercel deploy --prebuilt`, usando `VERCEL_TOKEN`,
-`VERCEL_ORG_ID` e `VERCEL_PROJECT_ID` como *secrets* do repositório. O Vercel vira CDN, não
-servidor de build.
+**O token é seu e fica só nos secrets do GitHub.** Não me mande por aqui — eu não preciso dele
+para escrever o workflow, e segredo em chat é vazamento (foi a regra que valeu para a chave do
+Resend hoje de manhã).
 
 ### 4. Virar o endereço (eu, 1 linha)
 `SITE_URL=https://harness.ghdaru.com.br` no workflow. Isso reescreve canonical, hreflang,
