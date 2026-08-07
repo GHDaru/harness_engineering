@@ -36,7 +36,7 @@ def capturar(monkeypatch):
 
     def falso(email, token, lang):
         enviados.append({"email": email, "token": token, "lang": lang})
-        return True
+        return True, ""     # spec 084: o envio passou a devolver (ok, motivo)
 
     monkeypatch.setattr(appmod, "_enviar_link_magico", falso)
     return enviados
@@ -217,3 +217,77 @@ def test_apagar_leitor_remove_tudo(capturar):
 def test_apagar_sessao_sem_leitor_devolve_false():
     r = client.request("DELETE", "/leitor", json={"session_id": "anon-qualquer"})
     assert r.json()["apagado"] is False
+
+
+# ------------------------------------------------- spec 084: falha diagnosticável
+
+import smtplib  # noqa: E402
+import socket   # noqa: E402
+import ssl      # noqa: E402
+
+
+def test_classe_da_falha_por_excecao():
+    """A ordem do mapa importa: `SMTPException` herda de `OSError` em Python 3,
+    então um teste de `OSError` no topo classificaria tudo como 'conexao'."""
+    casos = [
+        (smtplib.SMTPAuthenticationError(535, b"bad"), "auth"),
+        (smtplib.SMTPRecipientsRefused({}), "destinatario"),
+        (smtplib.SMTPSenderRefused(550, b"no", "de@x.com"), "destinatario"),
+        (smtplib.SMTPNotSupportedError("sem STARTTLS"), "tls"),
+        (ssl.SSLError("handshake"), "tls"),
+        (smtplib.SMTPConnectError(421, b"busy"), "conexao"),
+        (smtplib.SMTPServerDisconnected("caiu"), "conexao"),
+        (socket.timeout("estourou"), "conexao"),
+        (socket.gaierror("dns"), "conexao"),
+        (ConnectionRefusedError("porta fechada"), "conexao"),
+        (smtplib.SMTPDataError(554, b"rejeitado"), "smtp"),
+        (OSError("io"), "conexao"),
+        (ValueError("nada a ver"), "outro"),
+    ]
+    for exc, esperado in casos:
+        assert appmod._classe_da_falha(exc) == esperado, (type(exc).__name__, esperado)
+
+
+def _falhar_com(monkeypatch, exc):
+    """Faz o smtplib.SMTP levantar `exc` já na construção."""
+    monkeypatch.setattr(appmod.config, "SMTP_HOST", "smtp.exemplo.com")
+
+    def explode(*a, **k):
+        raise exc
+
+    monkeypatch.setattr(appmod.smtplib, "SMTP", explode)
+
+
+def test_assinar_nomeia_a_falha(monkeypatch):
+    _falhar_com(monkeypatch, smtplib.SMTPAuthenticationError(535, b"bad credentials"))
+    r = assinar("motivo-auth@exemplo.com")
+    assert r.status_code == 200
+    assert r.json() == {"ok": True, "enviado": False, "expira_min": 30, "motivo": "auth"}
+
+
+def test_assinar_sem_smtp_diz_desligado(monkeypatch):
+    monkeypatch.setattr(appmod.config, "SMTP_HOST", "")
+    assert assinar("motivo-desligado@exemplo.com").json()["motivo"] == "desligado"
+
+
+def test_envio_bem_sucedido_nao_traz_motivo(capturar):
+    assert "motivo" not in assinar("sem-motivo@exemplo.com").json()
+
+
+def test_a_falha_nao_vaza_token_nem_mensagem_do_servidor(monkeypatch, capsys):
+    """O detalhe vai para o log do operador; ao cliente, só a classe. A mensagem
+    do servidor SMTP pode conter endereço interno ou pista de credencial."""
+    _falhar_com(monkeypatch, smtplib.SMTPAuthenticationError(535, b"senha-de-app-invalida"))
+    r = assinar("vazamento@exemplo.com")
+    assert "senha-de-app-invalida" not in r.text
+    assert "smtp.exemplo.com" not in r.text
+    erro = capsys.readouterr().err
+    assert "[assinar] falha no envio (auth)" in erro   # o operador vê
+    assert "https://" not in erro                       # o link mágico, não
+
+
+def test_health_declara_o_estado_do_smtp(monkeypatch):
+    monkeypatch.setattr(appmod.config, "SMTP_HOST", "smtp.exemplo.com")
+    assert client.get("/health").json()["smtp"] == "configurado"
+    monkeypatch.setattr(appmod.config, "SMTP_HOST", "")
+    assert client.get("/health").json()["smtp"] == "desligado"

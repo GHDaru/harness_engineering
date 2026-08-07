@@ -666,6 +666,20 @@
     }
   }
 
+  // spec 084: traduz a classe de falha do backend para linguagem de leitor.
+  // Sem jargão de servidor — quem lê o livro não tem de saber o que é STARTTLS.
+  function motivoDoEnvio(motivo, mail) {
+    if (motivo === "desligado") return tx(
+      "✉ O envio de e-mail está desativado neste servidor agora, então o link não saiu. Sua leitura anônima segue normal — tente de novo mais tarde.",
+      "✉ E-mail delivery is switched off on this server right now, so no link was sent. Your anonymous reading continues as usual — try again later.");
+    if (motivo === "destinatario") return tx(
+      "✉ O servidor de e-mail recusou o endereço " + mail + ". Confira se está escrito certo e tente de novo.",
+      "✉ The mail server rejected the address " + mail + ". Check the spelling and try again.");
+    return tx(
+      "✉ O envio falhou no servidor (" + motivo + ") e o link não saiu — não é problema seu. Sua leitura anônima segue normal; tente de novo em alguns minutos.",
+      "✉ Sending failed on the server (" + motivo + ") and no link went out — this is not on you. Your anonymous reading continues as usual; try again in a few minutes.");
+  }
+
   function pedirAssinatura(email) {
     open();
     assinarForm.hidden = false;
@@ -689,11 +703,11 @@
             "✉ Link enviado para " + mail + ". Ele vale uma vez e expira em " + (d.expira_min || 30) + " minutos. Abra-o no aparelho em que quiser continuar lendo.",
             "✉ Link sent to " + mail + ". It works once and expires in " + (d.expira_min || 30) + " minutes. Open it on the device where you want to keep reading."));
         } else {
-          // Honestidade acima de conveniência: sem SMTP não há link, e dizer
-          // "enviado" seria mentira — o leitor esperaria um e-mail que não vem.
-          addMsg("sys", tx(
-            "✉ O envio de e-mail está desativado neste servidor agora, então o link não saiu. Sua leitura anônima segue normal — tente de novo mais tarde.",
-            "✉ E-mail delivery is switched off on this server right now, so no link was sent. Your anonymous reading continues as usual — try again later."));
+          // Honestidade acima de conveniência: sem link, dizer "enviado" seria
+          // mentira — o leitor esperaria um e-mail que não vem. E, desde a spec
+          // 084, o backend diz QUAL é a falha: "desativado" e "deu erro no
+          // servidor" pedem reações diferentes de quem está lendo.
+          addMsg("sys", motivoDoEnvio((d && d.motivo) || "outro", mail));
         }
       })
       .catch(function (err) {

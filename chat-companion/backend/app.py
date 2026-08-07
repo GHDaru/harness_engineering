@@ -11,6 +11,7 @@ import hashlib
 import re
 import secrets
 import smtplib
+import sys
 import time
 from collections import defaultdict, deque
 from email.message import EmailMessage
@@ -158,7 +159,8 @@ class LeitorIn(BaseModel):
 @app.get("/health")
 def health() -> dict:
     return {"ok": True, "llm": config.LLM_ADAPTER,
-            "store": "postgres" if config.DATABASE_URL else "memory"}
+            "store": "postgres" if config.DATABASE_URL else "memory",
+            "smtp": "configurado" if config.SMTP_HOST else "desligado"}
 
 
 @app.get("/capabilities")
@@ -304,12 +306,41 @@ def _link_magico(token: str, lang: str) -> str:
     return f"{base}{pagina}?t={token}"
 
 
-def _enviar_link_magico(email: str, token: str, lang: str) -> bool:
+def _classe_da_falha(exc: BaseException) -> str:
+    """Classe GROSSEIRA da falha de envio (spec 084). Nunca a mensagem do
+    servidor: ela pode conter endereço, host interno ou pista de credencial."""
+    import socket
+    import ssl
+
+    # A ORDEM importa: em Python 3 `smtplib.SMTPException` herda de `OSError`,
+    # então um `isinstance(exc, OSError)` no topo engoliria todas as específicas.
+    if isinstance(exc, smtplib.SMTPAuthenticationError):
+        return "auth"
+    if isinstance(exc, (smtplib.SMTPRecipientsRefused, smtplib.SMTPSenderRefused)):
+        return "destinatario"
+    if isinstance(exc, (smtplib.SMTPNotSupportedError, ssl.SSLError)):
+        return "tls"
+    if isinstance(exc, (smtplib.SMTPConnectError, smtplib.SMTPServerDisconnected,
+                        socket.timeout, socket.gaierror, ConnectionError)):
+        return "conexao"
+    if isinstance(exc, smtplib.SMTPException):
+        return "smtp"
+    if isinstance(exc, OSError):
+        return "conexao"
+    return "outro"
+
+
+def _enviar_link_magico(email: str, token: str, lang: str) -> tuple[bool, str]:
     """Diferente da sugestão, aqui o envio NÃO é best-effort: se falhar, o leitor
-    precisa saber — ficou sem o link e não há outro caminho. Devolve o sucesso; o
-    token em si nunca sai daqui para a resposta HTTP nem para log."""
+    precisa saber — ficou sem o link e não há outro caminho.
+
+    Spec 084: falhar em silêncio era pior que falhar. O `except Exception: return
+    False` da 080 transformava credencial recusada, porta bloqueada e TLS na MESMA
+    resposta, e nem o operador nem eu tínhamos como distinguir. Agora o detalhe vai
+    para o log do servidor (console do Railway) e uma classe grosseira volta ao
+    cliente. O token continua fora dos dois."""
     if not config.SMTP_HOST:
-        return False
+        return False, "desligado"
     link = _link_magico(token, lang)
     en = lang == "en"
     try:
@@ -333,9 +364,13 @@ def _enviar_link_magico(email: str, token: str, lang: str) -> bool:
             if config.SMTP_USER:
                 smtp.login(config.SMTP_USER, config.SMTP_PASS)
             smtp.send_message(msg)
-        return True
-    except Exception:
-        return False
+        return True, ""
+    except Exception as exc:
+        classe = _classe_da_falha(exc)
+        # stderr -> log do Railway. `link` e `token` NÃO entram aqui.
+        print(f"[assinar] falha no envio ({classe}): {type(exc).__name__}: {exc}",
+              file=sys.stderr, flush=True)
+        return False, classe
 
 
 @app.post("/assinar")
@@ -357,8 +392,11 @@ def post_assinar(inp: AssinarIn, request: Request) -> dict:
     _store.salvar_link(_hash_token(token), email,
                        time.time() + config.MAGIC_LINK_TTL_MIN * 60,
                        (inp.session_id or "").strip())
-    enviado = _enviar_link_magico(email, token, "en" if inp.lang == "en" else "pt")
-    return {"ok": True, "enviado": enviado, "expira_min": config.MAGIC_LINK_TTL_MIN}
+    enviado, motivo = _enviar_link_magico(email, token, "en" if inp.lang == "en" else "pt")
+    resp = {"ok": True, "enviado": enviado, "expira_min": config.MAGIC_LINK_TTL_MIN}
+    if not enviado:
+        resp["motivo"] = motivo
+    return resp
 
 
 @app.post("/entrar")

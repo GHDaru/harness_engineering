@@ -32,6 +32,14 @@
 
 ## Edições
 
+### Edição 0.74 — 2026-08-07 · o envio do link mágico para de falhar em silêncio (spec 084)
+- **Defeito encontrado no primeiro uso real da 080**: com o SMTP já configurado, `POST /assinar` respondia `{"enviado": false}` e mais nada. O `except Exception: return False` transformava credencial recusada, porta bloqueada e TLS na **mesma** resposta — o editor ficava com um botão que não funciona e sem pista, e eu ficava adivinhando entre cinco hipóteses.
+- **O que provou que ele estava tentando**: o tempo. `GET /health` responde em 0,34 s; `POST /assinar` respondia em **7,4 s de forma consistente**. `SMTP_HOST` vazio retornaria na primeira linha, sem rede. Medição, não suposição — Princípio I aplicado a um defeito de infra.
+- **Correção**: a exceção vai para o `stderr` (log do Railway, do operador) com tipo e mensagem; ao cliente volta só uma **classe grosseira** — `auth`, `conexao`, `tls`, `destinatario`, `smtp`, `desligado`, `outro`. `GET /health` passa a declarar `"smtp"`. O widget traduz a classe para linguagem de leitor, sem jargão de servidor. O token continua fora de log, de resposta e de artefato.
+- **A sutileza que virou teste**: em Python 3 `smtplib.SMTPException` **herda de `OSError`**, então um `isinstance(exc, OSError)` no topo do mapa classificaria tudo como `conexao`. A ordem é a lógica, e 13 casos a fixam.
+- **A lição, que já estava escrita**: o anti-checklist de `.specify/memory/checklist-verificacao.md` diz para não declarar verificado o que só foi construído. A 080 acertou em não mentir "enviado"; errou em não dizer o porquê. Falha silenciosa é dívida que só vence no dia do uso.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
+
 ### Edição 0.73 — 2026-08-06 · o e-mail como chave de continuidade, não como muro (spec 080)
 - **O defeito**: o leitor era anônimo **por navegador**. `cmp_sid` e `hz_ultimo` viviam só no `localStorage`, então quem lia no notebook e retomava no celular perdia tudo — progresso, objetivo declarado e a conversa inteira com o tutor. Num livro de 24 capítulos lido em sessões separadas por dias, perder o fio era o modo de falha mais provável.
 - **A solução, e o que ela deliberadamente não é**: um e-mail vira chave de continuidade — sem senha, sem cadastro, sem área restrita, sem informativo. O leitor informa o e-mail, recebe um **link mágico** de uso único (30 min, guardado só como hash SHA-256) e, ao abri-lo, o navegador **adota a sessão canônica** daquele leitor. **A navegação anônima segue completa**: nenhuma página, download ou função exige e-mail, e o convite é uma linha dispensável no rodapé do painel e sob o cartão "Retomar".
