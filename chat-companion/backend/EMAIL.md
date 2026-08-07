@@ -46,6 +46,33 @@ Redeploy do serviço e pronto — a próxima sugestão chega na caixa de entrada
 assunto `[Engenharia de Harness] Sugestão de leitor (<página>)`, e o próximo pedido de
 link chega ao leitor com assunto `[Engenharia de Harness] Seu link de leitura`.
 
+## Diagnóstico quando o link não sai (spec 084)
+
+`POST /assinar` responde `{"enviado": false, "motivo": "<classe>"}` — e `GET /health` traz
+`"smtp": "configurado" | "desligado"`. O **detalhe** (tipo e mensagem da exceção) vai para o
+`stderr`, ou seja, o log do serviço no Railway. O token nunca entra em nenhum dos dois.
+
+| `motivo` | O que aconteceu | O que conferir |
+|---|---|---|
+| `desligado` | `SMTP_HOST` vazio — nem tentou | Definir as variáveis e redeploy |
+| `auth` | O servidor recusou o login | **A senha de app colada com os espaços** (o Google exibe `abcd efgh ijkl mnop`; tem de ir sem espaço). Depois: `SMTP_USER` é o mesmo endereço da senha de app? A verificação em duas etapas continua ativa? A senha foi revogada? |
+| `conexao` | Não chegou a falar com o servidor | `SMTP_HOST`/`SMTP_PORT` (`smtp.gmail.com`/`587`); egresso do Railway na porta 587 |
+| `tls` | STARTTLS falhou | Porta trocada (465 é SSL direto, não STARTTLS — este código usa 587) |
+| `destinatario` | Remetente ou destinatário recusado | `SMTP_USER` precisa ser um endereço que a conta pode usar como remetente |
+| `smtp` | O servidor respondeu com erro de protocolo | Log do Railway; costuma ser limite de envio da conta |
+| `outro` | Fora das classes acima | Log do Railway |
+
+Um teste rápido, de fora:
+
+```bash
+curl -s -X POST https://harnessengineering-production.up.railway.app/assinar \
+  -H 'content-type: application/json' -d '{"email":"SEU@EMAIL","lang":"pt"}'
+```
+
+> **Dica de leitura do tempo de resposta.** `motivo: "desligado"` volta em milissegundos
+> (não há rede). Qualquer resposta que demore alguns segundos significa que ele **tentou** —
+> aí o problema é credencial ou rede, não configuração ausente.
+
 ## Regras de segurança
 
 - **Nunca** commitar a senha de app (nem em `.env` versionado, nem em teste, nem em chat).
