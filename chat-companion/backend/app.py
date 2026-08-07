@@ -167,6 +167,7 @@ def health() -> dict:
 
     return {"ok": True, "llm": config.LLM_ADAPTER,
             "store": "postgres" if config.DATABASE_URL else "memory",
+            "site": config.SITE_URL,              # spec 091: base do link magico
             "email": config.transporte_email(),   # spec 087: resend | smtp | desligado
             "smtp": "configurado" if config.SMTP_HOST else "desligado",
             "smtp_porta": config.SMTP_PORT,   # spec 086: número de porta não é segredo
