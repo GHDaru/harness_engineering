@@ -76,6 +76,26 @@ curl -s -X POST https://harnessengineering-production.up.railway.app/assinar \
 > segundos são o banco, não uma tentativa de envio. Quem responde à pergunta é o campo
 > `smtp` do `/health` e o `motivo` do `/assinar` — não o cronômetro.
 
+## Antes de tudo: a variável chegou ao processo? (spec 085)
+
+`GET /health` lista os **nomes** das variáveis de ambiente que começam com `SMTP` — nunca os
+valores, e com `repr()` para que espaço em branco no nome apareça:
+
+```bash
+curl -s https://harnessengineering-production.up.railway.app/health
+```
+
+```json
+{"smtp":"desligado","smtp_vars":["'SMTP_HOST '","'SMTP_PASS'","'SMTP_PORT'","'SMTP_USER'"]}
+```
+
+| O que a lista mostra | O que significa |
+|---|---|
+| Lista **vazia** | Nenhuma variável `SMTP*` chegou. Foram para outro **serviço** ou outro **environment** do projeto — ou é variável compartilhada do projeto que este serviço não referencia |
+| `"'SMTP_HOST '"` com espaço | O Raw Editor criou a chave a partir de `SMTP_HOST =valor`. É outra chave; nunca casa. Recriar sem espaço |
+| Falta `'SMTP_HOST'`, mas há as outras | Só o host ficou de fora |
+| Todas presentes e `smtp` ainda `desligado` | O processo não reiniciou depois da mudança — redeploy |
+
 ## Regras de segurança
 
 - **Nunca** commitar a senha de app (nem em `.env` versionado, nem em teste, nem em chat).

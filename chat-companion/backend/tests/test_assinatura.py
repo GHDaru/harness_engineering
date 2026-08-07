@@ -291,3 +291,17 @@ def test_health_declara_o_estado_do_smtp(monkeypatch):
     assert client.get("/health").json()["smtp"] == "configurado"
     monkeypatch.setattr(appmod.config, "SMTP_HOST", "")
     assert client.get("/health").json()["smtp"] == "desligado"
+
+
+def test_health_lista_nomes_smtp_mas_nunca_valores(monkeypatch):
+    """spec 085: o nome responde 'a variável chegou a este processo?'. O valor
+    não pode sair por rota nenhuma — é a senha de app."""
+    monkeypatch.setenv("SMTP_HOST", "smtp.exemplo.com")
+    monkeypatch.setenv("SMTP_PASS", "senha-secreta-de-app")
+    monkeypatch.setenv("SMTP_HOST_COM_ESPACO ", "x")   # o caso que o repr() revela
+    r = client.get("/health")
+    nomes = r.json()["smtp_vars"]
+    assert "'SMTP_HOST'" in nomes
+    assert "'SMTP_HOST_COM_ESPACO '" in nomes          # o espaço fica visível
+    assert "senha-secreta-de-app" not in r.text
+    assert "smtp.exemplo.com" not in r.text

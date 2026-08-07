@@ -158,9 +158,17 @@ class LeitorIn(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
+    """Spec 085: `smtp_vars` lista os NOMES de variáveis de ambiente que começam
+    com `SMTP` — nunca os valores. Nasceu de duas rodadas de palpite: o editor
+    configurava e redeployava, e o processo continuava sem ver `SMTP_HOST`. Nome
+    é o que responde à pergunta que restava — a variável chegou a este serviço?
+    veio com typo? veio com espaço no fim? — e nome não é segredo."""
+    import os
+
     return {"ok": True, "llm": config.LLM_ADAPTER,
             "store": "postgres" if config.DATABASE_URL else "memory",
-            "smtp": "configurado" if config.SMTP_HOST else "desligado"}
+            "smtp": "configurado" if config.SMTP_HOST else "desligado",
+            "smtp_vars": sorted(repr(k) for k in os.environ if k.upper().startswith("SMTP"))}
 
 
 @app.get("/capabilities")
