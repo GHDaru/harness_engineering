@@ -1,7 +1,21 @@
 # Virar o site para o domínio próprio
 
-> Estado: **preparado, não virado**. O código já lê o endereço de `SITE_URL` (spec 089); o
-> default continua o endereço antigo, então nada mudou ainda.
+> Estado em **2026-08-07**: o código lê o endereço de `SITE_URL` (spec 089) e o passo de
+> publicação no Vercel existe (spec 090). O default continua o endereço antigo — **o site atual
+> segue no ar e o `ghdaru.com.br` não foi tocado**.
+>
+> | Etapa | Estado |
+> |---|---|
+> | 1. Token do Vercel | ✅ criado (escopo `Full Account`, provisório) |
+> | 2. Secret `VERCEL_TOKEN` no GitHub | ✅ salvo |
+> | 3. Primeiro envio (nasce o projeto) | ⏳ em execução |
+> | 4. Validar o endereço provisório do Vercel | ⏳ |
+> | 5. Domínio no projeto + registro no DNS | ⏳ |
+> | 6. Virar `SITE_URL` no workflow | ⏳ |
+> | 7. `SITE_URL` no Railway | ⏳ |
+> | 8. Zenodo | ⏳ |
+> | 9. Trocar por token de escopo restrito e revogar o provisório | ⏳ |
+> | 10. Fechar o repositório | ⏳ |
 
 Destino: **`https://harness.ghdaru.com.br`**, servido pelo Vercel, com o repositório fechando.
 Decisão registrada na spec 089 — os endereços antigos **não** serão preservados (47 visitas na
