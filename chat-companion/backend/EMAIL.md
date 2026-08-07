@@ -69,9 +69,12 @@ curl -s -X POST https://harnessengineering-production.up.railway.app/assinar \
   -H 'content-type: application/json' -d '{"email":"SEU@EMAIL","lang":"pt"}'
 ```
 
-> **Dica de leitura do tempo de resposta.** `motivo: "desligado"` volta em milissegundos
-> (não há rede). Qualquer resposta que demore alguns segundos significa que ele **tentou** —
-> aí o problema é credencial ou rede, não configuração ausente.
+> **NÃO diagnostique pelo tempo de resposta.** Eu tentei, e errei. `/assinar` faz várias idas
+> ao Neon **antes** de tocar o SMTP, e cada `self._conn()` abre uma conexão nova — ~2 s cada.
+> Medido com o SMTP provadamente desligado: e-mail novo (cria leitor) **7,9 s**; e-mail já
+> cadastrado **4,0 s**; `GET /history`, que faz uma só ida ao banco, **2,0 s**. Ou seja: sete
+> segundos são o banco, não uma tentativa de envio. Quem responde à pergunta é o campo
+> `smtp` do `/health` e o `motivo` do `/assinar` — não o cronômetro.
 
 ## Regras de segurança
 
