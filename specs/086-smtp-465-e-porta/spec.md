@@ -43,4 +43,20 @@ trocar SMTP por uma API HTTP de envio, não insistir na porta.
 - [x] `465` usa `SMTP_SSL`; demais portas usam `STARTTLS`
 - [x] `smtp_porta` no `/health`; nenhum valor sensível exposto
 - [x] Testes verdes
-- [ ] Contra produção: ou o link chega, ou `conexao` com a porta certa (= bloqueio de egresso)
+- [x] Contra produção: **`conexao` com a porta certa** — a hipótese do transporte está eliminada
+
+## Leitura contra produção (2026-08-07)
+
+```
+{"smtp":"configurado","smtp_porta":587,"smtp_vars":["'SMTP_HOST'","'SMTP_PASS'","'SMTP_PORT'","'SMTP_USER'"]}
+{"ok":true,"enviado":false,"expira_min":30,"motivo":"conexao"}   — 24,06 s
+```
+
+Porta **587** com **STARTTLS**, que é exatamente o que o código faz: o transporte está correto.
+E o tempo é o `timeout` de socket **inteiro** (20 s) — assinatura de pacote **descartado em
+silêncio** por firewall, não de host inexistente (falha de DNS volta em menos de um segundo).
+
+**Conclusão: o egresso SMTP desta infraestrutura está bloqueado.** Nenhum ajuste de porta, host
+ou credencial resolve — a senha de app sequer chegou a ser testada, porque a conexão morre antes
+do login. A saída é trocar o transporte por uma **API HTTP de envio**; o corpo do e-mail, o
+token e toda a lógica do link mágico continuam como estão.
