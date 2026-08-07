@@ -91,7 +91,13 @@ const extras = descobrirExtras();
 const mapaExtras = new Map(extras.map((e) => [e.arquivo, (EN ? "../" : "") + e.slug]));
 
 const GITHUB_BASE = "https://github.com/GHDaru/harness_engineering/blob/main/";
-const SITE = "https://ghdaru.github.io/harness_engineering/";
+// Endereço público do site (spec 089). Sai por `SITE_URL` para que trocar de
+// hospedagem — GitHub Pages, Vercel, o que vier — seja mudar UMA variável, não
+// mexer em código. Alimenta canonical, hreflang e og:image: 428 ocorrências no
+// HTML gerado, todas derivadas daqui. A barra final é normalizada porque
+// esquecê-la produziria `https://exemplo.comindex.html`.
+const SITE = (process.env.SITE_URL || "https://ghdaru.github.io/harness_engineering/")
+  .replace(/\/*$/, "/");
 const DOI = "10.5281/zenodo.21632412";
 
 // Dicionário do chrome (spec 067). O conteúdo vem do Markdown; isto é só a moldura.
