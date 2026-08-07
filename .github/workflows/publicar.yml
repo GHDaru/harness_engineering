@@ -27,6 +27,11 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # spec 091: o endereco proprio. Alimenta canonical, hreflang, og:image e o
+    # rodape dos PDFs -- 428 ocorrencias, todas derivadas daqui (spec 089).
+    # Trocar de hospedagem outra vez e mudar ESTA linha, nada de codigo.
+    env:
+      SITE_URL: https://harness.ghdaru.com.br
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

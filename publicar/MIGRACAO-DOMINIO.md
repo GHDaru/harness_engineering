@@ -8,12 +8,12 @@
 > |---|---|
 > | 1. Token do Vercel | ✅ criado (escopo `Full Account`, provisório) |
 > | 2. Secret `VERCEL_TOKEN` no GitHub | ✅ salvo |
-> | 3. Primeiro envio (nasce o projeto) | ⏳ em execução |
-> | 4. Validar o endereço provisório do Vercel | ⏳ |
-> | 5. Domínio no projeto + registro no DNS | ⏳ |
-> | 6. Virar `SITE_URL` no workflow | ⏳ |
-> | 7. `SITE_URL` no Railway | ⏳ |
-> | 8. Zenodo | ⏳ |
+> | 3. Primeiro envio (nasce o projeto) | ✅ `ghdarus-projects/harness-engineering` |
+> | 4. Validar o endereço provisório | ✅ `harness-engineering-rho.vercel.app` |
+> | 5. Domínio no projeto + `CNAME` no Cloudflare | ✅ `Valid Configuration`, proxy **desligado**, certificado válido |
+> | 6. Virar `SITE_URL` no workflow | ✅ spec 091 |
+> | 7. `SITE_URL` no Railway | ✅ feito pelo editor |
+> | 8. Zenodo | ✅ identificador atualizado |
 > | 9. Trocar por token de escopo restrito e revogar o provisório | ⏳ |
 > | 10. Fechar o repositório | ⏳ |
 

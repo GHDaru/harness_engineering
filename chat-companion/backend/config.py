@@ -124,6 +124,10 @@ def transporte_email() -> str:
     return "smtp" if SMTP_HOST else "desligado"
 
 
-SITE_URL = os.environ.get("SITE_URL", "https://ghdaru.github.io/harness_engineering/")
+# Barra final normalizada (spec 091): o link magico e montado como
+# `<SITE_URL>entrar.html?t=...`, entao esquecer a barra produziria
+# `https://exemplo.com.brentrar.html`. O build ja normalizava; aqui era
+# assimetria minha, e o custo de errar caia no leitor.
+SITE_URL = os.environ.get("SITE_URL", "https://harness.ghdaru.com.br/").rstrip("/") + "/"
 MAGIC_LINK_TTL_MIN = _int("MAGIC_LINK_TTL_MIN", 30)
 RATE_LIMIT_ASSINAR = _int("RATE_LIMIT_ASSINAR", 5)    # envios por janela, por e-mail e por IP
