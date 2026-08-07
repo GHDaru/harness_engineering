@@ -96,6 +96,23 @@ curl -s https://harnessengineering-production.up.railway.app/health
 | Falta `'SMTP_HOST'`, mas há as outras | Só o host ficou de fora |
 | Todas presentes e `smtp` ainda `desligado` | O processo não reiniciou depois da mudança — redeploy |
 
+## A porta decide o protocolo (spec 086)
+
+| `SMTP_PORT` | Transporte | Observação |
+|---|---|---|
+| `587` | `SMTP` + `STARTTLS` | **recomendado** para o Gmail |
+| `465` | `SMTP_SSL` (TLS implícito) | funciona; o código detecta pela porta |
+| `25` | STARTTLS | quase sempre bloqueado por provedores de nuvem |
+
+Antes da spec 086, a porta `465` com `starttls()` ficava pendurada até o timeout e o erro
+chegava como `conexao` — indistinguível de porta bloqueada. Hoje `GET /health` publica
+`smtp_porta`, então dá para conferir sem abrir o painel.
+
+**Se, com a porta certa, o `motivo` continuar `conexao`:** o egresso SMTP da infraestrutura está
+bloqueado (muitos PaaS fecham 25/465/587 para conter spam) e insistir na porta não resolve. A
+saída é trocar SMTP por uma **API HTTP de envio** — o corpo do e-mail e a lógica do link mágico
+não mudam, só o transporte em `_enviar_link_magico`.
+
 ## Regras de segurança
 
 - **Nunca** commitar a senha de app (nem em `.env` versionado, nem em teste, nem em chat).

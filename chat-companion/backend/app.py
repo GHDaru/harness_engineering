@@ -168,6 +168,7 @@ def health() -> dict:
     return {"ok": True, "llm": config.LLM_ADAPTER,
             "store": "postgres" if config.DATABASE_URL else "memory",
             "smtp": "configurado" if config.SMTP_HOST else "desligado",
+            "smtp_porta": config.SMTP_PORT,   # spec 086: número de porta não é segredo
             "smtp_vars": sorted(repr(k) for k in os.environ if k.upper().startswith("SMTP"))}
 
 
@@ -314,6 +315,20 @@ def _link_magico(token: str, lang: str) -> str:
     return f"{base}{pagina}?t={token}"
 
 
+def _abrir_smtp():
+    """Spec 086: a porta decide o protocolo, e errar isso parece falha de rede.
+
+    465 é TLS **implícito** — o servidor espera o handshake imediatamente, então
+    um `SMTP` em texto claro seguido de `starttls()` fica pendurado até estourar
+    o timeout e chega aqui como `conexao`, indistinguível de porta bloqueada.
+    587 é STARTTLS: conecta em claro e negocia depois."""
+    if config.SMTP_PORT == 465:
+        return smtplib.SMTP_SSL(config.SMTP_HOST, config.SMTP_PORT, timeout=20)
+    smtp = smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT, timeout=20)
+    smtp.starttls()
+    return smtp
+
+
 def _classe_da_falha(exc: BaseException) -> str:
     """Classe GROSSEIRA da falha de envio (spec 084). Nunca a mensagem do
     servidor: ela pode conter endereço, host interno ou pista de credencial."""
@@ -367,8 +382,7 @@ def _enviar_link_magico(email: str, token: str, lang: str) -> tuple[bool, str]:
              f"Ele vale uma vez e expira em {config.MAGIC_LINK_TTL_MIN} minutos.\n"
              "Se não foi você que pediu, ignore esta mensagem — nada foi criado em "
              "seu nome e você não receberá mais nada.\n"))
-        with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT, timeout=20) as smtp:
-            smtp.starttls()
+        with _abrir_smtp() as smtp:
             if config.SMTP_USER:
                 smtp.login(config.SMTP_USER, config.SMTP_PASS)
             smtp.send_message(msg)
