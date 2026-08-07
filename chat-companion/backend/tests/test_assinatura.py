@@ -282,7 +282,7 @@ def test_a_falha_nao_vaza_token_nem_mensagem_do_servidor(monkeypatch, capsys):
     assert "senha-de-app-invalida" not in r.text
     assert "smtp.exemplo.com" not in r.text
     erro = capsys.readouterr().err
-    assert "[assinar] falha no envio (auth)" in erro   # o operador vê
+    assert "[email] smtp falhou (auth)" in erro        # o operador vê (spec 087)
     assert "https://" not in erro                       # o link mágico, não
 
 
@@ -305,3 +305,86 @@ def test_health_lista_nomes_smtp_mas_nunca_valores(monkeypatch):
     assert "'SMTP_HOST_COM_ESPACO '" in nomes          # o espaço fica visível
     assert "senha-secreta-de-app" not in r.text
     assert "smtp.exemplo.com" not in r.text
+
+
+# ------------------------------------------- spec 087: envio por API HTTP (Resend)
+
+class _RespostaFalsa:
+    def __init__(self, status_code, text=""):
+        self.status_code = status_code
+        self.text = text
+
+
+def _resend(monkeypatch, resposta=None, excecao=None):
+    """Liga o transporte Resend e substitui o POST. Devolve a lista de chamadas."""
+    monkeypatch.setattr(appmod.config, "RESEND_API_KEY", "chave-secreta-do-resend")
+    monkeypatch.setattr(appmod.config, "SMTP_HOST", "")   # prova a precedência
+    chamadas = []
+
+    def post_falso(url, headers=None, json=None, timeout=None):
+        chamadas.append({"url": url, "headers": headers, "json": json})
+        if excecao:
+            raise excecao
+        return resposta or _RespostaFalsa(200, '{"id":"abc"}')
+
+    import httpx
+    monkeypatch.setattr(httpx, "post", post_falso)
+    return chamadas
+
+
+def test_resend_tem_precedencia_sobre_smtp(monkeypatch):
+    monkeypatch.setattr(appmod.config, "RESEND_API_KEY", "k")
+    monkeypatch.setattr(appmod.config, "SMTP_HOST", "smtp.exemplo.com")
+    assert appmod.config.transporte_email() == "resend"
+    monkeypatch.setattr(appmod.config, "RESEND_API_KEY", "")
+    assert appmod.config.transporte_email() == "smtp"
+    monkeypatch.setattr(appmod.config, "SMTP_HOST", "")
+    assert appmod.config.transporte_email() == "desligado"
+
+
+def test_envio_pelo_resend_entrega_o_link(monkeypatch):
+    chamadas = _resend(monkeypatch)
+    r = assinar("resend-ok@exemplo.com")
+    assert r.json()["enviado"] is True
+    assert "motivo" not in r.json()
+    envio = chamadas[-1]
+    assert envio["json"]["to"] == ["resend-ok@exemplo.com"]
+    assert "link de leitura" in envio["json"]["subject"]
+    assert "entrar.html?t=" in envio["json"]["text"]        # o link vai no corpo
+    assert envio["headers"]["Authorization"].startswith("Bearer ")
+
+
+def test_o_token_e_a_chave_nunca_saem_na_resposta(monkeypatch):
+    chamadas = _resend(monkeypatch)
+    r = assinar("resend-sigilo@exemplo.com")
+    assert "chave-secreta-do-resend" not in r.text
+    assert "Bearer" not in r.text
+    # o token existe (foi para o e-mail), mas não aparece na resposta HTTP
+    corpo = chamadas[-1]["json"]["text"]
+    token = corpo.split("entrar.html?t=")[1].split()[0]
+    assert token not in r.text
+
+
+def test_resend_classifica_a_falha_por_status(monkeypatch):
+    for status, esperado in [(401, "auth"), (403, "auth"), (422, "destinatario"),
+                             (400, "destinatario"), (429, "limite"), (500, "api")]:
+        _resend(monkeypatch, resposta=_RespostaFalsa(status, "erro do provedor"))
+        appmod._hits.clear()
+        r = assinar(f"status-{status}@exemplo.com")
+        assert r.json()["motivo"] == esperado, (status, r.json())
+        assert "erro do provedor" not in r.text     # corpo do provedor só no log
+
+
+def test_resend_com_rede_fora_vira_conexao(monkeypatch):
+    import socket
+    _resend(monkeypatch, excecao=socket.timeout("estourou"))
+    appmod._hits.clear()
+    assert assinar("resend-rede@exemplo.com").json()["motivo"] == "conexao"
+
+
+def test_health_declara_o_transporte(monkeypatch):
+    monkeypatch.setattr(appmod.config, "RESEND_API_KEY", "k")
+    assert client.get("/health").json()["email"] == "resend"
+    monkeypatch.setattr(appmod.config, "RESEND_API_KEY", "")
+    monkeypatch.setattr(appmod.config, "SMTP_HOST", "")
+    assert client.get("/health").json()["email"] == "desligado"

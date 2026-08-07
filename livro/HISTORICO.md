@@ -32,6 +32,15 @@
 
 ## Edições
 
+### Edição 0.75 — 2026-08-07 · o e-mail sai por API HTTP, não por SMTP (spec 087)
+- **O que a medição fechou**: com `SMTP_PORT=587` e STARTTLS — o transporte **correto** — o envio ainda morria com `motivo: "conexao"` depois do timeout de socket **inteiro** (20 s). Isso é assinatura de pacote descartado em silêncio por firewall; host inexistente falharia em menos de um segundo. **O egresso SMTP do PaaS é bloqueado**, política comum para conter spam. A senha de app do editor sequer chegou a ser testada.
+- **A correção**: o e-mail passa a sair por **API HTTP** (Resend), o mesmo caminho de rede que o backend já usa para o LLM e que comprovadamente funciona nesta infra. Sem dependência nova — `httpx` já era o cliente do LLM.
+- **Uma porta única de saída**: `_enviar_email(para, assunto, corpo) -> (ok, motivo)` passa a servir o link mágico **e** as sugestões dos leitores. Quem chama não sabe qual é o transporte — sabe se foi e, se não foi, por quê. O SMTP fica como alternativa escolhida sozinha quando não há chave de API: não é código morto, é portabilidade para quem rodar numa VPS.
+- **Descoberta de passagem**: as sugestões dos leitores (E05) nunca chegaram ao autor, pelo mesmo bloqueio. Passava despercebido porque ali o envio é best-effort — a sugestão sempre esteve salva no banco. Falha silenciosa cobra juros.
+- **O arco de quatro specs que isto fechou**: 080 acertou em não mentir "enviado", mas engolia o porquê; 084 fez o backend dizer **em que classe** falhou; 085 mostrou **quais variáveis o processo enxerga** — foi o que revelou que estavam noutra infraestrutura; 086 separou "porta errada para o protocolo" de "egresso bloqueado"; 087 troca o transporte. Cada camada existiu porque a anterior não bastou, e nenhuma delas foi palpite.
+- **A lição, cara**: eu diagnostiquei errado uma vez, inferindo pelo tempo de resposta que o SMTP "estava tentando". Eram idas ao Neon — cada conexão custa ~2 s. Comparei contra um baseline que não tocava banco. O `EMAIL.md` hoje carrega o aviso explícito de **não** diagnosticar pelo cronômetro.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
+
 ### Edição 0.74 — 2026-08-07 · o envio do link mágico para de falhar em silêncio (spec 084)
 - **Defeito encontrado no primeiro uso real da 080**: com o SMTP já configurado, `POST /assinar` respondia `{"enviado": false}` e mais nada. O `except Exception: return False` transformava credencial recusada, porta bloqueada e TLS na **mesma** resposta — o editor ficava com um botão que não funciona e sem pista, e eu ficava adivinhando entre cinco hipóteses.
 - **O que provou que ele estava tentando**: o tempo. `GET /health` responde em 0,34 s; `POST /assinar` respondia em **7,4 s de forma consistente**. `SMTP_HOST` vazio retornaria na primeira linha, sem rede. Medição, não suposição — Princípio I aplicado a um defeito de infra.
