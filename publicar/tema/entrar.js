@@ -32,6 +32,57 @@
   // A página EN vive em /en/, ao lado do seu próprio sumário: o relativo serve aos dois.
   var sumario = "sumario.html";
 
+  /* Pergunta de contato (spec 093). Três regras que a ADR 0010 fixou e que este
+     bloco existe para não deixar escorregar:
+       1. desmarcada — aceitar é ato, não é omissão;
+       2. sem bloqueio — a página já está utilizável, os botões já estão ali, e
+          ir embora sem responder é uma resposta válida (vale não);
+       3. só grava quando o leitor mexe — sair sem tocar não registra nada, e a
+          pergunta volta uma outra hora em vez de virar um "não" fabricado. */
+  function perguntarContato(sid) {
+    var box = document.createElement("div");
+    box.className = "entrar-avisos";
+
+    var rot = document.createElement("label");
+    var chk = document.createElement("input");
+    chk.type = "checkbox";                       // nasce desmarcada
+    rot.appendChild(chk);
+    rot.appendChild(document.createTextNode(" " + tx(
+      "Quer que eu avise quando sair um livro novo?",
+      "Would you like me to tell you when a new book comes out?")));
+    box.appendChild(rot);
+
+    var nota = document.createElement("p");
+    nota.className = "entrar-avisos-nota";
+    nota.textContent = tx("Você cancela em qualquer e-mail, num clique. Nada além de aviso de publicação — sem patrocinador e sem repasse a terceiro.",
+                          "You can opt out from any e-mail, in one click. Nothing but publication notices — no sponsors, no sharing with third parties.");
+    box.appendChild(nota);
+
+    chk.addEventListener("change", function () {
+      chk.disabled = true;
+      fetch(BACKEND + "/consentimento", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ session_id: sid, finalidade: "contato", aceito: chk.checked })
+      })
+        .then(function (r) { if (!r.ok) throw new Error("http"); })
+        .then(function () {
+          chk.disabled = false;   // continua sendo um interruptor, não um alçapão
+          nota.textContent = chk.checked
+            ? tx("Combinado — eu aviso quando sair um livro novo.",
+                 "Done — I'll let you know when a new book comes out.")
+            : tx("Sem avisos, então. Sua leitura continua igual.",
+                 "No notices, then. Your reading is unchanged.");
+        })
+        .catch(function () {
+          chk.disabled = false; chk.checked = !chk.checked;
+          nota.textContent = tx("Não consegui registrar agora — tente de novo.",
+                                "I couldn't record that right now — try again.");
+        });
+    });
+
+    caixa.parentNode.insertBefore(box, caixa.nextSibling);
+  }
+
   var token = "";
   try { token = new URLSearchParams(location.search).get("t") || ""; } catch (e) {}
   // Fora da URL antes de qualquer coisa: recarregar a página não reenvia o token,
@@ -90,6 +141,7 @@
       }
 
       var quem = res.d.email ? " — " + res.d.email : "";
+      var estado = res.d.consentimentos || {};
       diz("ok", tx("Pronto" + quem, "You're in" + quem),
         meu && meu.slug
           ? tx("Seu progresso e suas conversas voltaram. Você parou em: " + (meu.titulo || meu.slug),
@@ -99,6 +151,10 @@
         { href: (meu && meu.slug) ? meu.slug + ".html" : sumario,
           rotulo: (meu && meu.slug) ? tx("Continuar lendo", "Keep reading")
                                     : tx("Ir para o sumário", "Go to the contents") });
+
+      // spec 093 / ADR 0010: a SEGUNDA pergunta, e só depois de entrar. Nunca no
+      // ato de assinar — um consentimento não pode carregar o outro de carona.
+      if (!estado.contato) perguntarContato(res.d.session_id);
     })
     .catch(function () {
       diz("erro", tx("Não deu para entrar", "Could not sign you in"),

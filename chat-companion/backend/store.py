@@ -48,6 +48,12 @@ class StorePort(Protocol):
     def set_progresso(self, session_id: str, lang: str, slug: str, titulo: str) -> None: ...
     def get_progresso(self, session_id: str) -> list[dict]: ...
     def merge_session(self, origem: str, destino: str) -> None: ...
+    # spec 093 — consentimento em camadas (ADR 0010) e progresso visível
+    def registrar_consentimento(self, email: str, finalidade: str, versao: str,
+                                aceito: bool) -> None: ...
+    def consentimentos_de(self, email: str) -> dict: ...
+    def emails_com_contato(self) -> list[dict]: ...
+    def capitulos_lidos(self, session_id: str) -> list[str]: ...
 
 
 # ----------------------------------------------------------- memória
@@ -134,6 +140,11 @@ class MemoryStore:
         self._links = {h: v for h, v in getattr(self, "_links", {}).items()
                        if v["email"] != email}
         getattr(self, "_prog", {}).pop(session_id, None)
+        # spec 093: append-only vale para a operação normal — dar e revogar são
+        # linhas novas. O esquecimento é outro direito e ganha dele: guardar a
+        # prova do consentimento de quem pediu para sumir seria guardar o e-mail
+        # que ele mandou apagar. Sem dado tratado, não há consentimento a provar.
+        self._cons = [c for c in getattr(self, "_cons", []) if c["email"] != email]
         self.delete_session(session_id)
         return True
 
@@ -157,6 +168,40 @@ class MemoryStore:
 
     def get_progresso(self, session_id: str) -> list[dict]:
         return list(getattr(self, "_prog", {}).get(session_id, {}).values())
+
+    # ---- spec 093 ----
+    # Append-only: consentir e revogar são AMBOS linhas novas. Um booleano diria
+    # o estado e perderia a história — e é a história (quando, e a que texto) que
+    # a LGPD pede como prova. O estado atual é a última linha por finalidade.
+    def registrar_consentimento(self, email: str, finalidade: str, versao: str,
+                                aceito: bool) -> None:
+        self._cons = getattr(self, "_cons", [])
+        self._cons.append({"email": email, "finalidade": finalidade, "versao": versao,
+                           "aceito": aceito, "ts": time.time()})
+
+    def consentimentos_de(self, email: str) -> dict:
+        estado: dict = {}
+        for c in getattr(self, "_cons", []):
+            if c["email"] == email:
+                estado[c["finalidade"]] = {"aceito": c["aceito"], "versao": c["versao"],
+                                           "ts": c["ts"]}
+        return estado
+
+    def emails_com_contato(self) -> list[dict]:
+        saida = []
+        for email in {c["email"] for c in getattr(self, "_cons", [])}:
+            c = self.consentimentos_de(email).get("contato")
+            if c and c["aceito"]:
+                saida.append({"email": email, "versao": c["versao"], "desde": c["ts"]})
+        return sorted(saida, key=lambda x: x["email"])
+
+    def capitulos_lidos(self, session_id: str) -> list[str]:
+        """Slugs distintos visitados. Sem tabela nova: `nav_events` já registra
+        slug × sessão e já segue o leitor na fusão da spec 080. Quem filtra por
+        'é capítulo?' é o site, que conhece o sumário."""
+        vistos = {e["slug"] for e in getattr(self, "_nav", [])
+                  if e["session_id"] == session_id}
+        return sorted(vistos)
 
     def merge_session(self, origem: str, destino: str) -> None:
         if origem == destino:
@@ -259,6 +304,18 @@ class PostgresStore:
                     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
                 );
                 CREATE INDEX IF NOT EXISTS idx_links_email ON magic_links(email);
+                -- spec 093 / ADR 0010: append-only. Consentir e revogar são ambos
+                -- linhas; o estado é a última por (email, finalidade). Não há
+                -- UPDATE aqui de propósito -- apagar a história seria apagar a prova.
+                CREATE TABLE IF NOT EXISTS consentimentos (
+                    id BIGSERIAL PRIMARY KEY,
+                    email TEXT NOT NULL,
+                    finalidade TEXT NOT NULL,
+                    versao TEXT NOT NULL,
+                    aceito BOOLEAN NOT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                );
+                CREATE INDEX IF NOT EXISTS idx_cons_email ON consentimentos(email, finalidade, id);
                 CREATE TABLE IF NOT EXISTS progress (
                     session_id TEXT NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
                     lang TEXT NOT NULL,
@@ -392,6 +449,8 @@ class PostgresStore:
             return False
         with self._conn() as conn, conn.cursor() as cur:
             cur.execute("DELETE FROM magic_links WHERE email = %s", (email,))
+            # spec 093: o esquecimento ganha do append-only — ver MemoryStore.
+            cur.execute("DELETE FROM consentimentos WHERE email = %s", (email,))
             cur.execute("DELETE FROM readers WHERE email = %s", (email,))
             # sessions ON DELETE CASCADE leva messages, consents, nav, goals e progress
             cur.execute("DELETE FROM sessions WHERE session_id = %s", (session_id,))
@@ -436,6 +495,41 @@ class PostgresStore:
             rows = cur.fetchall()
         return [{"lang": r[0], "slug": r[1], "titulo": r[2], "ts": r[3].timestamp()}
                 for r in rows]
+
+    # ---- spec 093 ----
+    def registrar_consentimento(self, email: str, finalidade: str, versao: str,
+                                aceito: bool) -> None:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("INSERT INTO consentimentos(email, finalidade, versao, aceito) "
+                        "VALUES (%s, %s, %s, %s)", (email, finalidade, versao, aceito))
+            conn.commit()
+
+    def consentimentos_de(self, email: str) -> dict:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "SELECT DISTINCT ON (finalidade) finalidade, aceito, versao, created_at "
+                "FROM consentimentos WHERE email = %s "
+                "ORDER BY finalidade, id DESC", (email,))
+            rows = cur.fetchall()
+        return {r[0]: {"aceito": r[1], "versao": r[2], "ts": r[3].timestamp()} for r in rows}
+
+    def emails_com_contato(self) -> list[dict]:
+        """Só quem tem contato ATIVO — a última linha da finalidade diz sim."""
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "SELECT email, versao, created_at FROM ("
+                "  SELECT DISTINCT ON (email) email, aceito, versao, created_at"
+                "  FROM consentimentos WHERE finalidade = 'contato'"
+                "  ORDER BY email, id DESC"
+                ") u WHERE aceito ORDER BY email")
+            rows = cur.fetchall()
+        return [{"email": r[0], "versao": r[1], "desde": r[2].timestamp()} for r in rows]
+
+    def capitulos_lidos(self, session_id: str) -> list[str]:
+        with self._conn() as conn, conn.cursor() as cur:
+            cur.execute("SELECT DISTINCT slug FROM nav_events WHERE session_id = %s "
+                        "ORDER BY slug", (session_id,))
+            return [r[0] for r in cur.fetchall()]
 
     def merge_session(self, origem: str, destino: str) -> None:
         """Funde a sessão anônima na canônica. Quem assina depois de já ter

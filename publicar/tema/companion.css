@@ -214,8 +214,8 @@ html.cmp-docked #alt-tema { right: calc(var(--cmp-dockw, 430px) + 1rem); }
 .cmp-conta-perigo:hover { color: #e06c6c; }
 .cmp-assinarform[hidden] { display: none; }
 
-/* Convite no cartão "Retomar" do sumário — onde a perda de progresso dói. */
-.cmp-conv-retomar { margin: -.4rem 0 1.2rem; font-size: .82rem; color: var(--muted); }
-.cmp-conv-link { border: none; background: none; padding: 0; font: inherit;
-  color: inherit; text-decoration: underline; cursor: pointer; }
-.cmp-conv-link:hover { color: var(--texto); }
+/* spec 093: o convite saiu daqui. Ele era um apêndice colado embaixo do cartão
+   "Retomar"; agora é a última linha do cartão "Sua leitura", que o site desenha
+   em `estilo.css` — perto do progresso que dá sentido ao pedido. O que sobra no
+   painel é a pergunta de avisos, que só existe para quem já entrou. */
+.cmp-avisos { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem; }

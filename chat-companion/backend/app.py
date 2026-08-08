@@ -154,6 +154,27 @@ class LeitorIn(BaseModel):
     session_id: str
 
 
+# ---- spec 093 ----
+
+class ConsentimentoIn(BaseModel):
+    session_id: str
+    finalidade: str = "contato"
+    aceito: bool = False
+
+
+class DescadastroIn(BaseModel):
+    e: str          # sha256 do e-mail, como vem no link de um clique
+
+
+# Versão faz parte do registro: mudou o texto, muda a versão, e o aceite velho
+# deixa de valer para o texto novo — é o que torna o consentimento auditável em
+# vez de declarado. Definidas aqui, acima de todas as rotas, porque `/entrar`
+# (spec 080) grava `continuidade` e as rotas da spec 093 gravam `contato`.
+VERSAO_CONTINUIDADE = "continuidade-2026-08"
+VERSAO_CONTATO = "contato-2026-08"
+FINALIDADES = {"continuidade": VERSAO_CONTINUIDADE, "contato": VERSAO_CONTATO}
+
+
 # ------------------------------------------------------------------ rotas
 
 @app.get("/health")
@@ -473,8 +494,18 @@ def post_entrar(inp: EntrarIn) -> dict:
         if anonima and anonima != canonico and not _store.leitor_por_sessao(anonima):
             _store.merge_session(anonima, canonico)
 
+    # spec 093: o consentimento de continuidade é registrado AQUI, não no
+    # `/assinar` — é neste ponto que a posse do endereço fica provada. Gravar no
+    # pedido criaria linha em nome de quem só teve o e-mail digitado por outra
+    # pessoa. Só a primeira vez: reentrar não é consentir de novo.
+    estado = _store.consentimentos_de(email)
+    if not estado.get("continuidade", {}).get("aceito"):
+        _store.registrar_consentimento(email, "continuidade", VERSAO_CONTINUIDADE, True)
+        estado = _store.consentimentos_de(email)
+
     return {"ok": True, "email": email, "session_id": canonico,
-            "progresso": _store.get_progresso(canonico)}
+            "progresso": _store.get_progresso(canonico),
+            "consentimentos": estado, "versoes": FINALIDADES}
 
 
 @app.get("/leitor")
@@ -503,6 +534,88 @@ def post_progresso(inp: ProgressoIn) -> dict:
 @app.get("/progresso")
 def get_progresso(session_id: str) -> dict:
     return {"session_id": session_id, "itens": _store.get_progresso(session_id)}
+
+
+# ---- spec 093: consentimento em camadas (ADR 0010) e progresso visível ----
+#
+# Duas finalidades, nunca embutidas uma na outra:
+#   `continuidade` — o e-mail como chave de progresso (spec 080). Registrada no
+#                    `/entrar`, porque é ali que a posse do endereço fica provada;
+#                    gravar no `/assinar` criaria linha em nome de quem só teve o
+#                    e-mail digitado por um terceiro.
+#   `contato`      — avisar sobre livros novos. Perguntada DEPOIS, à parte, e
+#                    desmarcada por padrão. Silêncio vale não.
+#
+# Versão faz parte do registro: mudou o texto, muda a versão, e o aceite velho
+# deixa de valer para o texto novo. É o mesmo princípio do consentimento da
+# spec 054, agora com histórico — cada "dei" e cada "revoguei" é uma linha.
+
+@app.post("/consentimento")
+def post_consentimento(inp: ConsentimentoIn) -> dict:
+    """Só `contato` se dá e se revoga por aqui. `continuidade` não é opcional
+    para quem assinou (é o que faz a assinatura existir) e sai pelo `/apagar`,
+    não por uma caixa — oferecer um botão que não desliga nada seria teatro."""
+    if inp.finalidade != "contato":
+        raise HTTPException(status_code=400, detail="finalidade não editável")
+    email = _store.leitor_por_sessao(inp.session_id)
+    if not email:
+        raise HTTPException(status_code=403, detail="sessão sem leitor")
+    _store.registrar_consentimento(email, "contato", VERSAO_CONTATO, bool(inp.aceito))
+    return {"ok": True, "finalidade": "contato", "aceito": bool(inp.aceito),
+            "versao": VERSAO_CONTATO}
+
+
+@app.get("/consentimento")
+def get_consentimento(session_id: str) -> dict:
+    """Estado atual por finalidade. Sessão anônima devolve vazio — sem erro:
+    quem ainda não assinou não tem o que consentir, e a tela precisa saber
+    disso sem tratar 'anônimo' como falha."""
+    email = _store.leitor_por_sessao(session_id)
+    if not email:
+        return {"email": None, "consentimentos": {}, "versoes": FINALIDADES}
+    return {"email": email, "consentimentos": _store.consentimentos_de(email),
+            "versoes": FINALIDADES}
+
+
+@app.post("/descadastrar")
+def post_descadastrar(inp: DescadastroIn) -> dict:
+    """Descadastro de um clique (R4): o link de toda mensagem de contato traz o
+    sha256 do e-mail, e sair não pede login, formulário nem motivo. O hash entra
+    por comparação contra a lista de contato ativa — não há como partir do hash
+    para o e-mail, e quem já saiu não aparece, então o endpoint não vira oráculo
+    de 'este endereço está cadastrado?'. Resposta idempotente de propósito: sair
+    duas vezes diz a mesma coisa."""
+    alvo = (inp.e or "").strip().lower()
+    if len(alvo) != 64 or not all(c in "0123456789abcdef" for c in alvo):
+        raise HTTPException(status_code=400, detail="parâmetro inválido")
+    for r in _store.emails_com_contato():
+        if _hash_token(r["email"]) == alvo:
+            _store.registrar_consentimento(r["email"], "contato", VERSAO_CONTATO, False)
+            break
+    return {"ok": True}
+
+
+@app.get("/progresso/detalhe")
+def get_progresso_detalhe(session_id: str) -> dict:
+    """Quanto o leitor andou. Sem tabela nova: `nav_events` já registra slug ×
+    sessão e já segue o leitor na fusão da spec 080. Quem sabe quais slugs são
+    capítulo é o site, que tem o sumário — o backend devolve os visitados e não
+    finge conhecer a estrutura do livro."""
+    return {"session_id": session_id,
+            "visitados": _store.capitulos_lidos(session_id),
+            "itens": _store.get_progresso(session_id)}
+
+
+@app.get("/leitores")
+def get_leitores(token: str = "") -> dict:
+    """Lista de contato para o editor. Nasce DESLIGADA: sem `ADMIN_TOKEN` no
+    ambiente nenhum token confere, como em `/suggestions` e na telemetria de
+    administração. Traz só quem tem contato ativo — quem revogou some daqui sem
+    perder a continuidade."""
+    if not config.ADMIN_TOKEN or token != config.ADMIN_TOKEN:
+        raise HTTPException(status_code=403, detail="token inválido")
+    leitores = _store.emails_com_contato()
+    return {"total": len(leitores), "leitores": leitores}
 
 
 @app.get("/suggestions")
