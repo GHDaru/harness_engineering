@@ -20,5 +20,5 @@
 - [x] T13 verificação em navegador (PT e EN)
 - [x] T14 build 4 passos + alvos de repositório sem crescer + corpus
 - [x] T15 `HISTORICO.md` + checklist
-- [ ] T16 merge `--no-ff`, push, CI verde
+- [x] T16 merge `--no-ff`, push, CI verde
 - [ ] T17 editor: rodar `/apagar` (reset da base) e definir `ADMIN_TOKEN` quando for exportar
