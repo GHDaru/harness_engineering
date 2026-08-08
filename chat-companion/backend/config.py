@@ -47,14 +47,30 @@ LLM_MODEL = os.environ.get("LLM_MODEL", "nvidia/nemotron-3-ultra-550b-a55b")
 DATABASE_URL = os.environ.get("DATABASE_URL", "")             # vazio -> MemoryStore
 
 # --- Rede / origens ---
-# Origens que podem chamar o backend. Default cobre o site publicado + dev local.
+# Origens que podem chamar o backend.
 #
-# spec 089: o domínio próprio entra no default ANTES de existir. CORS negado é a
-# falha mais traiçoeira desta migração — o site abre, o texto aparece, e só o
-# companion morre: chat, consentimento, telemetria e link mágico, todos em
-# silêncio, sem erro visível na página. Deixar a origem pré-autorizada custa nada
-# e remove o passo que seria esquecido no dia da virada.
-ALLOWED_ORIGINS = [
+# spec 089 pôs o domínio próprio no DEFAULT antes de ele existir, e eu escrevi que
+# isso "elimina o passo que seria esquecido no dia da virada". Estava errado: o
+# default só vale quando a variável NÃO existe, e `ALLOWED_ORIGINS` estava setada
+# no ambiente desde a feature 017, com a lista velha. No dia da virada o site
+# subiu, o texto apareceu — e o companion morreu em silêncio, exatamente a falha
+# que eu dizia ter prevenido. Proteção que uma variável de ambiente antiga anula
+# não é proteção.
+#
+# spec 092: a origem do PRÓPRIO SITE é sempre autorizada, por derivação de
+# `SITE_URL`. Não é abrir a mão — é coerência: o backend gera links para aquele
+# endereço (o link mágico é `<SITE_URL>entrar.html?t=...`), então recusar chamadas
+# vindas dele seria contradição interna. Uma lista de origens velha deixa de poder
+# trancar o site canônico para fora.
+def _origem(url: str) -> str:
+    """Só esquema + host + porta — o que o navegador manda no cabeçalho Origin."""
+    from urllib.parse import urlsplit
+
+    p = urlsplit(url)
+    return f"{p.scheme}://{p.netloc}" if p.scheme and p.netloc else ""
+
+
+_origens = [
     o.strip()
     for o in os.environ.get(
         "ALLOWED_ORIGINS",
@@ -129,5 +145,10 @@ def transporte_email() -> str:
 # `https://exemplo.com.brentrar.html`. O build ja normalizava; aqui era
 # assimetria minha, e o custo de errar caia no leitor.
 SITE_URL = os.environ.get("SITE_URL", "https://harness.ghdaru.com.br/").rstrip("/") + "/"
+
+# A origem do site sempre entra (spec 092) — depois de SITE_URL existir.
+ALLOWED_ORIGINS = _origens + [
+    o for o in [_origem(SITE_URL)] if o and o not in _origens
+]
 MAGIC_LINK_TTL_MIN = _int("MAGIC_LINK_TTL_MIN", 30)
 RATE_LIMIT_ASSINAR = _int("RATE_LIMIT_ASSINAR", 5)    # envios por janela, por e-mail e por IP
