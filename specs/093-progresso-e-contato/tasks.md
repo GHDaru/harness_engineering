@@ -1,13 +1,13 @@
 # Tarefas — spec 093
 
 ## Backend
-- [ ] T01 `store.py`: tabela `consentimentos` (append-only)
-- [ ] T02 `store.py`: `registrar_consentimento` / `consentimentos_de` (estado = última linha)
-- [ ] T03 `store.py`: `emails_com_contato` (só ativos) e `capitulos_lidos` (de `nav_events`)
-- [ ] T04 `app.py`: `POST` e `GET /consentimento`
-- [ ] T05 `app.py`: `GET /progresso/detalhe`
-- [ ] T06 `app.py`: `GET /leitores` (admin; desligado sem `ADMIN_TOKEN`)
-- [ ] T07 testes: dar, revogar, regravar; revogar contato preserva continuidade; export só com token
+- [x] T01 `store.py`: tabela `consentimentos` (append-only)
+- [x] T02 `store.py`: `registrar_consentimento` / `consentimentos_de` (estado = última linha)
+- [x] T03 `store.py`: `emails_com_contato` (só ativos) e `capitulos_lidos` (de `nav_events`)
+- [x] T04 `app.py`: `POST` e `GET /consentimento`
+- [x] T05 `app.py`: `GET /progresso/detalhe`
+- [x] T06 `app.py`: `GET /leitores` (admin; desligado sem `ADMIN_TOKEN`)
+- [x] T07 testes: dar, revogar, regravar; revogar contato preserva continuidade; export só com token
 
 ## Frontend
 - [ ] T08 `build.mjs`: cartão "Sua leitura" substitui o "Retomar"; expõe a lista de capítulos ao JS
