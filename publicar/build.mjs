@@ -109,6 +109,9 @@ const T = EN
       entrarTitulo: "Reading link",
       entrarCarregando: "Signing you in…",
       entrarNota: "Reading links work once and expire in a few minutes. No password, no account — the e-mail only carries your progress from one device to the next.",
+      sairTitulo: "Unsubscribe",
+      sairCarregando: "Unsubscribing…",
+      sairNota: "This only stops notices about new books. Your reading link and your progress are untouched.",
       sumarioTitulo: "Contents",
       seloVivo: "Living book — see History",
       estadoArte: "state of the art",
@@ -145,6 +148,14 @@ const T = EN
       mdLivroTitulo: "Full book as Markdown (LLM-friendly)",
       continueLendo: "Continue reading",
       retomar: "Resume ▶",
+      // spec 093: mostrar o progresso É o convite. O cartão antigo dizia onde o
+      // leitor parou; este diz quanto ele andou — e só então oferece guardar.
+      suaLeitura: "Your reading",
+      leituraLocal: "This progress lives only in this browser.",
+      leituraGuardar: "Save it with an e-mail",
+      leituraOque: "what is this?",
+      leituraSinc: "Synced",
+      leituraSair: "sign out",
       trilha: [
         ["01-foundations.html", "Track · 1", "Foundations", "The book's vocabulary and thesis."],
         ["02-agent-loop.html", "Track · 2", "Capabilities", "The 16 components, one per chapter."],
@@ -167,6 +178,9 @@ const T = EN
       entrarTitulo: "Link de leitura",
       entrarCarregando: "Entrando…",
       entrarNota: "Links de leitura valem uma vez e expiram em poucos minutos. Sem senha, sem cadastro — o e-mail só leva seu progresso de um aparelho para o outro.",
+      sairTitulo: "Descadastro",
+      sairCarregando: "Cancelando…",
+      sairNota: "Isto só encerra os avisos de livro novo. Seu link de leitura e seu progresso ficam intactos.",
       sumarioTitulo: "Sumário",
       seloVivo: "Livro vivo — ver Histórico",
       estadoArte: "estado da arte",
@@ -203,6 +217,12 @@ const T = EN
       mdLivroTitulo: "Livro completo em Markdown (bom para LLMs)",
       continueLendo: "Continue lendo",
       retomar: "Retomar ▶",
+      suaLeitura: "Sua leitura",
+      leituraLocal: "Este progresso vive só neste navegador.",
+      leituraGuardar: "Guardar com um e-mail",
+      leituraOque: "o que é isso?",
+      leituraSinc: "Sincronizado",
+      leituraSair: "sair",
       trilha: [
         ["01-fundamentos.html", "Trilha · 1", "Fundamentos", "O vocabulário e a tese do livro."],
         ["02-loop-do-agente.html", "Trilha · 2", "Funcionalidades", "Os 16 componentes, um por capítulo."],
@@ -237,6 +257,15 @@ const COMPANION_CAPS = [
   { chave: "evals", rotulo: "Verificação", libera: 11 },
 ];
 const capituloDe = (titulo) => parseInt((String(titulo).match(/^\s*(\d+)/) || [])[1], 10) || 0;
+
+// spec 093: a lista de capítulos, para o JS saber o denominador de "6 de 18".
+// Quem sabe o que é capítulo é o site, que tem o sumário — o backend devolve os
+// slugs visitados e não finge conhecer a estrutura do livro. `partesCartao` já é
+// a definição usada na entrada (capítulos ganham cartão; aparato e benchmark
+// viram pílulas), então reaproveitá-la evita duas noções de "capítulo" no mesmo
+// projeto — que divergiriam no primeiro apêndice novo.
+const CAPITULOS = itens.filter((i) => T.partesCartao.has(i.parte)).map((i) => i.slug);
+const LIVRO_JS = JSON.stringify({ caps: CAPITULOS }).replace(/</g, "\\u003c");
 function companionSnippet(chapter) {
   const cfg = JSON.stringify({ backend: COMPANION_BACKEND, chapter, mode: "progressivo", lang: LANG, capabilities: COMPANION_CAPS });
   return `<script>window.COMPANION=${cfg.replace(/</g, "\\u003c")}</script>
@@ -434,9 +463,11 @@ ${pillIdioma(slug)}
     ${hero || selo}
     <article class="markdown">${corpo}</article>
     <nav class="pagcards">${navBtn(prev, "prev")}${navBtn(next, "next")}</nav>
+    ${CAPITULOS.indexOf(slug) >= 0 ? `<div class="fim-cap" id="fim-cap" hidden></div>` : ""}
     <footer class="rodape">${T.rodape}</footer>
   </main>
 </div>
+<script>window.LIVRO=${LIVRO_JS}</script>
 <script src="${A}app.js"></script>
 <script src="${A}viz.js" defer></script>
 <script src="${A}uso.js" defer></script>
@@ -581,6 +612,34 @@ function paginaEntrar() {
 </body></html>`;
 }
 
+// spec 093 (R4): descadastro de um clique. É a contrapartida da ADR 0010 — a
+// lista de contato só é defensável se sair dela custar um clique, sem login,
+// sem formulário e sem "conte por que está saindo". A página existe ANTES de
+// haver mensagem de contato: o link que ela atende já nasce em todo e-mail
+// futuro, e um link de descadastro que leva a 404 é pior que não ter lista.
+function paginaSair() {
+  const cfg = JSON.stringify({ backend: COMPANION_BACKEND, lang: LANG });
+  return `<!doctype html>
+<html lang="${T.htmlLang}"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>${T.sairTitulo} · ${sumario.titulo}</title>
+<link rel="icon" type="image/svg+xml" href="${A}favicon.svg">
+<link rel="stylesheet" href="${A}estilo.css">
+</head><body class="entrar-body" data-lang="${LANG}">
+<main class="entrar">
+  <a class="entrar-marca" href="index.html">${sumario.titulo}</a>
+  <div class="entrar-estado carregando" id="sair-estado">
+    <h2>${T.sairCarregando}</h2>
+  </div>
+  <p class="entrar-nota">${T.sairNota}</p>
+</main>
+<script>window.COMPANION=${cfg.replace(/</g, "\\u003c")}</script>
+<script src="${A}app.js"></script>
+<script src="${A}sair.js" defer></script>
+</body></html>`;
+}
+
 function montarNavLateral(atualSlug) {
   return sumario.partes
     .map(
@@ -616,6 +675,7 @@ if (!EN) {
   cpSync(resolve(AQUI, "tema/companion.js"), resolve(SAIDA, "assets/companion.js"));
   cpSync(resolve(AQUI, "tema/uso.js"), resolve(SAIDA, "assets/uso.js"));
   cpSync(resolve(AQUI, "tema/entrar.js"), resolve(SAIDA, "assets/entrar.js"));
+  cpSync(resolve(AQUI, "tema/sair.js"), resolve(SAIDA, "assets/sair.js"));
   cpSync(resolve(AQUI, "tema/grafo.js"), resolve(SAIDA, "assets/grafo.js"));
   cpSync(resolve(AQUI, "tema/favicon.svg"), resolve(SAIDA, "assets/favicon.svg"));
   cpSync(resolve(AQUI, "tema/favicon-32.png"), resolve(SAIDA, "assets/favicon-32.png"));
@@ -734,6 +794,7 @@ if (!EN) {
 // index = tela-capa (splash); porta de entrada (por idioma).
 writeFileSync(resolve(SAIDA, "index.html"), paginaSplash());
 writeFileSync(resolve(SAIDA, "entrar.html"), paginaEntrar());  // spec 080
+writeFileSync(resolve(SAIDA, "sair.html"), paginaSair());      // spec 093 (R4)
 
 // sumario.html = a EXPERIÊNCIA DE ENTRADA (spec 021), por idioma.
 const cartaoEnt = (i) => {
@@ -779,10 +840,18 @@ const corpoSumario = `<section class="entrada">
     </div>
   </div>
   ${blocoNews}
-  <a class="ent-retomar" id="ent-retomar" href="#" hidden>
-    <span class="ent-ret-l"><span class="ent-ret-lab">${T.continueLendo}</span><span class="ent-ret-cap" id="ent-ret-cap"></span></span>
-    <span class="ent-btn ent-btn-a">${T.retomar}</span>
-  </a>
+  <section class="ent-leitura" id="ent-leitura" hidden>
+    <div class="ent-leitura-cab">
+      <span class="ent-leitura-lab">${T.suaLeitura}</span>
+      <span class="ent-leitura-cont" id="ent-leitura-cont"></span>
+    </div>
+    <div class="ent-barra"><i id="ent-barra-i"></i></div>
+    <a class="ent-retomar" id="ent-retomar" href="#" hidden>
+      <span class="ent-ret-l"><span class="ent-ret-lab">${T.continueLendo}</span><span class="ent-ret-cap" id="ent-ret-cap"></span></span>
+      <span class="ent-btn ent-btn-a">${T.retomar}</span>
+    </a>
+    <p class="ent-leitura-pe" id="ent-leitura-pe"></p>
+  </section>
   <div class="ent-trilha">
     ${trilhaHtml}
   </div>

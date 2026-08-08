@@ -597,7 +597,7 @@
       consentCard.appendChild(el("div", "cmp-consent-t", tx("Antes de conversar…", "Before we chat…")));
       consentCard.appendChild(el("p", null, CONSENT_TXT));
       var bt = el("button", "cmp-send cmp-send-rot", tx("Entendi e aceito", "Got it, I accept"));
-      bt.addEventListener("click", function () { aceitarConsent(); renderConsent(); renderConta(); convidarNoRetomar(); banner && banner.remove(); oferecerTour(); input.focus(); });
+      bt.addEventListener("click", function () { aceitarConsent(); renderConsent(); renderConta(); banner && banner.remove(); oferecerTour(); input.focus(); });
       consentCard.appendChild(bt);
     }
   }
@@ -609,7 +609,7 @@
     banner = el("div", "cmp-banner");
     var texto = el("span", null, "💬 " + CONSENT_TXT);
     var bt = el("button", "cmp-banner-bt", tx("Entendi e aceito", "Got it, I accept"));
-    bt.addEventListener("click", function () { aceitarConsent(); banner.remove(); banner = null; renderConsent(); renderConta(); convidarNoRetomar(); oferecerTour(); });
+    bt.addEventListener("click", function () { aceitarConsent(); banner.remove(); banner = null; renderConsent(); renderConta(); oferecerTour(); });
     banner.appendChild(texto); banner.appendChild(bt);
     document.body.appendChild(banner);
   }
@@ -638,9 +638,15 @@
     enviarNav(slug, false);
   }
 
-  // --- Conta de leitura por link mágico (spec 080) ---
+  // --- Conta de leitura por link mágico (spec 080 → 093) ---
   // Não bloqueia nada: a navegação anônima é completa e o convite é dispensável.
-  // O e-mail serve a UM propósito — entregar o link. Nenhum informativo.
+  //
+  // A promessa mudou de forma auditável na ADR 0010, e o texto muda junto. Antes:
+  // "sem informativo". Agora: assinar continua entregando SÓ o link, e ser avisado
+  // de um livro novo é uma SEGUNDA pergunta, feita depois de entrar e desmarcada
+  // por padrão. Manter o "sem informativo" seria mentira; embutir a novidade na
+  // assinatura seria pior — viraria consentimento por tabela, que é justamente o
+  // que o cap. 07 ensina a não fazer.
 
   function renderConta() {
     contaBox.innerHTML = "";
@@ -656,11 +662,25 @@
       apagar.title = tx("Apaga seu e-mail, suas conversas e seu progresso do servidor.", "Deletes your e-mail, conversations, and progress from the server.");
       apagar.addEventListener("click", apagarConta);
       contaBox.appendChild(sair); contaBox.appendChild(apagar);
+      // spec 093: o estado dos avisos fica visível e reversível no mesmo lugar em
+      // que foi dado. Revogar aqui não toca a continuidade — são finalidades
+      // separadas, e misturá-las puniria quem só não quer receber novidade.
+      if (CONTATO !== null) {
+        var av = el("button", "cmp-conta-bt", CONTATO
+          ? tx("avisos: sim", "notices: on") : tx("avisos: não", "notices: off"));
+        av.title = CONTATO
+          ? tx("Você receberá aviso de livro novo. Clique para cancelar.",
+               "You'll hear about new books. Click to turn it off.")
+          : tx("Você não recebe avisos. Clique para passar a receber.",
+               "You don't get notices. Click to turn them on.");
+        av.addEventListener("click", function () { responderContato(!CONTATO); });
+        contaBox.appendChild(av);
+      }
     } else {
       var conv = el("button", "cmp-conta-bt cmp-conta-conv",
         tx("✉ guardar meu progresso", "✉ keep my progress"));
-      conv.title = tx("Um e-mail, um link. Sem senha, sem cadastro, sem informativo.",
-                      "One e-mail, one link. No password, no account, no newsletter.");
+      conv.title = tx("Um e-mail, um link. Sem senha e sem cadastro — o e-mail serve para guardar sua leitura.",
+                      "One e-mail, one link. No password, no account — the e-mail is there to keep your reading.");
       conv.addEventListener("click", function () { pedirAssinatura(""); });
       contaBox.appendChild(conv);
     }
@@ -684,8 +704,8 @@
     open();
     assinarForm.hidden = false;
     addMsg("sys", tx(
-      "✉ Informe seu e-mail abaixo e eu envio um link. Ao abri-lo, seu progresso de leitura e suas conversas passam a acompanhar você em qualquer aparelho. Sem senha, sem cadastro e sem informativo — o e-mail serve só para o link. Para sair depois: /sair; para apagar tudo: /apagar.",
-      "✉ Enter your e-mail below and I'll send you a link. Opening it makes your reading progress and conversations follow you on any device. No password, no account, no newsletter — the e-mail is only for the link. To sign out later: /sair; to delete everything: /apagar."));
+      "✉ Informe seu e-mail abaixo e eu envio um link. Ao abri-lo, seu progresso de leitura e suas conversas passam a acompanhar você em qualquer aparelho. Sem senha e sem cadastro — o e-mail serve para guardar sua leitura. Depois de entrar, eu pergunto uma vez se você quer ser avisado quando sair um livro novo; dizer não não muda nada. Para sair depois: /sair; para apagar tudo: /apagar.",
+      "✉ Enter your e-mail below and I'll send you a link. Opening it makes your reading progress and conversations follow you on any device. No password, no account — the e-mail is there to keep your reading. Once you're in, I ask once whether you'd like to hear about a new book; saying no changes nothing. To sign out later: /sair; to delete everything: /apagar."));
     if (email) { assinarTxt.value = email; assinarForm.requestSubmit(); return; }
     setTimeout(function () { assinarTxt.focus(); }, 60);  // open() foca a entrada em 30ms
   }
@@ -721,6 +741,7 @@
     SID = uuid(); set("cmp_sid", SID);
     histLoaded = false; greeted = false;
     EMAIL = ""; set("cmp_email", "");
+    CONTATO = null;   // spec 093: sessão nova não herda a resposta de ninguém
     msgs.innerHTML = ""; renderConta();
   }
 
@@ -754,20 +775,60 @@
       .then(function (d) {
         var remoto = (d && d.email) || "";
         if (remoto !== EMAIL) { EMAIL = remoto; set("cmp_email", remoto); renderConta(); }
+        conferirContato();   // spec 093: só faz sentido depois de saber quem é
       }).catch(function () {});
   }
 
-  // Convite no cartão "Retomar" do sumário — o lugar em que a perda dói.
-  function convidarNoRetomar() {
-    if (!BACKEND || EMAIL || !consentiu()) return;
-    var card = document.getElementById("ent-retomar");
-    if (!card || card.hidden || document.querySelector(".cmp-conv-retomar")) return;
-    var p = el("p", "cmp-conv-retomar");
-    p.appendChild(document.createTextNode(tx("Lendo em mais de um aparelho? ", "Reading on more than one device? ")));
-    var bt = el("button", "cmp-conv-link", tx("guarde seu progresso com um e-mail", "keep your progress with an e-mail"));
-    bt.addEventListener("click", function () { pedirAssinatura(""); });
-    p.appendChild(bt);
-    card.parentNode.insertBefore(p, card.nextSibling);
+  // --- Segundo consentimento: avisos de livro novo (spec 093 / ADR 0010) ---
+  //
+  // `null` é um estado de verdade, não um "false ainda não carregado": quem nunca
+  // respondeu não é a mesma coisa que quem disse não, e é essa distinção que faz
+  // a pergunta ser feita UMA vez em vez de nunca ou sempre. Assinantes antigos
+  // chegam aqui como `null` — não são migrados, são perguntados.
+  var CONTATO = null;
+
+  function conferirContato() {
+    if (!BACKEND || !EMAIL) return;
+    api("/consentimento?session_id=" + encodeURIComponent(SID), {})
+      .then(function (d) {
+        var c = d && d.consentimentos && d.consentimentos.contato;
+        CONTATO = c ? !!c.aceito : null;
+        renderConta();
+        if (CONTATO === null) perguntarContato();
+      })
+      .catch(function () {});
+  }
+
+  function responderContato(aceito) {
+    api("/consentimento", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ session_id: SID, finalidade: "contato", aceito: aceito }) })
+      .then(function () {
+        CONTATO = aceito; renderConta();
+        addMsg("sys", aceito
+          ? tx("Combinado. Vou te avisar quando sair um livro novo — e todo e-mail desses traz um link de saída de um clique. Nada além disso: sem patrocinador, sem repasse a terceiro.",
+               "Done. I'll let you know when a new book comes out — and every one of those e-mails carries a one-click opt-out. Nothing beyond that: no sponsors, no sharing with third parties.")
+          : tx("Sem problema — nenhum aviso. Seu link de leitura continua exatamente igual.",
+               "No problem — no notices. Your reading link works exactly the same."));
+      })
+      .catch(function (err) {
+        addMsg("sys", tx("⚠️ Não consegui registrar sua resposta (" + err.message + "). Pergunto de novo depois.",
+                         "⚠️ I couldn't record your answer (" + err.message + "). I'll ask again later."));
+      });
+  }
+
+  function perguntarContato() {
+    if (!EMAIL || CONTATO !== null || document.querySelector(".cmp-avisos")) return;
+    var m = addMsg("sys", tx("Quer que eu avise quando sair um livro novo?",
+                             "Would you like me to tell you when a new book comes out?"));
+    var linha = el("div", "cmp-avisos");
+    var sim = el("button", "cmp-conta-bt", tx("sim, pode me avisar", "yes, tell me"));
+    sim.addEventListener("click", function () { linha.remove(); responderContato(true); });
+    var nao = el("button", "cmp-conta-bt", tx("não, obrigado", "no, thanks"));
+    nao.addEventListener("click", function () { linha.remove(); responderContato(false); });
+    linha.appendChild(sim); linha.appendChild(nao);
+    m.appendChild(linha);
+    // Nenhum dos dois vem pré-selecionado, e fechar o painel sem responder deixa
+    // o estado em `null`: silêncio vale não, e nunca vale sim.
   }
 
   renderCaps(); root.setAttribute("data-dock", DOCK); renderConsent();
@@ -775,7 +836,7 @@
   function bootstrap() {
     if (bootFeito) return; bootFeito = true;
     document.body.appendChild(root); montarBanner(); telemetria();
-    renderConta(); conferirConta(); convidarNoRetomar();
+    renderConta(); conferirConta();
   }
   document.addEventListener("DOMContentLoaded", bootstrap);
   if (document.readyState !== "loading") bootstrap();

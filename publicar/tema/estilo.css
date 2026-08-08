@@ -256,12 +256,60 @@ table.viz-heat { border-collapse: collapse; width: 100%; font-size: .9rem; displ
 .ent-btn-a { background: linear-gradient(180deg, #f2b74e, #e09a26); border-color: transparent; color: #3a2600; }
 .ent-btn-a:hover { filter: brightness(1.05); border-color: transparent; }
 
-.ent-retomar { display: flex; align-items: center; gap: 1rem; margin-top: .9rem;
-  background: rgba(224,162,74,.10); border: 1px solid rgba(224,162,74,.30); border-left: 3px solid var(--prat);
-  border-radius: 12px; padding: .75rem 1.1rem; text-decoration: none; color: var(--fg); }
+/* "Sua leitura" (spec 093): substitui o cartão "Retomar", que dizia onde o
+   leitor parou sem dizer quanto ele andou. Mostrar o progresso É o convite —
+   por isso a barra e a contagem vêm ANTES da oferta de guardar, e a oferta é a
+   última linha, não um banner. */
+.ent-leitura { margin-top: .9rem; background: rgba(224,162,74,.10);
+  border: 1px solid rgba(224,162,74,.30); border-left: 3px solid var(--prat);
+  border-radius: 12px; padding: .85rem 1.1rem 1rem; }
+.ent-leitura-cab { display: flex; align-items: baseline; gap: .8rem; }
+.ent-leitura-lab { font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.ent-leitura-cont { margin-left: auto; font-size: .82rem; font-weight: 700; color: var(--fg); }
+.ent-barra { height: 7px; margin: .5rem 0 .2rem; border-radius: 99px;
+  background: rgba(127,127,127,.22); overflow: hidden; }
+.ent-barra i { display: block; height: 100%; width: 0;
+  background: linear-gradient(90deg, #f2b74e, #e09a26); transition: width .35s ease; }
+.ent-leitura-pe { margin: .7rem 0 0; font-size: .8rem; color: var(--muted); line-height: 1.55; }
+
+.ent-retomar { display: flex; align-items: center; gap: 1rem; margin-top: .7rem;
+  background: var(--bg); border: 1px solid rgba(224,162,74,.30);
+  border-radius: 10px; padding: .6rem .9rem; text-decoration: none; color: var(--fg); }
 .ent-ret-l { flex: 1; display: flex; flex-direction: column; }
 .ent-ret-lab { font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .ent-ret-cap { font-weight: 700; }
+
+/* Botão que se lê como link: guardar e sair não são navegação, mas também não
+   merecem o peso visual de um botão primário — o cartão é sobre a leitura, não
+   sobre o cadastro. */
+.hz-link { background: none; border: 0; padding: 0; font: inherit; color: var(--link);
+  cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.hz-link:hover { filter: brightness(1.15); }
+.hz-explica { margin: .6rem 0 0; font-size: .78rem; color: var(--muted); line-height: 1.55; }
+
+.hz-assinar { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; margin-top: .6rem; }
+.hz-assinar input { flex: 1 1 12rem; min-width: 0; padding: .5rem .7rem; font: inherit; font-size: .88rem;
+  color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 9px; }
+.hz-assinar input:focus { outline: 2px solid var(--prat); outline-offset: 1px; }
+.hz-assinar button { cursor: pointer; }
+.hz-assinar-aviso { flex-basis: 100%; font-size: .78rem; color: var(--muted); line-height: 1.5; }
+.hz-assinar-aviso.erro { color: #c0605a; }
+
+/* Fim de capítulo (spec 093): no FLUXO do texto, abaixo do anterior/próximo.
+   Nunca fixo, nunca modal, nunca por cima — o livro é o que a pessoa veio ler. */
+.fim-cap { margin: 1.4rem 0 0; padding: .9rem 1.1rem; border: 1px dashed var(--line);
+  border-radius: 12px; background: rgba(127,127,127,.05); }
+.fim-cap-cab { margin: 0; font-size: .82rem; font-weight: 700; color: var(--prat); }
+.fim-cap-tx { margin: .35rem 0 0; font-size: .84rem; color: var(--muted); line-height: 1.55; }
+.fim-cap-x { display: block; margin-top: .55rem; font-size: .78rem; color: var(--muted); }
+
+/* Pergunta de avisos na entrada e descadastro (spec 093 / ADR 0010). */
+.entrar-avisos { margin-top: 1.1rem; padding: .85rem 1rem; border: 1px solid var(--line);
+  border-radius: 12px; background: var(--sidebar); }
+.entrar-avisos label { display: flex; align-items: flex-start; gap: .55rem;
+  font-size: .9rem; line-height: 1.45; cursor: pointer; }
+.entrar-avisos input { margin-top: .18rem; }
+.entrar-avisos-nota { margin: .5rem 0 0; font-size: .78rem; color: var(--muted); line-height: 1.5; }
 
 .ent-trilha { display: grid; grid-template-columns: repeat(4, 1fr); gap: .7rem; margin: 1.1rem 0 .2rem; }
 .ent-step { display: block; background: var(--sidebar); border: 1px solid var(--line); border-radius: 12px;

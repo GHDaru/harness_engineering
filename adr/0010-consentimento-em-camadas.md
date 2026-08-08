@@ -1,6 +1,6 @@
 # ADR 0010 — Consentimento em camadas: continuidade e contato são coisas diferentes
 
-- **Status**: proposta (2026-08-07) — aguarda aprovação do editor
+- **Status**: **aceita** (2026-08-08) — aprovada pelo editor; implementada na spec 093
 - **Feature**: `093-progresso-e-contato`
 - **Emenda a**: [ADR 0009](0009-continuidade-por-email.md), cuja "fronteira explícita" exigia
   justamente esta ADR para ser movida
