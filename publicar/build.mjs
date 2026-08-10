@@ -93,10 +93,24 @@ const mapaExtras = new Map(extras.map((e) => [e.arquivo, (EN ? "../" : "") + e.s
 const GITHUB_BASE = "https://github.com/GHDaru/harness_engineering/blob/main/";
 // Endereço público do site (spec 089). Sai por `SITE_URL` para que trocar de
 // hospedagem — GitHub Pages, Vercel, o que vier — seja mudar UMA variável, não
-// mexer em código. Alimenta canonical, hreflang e og:image: 428 ocorrências no
-// HTML gerado, todas derivadas daqui. A barra final é normalizada porque
-// esquecê-la produziria `https://exemplo.comindex.html`.
-const SITE = (process.env.SITE_URL || "https://ghdaru.github.io/harness_engineering/")
+// mexer em código. Alimenta `canonical`, `hreflang`, `og:image`, o `sitemap.xml`
+// e o rodapé dos PDFs. A barra final é normalizada porque esquecê-la produziria
+// `https://exemplo.comindex.html`.
+//
+// spec 095, duas correções:
+//
+// 1. Este comentário AFIRMAVA que `SITE_URL` alimentava canonical — e não havia
+//    uma única tag `rel="canonical"` no HTML gerado. A afirmação estava errada
+//    aqui e no registro da edição 0.76 do HISTÓRICO. Agora é verdade; a correção
+//    do registro fica datada na edição nova, porque livro vivo corrige em
+//    público em vez de reescrever o passado.
+//
+// 2. O DEFAULT era o endereço antigo, e `SITE_URL` só existe no workflow —
+//    então build local e build de CI produziam metadados diferentes, e quem
+//    construísse na própria máquina gerava o endereço abandonado. É a armadilha
+//    que pegou este projeto quatro vezes ("variável de ambiente antiga vence
+//    default novo"), desta vez pelo avesso: o default é que estava velho.
+const SITE = (process.env.SITE_URL || "https://harness.ghdaru.com.br/")
   .replace(/\/*$/, "/");
 const DOI = "10.5281/zenodo.21632412";
 
@@ -416,11 +430,19 @@ function pillIdioma(slug) {
   const outro = T.outroIdioma;
   return `<nav class="lang-pill" aria-label="Idioma / Language"><span class="lang-atual">${atual}</span><a href="${alvo}" title="${T.outroIdiomaTitulo}" data-lang-alvo="${EN ? "pt" : "en"}">${outro}</a></nav>`;
 }
-function hreflangs(slug) {
+// Canonical + hreflang saem do MESMO ponto, de propósito: `aqui` já é "o endereço
+// desta página", e duas noções separadas disso divergiriam no primeiro apêndice
+// que alguém acrescentasse.
+//
+// Cada página aponta para SI MESMA. A edição EN não se declara cópia da PT — quem
+// relaciona os idiomas é o `hreflang`. Confundir os dois papéis é o erro clássico
+// de i18n e faria uma edição inteira renunciar à própria indexação.
+function elosDePagina(slug) {
   const aqui = EN ? `en/${slug}.html` : `${slug}.html`;
   const la = EN ? `${parDe[slug] || "sumario"}.html` : `en/${parDe[slug] || "sumario"}.html`;
   const pt = EN ? la : aqui, en = EN ? aqui : la;
-  return `<link rel="alternate" hreflang="pt-BR" href="${SITE}${pt}">
+  return `<link rel="canonical" href="${SITE}${aqui}">
+<link rel="alternate" hreflang="pt-BR" href="${SITE}${pt}">
 <link rel="alternate" hreflang="en" href="${SITE}${en}">
 <link rel="alternate" hreflang="x-default" href="${SITE}${pt}">`;
 }
@@ -444,7 +466,7 @@ function pagina({ tituloLivro, tituloPagina, corpo, navLateral, prev, next, data
 <meta property="og:description" content="${sumario.subtitulo}">
 <meta property="og:image" content="${SITE}assets/capa-social.png">
 <meta name="twitter:card" content="summary_large_image">
-${hreflangs(slug)}
+${elosDePagina(slug)}
 <link rel="icon" type="image/svg+xml" href="${A}favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="${A}favicon-32.png">
 <link rel="apple-touch-icon" href="${A}apple-touch-icon.png">
@@ -548,7 +570,7 @@ function paginaSplash() {
 <meta property="og:description" content="${sumario.subtitulo}">
 <meta property="og:image" content="${SITE}assets/capa-social.png">
 <meta name="twitter:card" content="summary_large_image">
-${hreflangs("index")}
+${elosDePagina("index")}
 <link rel="icon" type="image/svg+xml" href="${A}favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="${A}favicon-32.png">
 <link rel="apple-touch-icon" href="${A}apple-touch-icon.png">
@@ -943,6 +965,40 @@ if (quebrados.length) {
   console.error(`✗ ${quebrados.length} link(s) interno(s) quebrado(s):`);
   quebrados.forEach((q) => console.error("   " + q));
   process.exit(1);
+}
+
+// --- sitemap.xml e robots.txt (spec 095) ------------------------------------
+//
+// Saem da MESMA lista que o verificador de links acabou de usar (`paginas`), e
+// não de uma enumeração própria: uma segunda lista divergiria da primeira no
+// primeiro apêndice que alguém acrescentasse, e um sitemap que mente sobre o
+// que existe é pior que não ter sitemap.
+//
+// Escritos só na passada PT, com as URLs dos DOIS idiomas — o arquivo vive na
+// raiz do site e é um só. A passada EN roda depois e sobrescreveria com metade.
+if (!EN) {
+  const paginasEn = new Set(
+    [...paginas].map((f) => {
+      const slug = f.replace(/\.html$/, "");
+      const par = parDe[slug];
+      return par ? `en/${par}.html` : null;   // extras e Radar são PT-only
+    }).filter(Boolean)
+  );
+  const urls = [...paginas, ...paginasEn].sort();
+  writeFileSync(
+    resolve(SAIDA, "sitemap.xml"),
+    '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+      urls.map((u) => `  <url><loc>${SITE}${u}</loc></url>`).join("\n") +
+      "\n</urlset>\n"
+  );
+  // Permissivo de propósito: o robots não existe aqui para barrar ninguém, e sim
+  // para dizer onde está o mapa.
+  writeFileSync(
+    resolve(SAIDA, "robots.txt"),
+    `User-agent: *\nAllow: /\n\nSitemap: ${SITE}sitemap.xml\n`
+  );
+  console.log(`✓ sitemap.xml: ${urls.length} URLs · robots.txt`);
 }
 
 console.log(`✓ Livro gerado [${LANG}]: ${gerados} páginas + capa em ${EN ? "docs/en/" : "docs/"} (links internos OK)`);
