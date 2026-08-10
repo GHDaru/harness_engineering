@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/bibliografia.md edicao:0.61 hash:6e0df4f4 -->
+<!-- i18n fonte:livro/bibliografia.md edicao:0.78 hash:daa7f22c -->
 # The book's scientific bibliography
 
 > Editorial rule: no reference enters a chapter without status **✓ validated** (ID↔title confirmed by an independent source). 2026-07-29 review (spec 050): **every ⏳ item was verified by independent web search** and promoted to ✓ (with two corrections recorded: arXiv 2509.18661 is the *Agentic* AutoSurvey; Norton's ISBN 9780226595146 is the 1st ed., 2009). ⭐ = chapter anchor.
@@ -128,6 +128,7 @@ Industry sources (docs/vendor/practitioners) along the Ch. 06 line below.
 
 ## Ch. 11 — Verification and Evals
 
+- ✓ **Harness Score** (Fernando Paladini, 2026) — [repository](https://github.com/paladini/harness-score) (MIT) · [guide](https://paladini.github.io/harness-score/). A **deterministic** instrument for the harness maturity of a repository: L0–L4, 108 points across 6 dimensions, 36 checks, *"zero LLM calls, zero network access, and the same result every time"*. It belongs in this chapter for its design choice, not its score: external, anchored verification applied to the act of measuring. Used in the [Appendix — Measure your harness](appendix-harness-score.md), where this book's repository is measured before and after. ⏳ version discrepancy to track: the site announces npm v1.2.0, the repository shows release v1.0.0.
 - ⭐ ✓ **SWE-bench: Can Language Models Resolve Real-World GitHub Issues?** (Jimenez et al.) — arXiv [2310.06770](https://arxiv.org/abs/2310.06770); ICLR '24. Grading by executing the repo's real tests (FAIL_TO_PASS/PASS_TO_PASS), not string-match.
 - ⭐ ✓ **Large Language Models Cannot Self-Correct Reasoning Yet** (Huang et al.) — arXiv [2310.01798](https://arxiv.org/abs/2310.01798); ICLR '24. Do not trust *intrinsic* self-correction — an external verifier is needed.
 - ✓ **SWE-agent: Agent-Computer Interfaces Enable Automated SE** (Yang et al.) — arXiv [2405.15793](https://arxiv.org/abs/2405.15793); NeurIPS '24. Tool ergonomics (ACI) drives success, not just the model.

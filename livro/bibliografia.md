@@ -127,6 +127,7 @@ Fontes da indústria (docs/vendor/praticantes) na linha do Cap. 06 abaixo.
 
 ## Cap. 11 — Verificação e Evals
 
+- ✓ **Harness Score** (Fernando Paladini, 2026) — [repositório](https://github.com/paladini/harness-score) (MIT) · [guia](https://paladini.github.io/harness-score/). Instrumento **determinístico** de maturidade do harness de um repositório: L0–L4, 108 pontos em 6 dimensões, 36 checagens, *"zero LLM calls, zero network access, and the same result every time"*. Entra neste capítulo por causa da escolha de projeto, não do placar: é verificação externa e ancorada aplicada ao ato de medir. Usado no [Apêndice — Meça o seu harness](apendice-harness-score.md), onde o repositório deste livro é medido antes e depois. ⏳ discrepância de versão a acompanhar: o site anuncia npm v1.2.0, o repositório mostra release v1.0.0.
 - ⭐ ✓ **SWE-bench: Can Language Models Resolve Real-World GitHub Issues?** (Jimenez et al.) — arXiv [2310.06770](https://arxiv.org/abs/2310.06770); ICLR '24. Grading por execução dos testes reais do repo (FAIL_TO_PASS/PASS_TO_PASS), não string-match.
 - ⭐ ✓ **Large Language Models Cannot Self-Correct Reasoning Yet** (Huang et al.) — arXiv [2310.01798](https://arxiv.org/abs/2310.01798); ICLR '24. Não confie na auto-correção *intrínseca* — é preciso verificador externo.
 - ✓ **SWE-agent: Agent-Computer Interfaces Enable Automated SE** (Yang et al.) — arXiv [2405.15793](https://arxiv.org/abs/2405.15793); NeurIPS '24. A ergonomia de tools (ACI) dirige o sucesso, não só o modelo.

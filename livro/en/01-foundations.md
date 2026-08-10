@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/01-fundamentos.md edicao:0.71 hash:5697b09a -->
+<!-- i18n fonte:livro/01-fundamentos.md edicao:0.78 hash:ece0f6e5 -->
 # 01 — Foundations
 
 > **State of the art captured in 2026-07** · last revised 2026-08-01 · [history and expiration log](../historico.html)
@@ -55,6 +55,8 @@ The discipline's literature converges on a definition of the harness as a **runt
 4. **Control mechanisms** — permissions, approvals, sandboxes and limits that constrain what the agent can do (ch. 07).
 
 A system missing any of the four **is not a complete harness**: a chatbot with tools but no loop is a "function caller"; a loop without control is an incident waiting to happen; tools without context management collapse on long tasks. **This is the operational definition that serves as the study's inclusion test** (§5–6).
+
+> **The definition is converging from the outside, from five uncoordinated directions.** (1) Microsoft, announcing its Agent Framework, defines a harness as *"the **scaffolding** that turns a language model into an agent"*; (2) the Meng et al. survey formalises `H = (E, T, C, S, L, V)` — loop, tools, context, state, lifecycle, evaluation; (3) the RUCAIBox survey organises the field into four axes with the same spine; (4) the `best-of-Agent-Harnesses` directory distils *"the model thinks; the harness decides what that thinking is allowed to touch"* — permission inside the definition, not as a separate chapter; and (5) the most operational of them all, because it defines by what can be **verified on the filesystem**: [Harness Score](https://github.com/paladini/harness-score) measures six dimensions — context, skills, guardrails, sensors, CI, hygiene — that fall almost cleanly onto this book's chapters (see the [Appendix — Measure your harness](appendix-harness-score.md)). Five independent groups arriving at the same elements is the best available argument that the definition describes something real, rather than an editorial cut of ours. The four pieces above are the shape this book gives that consensus.
 
 **The four pieces in one real task.** Ask an agent: "the `test_login` test is failing, fix it". What happens, piece by piece: **context management** assembles what the model will see (the project rules, your message, perhaps the test file); the model reads it and decides to request an action — "run the test and show me the error" — which the **tool interface** actually executes in the terminal; the result comes back, the model proposes editing a file, and the **control mechanisms** decide whether that edit happens directly or needs your approval; once applied, the **loop** feeds the model the new state — does the test pass? — and repeats the cycle until the stop criterion. Four pieces, one turn of work. Chapters 02–13 are this paragraph in slow motion.
 

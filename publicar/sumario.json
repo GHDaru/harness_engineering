@@ -137,6 +137,10 @@
           "teaser": "Como o livro é lido: telemetria agregada, ao vivo."
         },
         {
+          "titulo": "Apêndice — Meça o seu harness",
+          "arquivo": "livro/apendice-harness-score.md"
+        },
+        {
           "arquivo": "livro/apendice-grafo.md",
           "titulo": "Apêndice — Grafo do livro",
           "teaser": "O mapa de conexões do livro, interativo e sempre em sincronia."

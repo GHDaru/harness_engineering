@@ -137,6 +137,10 @@
           "teaser": "How the book is read: live aggregated telemetry."
         },
         {
+          "titulo": "Appendix — Measure your harness",
+          "arquivo": "livro/en/appendix-harness-score.md"
+        },
+        {
           "arquivo": "livro/en/appendix-graph.md",
           "titulo": "Appendix — Book graph",
           "teaser": "The book's connection map, interactive and always in sync."
