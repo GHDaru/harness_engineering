@@ -1,7 +1,8 @@
-name: Publicar o livro (GitHub Pages)
+name: Publicar o livro
 
-# Constrói o site a partir do Markdown (motor próprio em publicar/) e publica
-# no GitHub Pages a cada push no main. O docs/ é gerado pelo CI, não versionado.
+# Constrói o site a partir do Markdown (motor próprio em publicar/) e publica em
+# harness.ghdaru.com.br a cada push no main. O docs/ é gerado pelo CI, não
+# versionado. Um endereço só, desde a spec 095.
 
 on:
   push:
@@ -17,11 +18,10 @@ on:
 
 permissions:
   contents: write   # spec 077: o CI commita o corpus regenerado do companion
-  pages: write
-  id-token: write
+  # spec 095: `pages` e `id-token` saíram junto com a publicação no Pages.
 
 concurrency:
-  group: pages
+  group: publicar
   cancel-in-progress: true
 
 jobs:
@@ -92,9 +92,9 @@ jobs:
       - name: Limpar temporario de impressao
         run: rm -f docs/_print.html docs/en/_print.html
 
-      # spec 090: publicacao no Vercel, em paralelo ao Pages durante a transicao.
-      # O passo e INERTE ate o secret VERCEL_TOKEN existir -- `env.VERCEL_TOKEN`
-      # vazio pula o step, entao commitar isto nao quebra nada hoje.
+      # spec 090: publicacao no Vercel. Nasceu em paralelo ao Pages durante a
+      # transicao; desde a spec 095 e o unico canal. O passo e INERTE sem o secret
+      # `VERCEL_TOKEN` -- `env.VERCEL_TOKEN` vazio pula o step.
       #
       # Por que --prebuilt: docs/ e GERADO e esta no .gitignore. Um projeto
       # conectado ao git tentaria construir e nao acharia nada. Aqui o Actions
@@ -116,27 +116,18 @@ jobs:
           echo "### Publicado no Vercel" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "$(tail -1 /tmp/vercel-url.txt)" >> "$GITHUB_STEP_SUMMARY"
-      # Requer que o Pages esteja habilitado uma vez no repositório
-      # (Settings → Pages → Source: GitHub Actions). O token do Actions não
-      # tem permissão para criar o site sozinho — é a única etapa manual.
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs
+      # spec 095: os passos do GitHub Pages saíram daqui.
+      #
+      # O motivo não é preferência de hospedagem — é que havia DUAS cópias vivas e
+      # idênticas do livro no ar, e a spec 089 tinha decidido, com dado, abandonar
+      # o endereço antigo. Decidir não é executar: o passo do Vercel foi
+      # acrescentado (spec 090) e o do Pages nunca foi retirado, então cada
+      # execução publicava nos dois.
+      #
+      # O `docs/` continua sendo construído, verificado e usado para os PDFs. O que
+      # saiu foi a DISTRIBUIÇÃO por um segundo canal, não a construção.
+      #
+      # ⚠️ Isto faz o Pages parar de RECEBER atualização; a última versão publicada
+      # continua servida até o editor desligar em Settings → Pages (fechar o
+      # repositório também resolve: Pages de repo privado exige plano pago).
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      # O default do deploy-pages é abortar em 10 min. Em 2026-08-06 a fila do
-      # Pages passou a demorar mais que isso e quatro publicações seguidas
-      # (runs 86, 87, 89, 90) morreram em `deployment_queued` -> `Timeout
-      # reached, aborting!` com o job `build` VERDE em 74 s. Esperar mais é
-      # barato; republicar à mão não é.
-      - id: deployment
-        uses: actions/deploy-pages@v4
-        with:
-          timeout: 1200000   # 20 min (default 600000)

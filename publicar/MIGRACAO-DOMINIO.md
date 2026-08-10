@@ -1,8 +1,7 @@
 # Virar o site para o domínio próprio
 
-> Estado em **2026-08-07**: o código lê o endereço de `SITE_URL` (spec 089) e o passo de
-> publicação no Vercel existe (spec 090). O default continua o endereço antigo — **o site atual
-> segue no ar e o `ghdaru.com.br` não foi tocado**.
+> Estado em **2026-08-10** (spec 095): o site vive em `harness.ghdaru.com.br`, o workflow publica
+> num **canal só**, e cada página declara o próprio endereço canônico.
 >
 > | Etapa | Estado |
 > |---|---|
@@ -14,8 +13,16 @@
 > | 6. Virar `SITE_URL` no workflow | ✅ spec 091 |
 > | 7. `SITE_URL` no Railway | ✅ feito pelo editor |
 > | 8. Zenodo | ✅ identificador atualizado |
-> | 9. Trocar por token de escopo restrito e revogar o provisório | ⏳ |
-> | 10. Fechar o repositório | ⏳ |
+> | 9. Trocar por token de escopo restrito e revogar o provisório | ⏳ **editor** |
+> | 10. Fechar o repositório | ⏳ **editor** (`private: false` em 2026-08-10) |
+> | 11. `rel="canonical"`, `sitemap.xml`, `robots.txt` | ✅ spec 095 |
+> | 12. Parar de publicar no GitHub Pages | ✅ spec 095 — saiu do workflow |
+> | 13. Desligar o Pages em *Settings → Pages* | ⏳ **editor** — sem isto a última versão publicada continua servida |
+> | 14. Limpar `ghdaru.github.io` do `ALLOWED_ORIGINS` no Railway | ⏳ **editor, só DEPOIS de 13** |
+>
+> **A ordem de 13 e 14 não é sugestão.** Limpar as origens antes de o endereço antigo sair do ar
+> derruba o companion para quem ainda estiver lá — foi exatamente a falha da spec 092, e ela é
+> silenciosa: o site abre, o texto aparece, e só o chat morre.
 
 Destino: **`https://harness.ghdaru.com.br`**, servido pelo Vercel, com o repositório fechando.
 Decisão registrada na spec 089 — os endereços antigos **não** serão preservados (47 visitas na
