@@ -1,0 +1,42 @@
+# Configuração de RAIZ — não empacota nada; existe para dar ao repositório um
+# ponto de entrada descobrível (spec 094).
+#
+# O problema que ela resolve: este repositório tem três suítes de teste em três
+# lugares (`chat-companion/backend/tests`, `harness-um/tests`, e o build de
+# `publicar/`). Até aqui, saber disso exigia ler o `CLAUDE.md`. Um agente — ou
+# uma pessoa — que aterrissa na raiz e roda `pytest` não encontrava teste nenhum.
+#
+# A medição que originou a spec (Harness Score, 2026-08-10) nomeou o defeito sem
+# rodeio: os arquivos de teste EXISTEM (`SNS-05` passou) e o ponto de entrada NÃO
+# (`SNS-01` falhou). Prosa perfeita não substitui configuração descobrível.
+
+[tool.pytest.ini_options]
+# As duas suítes Python do repositório, na ordem em que o CI as roda.
+# `publicar/` é Node e sai pelo Makefile (`make build`).
+testpaths = ["harness-um/tests", "chat-companion/backend/tests", ".claude/hooks/tests"]
+pythonpath = ["harness-um", "chat-companion/backend"]
+addopts = "-q"
+
+# --- Ruff: um padrão para os dois projetos Python -------------------------
+#
+# Um só linter/formatador na raiz em vez de um por projeto. Escolha por
+# subtração: faz lint e formatação num binário e não obriga a acrescentar
+# dependência de desenvolvimento a dois manifestos distintos.
+#
+# spec 094, R4: esta configuração DECLARA o padrão. Conformar o código existente
+# é trabalho de outra spec — misturar "declarar padrão" com "reformatar tudo"
+# produz um diff em que nenhuma das duas coisas é revisável.
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["harness-zero/etapas", "publicar/node_modules", "docs"]
+
+[tool.ruff.lint]
+# Conjunto deliberadamente pequeno: erros reais, imports quebrados, bugs de
+# controle de fluxo. Nada de estilo opinativo — o livro tem voz própria e o
+# código dele também.
+select = ["E4", "E7", "E9", "F", "B", "UP"]
+ignore = [
+    "E741",  # nomes de uma letra: `l`/`I` aparecem em código didático de propósito
+    "B008",  # chamada no default: é o idioma do FastAPI (`Depends(...)`)
+]

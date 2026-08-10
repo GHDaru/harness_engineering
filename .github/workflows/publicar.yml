@@ -40,6 +40,19 @@ jobs:
       - name: Testes do harness-um (a referência não pode apodrecer)
         run: pip install -q -e ".[dev]" && python -m pytest tests/ -q
         working-directory: harness-um
+      # spec 094: os guarda-corpos de `.claude/hooks/` impõem por máquina o que os
+      # Princípios IV e VI pediam por escrito — segredo e identificador interno de
+      # modelo fora dos artefatos. Um hook sem teste é uma promessa com sintaxe;
+      # este passo é o que impede que ele apodreça em silêncio.
+      - name: Testes dos guarda-corpos
+        run: python -m pytest .claude/hooks/tests/ -q
+      # Sensor barato à esquerda (cap. 11). Esta spec DECLARA o padrão; conformar
+      # o código existente é trabalho de outra (spec 094, R4). Por isso o passo
+      # reporta e não bloqueia — virar portão é decisão de uma spec futura, e
+      # anunciá-la aqui evita que alguém a ligue por engano num dia de pressa.
+      - name: Lint (Ruff, informativo)
+        run: pipx run ruff check . || true
+        continue-on-error: true
       - uses: actions/setup-node@v4
         with:
           node-version: 22
