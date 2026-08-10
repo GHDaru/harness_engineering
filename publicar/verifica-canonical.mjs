@@ -59,8 +59,17 @@ for (const rel of paginas) {
   const esperado = `${SITE}${rel}`;
   if (m[1] !== esperado) falhas.push(`${rel}: canonical → ${m[1]} (esperado ${esperado})`);
 
-  // O endereço abandonado não pode reaparecer por nenhuma via.
-  if (/ghdaru\.github\.io/.test(html)) falhas.push(`${rel}: menciona o endereço antigo`);
+  // O endereço abandonado não pode voltar como LINK ou como METADADO. Citá-lo em
+  // prosa é outra coisa e é legítimo: o `HISTORICO.md` precisa contar que houve
+  // duas cópias vivas do livro, e um livro que corrige em público tem de poder
+  // escrever o endereço que abandonou.
+  //
+  // A primeira versão desta regra olhava o HTML inteiro e reprovou exatamente
+  // esse registro. Segunda vez no dia em que uma regra minha ficou larga demais e
+  // a página estava certa — vale o registro: um verificador que reprova o uso
+  // legítimo é desligado, e aí verifica zero.
+  for (const m2 of html.matchAll(/(?:href|src|content)="([^"]*ghdaru\.github\.io[^"]*)"/g))
+    falhas.push(`${rel}: aponta para o endereço antigo em ${m2[1]}`);
 }
 
 for (const arq of ["sitemap.xml", "robots.txt"]) {
