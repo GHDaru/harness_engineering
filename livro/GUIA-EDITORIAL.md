@@ -25,7 +25,37 @@
 8. **Verificação** — 2–3 perguntas que testam exatamente os objetivos do item 1
 9. **Apêndice A — Como cada repositório trata** — a evidência por harness com paths, expandida a cada rodada do benchmark (material de complementação online)
 
-## 2.1 Livro vivo: datação e histórico (obrigatório)
+## 2.1 Camada didática v4 (obrigatória; piloto: cap. 02)
+
+> Decidida na [spec 097](../specs/097-reescrita-didatica/spec.md). O v4 **não substitui** o esqueleto v3: a estrutura permanece, a prosa muda.
+
+O v3 acertou a estrutura e deixou a escrita como dossiê — denso, correto e ilegível para quem veio aprender. Medição do corpo dos 18 capítulos antes da spec 097: **22,0 travessões por 1.000 palavras**, frase média de **26,1 palavras**, 51 frases acima de 60 palavras e **zero exemplos trabalhados**, num livro cujo §1 manda "worked examples antes de exercício". Descrever um método pedagógico sem aplicá-lo é a falha que o Princípio I acusa nos outros.
+
+### As sete regras de reescrita
+
+1. **Porta de entrada narrativa** — o capítulo abre com uma cena concreta (uma falha, uma decisão, um número que não fecha) antes de qualquer definição.
+2. **Um exemplo trabalhado por capítulo** — código resolvido na frente do leitor, com o raciocínio visível, **antes** do exercício.
+3. **Conceito antes de nome** — a ideia primeiro, o rótulo depois, na mesma frase.
+4. **Uma ideia nova por parágrafo** — dois conceitos inéditos são dois parágrafos.
+5. **Nome de repositório sai do corpo** — a varredura "quem faz o quê" é o Apêndice A, que já existe para isso.
+6. **Verificação sem gabarito na mesma linha** — as respostas vão para uma seção `## Respostas da verificação` no fim, depois do Apêndice A.
+7. **Travessão com orçamento** — cada corte força uma escolha: virar frase, virar parêntese, ou a ideia sair.
+
+### Os limites, medidos no build
+
+`publicar/mede-prosa.mjs` roda no `npm run build` e reporta todos os capítulos; **reprova** apenas os já marcados como v4, para que o portão não nasça vermelho e vire ruído.
+
+| Métrica | Limite | Antes da spec 097 |
+|---|---|---|
+| Travessões / 1.000 palavras | ≤ 8 | 22,0 |
+| Frase média | ≤ 20 palavras | 26,1 |
+| Frases acima de 60 palavras | 0 | 51 no livro |
+| Exemplo trabalhado no corpo | ≥ 1 bloco de código | 0 |
+| Gabarito em seção própria | obrigatório | 0 |
+
+Os limiares vêm do `writing_quality_check` da suíte [academic-research-skills](https://github.com/Imbad0202/academic-research-skills), **recalibrados para prosa didática em português**: o travessão é pontuação normal em pt-BR, e o que se combate é o empilhamento de apostos numa frase só, não o sinal. O que não se importa de lá: IMRaD, APA e os portões de integridade de pesquisa — este livro não é um paper, e o revisor de manuscrito mediria a coisa errada.
+
+## 2.2 Livro vivo: datação e histórico (obrigatório)
 
 Este é um **livro vivo** — coerência com a própria tese (a cláusula de expiração: o que descrevemos é temporário). Três regras:
 
