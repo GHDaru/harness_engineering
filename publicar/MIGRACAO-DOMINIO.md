@@ -33,38 +33,58 @@ telemetria; não há base de leitores a proteger).
 > **Correção de ordem (a primeira versão deste guia estava errada).** O DNS não vem primeiro: o
 > alvo do registro é o Vercel quem informa, ao adicionar o domínio. Projeto primeiro, DNS depois.
 
-### 1. Projeto no Vercel (você) — **em branco, sem conectar o repositório**
+### 1. Token primeiro — e ele nasce com escopo de conta, por força da ferramenta
 
-Esta é a parte contraintuitiva, e a segunda correção: **não importe o repositório no Vercel.**
+> **Correção de 2026-08-11, do editor que executou os passos.** As duas versões anteriores deste
+> guia mandavam criar um projeto **em branco** no painel do Vercel. **O Vercel não deixa** — a
+> interface exige importar um repositório. O que aconteceu de verdade aqui foi o inverso: o projeto
+> nasceu sozinho no primeiro `vercel link` da linha de comando, e a própria tabela de etapas no
+> topo deste arquivo registra isso ("3. Primeiro envio (nasce o projeto)"). A realidade estava
+> escrita duas linhas acima da instrução errada.
 
-O motivo é concreto: `docs/` é **gerado** e está no `.gitignore` — não existe no repositório. Um
-projeto conectado ao git tentaria construir a cada push, não acharia o `docs/`, e falharia. Pior:
-falharia *toda vez*, virando ruído permanente.
+Em **Account Settings → Tokens**, criar o token.
 
-O desenho certo é o inverso: o **GitHub Actions constrói** (é onde o Chromium dos PDFs já funciona
-há meses) e **envia o resultado pronto** ao Vercel. O Vercel é rede de distribuição, não servidor
-de build.
+Ele vai nascer com escopo de **conta inteira**, e não é descuido: escolher escopo de projeto faz a
+interface **pedir um projeto**, que ainda não existe. É um ciclo — e a saída é aceitar o token
+amplo agora e **trocá-lo depois do passo 2**, quando o projeto existir. Anote esta troca como
+tarefa; aqui ela ficou pendente por dias justamente por não estar escrita.
 
-Então, no painel do Vercel:
+Guardar como *secret* `VERCEL_TOKEN` no repositório do livro. **O token é seu e fica só nos
+secrets do GitHub** — não mande por chat.
 
-1. Criar conta (o plano gratuito cobre isto de sobra).
-2. **Add New → Project → não importe repositório nenhum.** Se a interface insistir em pedir um
-   repositório, pule esta etapa: o projeto será criado sozinho no primeiro envio pela linha de
-   comando, no passo 3. Nesse caso vá direto ao passo 3 e volte aqui depois para o domínio.
-3. Em **Settings → Domains**, adicionar `harness.ghdaru.com.br`.
-4. O Vercel exibe então o **alvo do CNAME** — é esse valor que vai para o DNS no passo 2.
+### 2. O projeto nasce do primeiro envio (eu)
 
-### 2. DNS (você)
+O passo de publicação no workflow começa com `vercel link --yes --project <nome>`, que **cria o
+projeto se ele não existir**. É assim que ele nasce, sem passar pela interface.
 
-No painel do `ghdaru.com.br`, criar **um** registro. O apex (`ghdaru.com.br`) **não é tocado** —
-sua aplicação atual continua intacta.
+**E é por isso que não se importa o repositório**: `docs/` é **gerado** e está no `.gitignore` —
+não existe no repositório. Um projeto conectado ao git tentaria construir a cada push, não acharia
+o `docs/`, e falharia *toda vez*, virando ruído permanente. O desenho certo é o inverso: o **GitHub
+Actions constrói** (é onde o Chromium dos PDFs já funciona) e **envia o resultado pronto**. O
+Vercel é rede de distribuição, não servidor de build.
 
-| Tipo | Nome | Valor |
-|---|---|---|
-| CNAME | `harness` | o alvo que o Vercel exibiu no passo 1 |
+Depois do primeiro envio, o Vercel devolve um endereço provisório (`<projeto>-<hash>.vercel.app`).
+Abrir e conferir que o livro está lá **antes** de mexer em DNS.
 
-O certificado de segurança o Vercel emite sozinho assim que o DNS propagar (minutos a algumas
-horas). Enquanto não propaga, nada quebra: o site antigo continua no ar.
+### 3. Domínio no projeto, e só então o DNS (você)
+
+Agora o projeto existe, e o painel serve para o que ele é bom:
+
+1. **Settings → Domains** → adicionar `harness.ghdaru.com.br`.
+2. O Vercel exibe o **alvo do CNAME**. É esse valor que vai para o DNS — e é por isso que o
+   domínio vem antes do registro, nunca depois.
+3. No DNS, **um** registro. O apex (`ghdaru.com.br`) **não é tocado** — sua aplicação atual
+   continua intacta.
+
+| Tipo | Nome | Valor | Proxy |
+|---|---|---|---|
+| CNAME | `harness` | o alvo que o Vercel exibiu | **DNS only** (nuvem cinza) |
+
+No Cloudflare o proxy tem de ficar **desligado**: com a nuvem laranja o Vercel não consegue emitir
+o certificado e o domínio trava em *Invalid Configuration*. O certificado sai sozinho quando o DNS
+propagar (minutos a algumas horas), e enquanto isso nada quebra.
+
+4. **Volte ao passo 1** e troque o token por um de escopo do projeto, revogando o provisório.
 
 ### 3. Publicação pelo Actions (eu, quando você tiver a conta)
 
