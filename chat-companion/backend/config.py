@@ -116,7 +116,42 @@ SMTP_HOST = os.environ.get("SMTP_HOST", "")           # vazio -> não envia emai
 SMTP_PORT = _int("SMTP_PORT", 587)
 SMTP_USER = os.environ.get("SMTP_USER", "")
 SMTP_PASS = os.environ.get("SMTP_PASS", "")
-ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "")       # vazio -> /suggestions desabilitado
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "")       # vazio -> porta de script desligada
+
+# --- Área do editor (spec 096) ---
+#
+# O `ADMIN_TOKEN` acima não autentica ninguém: é senha compartilhada que viaja na
+# barra de endereço. Serve para script e `curl`, e continua servindo.
+#
+# Para uma pessoa, o livro já tinha um jeito melhor de provar identidade desde a
+# spec 080: o link mágico, que prova posse da caixa de e-mail. A área do editor
+# usa esse mecanismo em vez de inventar um segundo, pior.
+#
+# São DOIS fatores, e cada um cobre a fraqueza do outro:
+#   ADMIN_EMAILS — quem pode ser editor. Prova de posse da caixa (link mágico).
+#   ADMIN_SENHA  — o que o editor sabe. Prova de INTENÇÃO no momento da ação,
+#                  porque `session_id` é credencial ao portador e um `cmp_sid`
+#                  copiado de um navegador esquecido não pode exportar a lista de
+#                  contato (raio de alcance, cap. 07).
+#
+# Vazias por padrão: sem as duas, a área do editor não existe. Exigir ambas é o
+# default seguro — a mesma postura de `/suggestions`, que nasce desligada.
+ADMIN_EMAILS = [
+    e.strip().lower()
+    for e in os.environ.get("ADMIN_EMAILS", "").split(",")
+    if e.strip()
+]
+ADMIN_SENHA = os.environ.get("ADMIN_SENHA", "")
+ADMIN_SESSAO_MIN = _int("ADMIN_SESSAO_MIN", 30)   # mesmo prazo do link mágico
+RATE_LIMIT_ADMIN = _int("RATE_LIMIT_ADMIN", 5)    # tentativas por janela, por sessão e por IP
+
+
+def admin_estado() -> dict:
+    """Estado, NUNCA valor — para o /health. Hoje não dá para distinguir 'rota
+    desligada' de 'rota protegida': as duas devolvem 403, e o editor não tem como
+    conferir se a variável chegou ao serviço certo. Foi esse buraco que custou
+    duas rodadas de palpite no SMTP (specs 085/086)."""
+    return {"token": bool(ADMIN_TOKEN), "emails": len(ADMIN_EMAILS), "senha": bool(ADMIN_SENHA)}
 
 # --- Subscrição por e-mail / link mágico (spec 080) ---
 # O e-mail é chave de continuidade, não login: sem senha, sem área restrita.
