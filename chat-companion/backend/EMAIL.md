@@ -201,3 +201,24 @@ não mudam, só o transporte em `_enviar_link_magico`.
   `{"enviado": false}` — o leitor é avisado, e a leitura anônima segue completa.
 - O token do link mágico é guardado **só como hash SHA-256**, tem uso único e expira.
   Ele não vai para log nem para resposta HTTP.
+
+## Área do editor (spec 096)
+
+Três variáveis, todas vazias por padrão:
+
+| Variável | Para quê |
+|---|---|
+| `ADMIN_EMAILS` | quem pode ser editor — lista separada por vírgula. O e-mail é provado pelo **link mágico** (spec 080), não digitado. |
+| `ADMIN_SENHA` | o segundo fator, pedido no painel. Sem ela a área do editor **não existe**. |
+| `ADMIN_TOKEN` | a porta de **script**: `?token=…` em `curl`. Continua valendo sozinha. |
+
+**Conferir se chegaram ao serviço certo**: `GET /health` → `"admin": {"token": …, "emails": N, "senha": …}` — estado, nunca valor. Foi o remédio das specs 085/086, agora na última variável que não o tinha.
+
+**Pelo painel** (recomendado): entre pelo link mágico com um e-mail de `ADMIN_EMAILS` e digite `/editor <senha>` no companion. Vale 30 minutos.
+
+**Por script**:
+```bash
+curl -s "$BACKEND/suggestions?token=$ADMIN_TOKEN"
+curl -s "$BACKEND/leitores?token=$ADMIN_TOKEN"
+```
+⚠️ O token viaja na **barra de endereço**: no navegador ele fica no histórico e pode vazar por `Referer` e por sincronização. Use no terminal, ou prefira o painel.

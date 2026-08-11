@@ -8,6 +8,7 @@ sem chave -> echo; sem DATABASE_URL -> memória. Sobe em qualquer lugar.
 from __future__ import annotations
 
 import hashlib
+import hmac
 import re
 import secrets
 import smtplib
@@ -166,6 +167,13 @@ class DescadastroIn(BaseModel):
     e: str          # sha256 do e-mail, como vem no link de um clique
 
 
+# ---- spec 096 ----
+
+class AdminEntrarIn(BaseModel):
+    session_id: str
+    senha: str
+
+
 # Versão faz parte do registro: mudou o texto, muda a versão, e o aceite velho
 # deixa de valer para o texto novo — é o que torna o consentimento auditável em
 # vez de declarado. Definidas aqui, acima de todas as rotas, porque `/entrar`
@@ -191,6 +199,7 @@ def health() -> dict:
             "site": config.SITE_URL,              # spec 091: base do link magico
             "origens": config.ALLOWED_ORIGINS,    # spec 092: CORS deixa de ser invisivel
             "email": config.transporte_email(),   # spec 087: resend | smtp | desligado
+            "admin": config.admin_estado(),        # spec 096: estado, nunca valor
             "smtp": "configurado" if config.SMTP_HOST else "desligado",
             "smtp_porta": config.SMTP_PORT,   # spec 086: número de porta não é segredo
             "smtp_vars": sorted(repr(k) for k in os.environ if k.upper().startswith("SMTP"))}
@@ -281,9 +290,8 @@ def get_telemetry_publico() -> dict:
 
 
 @app.get("/telemetry")
-def get_telemetry(token: str = "") -> dict:
-    if not config.ADMIN_TOKEN or token != config.ADMIN_TOKEN:
-        raise HTTPException(status_code=403, detail="token inválido")
+def get_telemetry(token: str = "", session_id: str = "") -> dict:
+    _exige_admin(token, session_id)
     return _store.nav_stats()
 
 
@@ -606,22 +614,92 @@ def get_progresso_detalhe(session_id: str) -> dict:
             "itens": _store.get_progresso(session_id)}
 
 
+# ---- spec 096: a área do editor ----
+#
+# Duas portas para o mesmo cômodo, e elas provam coisas diferentes:
+#
+#   `token=`  — porta de SCRIPT. Senha compartilhada na barra de endereço; serve
+#               a `curl` e automação, e é a que já existia.
+#   sessão    — porta de PESSOA. O e-mail foi provado pelo link mágico (spec 080)
+#               e está em ADMIN_EMAILS, e a senha re-provou intenção agora.
+#
+# O destranque vive em MEMÓRIA. Reiniciou o serviço, destranca de novo: persistir
+# concessão de privilégio é dívida que ninguém revisa, e o custo de redigitar uma
+# senha a cada deploy é justamente o que mantém o privilégio curto.
+_admin_ate: dict[str, float] = {}
+
+
+def _sessao_e_editora(session_id: str) -> bool:
+    ate = _admin_ate.get((session_id or "").strip())
+    if not ate:
+        return False
+    if ate < time.time():
+        _admin_ate.pop(session_id, None)   # expirou: some do mapa, não fica lixo
+        return False
+    return True
+
+
+def _exige_admin(token: str = "", session_id: str = "") -> None:
+    """403 sem dizer QUAL porta falhou. Distinguir 'token errado' de 'sessão não
+    destrancada' entrega metade da porta a quem está tentando."""
+    if config.ADMIN_TOKEN and token and hmac.compare_digest(token, config.ADMIN_TOKEN):
+        return
+    if _sessao_e_editora(session_id):
+        return
+    raise HTTPException(status_code=403, detail="token inválido")
+
+
+@app.post("/admin/entrar")
+def post_admin_entrar(inp: AdminEntrarIn, request: Request) -> dict:
+    """Destranca a área do editor para esta sessão.
+
+    A resposta é IDÊNTICA para e-mail fora da lista e para senha errada — dizer
+    qual dos dois falhou diria também qual dos dois está certo."""
+    sid = (inp.session_id or "").strip()
+    ip = request.client.host if request.client else "?"
+    if not _rate_ok(f"admin:{sid}", limite=config.RATE_LIMIT_ADMIN) or \
+       not _rate_ok(f"admin-ip:{ip}", limite=config.RATE_LIMIT_ADMIN):
+        raise HTTPException(status_code=429, detail="tentativas demais; espere um pouco")
+
+    # Sem as duas variáveis a área não existe — e responde igual a senha errada,
+    # para que a ausência de configuração não seja detectável de fora.
+    if not config.ADMIN_EMAILS or not config.ADMIN_SENHA:
+        raise HTTPException(status_code=403, detail="não autorizado")
+
+    email = (_store.leitor_por_sessao(sid) or "").lower()
+    senha_ok = hmac.compare_digest(inp.senha or "", config.ADMIN_SENHA)
+    # As duas checagens SEMPRE rodam, e o `and` só decide no fim: sair mais cedo
+    # quando o e-mail não confere transformaria o tempo de resposta em oráculo.
+    if not (email in config.ADMIN_EMAILS and senha_ok):
+        raise HTTPException(status_code=403, detail="não autorizado")
+
+    ate = time.time() + config.ADMIN_SESSAO_MIN * 60
+    _admin_ate[sid] = ate
+    return {"ok": True, "email": email, "minutos": config.ADMIN_SESSAO_MIN}
+
+
+@app.get("/admin/estado")
+def get_admin_estado(session_id: str = "") -> dict:
+    """O painel pergunta isto para saber se desenha a área. Não revela se a
+    área EXISTE no servidor — só se esta sessão está destrancada."""
+    return {"editor": _sessao_e_editora(session_id),
+            "minutos": config.ADMIN_SESSAO_MIN}
+
+
 @app.get("/leitores")
-def get_leitores(token: str = "") -> dict:
+def get_leitores(token: str = "", session_id: str = "") -> dict:
     """Lista de contato para o editor. Nasce DESLIGADA: sem `ADMIN_TOKEN` no
     ambiente nenhum token confere, como em `/suggestions` e na telemetria de
     administração. Traz só quem tem contato ativo — quem revogou some daqui sem
     perder a continuidade."""
-    if not config.ADMIN_TOKEN or token != config.ADMIN_TOKEN:
-        raise HTTPException(status_code=403, detail="token inválido")
+    _exige_admin(token, session_id)
     leitores = _store.emails_com_contato()
     return {"total": len(leitores), "leitores": leitores}
 
 
 @app.get("/suggestions")
-def get_suggestions(token: str = "") -> dict:
-    if not config.ADMIN_TOKEN or token != config.ADMIN_TOKEN:
-        raise HTTPException(status_code=403, detail="token inválido")
+def get_suggestions(token: str = "", session_id: str = "") -> dict:
+    _exige_admin(token, session_id)
     return {"suggestions": _store.suggestions()}
 
 

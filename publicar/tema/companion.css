@@ -219,3 +219,15 @@ html.cmp-docked #alt-tema { right: calc(var(--cmp-dockw, 430px) + 1rem); }
    em `estilo.css` — perto do progresso que dá sentido ao pedido. O que sobra no
    painel é a pergunta de avisos, que só existe para quem já entrou. */
 .cmp-avisos { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem; }
+
+/* Área do editor (spec 096). Sóbria de propósito: é ferramenta de trabalho
+   dentro de um painel de leitura, não um painel de administração — e nada aqui
+   aparece para quem não destrancou. */
+.cmp-editor { margin: .6rem 0 0; border-top: 1px solid var(--cmp-line); padding-top: .55rem;
+  text-align: left; }
+.cmp-editor-t { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--cmp-accent); margin-bottom: .3rem; font-weight: 700; }
+.cmp-editor-l { margin: 0; padding-left: 1.05rem; font-size: .84rem; line-height: 1.5;
+  color: var(--cmp-fg); }
+.cmp-editor-l li { margin: .18rem 0; overflow-wrap: anywhere; }
+.cmp-editor-v { font-size: .82rem; color: var(--cmp-muted); font-style: italic; }

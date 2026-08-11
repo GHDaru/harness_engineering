@@ -483,6 +483,11 @@
     if (mAssinar) { pedirAssinatura(mAssinar[1].trim()); return; }
     if (/^\/sair\b/i.test(t)) { sairDaConta(); return; }
     if (/^\/apagar\b/i.test(t)) { apagarConta(); return; }
+    // spec 096: `/editor` NÃO entra na paleta de comandos. Quem não é editor não
+    // precisa saber que a área existe, e a resposta a uma senha errada é a mesma
+    // que a de qualquer comando desconhecido.
+    var mEditor = t.match(/^\/editor\s*(.*)$/i);
+    if (mEditor) { abrirEditor(mEditor[1].trim()); return; }
     var mPlano = t.match(/^\/plano\s*(.*)$/i);
     if (mPlano) {
       var objetivo = mPlano[1].trim();
@@ -829,6 +834,94 @@
     m.appendChild(linha);
     // Nenhum dos dois vem pré-selecionado, e fechar o painel sem responder deixa
     // o estado em `null`: silêncio vale não, e nunca vale sim.
+  }
+
+  // --- Área do editor (spec 096) ---------------------------------------------
+  //
+  // Dois fatores, e cada um cobre a fraqueza do outro: o e-mail já foi provado
+  // pelo link mágico (spec 080) e está em `ADMIN_EMAILS`; a senha re-prova
+  // INTENÇÃO agora, porque `session_id` é credencial ao portador — quem copiar o
+  // `cmp_sid` de um navegador esquecido não pode exportar a lista de contato.
+  //
+  // Nada aqui é desenhado antes de o servidor confirmar. O painel não decide
+  // quem é editor: ele pergunta, e o servidor responde.
+  function abrirEditor(senha) {
+    open();
+    if (!BACKEND) { addMsg("sys", tx("Sem backend configurado.", "No backend configured.")); return; }
+    if (!senha) {
+      addMsg("sys", tx("Use /editor <senha>. A área do editor pede o e-mail já confirmado pelo link mágico E a senha.",
+                       "Use /editor <password>. The editor area needs the e-mail already confirmed by the magic link AND the password."));
+      return;
+    }
+    api("/admin/entrar", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ session_id: SID, senha: senha }) })
+      .then(function (d) {
+        addMsg("sys", tx("🔓 Área do editor aberta para " + d.email + ", por " + d.minutos + " minutos.",
+                         "🔓 Editor area unlocked for " + d.email + ", for " + d.minutos + " minutes."));
+        carregarEditor();
+      })
+      .catch(function () {
+        // Mensagem única para senha errada, e-mail fora da lista e área
+        // desligada. Distinguir os casos entregaria metade da porta.
+        addMsg("sys", tx("Não foi possível abrir a área do editor.", "Could not open the editor area."));
+      });
+  }
+
+  function bloco(titulo, linhas, vazio) {
+    var d = el("div", "cmp-editor");
+    d.appendChild(el("div", "cmp-editor-t", titulo));
+    if (!linhas.length) { d.appendChild(el("div", "cmp-editor-v", vazio)); return d; }
+    var ul = el("ul", "cmp-editor-l");
+    linhas.forEach(function (t) { ul.appendChild(el("li", null, t)); });
+    d.appendChild(ul);
+    return d;
+  }
+
+  function carregarEditor() {
+    var q = "?session_id=" + encodeURIComponent(SID);
+    var m = addMsg("sys", tx("Carregando…", "Loading…"));
+
+    Promise.all([
+      api("/suggestions" + q, {}).catch(function () { return { suggestions: [] }; }),
+      api("/leitores" + q, {}).catch(function () { return { total: 0, leitores: [] }; }),
+      api("/telemetry" + q, {}).catch(function () { return {}; })
+    ]).then(function (r) {
+      var sug = r[0].suggestions || [], lei = r[1].leitores || [], tel = r[2] || {};
+      m.textContent = "";
+
+      // As sugestões primeiro, e de propósito: a spec 087 registrou que elas
+      // nunca chegaram ao autor pelo bloqueio de SMTP, e que ficavam salvas no
+      // banco. Esta pode ser a primeira vez que alguém as lê.
+      m.appendChild(bloco(
+        tx("Sugestões dos leitores (" + sug.length + ")", "Reader suggestions (" + sug.length + ")"),
+        sug.slice(-20).reverse().map(function (x) {
+          return (x.pagina ? "[" + x.pagina + "] " : "") + (x.texto || "");
+        }),
+        tx("Nenhuma sugestão registrada.", "No suggestions recorded.")));
+
+      m.appendChild(bloco(
+        tx("Lista de contato (" + lei.length + ")", "Contact list (" + lei.length + ")"),
+        lei.map(function (x) { return x.email + " · " + (x.versao || ""); }),
+        tx("Ninguém aceitou receber aviso de livro novo ainda.", "Nobody has opted in to hear about new books yet.")));
+
+      var por = tel.por_pagina || {};
+      var top = Object.keys(por).sort(function (a, b) { return por[b] - por[a]; }).slice(0, 10);
+      m.appendChild(bloco(
+        tx("Navegação — " + (tel.total || 0) + " visitas", "Navigation — " + (tel.total || 0) + " visits"),
+        top.map(function (k) { return k + " · " + por[k]; }),
+        tx("Sem telemetria registrada.", "No telemetry recorded.")));
+
+      if (lei.length) {
+        var bt = el("button", "cmp-conta-bt", tx("copiar e-mails", "copy e-mails"));
+        bt.addEventListener("click", function () {
+          var txt = lei.map(function (x) { return x.email; }).join("\n");
+          if (navigator.clipboard) navigator.clipboard.writeText(txt);
+          bt.textContent = tx("copiado", "copied");
+        });
+        m.appendChild(bt);
+      }
+      msgs.scrollTop = msgs.scrollHeight;
+    });
   }
 
   renderCaps(); root.setAttribute("data-dock", DOCK); renderConsent();
