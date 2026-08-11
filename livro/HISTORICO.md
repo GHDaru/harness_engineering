@@ -12,7 +12,7 @@
 
 | Capítulo | Estado da arte capturado em | Fontes da indústria | Última revisão |
 |---|---|---|---|
-| 02 Loop | 2026-07 | ✓ | 2026-07-25 |
+| 02 Loop | 2026-07 | ✓ | 2026-08-11 · **camada didática v4** |
 | 03 Contexto | 2026-07 | ✓ | 2026-07-25 |
 | 04 Compactação | 2026-07 | ✓ | 2026-07-25 |
 | 05 Ferramentas | 2026-07 | ✓ | 2026-07-25 |
@@ -31,6 +31,18 @@
 | 00 Introdução · 01 Fundamentos | 2026-07 | ✓ (01) | 2026-07-28 |
 
 ## Edições
+
+### Edição 0.81 — 2026-08-11 · o livro não aplicava a si mesmo o método que ensina (spec 097)
+
+- **O achado, em uma linha:** o `GUIA-EDITORIAL` manda *"worked examples antes de exercício"* e *"uma ideia nova por vez"* desde a primeira edição, e o corpo dos 18 capítulos tinha **zero exemplos trabalhados**. Descrever um método pedagógico sem aplicá-lo é a mesma falha que o Princípio I acusa nos outros: prosa não é sensor.
+- **A medição que abriu a spec.** Corpo dos capítulos, Apêndice A excluído, 31.623 palavras: **22,0 travessões por 1.000 palavras** (um a cada 45), frase média de **26,1 palavras**, **51 frases acima de 60 palavras**. O travessão é o mecanismo pelo qual sete ideias entram numa frase só, e o número está por toda parte.
+- **A uniformidade é que denuncia.** Os 18 capítulos ficam entre 15,3 e 30,0 travessões por mil. Um tique de autor varia por assunto e por humor. Este não varia: é assinatura de gerador, não voz. Foi o dado que transformou "o texto está denso" em "o texto tem um defeito sistemático".
+- **Nada foi jogado fora.** A densidade não era defeito de pesquisa, era defeito de destino: material de *referência* servido como material de *explicação*, os dois tipos que o Diátaxis — já adotado no guia desde 2026-07 — manda nunca misturar. Todo o inventário por repositório continua no Apêndice A, intacto.
+- **Piloto: capítulo 02.** Abre com a cena de segunda × quarta-feira (o mesmo pedido, sessenta e três chamadas idênticas, nenhum erro na tela) em vez de abrir com definição. Ganhou **dois blocos de código** trabalhados: o loop em nove linhas e o mesmo loop com freios, cada mudança explicada. O gabarito da verificação saiu de dentro da pergunta e virou seção própria, porque recuperação só treina quando há esforço de recuperação. Medido: 1,5 travessões/1k, frase média 14,7, nenhuma frase acima de 60.
+- **O portão nasceu verde de propósito.** `publicar/mede-prosa.mjs` entra no `npm run build`, **reporta** os 18 capítulos e **reprova** só os já marcados como v4. Um verificador que nasce vermelho é um verificador que será ignorado — e o livro inteiro reprovaria hoje.
+- **A régua veio de fora e foi recalibrada, não copiada.** Os limiares vêm do `writing_quality_check` da suíte [academic-research-skills](https://github.com/Imbad0202/academic-research-skills). Ela foi escrita para inglês acadêmico e limita travessões a ≤3 *por artigo*; em pt-BR o travessão é pontuação normal, e o que se combate é o empilhamento de apostos, não o sinal. O que **não** se importou de lá: IMRaD, APA, PRISMA e os portões de integridade de pesquisa. Este livro não é um paper, e o revisor de manuscrito mediria a coisa errada.
+- **Custo declarado:** o corpo do cap. 02 foi de 1.244 para 2.018 palavras (+62%), acima do alvo de +40% da spec. A diferença é o gabarito comentado, que é seção nova e não existia em lugar nenhum. Os outros capítulos serão medidos contra o alvo original.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
 
 ### Edição 0.80 — 2026-08-11 · a área do editor: e-mail provado mais senha (spec 096)
 - **A pergunta do editor era melhor que a resposta que existia.** Ele ia definir o `ADMIN_TOKEN` e perguntou: *"como ele sabe que sou eu, como consigo acessar? Não tem interface? não daria para colocar na variável o meu email como admin?"*. As três perguntas expõem o mesmo defeito: o token **não autentica ninguém** — é senha compartilhada que viaja na barra de endereço, e URL vaza por histórico, `Referer` e sincronização de navegador.

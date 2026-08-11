@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/GUIA-EDITORIAL.md edicao:0.61 hash:25965c7d -->
+<!-- i18n fonte:livro/GUIA-EDITORIAL.md edicao:0.81 hash:178f5144 -->
 # Editorial Guide — the book's operating rules
 
 > The operational version of the pedagogical guidance. The full report (with rationale) is in [`estudos/2026-07-25-parecer-editorial-plano-pedagogico.md`](../../estudos/2026-07-25-parecer-editorial-plano-pedagogico.md) (in Portuguese). This guide is what you consult **while writing**.
@@ -26,7 +26,37 @@
 8. **Check your understanding** — 2–3 questions that test exactly the objectives of item 1
 9. **Appendix A — How each repository handles it** — the per-harness evidence with paths, expanded at every benchmark round (online complementary material)
 
-## 2.1 Living book: dating and history (mandatory)
+## 2.1 Didactic layer v4 (mandatory; pilot: ch. 02)
+
+> Decided in [spec 097](../../specs/097-reescrita-didatica/spec.md). v4 **does not replace** skeleton v3: the structure stays, the prose changes.
+
+v3 got the structure right and left the writing as a dossier: dense, correct and unreadable for anyone who came to learn. Measurement of the body of all 18 chapters before spec 097: **22.0 em dashes per 1,000 words**, an average sentence of **26.1 words**, 51 sentences above 60 words and **zero worked examples**, in a book whose §1 mandates "worked examples before exercises". Describing a pedagogical method without applying it is the failure Principle I accuses others of.
+
+### The seven rewriting rules
+
+1. **A narrative way in** — the chapter opens with a concrete scene (a failure, a decision, a number that does not add up) before any definition.
+2. **One worked example per chapter** — code solved in front of the reader, with the reasoning visible, **before** the exercise.
+3. **Concept before name** — the idea first, the label afterwards, in the same sentence.
+4. **One new idea per paragraph** — two new concepts are two paragraphs.
+5. **Repository names leave the body** — the "who does what" sweep is Appendix A, which exists for exactly that.
+6. **Verification without the answer key on the same line** — answers move to a `## Verification answers` section at the end, after Appendix A.
+7. **A budget for em dashes** — each cut forces a choice: become a sentence, become a parenthesis, or the idea goes.
+
+### The limits, measured at build time
+
+`publicar/mede-prosa.mjs` runs inside `npm run build` and reports every chapter; it **fails** only those already marked v4, so the gate does not start red and turn into noise.
+
+| Metric | Limit | Before spec 097 |
+|---|---|---|
+| Em dashes / 1,000 words | ≤ 8 | 22.0 |
+| Average sentence | ≤ 20 words | 26.1 |
+| Sentences above 60 words | 0 | 51 in the book |
+| Worked example in the body | ≥ 1 code block | 0 |
+| Answer key in its own section | mandatory | 0 |
+
+The thresholds come from the `writing_quality_check` of the [academic-research-skills](https://github.com/Imbad0202/academic-research-skills) suite, **recalibrated for didactic prose in Portuguese**: the em dash is ordinary punctuation in pt-BR, and what is fought here is stacking appositives into a single sentence, not the mark itself. What is not imported from there: IMRaD, APA and the research-integrity gates. This book is not a paper, and a manuscript reviewer would measure the wrong thing.
+
+## 2.2 Living book: dating and history (mandatory)
 
 This is a **living book** — coherent with its own thesis (the expiration clause: what we describe is temporary). Three rules:
 
