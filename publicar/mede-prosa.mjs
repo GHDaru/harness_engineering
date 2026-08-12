@@ -156,9 +156,20 @@ function exemploTrabalhado(md, c) {
 // Caminhos de arquivo são a evidência do Princípio I. A reescrita pode MOVER
 // um caminho do corpo para o Apêndice A; não pode apagá-lo. Sem baseline isso
 // dependeria de atenção humana, uma vez por capítulo, catorze vezes.
+// Um caminho de evidência tem extensão (`core/loop.rs`) ou termina em barra
+// (`crates/ironclaw_agent_loop/`). Sem esse aperto, a contagem incluía comandos
+// de barra (`/memory`), enumerações (`view/create/str_replace/…`) e até `/` —
+// e o portão reprovava a reescrita do cap. 08 por "perder evidência" que nunca
+// foi evidência. Quarto falso positivo desta família de medidores.
 function caminhosDe(md) {
   const brutos = md.match(/`[^`\n]*\/[^`\n]*`/g) || [];
-  return new Set(brutos.map((s) => s.replace(/`/g, "").trim()).filter((s) => !/^https?:/.test(s)));
+  return new Set(
+    brutos
+      .map((s) => s.replace(/`/g, "").trim())
+      .filter((s) => !/^https?:/.test(s))
+      .filter((s) => !s.includes("…") && !s.includes(" "))
+      .filter((s) => /\.\w{1,5}$/.test(s) || s.endsWith("/"))
+  );
 }
 
 export function medir(caminho, lang) {

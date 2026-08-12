@@ -14,11 +14,11 @@
 |---|---|---|---|
 | 02 Loop | 2026-07 | ✓ | 2026-08-11 · **camada didática v4** |
 | 03 Contexto | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
-| 04 Compactação | 2026-07 | ✓ | 2026-07-25 |
+| 04 Compactação | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 05 Ferramentas | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 06 MCP | 2026-07 | ✓ | 2026-07-26 |
 | 07 Permissões/Segurança | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
-| 08 Memória e Estado | 2026-07 | ✓ | 2026-07-26 |
+| 08 Memória e Estado | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 09 Planejamento | 2026-07 | ✓ | 2026-07-26 |
 | 10 Subagentes/Orquestração | 2026-07 | ✓ | 2026-07-26 |
 | 11 Verificação/Evals | 2026-07 | ✓ | 2026-07-26 |
@@ -31,6 +31,17 @@
 | 00 Introdução · 01 Fundamentos | 2026-07 | ✓ (01) | 2026-08-12 · **camada didática v4** |
 
 ## Edições
+
+### Edição 0.84 — 2026-08-12 · Lote B: memória e compactação, e o portão de evidência pagando o próprio custo (spec 100)
+
+- **Dois capítulos, na dependência que o ADR 0011 declarou inviolável**: **08 antes de 04**, porque a compactação age na *visão* e nunca no *registro*, e o registro nasce no 08.
+- **08 abre com o acidente que separa as duas trilhas**: quarenta minutos de trabalho, o terminal fecha, `--resume` devolve a conversa inteira — e o `git status` mostra três arquivos modificados no meio da edição. A conversa foi restaurada; **o workspace não**. O exemplo trabalhado é a `StorePort` append-only com o contraste memória × SQLite, e **depois** o checkpoint de workspace por `git stash create` guardado sob `refs/harness/`, fora do namespace do usuário.
+- **04 abre com o agente desfazendo o próprio conserto** no turno 41, porque o resumo dizia *"editei auth.py"* e não dizia **como o arquivo ficou**. O exemplo trabalhado põe a escada em código e diz o que o capítulo não dizia: a ordem dos degraus é por **destrutividade**, não por custo — e o `estado_dos_arquivos` como campo obrigatório do resumo é exatamente o que faltou no turno 40.
+- **O portão de evidência pagou o próprio custo pela primeira vez**: pegou `harness-zero/` e `skills/compact/` sumindo do cap. 04 na reescrita. Restaurados.
+- **E errou uma vez, na mesma família dos outros três**: acusou o cap. 08 de perder `/memories` e `/memory`, que são **comandos de barra** e não caminhos de arquivo. A heurística passou a exigir extensão ou barra final. A acusação era mal fundamentada e apontava para uma perda real de precisão no texto, que foi restaurada — vale como método: **portão que erra ainda pode estar apontando para algo**.
+- **O lote encolheu de três para dois**, com o **06 MCP** descendo para o Lote C. Motivo declarado: orçamento de contexto da execução, não editorial. A estrutura em lotes do ADR existe para que a fronteira possa se mover sem deixar o repositório num estado intermediário.
+- **Placar: 18 capítulos v4** (9 PT + 9 EN) dentro dos limites.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
 
 ### Edição 0.83 — 2026-08-12 · dois especialistas, um ADR, e o portão que cobre o livro inteiro (specs 099 + ADR 0011)
 

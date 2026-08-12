@@ -1,7 +1,10 @@
-<!-- i18n fonte:livro/capitulos/04-compactacao.md edicao:0.71 hash:5f311b2d -->
+<!-- i18n fonte:livro/capitulos/04-compactacao.md edicao:0.83 hash:2e182129 -->
 # 04 — Compaction
 
-> **State of the art captured in 2026-07** · last revised 2026-07-25 · [history and expiration log](../historico.html)
+> **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
+>
+> Didactic layer v4 — see [Editorial Guide §2.1](../editorial-guide.md).
+> scaffold: completo
 >
 > **Pilot chapter of skeleton v3** — body with the state of the art; per-repository treatment in Appendix A (online supplement, updated with each benchmark round).
 
@@ -14,6 +17,20 @@ By the end of this chapter, you should be able to:
 4. **Implement** truncation with edge preservation and summarization with a preserved tail (step 5 of harness-zero);
 5. **Evaluate** when a compaction has failed (loss of a decision, of file state or of the goal) — and **anticipate** what changes when the provider compacts for you.
 
+## The agent that undid its own fix
+
+Turn 38. The agent has found the bug, edited `auth.py`, run the test and watched it pass. Two neighboring files to adjust and it is done.
+
+Turn 40. The window fills up. The harness compacts: it summarizes the previous 39 turns into half a page and carries on.
+
+Turn 41. The agent opens `auth.py`, looks, and **undoes the fix**. It rewrites the function back to the earlier version, runs the test, watches it fail, and starts investigating the bug it had already solved.
+
+The summary said, in all honesty: *"edited auth.py to fix the expired cookie"*. That is correct. What it did not say was **how the file looked after the edit** — and the model, without that, did what anyone would do: it went to check, read code it did not recognize as its own, and "fixed" it.
+
+Compaction did not lose the conversation. It lost the **state**. And the worst part is that it had no way of knowing: a free-prose summary has no mandatory field for "current situation of the files".
+
+This chapter is about what gets thrown away when everything no longer fits, and about why the order in which you throw things away matters more than the compression ratio.
+
 ## The problem
 
 Every agent conversation grows until it no longer fits in the model's context window. Compaction is the set of strategies for continuing to work when that happens — without losing what matters. It is the dimension where the evaluated harnesses converge the most: all of them arrived, independently, at the same layered architecture.
@@ -25,9 +42,9 @@ The constraints in tension:
 
 ## Scientific foundations
 
-- **The window is not uniform** — *Lost in the Middle* ([arXiv 2307.03172](https://arxiv.org/abs/2307.03172)) showed that models use the beginning and end of the context best and degrade in the middle. It is the empirical basis for two of the ladder's practices: preserving the recent *tail* intact and truncating outputs while keeping start+end.
-- **Context as virtual memory** — *MemGPT* ([arXiv 2310.08560](https://arxiv.org/abs/2310.08560)) framed the operating-systems analogy: the window is "RAM", external storage is "disk", and the harness pages between them. Recent work takes the analogy to its literal limit (*demand paging*, [arXiv 2603.09023](https://arxiv.org/abs/2603.09023)).
-- **Compacting is a budget decision** — *ContextBudget* ([arXiv 2604.01664](https://arxiv.org/abs/2604.01664)) treats context management as explicit allocation per content type — what products implement as thresholds and budgets.
+- **The window is not uniform**. *Lost in the Middle* ([arXiv 2307.03172](https://arxiv.org/abs/2307.03172)) showed that models use the beginning and end of the context best and degrade in the middle. It is the empirical basis for two of the ladder's practices: preserving the recent *tail* intact and truncating outputs while keeping start+end.
+- **Context as virtual memory**. *MemGPT* ([arXiv 2310.08560](https://arxiv.org/abs/2310.08560)) framed the operating-systems analogy: the window is "RAM", external storage is "disk", and the harness pages between them. Recent work takes the analogy to its literal limit (*demand paging*, [arXiv 2603.09023](https://arxiv.org/abs/2603.09023)).
+- **Compacting is a budget decision**. *ContextBudget* ([arXiv 2604.01664](https://arxiv.org/abs/2604.01664)) treats context management as explicit allocation per content type — what products implement as thresholds and budgets.
 
 (Full bibliography and validation status: `livro/bibliografia.md`.)
 
@@ -37,51 +54,150 @@ The constraints in tension:
 - **Claude Code operating practices** ([CometAPI](https://www.cometapi.com/what-is-auto-compact-in-claude-code/), [okhlopkov](https://okhlopkov.com/claude-code-compaction-explained/), [hyperdev](https://hyperdev.matsuoka.com/p/how-claude-code-got-better-by-protecting)): the practitioners' convergent recommendation is the same one the harnesses encode — **what needs to survive compaction should not live in the conversation**: conventions go to the context file (CLAUDE.md/AGENTS.md, reinjected every session) and progress state goes to files the agent rereads after the compact. Compaction defines, by exclusion, what deserves persistence.
 - **See also**: the living collection [Awesome Harness Engineering — Context Delivery & Compaction](https://github.com/GHDaru/awesome-harness-engineering#context-delivery--compaction) gathers more resources for this dimension (patterns, articles and implementations), curated by problem.
 
+## In practice: the ladder, with the numbers on each rung
+
+The aggressiveness ladder is a sequence of attempts, from cheapest to most expensive, and each rung only runs if the previous one was not enough. Written out, it fits in one function:
+
+```python
+ORCAMENTO = 100_000        # tokens the model may see
+
+def compactar(historico: list[Message]) -> list[Message]:
+    """Returns the VIEW sent to the model. The persisted record does not change."""
+    v = truncar_saidas(historico)          # 1. cheap, local, no LLM
+    if custa(v) <= ORCAMENTO:
+        return v
+
+    v = podar_resultados_antigos(v)        # 2. cheap, drops old content
+    if custa(v) <= ORCAMENTO:
+        return v
+
+    return sumarizar(v)                    # 3. expensive: one LLM call
+```
+
+The first two rungs cost microseconds; the third costs a model call and a few seconds. That alone would justify the order. But there is a better reason, and it is **destructiveness**.
+
+```python
+def truncar_saidas(h, teto=4_000):
+    """Cuts the tool output keeping both edges: the head says what it is,
+    the tail says how it ended. The middle of a log rarely decides anything."""
+    out = []
+    for m in h:
+        if m.papel == "tool" and len(m.conteudo) > teto:
+            cabeca, cauda = m.conteudo[: teto // 2], m.conteudo[-teto // 2 :]
+            ref = arquivar(m.conteudo)     # the full text goes to disk, not to the bin
+            m = m.com(conteudo=f"{cabeca}\n… [{ref}] …\n{cauda}")
+        out.append(m)
+    return out
+```
+
+Note the `arquivar`. The modern refinement of rung 1 is not cutting better, it is **not discarding**: the full content goes to a referenceable file, and the model can ask for it back if it needs to. Truncation stops being loss and becomes pagination.
+
+The third rung is where the opening scene happens, and it is where the shape of the summary decides everything:
+
+```python
+def sumarizar(h, cauda=8):
+    antigos, recentes = h[:-cauda], h[-cauda:]     # the tail goes through intact
+    resumo = llm.completar(
+        PROMPT_DE_RESUMO, antigos,
+        formato={                                   # MANDATORY fields
+            "objetivo_do_usuario": str,             # why we are here
+            "decisoes": list[str],                  # what has been decided
+            "estado_dos_arquivos": dict[str, str],  # ← what turn 40 lacked
+            "pendencias": list[str],                # what is left to do
+        })
+    return [Message("system", render(resumo)), *recentes]
+```
+
+`estado_dos_arquivos` is the difference between the summary that saves and the summary that sabotages. A free-prose summary writes *"edited auth.py"*; a summary with a mandatory field is forced to write *"auth.py: `max_age` corrected to 3600, test passing"*. The first is true and does not stop the agent from undoing it; the second does.
+
+The intact tail has the same nature. The last turns go through **unsummarized**, because they hold the work in progress, and summarizing what is happening right now is the fastest way to lose the thread.
+
+And the invariant running across all three rungs is in the first function's comment: compaction changes the **view** sent to the model, **never** the persisted record from ch. 08. Whoever confuses the two discovers, at the first incident, that they compacted the only copy.
+
 ## The state of the art
 
 ### The consolidated pattern: the aggressiveness ladder
 
 Harnesses apply the strategies as a ladder, from cheapest to most expensive — this is the industry consensus, verified in every benchmark round:
 
-1. **Truncate tool outputs at the source** — limit lines/bytes before they enter the history, preserving start and end (*Lost in the Middle* justifies the edges). The modern refinement: **do not discard** — move the full content to referenceable files (opencode) or keep the raw output outside the model's view but visible in the UI (Goose).
-2. **Prune / microcompact** — erase the *content* of old tool results (the model rarely rereads a `cat` from 30 turns ago), keeping the record of the call. Newer intermediate layers: *tool distillation* and *output masking* (gemini-cli).
-3. **LLM summarization (full compact)** — summarize the old portion while preserving an intact tail (typically 20–30% or a 2k–20k token budget). The state of the art has three refinements: a **structured summary** with mandatory fields (user intent, pending tasks, code state — Goose and software-agent-sdk), a **cheap auxiliary model** for the summary (Hermes), and a **memory flush before compacting** — saving durable notes before losing the context (OpenClaw).
-4. **Automatic trigger + reactive path** — a trigger by window percentage (50–90% depending on the project) and, covering the failure case, compaction **reactive** to the API's "prompt too long" error (OpenHarness, OpenClaw).
+1. **Truncate tool outputs at the source**: limit lines/bytes before they enter the history, preserving start and end (*Lost in the Middle* justifies the edges). The modern refinement: **do not discard** — move the full content to referenceable files (opencode) or keep the raw output outside the model's view but visible in the UI (Goose).
+2. **Prune / microcompact**: erase the *content* of old tool results (the model rarely rereads a `cat` from 30 turns ago), keeping the record of the call. Newer intermediate layers: *tool distillation* and *output masking* (gemini-cli).
+3. **LLM summarization (full compact)**: summarize the old portion while preserving an intact tail (typically 20–30% or a 2k–20k token budget). The state of the art has three refinements: a **structured summary** with mandatory fields (user intent, pending tasks, code state — Goose and software-agent-sdk), a **cheap auxiliary model** for the summary (Hermes), and a **memory flush before compacting** — saving durable notes before losing the context (OpenClaw).
+4. **Automatic trigger + reactive path**: a trigger by window percentage (50–90% depending on the project) and, covering the failure case, compaction **reactive** to the API's "prompt too long" error (OpenHarness, OpenClaw).
 
 ### The two modern frontiers
 
-**1. Auditable compaction (tombstones).** The most advanced implementation measured in the benchmark (the software-agent-sdk's condenser) does not mutate the history: the log is append-only and forgetting is an *event* (`Condensation`) — a tombstone, as in Cassandra/Kafka. The model's view is derived by applying the tombstones; nothing is lost to auditing, and formal invariants (tool_call/result pairing, batch atomicity) are **testable code**, with the *hard/soft trigger* distinction: if compacting now would violate an invariant, the soft trigger waits for the next turn; the hard one forces an explicit reset. A related refinement: the **effectiveness circuit-breaker** (IronClaw) — comparing the post-compaction estimate against a baseline and detecting compactions that are not working.
+**1. Auditable compaction, with tombstones.** The most advanced implementation measured in the benchmark does not mutate the history. The log is append-only and forgetting is an **event**, a tombstone in the same sense distributed databases give the word.
 
-**2. Compaction is migrating to the provider.** (And caching is becoming a protocol contract too: the MCP 2026-07-28 spec added `ttlMs`/`cacheScope` to `tools/list` responses — the protocol taking over what used to be harness heuristics.) Two independent signals in the same year: the Codex CLI implements **remote compaction v2** (the backend compacts) and Anthropic launched **compaction in the API itself** ([docs](https://platform.claude.com/docs/en/build-with-claude/compaction), beta `compact-2026-01-12`). It is the expiration clause in motion — but with an interesting inversion: instead of the component disappearing when the model improves, it **changes owner** (from the harness to the platform). What remains for the harness when the provider compacts: deciding *what to protect* (skills, task state, memory files), *when to trust* (auditing the summary's quality — OpenClaw's `safeguard` mode anticipated this) and the reactive path for providers that do not offer the service.
+The model's view is derived by applying the tombstones. Nothing is lost for audit, and the formal invariants become **testable code**: pairing between call and result, batch atomicity.
 
-> **Addendum (2026-07-31, full text verified): the third way — compaction learned in training.** The preprint [CompactionRL](https://arxiv.org/abs/2607.05378) (Tsinghua/Z.AI, 06 Jul 2026) proposes the migration's next step: training the model via RL **with compaction inside the loop** — "CompactionRL incorporates compaction into rollout collection, and reconstructs the agent context from a summary once context budget is exhausted" (§1); summarization becomes "a learned part of the model rather than an inference-time heuristic", with a **task**-level reward. The numbers (Table 2, always against the same model *already using inference-time compaction*): GLM-4.5-Air **59.8→66.8** on SWE-bench Verified (+7.0) and +3.1 on Terminal-Bench 2.0; GLM-4.7-Flash **+5.5 and +6.8**. And the experiment's protocol is exactly this chapter's ladder — a threshold by remaining budget, a structured summary from a fixed prompt, a **preserved tail of k=2 steps** — that is, the paper validates the triad and changes the *training*, not the architecture. Three consequences: (1) the harness remains the owner of the *when*, but the *how to summarize* is starting to migrate into the weights — harness↔model mismatch becomes a new risk; (2) the declared limitation is revealing: "its gains do not consistently transfer to single-window evaluation when compaction is disabled. This indicates a train–test mismatch" — trained compaction creates *coupling* (with compaction turned off, the trained GLM-4.7-Flash actually gets worse, 47.5→43.7), the strongest argument so far for an explicit *compaction contract* between harness and model; (3) in the other direction, Table 1 hands power back to the harness: with the executor fixed, **swapping only the summarizer** moves SWE-Verified from 49.0 to 55.5 (+6.5) — "compaction is a performance-critical decision process rather than a passive preprocessing step", and a better dedicated summarizer **beats self-summarization**: choosing who summarizes is a harness decision, and a big one.
+From that comes a distinction worth stealing, between a **soft** and a **hard** trigger. If compacting now would violate an invariant, the soft trigger waits for the next turn; the hard one forces an explicit reset. A related refinement is the **effectiveness circuit-breaker**: compare size before and after and give up on the compaction that did not compact.
+
+**2. Compaction is migrating to the provider.** The cache also became a protocol contract: the MCP 2026-07-28 spec added `ttlMs` and `cacheScope` to `tools/list` responses, with the protocol taking over what used to be harness heuristics.
+
+There are two independent signals in the same year. One harness in the corpus implements **remote compaction**, with the backend compacting; and compaction appeared as a feature of the **API itself** ([docs](https://platform.claude.com/docs/en/build-with-claude/compaction), beta `compact-2026-01-12`).
+
+It is the expiration clause in motion, with an interesting inversion. Instead of the component disappearing as the model improves, it **changes owner**: it leaves the harness and goes to the platform.
+
+What remains to the harness when the provider compacts is three concrete things. Deciding *what to protect*, such as skills, task state and memory files. Deciding *when to trust*, by auditing the summary's quality. And keeping the reactive path for when remote compaction fails.
+
+> **Addendum (2026-07-31, full text verified): the third way, compaction learned in training.** The [CompactionRL](https://arxiv.org/abs/2607.05378) preprint (Tsinghua/Z.AI, 06-Jul-2026) proposes the next step of the migration: training the model by RL **with compaction inside the loop**.
+>
+> In the paper's words, *"CompactionRL incorporates compaction into rollout collection, and reconstructs the agent context from a summary once context budget is exhausted"* (§1), and summarization becomes *"a learned part of the model rather than an inference-time heuristic"*, with a **task**-level reward. The Table 2 numbers are always measured against the same model *already using inference-time compaction*, which is the honest comparison.
+>
+> If the line holds, compaction does not only change owner: it changes **layer**, from the harness to the weights.
 
 ### The third frontier: compaction stops being involuntary (round ext-4, 2026-08)
 
-The launch of **Prime Agent** (Prime Intellect, Aug/2026) came with a charge aimed straight at this chapter: *"fixed tool-calling schemas and context compaction force the model to work around its own scaffolding instead of leveraging it."* Reading the code ([full evaluation](../../avaliacao-prime-agent.html)) shows that **the charge is rhetoric and the code says something else** — and the gap between the two is the finding.
+The launch of **Prime Agent** (Aug/2026) came with a direct accusation aimed at this chapter: *"fixed tool-calling schemas and context compaction force the model to work around its own scaffolding instead of leveraging it"*.
 
-Compaction was **neither removed nor weakened**. Prime Agent is built on Pi, and the 1,398 lines of `core/compaction/` are there intact — safe cutting, split turns, cumulative files, reactive overflow recovery — and even improved, with custom instructions and `tokensBefore` recomputation. What changed is **who is in charge**: `compact.run()` and `compact.status()` became callable **by the agent itself** (`skills/compact/`), with a handler that **schedules instead of executing** — executing on the spot would abort the very REPL cell that requested the compaction — and that runs even with automatic compaction turned off, under twelve test cases. Add to that the session's JSONL path injected into the system prompt: the full history, **including previous compactions**, remains programmatically reachable.
+Reading the code ([full evaluation](../../../benchmark/avaliacoes/prime-agent.md)) shows that **the accusation is rhetorical and the code says otherwise**. The difference between the two is the finding.
 
-The caveat to record in this chapter is therefore precise: **compaction stops being an involuntary event of the harness and becomes one mechanism among others, available to the agent**. It also gains a new role — it became a distillation trigger, with `autoRefine.compact: true` by default: every compaction is an opportunity for the agent to extract learning from what is about to be summarized.
+Compaction was **neither eliminated nor weakened**. Prime Agent is built on Pi, and the 1,398 lines of `core/compaction/` are there intact, with safe cutting, turn splitting, cumulative files and reactive overflow recovery, further improved with custom instructions.
 
-What the aggressiveness ladder did not anticipate is not its own obsolescence but the **inversion of control**: until now, the harness compacts *the* agent; here, the agent compacts *itself*. The gap the reading found is telling — the announcement mentions a subagent acting as a garbage collector for the REPL, and **there is nothing of the sort in the code** (searching for `garbage`/`prune`/`evict` in `src/core`, `skills` and `prime-agent-runtime` returns nothing). Context-as-a-variable solves access to the past; it does **not** solve the growth of the namespace it creates.
+What changed is **who is in charge**. The compact and status functions (`skills/compact/`) became callable **by the agent itself**, with a handler that **schedules rather than executes**, because executing on the spot would abort the REPL cell that requested the compaction. And they run even with automatic compaction turned off, under twelve test cases.
+
+The caveat to record is therefore precise: **compaction stops being an involuntary harness event and becomes one mechanism among others, available to the agent**. It also gains a new role, that of a distillation trigger: every compaction becomes an opportunity for the agent to extract learning from what is about to be summarized.
+
+What the ladder did not foresee is not its own obsolescence, it is the **inversion of control**. Until now, the harness compacts *in* the agent; here, the agent compacts *itself*.
+
+And the gap the reading found is revealing. The announcement mentions a subagent acting as the REPL's garbage collector, and **there is nothing of the sort in the code**: searching for `garbage`, `prune` and `evict` across the code directories returns nothing. Context-as-a-variable solves access to the past; it does **not** solve the growth of the namespace it creates.
 
 ### Executive summary
 
-Convergence on the ladder is nearly total — the pattern is consolidated, and a new harness that does not implement it needs to justify itself. The remaining differences are fidelity refinements (structuring the summary, auditing its quality, never discarding) and the big open question is one of *market architecture*: how much of the ladder survives in the harness when the platform offers compaction as a service — a question the addendum above sharpens: after migrating to the provider, compaction is starting to migrate **into the weights**. **What to steal** today: tombstones over an append-only log; pre-compaction memory-flush; a structured summary with task IDs preserved; the effectiveness circuit-breaker; and — new in ext-4 — **agent-callable compaction that schedules instead of executing**, plus the session log path in the system prompt, which puts the past back within the model's reach without spending window.
+Convergence on the ladder is nearly total. The pattern is consolidated, and a new harness that does not implement it needs to justify itself.
 
-> **Editorial caveat (2026-08-06).** This Executive summary was confronted in round ext-4 and **upheld**, with the qualification in the previous section: the ladder is still the pattern, but *authority* over when to apply it has begun migrating to the agent. If the pattern repeats in other harnesses, the synthesis changes — and this paragraph will be rewritten, not patched.
+The differences that remain are fidelity refinements: structuring the summary, auditing its quality, never discarding. And the big open question is one of **market architecture**: how much of the ladder survives in the harness when the platform offers compaction as a service. The addendum above sharpens the question, because after migrating to the provider, compaction starts migrating to the **weights**.
+
+**What to steal:**
+
+- **Tombstones over an append-only log**, with the view derived and nothing lost for audit.
+- **Memory flush before compacting**: save the durable notes while the context still exists.
+- **A structured summary** with mandatory fields, above all the state of the files.
+- **An effectiveness circuit-breaker**: if compacting did not shrink anything, compacting again will not either.
+- **An intact tail**, because work in progress does not survive a summary.
+
+> **Editorial caveat (2026-08-06).** This Executive summary was confronted in round ext-4 and **upheld**, with the qualification from the previous section: the ladder is still the pattern, but *authority* over when to apply it has started migrating to the agent. If the pattern repeats in other harnesses, the synthesis changes, and this paragraph will be rewritten, not amended.
 
 ## Hands-on — harness-zero, step 5
 
-In step 5 of the project (`harness-zero/`), you implement the ladder in your own harness, in this order: (1) tool output truncation with start+end preservation; (2) pruning of old tool results beyond a budget; (3) LLM summarization of the history's head, preserving the tail; (4) automatic triggering by an estimated-token threshold — with a **visible indicator in the chat** when compaction happens (the reader's observation window). Completion exercise: the prune function's skeleton comes ready; you write the selection of what to protect.
+In step 5 of the `harness-zero/` project (`harness-zero/etapas/05-compactacao/`) you implement the ladder from the "In practice" section in your own harness, in this order:
+
+1. tool output truncation preserving head and tail;
+2. pruning of old tool results, beyond a budget;
+3. LLM summarization of the head of the history, preserving the tail;
+4. automatic triggering by an estimated-token threshold.
+
+Add a **visible indicator in the chat** when compaction happens: it is the reader's observation window, and without it compaction is invisible exactly when understanding it matters most.
+
+Completion exercise: the skeleton of the prune function ships ready. You write the selection of what to protect.
 
 ## Check your understanding
 
-1. Why truncate tool outputs **before** summarizing via LLM, and not the other way around? (Cost and destructiveness — if needed, reread the ladder.)
-2. A harness summarized the history and the agent, on the next turn, rewrote a file that was already correct. What information did the compaction probably lose, and which state-of-the-art mechanism prevents it? (Hint: structured summary with `CODE_STATE`/`CHANGES`.)
-3. Your provider now offers compaction in the API. Which of the ladder's responsibilities do you **transfer** and which do you **keep** in the harness? (Connect with "the two modern frontiers".)
-
+1. Why truncate tool outputs **before** summarizing via LLM, and not the other way around?
+2. A harness summarized the history and the agent, on the next turn, rewrote a file that was already correct. What information did the compaction probably lose, and which state-of-the-art mechanism prevents it?
+3. Your provider now offers compaction in the API. Which of the ladder's responsibilities do you **transfer** and which do you **keep** in the harness?
+4. Compaction runs for the second time in the same session. What class of defect only appears then, and why?
 ---
 
 ## Appendix A — How each repository handles compaction
@@ -123,3 +239,15 @@ No compaction in the loop (the memory sub-nodes' `contextWindowLength` + `maxTok
 
 ### LangGraph / OpenAI Agents SDK / CrewAI (frameworks round) — the dividing line
 LangGraph: **zero native support** (a docstring suggesting `pre_model_hook`); Agents SDK (Software Development Kit): only `OpenAIResponsesCompactionSession` as an optional session; CrewAI: nothing. Compaction is the dimension that most separates "framework" from "ready-made harness".
+
+---
+
+## Verification answers
+
+**1.** For cost and for destructiveness, and the second reason is the decisive one. Truncating is local, calls no model, and in its modern refinement **loses nothing**: the full content goes to a referenceable file. Summarizing costs an LLM call, takes seconds and is **irreversible in the view** — whatever the summary did not capture does not come back. Running the expensive rung before the cheap one means paying more to lose more, and on top of that summarizing megabytes of tool output that truncation would have removed for free. The ladder is ordered by increasing damage, and cost merely follows.
+
+**2.** Compaction lost the **state of the files**: it recorded that an edit happened and not how the file ended up. It is the worst thing a free-prose summary does, because the sentence *"edited auth.py"* is true and useless. The state-of-the-art mechanism that prevents it is the **structured summary with mandatory fields**, forcing the model to fill in the current state of the code, the decisions taken and the pending items. A mandatory field cannot be dropped for the sake of elegant prose. The complementary defense is the **intact tail**: the last turns go through unsummarized, and they are where the work in progress is described precisely.
+
+**3.** You transfer the **expensive** rung: summarization, where the provider has a real advantage, because it sees the whole conversation on its side and can compact without an extra round trip. You keep the **cheap, local** rungs — truncating tool output at the source and pruning old results — because they depend on knowledge only the harness has: which outputs are from your tools, what has already been archived to disk, what your product's budget is. And above all you keep the **record invariant**: the provider compacts its view; the durable log is still yours, and it is what audit, resume and revert come from. Outsourcing compaction without keeping the record means being left without the only copy.
+
+**4.** The class of defect is the **orphaned result**: a tool result whose corresponding call has already left the history. On the first compaction, call and result are usually in the same summarized block, and the pair stays coherent. On the second, the first pass's summary has already replaced part of the history, and the pairing can break: a result is left without its call, or a call without its result, and the model receives a history that is not even syntactically valid for the API. It is a dated, real case in the corpus, and it exposes what the chapter long failed to discuss: compaction is a **repeated** operation, and what breaks is not compacting, it is **compacting what was already compacted**.
