@@ -13,11 +13,11 @@
 | Capítulo | Estado da arte capturado em | Fontes da indústria | Última revisão |
 |---|---|---|---|
 | 02 Loop | 2026-07 | ✓ | 2026-08-11 · **camada didática v4** |
-| 03 Contexto | 2026-07 | ✓ | 2026-07-25 |
+| 03 Contexto | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 04 Compactação | 2026-07 | ✓ | 2026-07-25 |
-| 05 Ferramentas | 2026-07 | ✓ | 2026-07-25 |
+| 05 Ferramentas | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 06 MCP | 2026-07 | ✓ | 2026-07-26 |
-| 07 Permissões/Segurança | 2026-07 | ✓ | 2026-07-25 |
+| 07 Permissões/Segurança | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 08 Memória e Estado | 2026-07 | ✓ | 2026-07-26 |
 | 09 Planejamento | 2026-07 | ✓ | 2026-07-26 |
 | 10 Subagentes/Orquestração | 2026-07 | ✓ | 2026-07-26 |
@@ -31,6 +31,22 @@
 | 00 Introdução · 01 Fundamentos | 2026-07 | ✓ (01) | 2026-08-12 · **camada didática v4** |
 
 ## Edições
+
+### Edição 0.83 — 2026-08-12 · dois especialistas, um ADR, e o portão que cobre o livro inteiro (specs 099 + ADR 0011)
+
+- **A decisão de ordem foi delegada e conciliada.** O editor pediu que a cascata fosse decidida por **dois especialistas subagentes**, com as respostas conciliadas num ADR. Um de design instrucional, um de produção editorial, respondendo sem ver a resposta do outro. Registro em [ADR 0011](../adr/0011-cascata-didatica.md).
+- **Os dois rejeitaram, sem combinar, a ordem que eu havia proposto** ("pior métrica primeiro"): ela poria o **14 Convergências** em primeiro lugar, que é o capítulo-síntese dos outros treze, e a métrica nem enxerga os dois capítulos mais quebrados pedagogicamente — 15 e 16, que não têm seção "Mão na massa".
+- **A ordem escolhida é a das etapas do harness-zero**, porque o exemplo trabalhado de cada capítulo **já existe em código versionado**, na trilha, com a tabela Etapa → Capítulo publicada no `harness-zero/README.md`. Com uma troca: o cap. 07 sobe da posição 5 para a 3, que era o pedido do especialista de produção e **reforça** a justificativa do de instrução (a ferida do `read_file`, aberta no cap. 03, é paga ainda mais cedo).
+- **Uma premissa do especialista de instrução não se sustentou, e está registrada como não sustentada.** Ele argumentou que escrever fora da ordem das etapas obrigaria a inventar exemplos fictícios; a linha 72 do mesmo README diz que a trilha está **completa e autocontida**. Nada precisa ser escrito para trás. O argumento sobrevive mais fraco do que foi alegado — preserva vocabulário, não existência.
+- **Metade do livro publicado não tinha portão nenhum.** O `mede-prosa.mjs` só media PT, e três strings suas eram PT-hardcoded: o corte em `## Apêndice A` não casava com `## Appendix A`, então o apêndice inteiro entrava na conta de prosa do EN. Agora mede **18 PT + 18 EN**, com paridade estrutural do par, lista de capítulos **descoberta e conferida** (era `.filter(existsSync)`, e arquivo renomeado saía da medição sem falhar) e `v4` derivado do cabeçalho em vez de lista à mão.
+- **O exemplo trabalhado passou a exigir forma.** Antes, `/```/` — qualquer cerca satisfazia a regra pedagógica mais cara do livro. Agora: dentro da seção `Na prática`, com linguagem declarada e piso de linhas. É o *reward hacking* que o cap. 11 descreve, e a edição 0.78 já havia nomeado contra si mesma.
+- **O andaime agora desvanece**, declarado no cabeçalho de cada capítulo (`completo | lacuna | proprio`). Piso constante de "≥ 1 bloco de código" aplicava **metade** da lição de Sweller: o *worked-example effect* vem acompanhado do *expertise reversal effect*, e exemplo totalmente resolvido ajuda o novato e atrapalha quem já é competente.
+- **Selo i18n atrasado passou a reprovar o build.** Havia **dois** apêndices atrasados com o build verde — e quando "atrasado" é um estado publicável, ele deixa de ser sinal. Ficam como dívida declarada, nomeada, no mesmo padrão da lista de transacionais do `verifica-canonical.mjs`.
+- **Erro meu, no mesmo dia: o `sela.mjs` mentiu.** A primeira versão rodava sem argumentos e reselou os dois apêndices cuja tradução estava atrasada de verdade. Selo regravado sobre texto não traduzido **não conserta o atraso, apaga**. Revertidos aos selos antigos; a ferramenta passou a exigir os arquivos nomeados um a um. O hash é cálculo, a afirmação de sincronia é de quem traduziu.
+- **E o terceiro falso positivo do medidor**, da mesma família dos dois de ontem: um comentário `# ...` **dentro** de um bloco Python é indistinguível de cabeçalho markdown para quem olha só o começo da linha, e a seção "Na prática" do cap. 07 terminava no meio do primeiro exemplo. Três causas, uma só raiz: **estrutura lida como se fosse marcação**.
+- **Lote A reescrito** (PT e EN): **05 Ferramentas** (a mesma `buscar_arquivos` três vezes, com a conta de 4.100 caminhos ≈ 60k tokens contra ~400), **03 Contexto** (a fatura que quadruplicou por uma linha de data no topo, e o teste de estabilidade de prefixo que imprime o offset da divergência) e **07 Permissões** (o `read_file` do cap. 03 lendo `~/.ssh/id_rsa` porque um `AGENTS.md` clonado mandou; depois política pura × contenção em `bwrap`, em código).
+- **Placar da série: 14 capítulos v4** (7 PT + 7 EN), travessões de 0,0 a 7,2 por mil, frase média de 13,7 a 18,5, **nenhuma** frase acima de 60 palavras.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
 
 ### Edição 0.82 — 2026-08-12 · a cascata didática, e o medidor errando duas vezes a favor do alarme (spec 098)
 

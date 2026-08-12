@@ -3,6 +3,7 @@
 > **Estado da arte capturado em 2026-07** · última revisão 2026-08-12 · [histórico e registro de expiração](../HISTORICO.md)
 >
 > Camada didática v4 — ver [Guia Editorial §2.1](../GUIA-EDITORIAL.md).
+> andaime: completo
 
 ## Objetivos de aprendizagem
 

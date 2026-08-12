@@ -3,6 +3,7 @@
 > **Estado da arte capturado em 2026-07** · última revisão 2026-08-11 · [histórico e registro de expiração](../HISTORICO.md)
 >
 > Esqueleto v3 com camada didática v4 — corpo com o estado da arte; tratamento por repositório no Apêndice A (complementação online).
+> andaime: completo
 
 ## Objetivos de aprendizagem
 

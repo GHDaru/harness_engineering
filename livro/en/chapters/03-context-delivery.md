@@ -1,75 +1,182 @@
-<!-- i18n fonte:livro/capitulos/03-entrega-de-contexto.md edicao:0.61 hash:e652137d -->
+<!-- i18n fonte:livro/capitulos/03-entrega-de-contexto.md edicao:0.82 hash:7e301192 -->
 # 03 — Context Delivery
 
-> **State of the art captured in 2026-07** · last revised 2026-07-25 · [history and expiration log](../historico.html)
+> **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
+>
+> Didactic layer v4 — see [Editorial Guide §2.1](../editorial-guide.md).
+> scaffold: completo
 >
 > Skeleton v3 — body with the state of the art; per-repository treatment in Appendix A (online supplement).
 
 ## Learning objectives
 
 By the end of this chapter, you should be able to:
-1. **Explain** why context is a budget managed at runtime, not a warehouse (and what *context rot* is);
-2. **Compose** a system prompt in layers ordered by volatility (cache-aware);
+1. **Explain** why context is a budget managed at runtime, not a warehouse, and what *context rot* is;
+2. **Compose** a system prompt in layers ordered by volatility, aware of caching;
 3. **Design** a cascade of context files (global → project → package → personal) with declared precedence;
-4. **Implement** harness-zero's context assembler (step 3) with a project rules file;
-5. **Evaluate** a real AGENTS.md file against the authoring practices (lean, executable commands, grown by evidence of failure).
+4. **Implement** the harness-zero context assembler (step 3) with a project rules file;
+5. **Assess** a real AGENTS.md against the authoring practices: lean, executable commands, grown from evidence of failure.
+
+## The bill that quadrupled without anyone changing anything
+
+Two quiet weeks of use. In the third, the agent's bill quadruples.
+
+Nobody changed the model, nobody changed the volume of work, nobody added a tool. The team looks for a leak, looks for an infinite loop, looks for someone running evals in production. Nothing.
+
+What changed was one line. Someone thought it useful for the agent to know the time, and added, at the top of the system prompt:
+
+```text
+Date and time: 2026-08-12T14:07:33
+```
+
+One line, in the wrong place. The provider's cache works **by prefix**: it reuses the identical beginning across calls and charges little for it. A value that changes every second, placed at the top, guarantees that **no** call shares a prefix with the previous one. The cache never hits, and everything is billed as new.
+
+This is not an optimization detail. The **order** in which context is assembled is a cost decision, and this chapter is about building that order on purpose.
 
 ## The problem
 
-The model only knows what the harness shows it. "Context delivery" is the engineering of deciding **what** goes into each call — system prompt, project rules, environment state, memories, instructions from external servers — **in what order**, and **how that changes** mid-conversation without breaking the provider's cache or confusing the model.
+The model only knows what the harness shows it.
 
-The classic sub-problems: where project rules live and how they are discovered; whether the system prompt should vary by model; how to communicate state changes mid-conversation without invalidating the cached prefix.
+Context delivery is the engineering of deciding **what** goes into each call — system prompt, project rules, environment state, memories, instructions from external servers —, **in what order**, and **how that changes** mid-conversation without breaking the provider's cache or confusing the model.
+
+There are three classic sub-problems: where the project rules live and how they are discovered; whether the system prompt should vary per model; and how to report state changes mid-conversation without invalidating the cached prefix.
 
 ## Scientific foundations
 
-- **Context degrades with position and with volume** — *Lost in the Middle* ([arXiv 2307.03172](https://arxiv.org/abs/2307.03172)): information in the middle of long contexts is poorly used. Design consequence: what matters goes to the edges (system prompt at the start; the current task at the end), and "send everything" is an anti-pattern with empirical backing.
+- **Context degrades with position and with volume** — *Lost in the Middle* ([arXiv 2307.03172](https://arxiv.org/abs/2307.03172)): information in the middle of long contexts is poorly used. The design consequence is direct: what matters goes to the edges, with the system prompt at the start and the current task at the end, and "send everything" is an anti-pattern with empirical grounding.
 - **Context engineering as a discipline** — the survey [arXiv 2507.13334](https://arxiv.org/abs/2507.13334) systematizes the area (RAG, memory, tool-integrated reasoning) and legitimizes the term the industry adopted.
-- **Less context, better agents** — [arXiv 2606.10209](https://arxiv.org/abs/2606.10209) measures in long-running agents what Anthropic calls context rot: aggressive curation beats full windows.
+- **Less context, better agents** — [arXiv 2606.10209](https://arxiv.org/abs/2606.10209) measures, in long-running agents, what Anthropic calls *context rot*: aggressive curation beats full windows.
 
 (Full bibliography: `livro/bibliografia.md`.)
 
 ## Industry sources
 
-- **[Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)** (Anthropic Engineering): names the successor to prompt engineering — the job is to **curate the optimal set of tokens at inference time**; names *context rot* as an engineering fact. Decision: the window is a budget, and the goal is the smallest set of high-signal tokens.
-- **[Prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)** (official docs) + **[Lessons from building Claude Code: prompt caching is everything](https://claude.com/blog/lessons-from-building-claude-code-prompt-caching-is-everything)**: caching is **by prefix** — the context assembly order is a cost decision. The Claude Code account lists the classic invalidators (a timestamp at the top, a request ID in the tool list, history reserialization) and treats **cache hit rate as a first-class harness metric** (~59% reduction in billable input).
-- **[AGENTS.md](https://agents.md/)** + **[Agentic AI Foundation](https://openai.com/index/agentic-ai-foundation/)**: the "README for agents" was **donated to the Linux Foundation (Dec 2025)** with OpenAI, Anthropic and Block as co-founders; 60k+ projects. Decision: per-repository file context has become neutral, portable infrastructure — investing in that pipeline is safe.
-- **[How Claude remembers your project](https://code.claude.com/docs/en/memory)** (docs): formalizes the global → project → local **cascade**, with the closest file winning and the personal one kept out of version control.
-- **[AGENTS.md Field Guide 2026](https://www.iuriio.com/blog/posts/2026/05/agents-md-field-guide-2026)** (practitioner): authoring — start with ~30 lines, cap at ~150–200 at the root, exact commands before prose, nest per package in a monorepo, and **grow only on evidence of the agent's recurring failure** (the common mistake is treating it as documentation).
-- **See also**: the living collection [Awesome Harness Engineering — Context Delivery & Compaction](https://github.com/GHDaru/awesome-harness-engineering#context-delivery--compaction) gathers more resources for this dimension (patterns, articles and implementations), curated by problem.
+- **[Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)** (Anthropic Engineering): names the successor to prompt engineering. The work is **curating the optimal set of tokens at inference time**, and the text names *context rot* as an engineering fact. The decision that follows: the window is a budget, and the goal is the smallest set of high-signal tokens.
+- **[Prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)** + **[Lessons from building Claude Code: prompt caching is everything](https://claude.com/blog/lessons-from-building-claude-code-prompt-caching-is-everything)**: the cache is **by prefix**, so assembly order is a cost decision. The write-up lists the classic invalidators — timestamp at the top, request ID in the tool list, non-deterministic re-serialization of history — and treats **cache hit rate as a first-class harness metric**, with about 59% reduction in billable input.
+- **[AGENTS.md](https://agents.md/)** + **[Agentic AI Foundation](https://openai.com/index/agentic-ai-foundation/)**: the "README for agents" was **donated to the Linux Foundation** in December 2025, with OpenAI, Anthropic and Block as co-founders, and more than 60,000 projects use it. Context by repository file became neutral, portable infrastructure, so investing in that pipeline is safe.
+- **[How Claude remembers your project](https://code.claude.com/docs/en/memory)**: formalizes the **cascade** global → project → local, with the nearest file winning and the personal one outside version control.
+- **[AGENTS.md Field Guide 2026](https://www.iuriio.com/blog/posts/2026/05/agents-md-field-guide-2026)** (practitioner): the authoring side. Start at around 30 lines, cap at 150–200 at the root, exact commands before prose, nest per package in a monorepo, and **grow it only from evidence of recurring failure**. The common mistake is treating it as documentation.
+- **See also**: the living collection [Awesome Harness Engineering — Context Delivery & Compaction](https://github.com/GHDaru/awesome-harness-engineering#context-delivery--compaction) gathers more resources for this dimension, curated by problem.
+
+## In practice: assemble by volatility, and prove it worked
+
+The naive assembler concatenates whatever shows up:
+
+```python
+def montar_contexto(tarefa: str) -> str:
+    return "\n".join([
+        f"Date and time: {datetime.now().isoformat()}",  # ← changes every call
+        LEIA("identidade.md"),
+        f"Directory: {os.getcwd()}",
+        LEIA("AGENTS.md"),
+        tarefa,
+    ])
+```
+
+It is correct and expensive. The first line invalidates everything that comes after it.
+
+The fix is not removing the timestamp: sometimes the agent really does need to know the time. The fix is **ordering by volatility** — what almost never changes first, what changes every turn last:
+
+```python
+CAMADAS = [
+    ("identidade", lambda _: LEIA("identidade.md")),         # changes on release
+    ("ambiente",   lambda _: f"OS: {platform.system()}"),    # changes per machine
+    ("projeto",    lambda _: cascata_agents_md()),           # changes on commit
+    ("memoria",    lambda s: memorias_relevantes(s)),        # changes per session
+    ("volatil",    lambda _: f"Now: {datetime.now():%H:%M}"),  # changes always
+]
+
+def montar_contexto(sessao) -> str:
+    return "\n\n".join(f"## {nome}\n{fn(sessao)}" for nome, fn in CAMADAS)
+```
+
+The timestamp is still there, now **at the end**. Everything above it is byte-for-byte identical across turns, and it is exactly that "everything above" that the cache charges little for.
+
+Now the part almost nobody does: **proving it**. Prefix stability is an invariant, and an invariant without a test is a hope.
+
+```python
+def test_prefixo_estavel():
+    a = montar_contexto(sessao)
+    time.sleep(1.1)                      # time passes: the volatile layer changes
+    b = montar_contexto(sessao)
+
+    comum = os.path.commonprefix([a, b])
+    assert comum, "the two contexts diverge at the very first byte"
+
+    # the common prefix must cover everything except the volatile layer
+    corte = a.index("## volatil")
+    assert len(comum) >= corte, (
+        f"prefix diverged at {len(comum)}, earlier than expected ({corte}).\n"
+        f"from here on: {a[len(comum):len(comum)+80]!r}"
+    )
+```
+
+The error message is the useful part. When someone adds a `request_id` in the middle of assembly six months from now, the test will not merely say "failed": it prints **the offset where the two contexts diverged and the next 80 characters**, which is the culprit's name.
+
+That is what the team in the opening scene lacked. They found the line after three weeks and a bill; with this assertion, they would have found it at commit time.
 
 ## The state of the art
 
-### 1. Context is a managed budget — and retrieval went just-in-time
+### 1. Context is a managed budget, and retrieval became just-in-time
 
-The modern consensus inverted the "the more context, the better" instinct: the harness actively manages the window (rule-based pruning, awareness of how much remains, on-demand retrieval). The benchmark's two most advanced materializations: Aider's **repo-map** (the model "sees" the structure of an entire repository within a ~1k-token budget, via tree-sitter + personalized PageRank — static just-in-time retrieval with no explorer agent at all) and Goose's **incremental per-subdirectory hints** (rules loaded as the agent navigates, not all upfront).
+The modern consensus inverted the instinct that more context is better. The harness actively manages the window: rule-based pruning, awareness of what is left, on-demand retrieval.
+
+Two implementations stand out in the benchmark. One gives the model the structure of an entire repository for about a thousand tokens, built by syntactic analysis and graph ranking, with no explorer agent at all — static just-in-time retrieval. The other loads rules per subdirectory **as the agent navigates**, rather than everything up front.
 
 ### 2. Prefix stability became an architectural requirement
 
-Cache-awareness stopped being an optimization and reorganized context assembly: layers ordered by volatility, deterministic serialization, zero volatile content at the top. The most rigorous formalizations measured: opencode's **Context Epochs** (the prefix as an immutable cache baseline, with state changes delivered only at safe turn boundaries) and Hermes's **explicit three-layer prompt** (`stable` → `context` → `volatile`, declaredly designed to maximize prefix-cache — including in the skill-curation fork, which inherits the parent's prefix to save ~26%).
+It is the "In practice" section promoted to a principle. Cache-awareness stopped being an optimization and reorganized assembly: layers by volatility, deterministic serialization, zero volatile content at the top.
 
-### 3. The rules file standardized — and became a cascade
+The two most rigorous formalizations in the corpus treat the prefix as an **immutable baseline**, delivering state changes only at safe turn boundaries, and declare the three layers of the example above under those names. One of them takes the idea further: the fork that curates skills **inherits the parent's prefix**, saving about 26%.
 
-The AGENTS/CLAUDE/GEMINI.md fragmentation of the discipline's early days is resolved by neutral governance (Linux Foundation): AGENTS.md is the portable format, read natively by Codex, Goose, opencode, OpenClaw, Hermes, Aider and dozens of others, with the proprietary names becoming aliases. The mature pattern is the **cascade with declared precedence** (global → project → package → personal; the closest wins; the personal one gitignored), `@imports` for composition (gemini-cli) and — the authoring practice that separates useful files from dead documentation — growing **on evidence of failure**, like code.
+### 3. The rules file standardized, and became a cascade
+
+The naming fragmentation of the discipline's early days is resolved by neutral governance. The portable format is read natively by nearly the whole corpus, with the proprietary names becoming aliases.
+
+The mature pattern is the **cascade with declared precedence**: global, project, package and personal, with the nearest one winning and the personal one outside version control. There is composition by import, and there is the authoring practice that separates a useful file from dead documentation — growing it **from evidence of failure**, the way code grows from bugs.
 
 ### 4. The new frontiers
 
-Three recent moves that have not yet become consensus: **per-model-family prompts** (opencode with ~10 variants; Codex taking it to the extreme with **server-driven** instructions — the backend delivers the per-model base prompt, with even a configurable "personality"); **persona × rules separation** (the personal-agent category's contribution: `SOUL.md` for voice/identity separate from the operational `AGENTS.md` — OpenClaw, Hermes, ohmo); and **trust-classed context** (IronClaw: personal/injected content travels in "prompt envelopes" with the trust class preserved — context delivery meeting the security of ch. 07).
+Three recent movements have not yet become consensus.
 
-> **The counterpoint: the minimal harness (Pi)** — *addendum from round ext-1, 2026-07-31.* While this chapter describes ever-richer context assemblers, [Pi](https://github.com/badlogic/pi-mono) (Earendil/Zechner, ~54k stars) bets in the opposite direction: a base system prompt **measured at ~460 tokens**, derived from the tool set (each tool contributes its snippet; guidelines enter only if the corresponding tool is active), and skills announced **by name+description only** — the body is loaded by the model itself via `read` when the task calls for it (progressive disclosure taken to the limit: there is not even a skill tool). Editorial honesty demands the two caveats the code reading revealed: (1) the same assembler concatenates the cascade's `AGENTS.md` files **with no budget** — in Pi's own repo this adds ~2,700 tokens, six times the slogan; the minimality is the harness's, not the context's; (2) minimalism is not absence of engineering — Pi's compaction is the most complete in the corpus (see the [evaluation](../../../benchmark/avaliacoes/pi.md), in Portuguese). The underlying bet is falsifiable and worth tracking: **better models would need less harness** — if true, part of this chapter expires; if the window stays expensive, the missing budget charges interest. It is the control experiment the corpus was missing.
+**Prompt per model family**, with one harness keeping about ten variants and another taking it to the extreme with instructions **coming from the server**: the backend delivers the base prompt per model, with even a configurable personality.
+
+**Separating persona from rules**, a contribution from the personal-agent category: one file for voice and identity, another for the operational rules.
+
+**Context with a trust class**: personal or injected content travels in envelopes that preserve its origin, so the harness knows what is your instruction and what is a third party's text. It is context delivery meeting the security of ch. 07.
+
+> **The counterpoint: the minimal harness (Pi)** — *addendum from round ext-1, 2026-07-31.* While this chapter describes ever richer assemblers, [Pi](https://github.com/badlogic/pi-mono) bets in the opposite direction: a base system prompt **measured at ~460 tokens**, derived from the tool set (each tool contributes its snippet, and guidelines only enter if the corresponding tool is active), with skills announced **by name and description only** — the body is loaded by the model itself when the task calls for it.
+>
+> Editorial honesty requires the two caveats that reading the code revealed. First: the same assembler concatenates the cascade's `AGENTS.md` files **without a budget**, which in Pi's own repository adds about 2,700 tokens, six times the slogan — the minimalism is the harness's, not the context's. Second: minimalism is not the absence of engineering, and Pi's compaction is the most complete in the corpus (see [evaluation](../../../benchmark/avaliacoes/pi.md)).
+>
+> The underlying bet is falsifiable and worth tracking: **better models would need less harness**. If that is true, part of this chapter expires. If the window stays expensive, the missing budget charges interest.
 
 ### Executive summary
 
-What is most modern: budget + just-in-time (not volume), stable prefix as a requirement (with cache hit rate as an SLI), cascading AGENTS.md under neutral governance, and the three frontiers (per-model/server-driven prompts, separate persona, trust class). The minimalist counterpoint (Pi, round ext-1) shows the other end of the spectrum: a ~460-token prompt derived from the tool set — and proves the budget×richness tension remains open. **What to steal:** the repo-map as a cheap alternative to exploration; Hermes's 3 layers by volatility; the "grows on recurring failure" discipline in AGENTS.md authoring; from Pi, the prompt snippet coupled to the tool definition (prompt and tool set never desynchronize).
+What is most modern: budget and just-in-time retrieval instead of volume; a stable prefix as a requirement, with cache hit rate treated as an indicator; a rules file in a cascade under neutral governance; and the three frontiers (prompt per model, separated persona, trust class). The minimalist counterpoint shows the other end of the spectrum and proves that the tension between budget and richness is still open.
+
+**What to steal:**
+
+- **The repository map**, as a cheap alternative to agent-driven exploration.
+- **The three volatility layers** in system prompt assembly.
+- **The discipline of growing the rules file only from recurring failure.**
+- **The prompt snippet attached to the tool definition**, which keeps prompt and tool set from drifting apart.
+- **The prefix-stability test** from the "In practice" section. It is the cheapest piece in this chapter.
 
 ## Hands-on — harness-zero, step 3
 
-In step 3 you build harness-zero's context assembler: a system prompt in layers ordered by volatility (identity → environment → project rules → memory → task), discovery of an `AGENTS.md` at the target project's root, and a test that proves **prefix stability** across two consecutive turns (same bytes up to the last message). Completion exercise: the cascade discovery function comes skeletonized; you implement the precedence.
+In step 3 (`harness-zero/etapas/03-contexto/`) you build the harness-zero assembler: a system prompt in layers ordered by volatility, discovery of an `AGENTS.md` at the target project's root, the `/contexto` window to see what was assembled, and the prefix-stability test written above.
+
+Completion exercise: the cascade discovery function ships with one level only. You implement the precedence global → project → package → personal, with the nearest one winning.
+
+And keep this pending item noted, because the next chapter collects on it: this step's `read_file` reads **any** path the model asks for. The wound is opened here and closed in ch. 07.
 
 ## Check your understanding
 
-1. Why is a timestamp at the top of the system prompt expensive — and where should it live? (Prefix caching + mid-conversation updates.)
-2. Your agent ignores a project convention repeatedly. What is the right response according to modern authoring practice — and what is the wrong one? (Adding the rule to AGENTS.md on evidence × dumping documentation.)
-3. A harness wants to tell the model the date has changed in the middle of a long conversation. Describe two strategies with different cache costs. (Epochs/turn boundaries × rewriting the prefix.)
+1. Why is a timestamp at the top of the system prompt expensive, and where should it go?
+2. Your agent repeatedly ignores a project convention. What is the right answer according to modern authoring practice, and what is the wrong one?
+3. A harness wants to tell the model that the date changed mid-conversation. Describe two strategies with different cache costs.
+4. The prefix-stability test passes today. Someone adds a spent-token counter to the environment layer. Does the test still pass? Why?
 
 ---
 
@@ -118,3 +225,15 @@ In step 3 you build harness-zero's context assembler: a system prompt in layers 
 
 ### Frameworks (frameworks round) — open by design
 LangGraph and the Agents SDK (Software Development Kit) leave assembly to the dev (static or callable instructions); CrewAI imposes role/goal/backstory as structural context; the software-agent-sdk provides a Jinja preset with a documented escape hatch (`prompt_dir` + `_prompt_preset() -> None`).
+
+---
+
+## Verification answers
+
+**1.** Because the provider's cache is **by prefix**: it reuses the identical beginning across calls. A value that changes every second at the top guarantees that no call shares a prefix with the previous one, and the whole context is billed as new. Its place is the **last layer**, after everything stable, so that the invalidated part is only the part that has to change. The same reasoning applies to a request ID in the tool list and to any non-deterministic re-serialization of history.
+
+**2.** The right answer is to **add one specific rule to the project file, because of that failure**, with the exact command or convention, and nothing more. The wrong one is dumping documentation: turning the file into a project manual. The reason is budget and signal. Every line of the file enters **every** call, so generic documentation competes with the task for space and dilutes the instructions that matter. The rules file grows the way code grows: from a reproduced incident, not from a wish to be complete.
+
+**3.** The expensive one: **rewrite the prefix**, updating the date wherever it sits and invalidating the cache from there on. The cheap one: deliver the change **at the end**, as a state message at a turn boundary, leaving the prefix intact. The second is the corpus pattern and has a name in the harnesses that formalize it — the prefix is treated as an immutable baseline, and state changes only enter at safe points. Choosing between them trades immediacy against cost, and the case where the expensive one is justified is when the information **must** be read before what is already in the context.
+
+**4.** **It still passes, and that is the problem.** The test asserts that the common prefix covers everything up to the volatile layer; a token counter inside the *environment* layer sits **before** that cut, so divergence happens early and the `len(comum) >= corte` assertion fails — provided the value changes between the two assemblies. If the counter is the same on both turns of the test, and in a synthetic test it usually is, the prefix stays identical and the test passes, while in production it breaks every turn. That is this verification's honest limitation: it proves stability **for the variations the test provokes**, not for all of them. The defense is the same as in ch. 11: a test measures what someone decided to vary, and that is why the assertion prints the divergence offset — so the investigation is cheap when the bill, rather than the test, raises the alarm.

@@ -1,9 +1,10 @@
-<!-- i18n fonte:livro/capitulos/02-loop-do-agente.md edicao:0.81 hash:61f52ff9 -->
+<!-- i18n fonte:livro/capitulos/02-loop-do-agente.md edicao:0.82 hash:989d4541 -->
 # 02 — Agent Loop
 
 > **State of the art captured in 2026-07** · last revised 2026-08-11 · [history and expiration log](../historico.html)
 >
 > Skeleton v3 with didactic layer v4 — body with the state of the art; per-repository treatment in Appendix A (online supplement).
+> scaffold: completo
 
 ## Learning objectives
 

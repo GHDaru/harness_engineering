@@ -1,9 +1,10 @@
-<!-- i18n fonte:livro/00-introducao.md edicao:0.82 hash:17834e18 -->
+<!-- i18n fonte:livro/00-introducao.md edicao:0.82 hash:8df3978c -->
 # 00 — Introduction
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
 >
 > Didactic layer v4 — see [Editorial Guide §2.1](editorial-guide.md).
+> scaffold: completo
 
 ## The perfect advice that fixes nothing
 
@@ -44,7 +45,7 @@ It is worth seeing the difference in text, because it is not abstract. You ask: 
 
 **Without a harness**, the model can only return language:
 
-```
+```text
 The session cookie is probably expiring before the check.
 Try adjusting `max_age` in auth.py:
 
@@ -57,7 +58,7 @@ It is correct and useless on its own. The model does not know whether `auth.py` 
 
 **With a harness**, the same decision comes out in another format:
 
-```
+```text
 → run_shell("pytest test_login -x")
 ← FAILED test_login - assert 401 == 200
 

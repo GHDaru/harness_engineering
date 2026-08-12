@@ -3,6 +3,7 @@
 > **Estado da arte capturado em 2026-07** · última revisão 2026-08-12 · [histórico e registro de expiração](HISTORICO.md)
 >
 > Camada didática v4 — ver [Guia Editorial §2.1](GUIA-EDITORIAL.md).
+> andaime: completo
 
 ## O conselho perfeito que não conserta nada
 
@@ -43,7 +44,7 @@ Vale ver a diferença em texto, porque ela não é abstrata. Você pede: *"o tes
 
 **Sem harness**, o modelo só pode devolver linguagem:
 
-```
+```text
 Provavelmente o cookie de sessão está expirando antes da
 verificação. Tente ajustar o `max_age` em auth.py:
 
@@ -56,7 +57,7 @@ Está correto e é inútil sozinho. O modelo não sabe se `auth.py` existe, não
 
 **Com harness**, a mesma decisão sai em outro formato:
 
-```
+```text
 → executar_shell("pytest test_login -x")
 ← FAILED test_login - assert 401 == 200
 
