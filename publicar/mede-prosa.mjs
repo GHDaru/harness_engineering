@@ -52,7 +52,7 @@ const IDIOMAS = {
     apendice: /^## Apêndice A/m,
     verificacao: /^## Verificação/m,
     gabarito: /^## Respostas da verificação/m,
-    pratica: /^#{2,3} +Na prática/m,
+    pratica: /^#{2,3} +Na prática/,
     marcador: /camada didática v4/i,
     andaime: /^> +andaime: *(\w+)/im,
   },
@@ -62,7 +62,7 @@ const IDIOMAS = {
     apendice: /^## Appendix A/m,
     verificacao: /^## (Verification|Check your understanding)/m,
     gabarito: /^## Verification answers/m,
-    pratica: /^#{2,3} +In practice/m,
+    pratica: /^#{2,3} +In practice/,
     marcador: /didactic layer v4/i,
     andaime: /^> +scaffold: *(\w+)/im,
   },
@@ -107,20 +107,50 @@ function frasesDe(texto) {
 // linhas em qualquer lugar satisfazia o regex antigo (/```/). Isso é o
 // reward hacking que o cap. 11 descreve — o portão não seria burlado por
 // má-fé, seria satisfeito por um bloco que estava ali de qualquer jeito.
+// Varre por linha com estado de cerca, e não por regex sobre o texto inteiro:
+// um comentário `# ...` DENTRO de um bloco Python é indistinguível de um
+// cabeçalho markdown para quem olha só o começo da linha, e isso encerrava a
+// seção no meio do primeiro exemplo. Terceiro falso positivo deste medidor, e
+// da mesma família dos outros dois — estrutura lida como se fosse marcação.
 function exemploTrabalhado(md, c) {
-  const m = c.pratica.exec(md);
-  if (!m) return { ok: false, motivo: "sem seção de exemplo trabalhado (Na prática / In practice)" };
-  const nivel = md.slice(m.index).match(/^#+/)[0].length;
-  const depois = md.slice(m.index + m[0].length);
-  const fim = depois.search(new RegExp(`^#{1,${nivel}} `, "m"));
-  const secao = fim === -1 ? depois : depois.slice(0, fim);
+  const linhas = md.split("\n");
+  let dentro = false;
+  let inicio = -1;
+  let nivel = 0;
+  const blocos = [];
+  let atual = null;
 
-  const blocos = [...secao.matchAll(/^```(\w+)\n([\s\S]*?)^```/gm)];
-  if (!blocos.length) return { ok: false, motivo: "seção de exemplo sem bloco de código com linguagem declarada" };
-  const maior = Math.max(...blocos.map((b) => b[2].split("\n").length - 1));
+  for (let i = 0; i < linhas.length; i++) {
+    const l = linhas[i];
+    const cerca = /^```(\w*)/.exec(l);
+
+    if (cerca) {
+      if (!dentro) { dentro = true; atual = { lang: cerca[1], linhas: 0 }; }
+      else {
+        dentro = false;
+        if (inicio !== -1) blocos.push(atual);
+        atual = null;
+      }
+      continue;
+    }
+    if (dentro) { if (atual) atual.linhas++; continue; }
+
+    const h = /^(#+) /.exec(l);
+    if (!h) continue;
+    if (inicio === -1) {
+      if (c.pratica.test(l)) { inicio = i; nivel = h[1].length; }
+    } else if (h[1].length <= nivel) {
+      break; // fim da seção
+    }
+  }
+
+  if (inicio === -1) return { ok: false, motivo: "sem seção de exemplo trabalhado (Na prática / In practice)" };
+  const comLingua = blocos.filter((b) => b.lang);
+  if (!comLingua.length) return { ok: false, motivo: "seção de exemplo sem bloco de código com linguagem declarada" };
+  const maior = Math.max(...comLingua.map((b) => b.linhas));
   if (maior < LIMITES.linhasDoExemplo)
     return { ok: false, motivo: `maior bloco do exemplo tem ${maior} linhas (piso ${LIMITES.linhasDoExemplo})` };
-  return { ok: true, blocos: blocos.length, linhas: maior };
+  return { ok: true, blocos: comLingua.length, linhas: maior };
 }
 
 // Caminhos de arquivo são a evidência do Princípio I. A reescrita pode MOVER
