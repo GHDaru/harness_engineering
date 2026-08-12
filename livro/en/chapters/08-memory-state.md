@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/capitulos/08-memoria-estado.md edicao:0.83 hash:bfeeaa6f -->
+<!-- i18n fonte:livro/capitulos/08-memoria-estado.md edicao:0.85 hash:caf743ee -->
 # 08 — Memory and State
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
