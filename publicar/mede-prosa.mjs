@@ -22,7 +22,12 @@ import { fileURLToPath } from "node:url";
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 // Capítulos já passados pela camada didática v4. Cresce a cada reescrita.
-const REESCRITOS = new Set(["02-loop-do-agente.md"]);
+const REESCRITOS = new Set([
+  "00-introducao.md",
+  "01-fundamentos.md",
+  "02-loop-do-agente.md",
+  "17-protocolos.md",
+]);
 
 const LIMITES = {
   travessoesPor1k: 8,     // medido: 22,0 no livro inteiro antes da spec 097
@@ -65,20 +70,32 @@ function corpoDe(markdown) {
   return semApendice.replace(/```[\s\S]*?```/g, "");
 }
 
+// Frase é unidade de leitura em voz alta, e um item de lista termina no fim da
+// linha mesmo sem ponto. Colapsar `\n` antes de dividir gluava uma lista inteira
+// numa "frase" de 90 palavras — falso positivo que apareceu na reescrita do
+// cap. 00. Então: cada linha é uma fronteira, e linha de tabela, citação,
+// cabeçalho e HTML não são prosa corrida.
 function frasesDe(texto) {
   return texto
-    .replace(/\n+/g, " ")
-    .split(/(?<=[.!?])\s+/)
-    .map((s) => s.trim())
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && !/^([|>#]|<|!\[)/.test(l))
+    .flatMap((linha) => linha.split(/(?<=[.!?])\s+/))
+    .map((s) => s.replace(/^[-*\d.]+\s*/, "").trim())
     .filter((s) => s.split(/\s+/).length > 2);
 }
 
 export function medir(caminho) {
   const md = readFileSync(resolve(RAIZ, caminho), "utf8");
-  const corpo = corpoDe(md);
-  const palavras = corpo.split(/\s+/).filter(Boolean).length;
-  const travessoes = (corpo.match(/—/g) || []).length;
-  const comprimentos = frasesDe(corpo).map((f) => f.split(/\s+/).length);
+  // Só prosa corrida entra nas métricas. Fora: tabela, citação, cabeçalho, HTML.
+  // A matriz do cap. 17 usa `—` como célula de "não se aplica", e contar isso
+  // como pontuação punia o capítulo por ter tabela — segundo falso positivo do
+  // medidor, mesma causa do primeiro: estrutura medida como se fosse prosa.
+  const frases = frasesDe(corpoDe(md));
+  const prosa = frases.join(" ");
+  const palavras = prosa.split(/\s+/).filter(Boolean).length;
+  const travessoes = (prosa.match(/—/g) || []).length;
+  const comprimentos = frases.map((f) => f.split(/\s+/).length);
   const media = comprimentos.length
     ? comprimentos.reduce((a, b) => a + b, 0) / comprimentos.length
     : 0;
@@ -91,7 +108,10 @@ export function medir(caminho) {
     frasesLongas: comprimentos.filter((c) => c > LIMITES.fraseMaxima).length,
     // Um exemplo trabalhado é bloco de código no corpo, não no Apêndice A.
     temExemplo: /```/.test(md.split(/^## Apêndice A/m)[0]),
-    // Gabarito fora da pergunta: seção própria no fim.
+    // Gabarito fora da pergunta: seção própria no fim. Só se aplica a capítulo
+    // que TEM verificação — a introdução não tem, e exigir dela seria exigir
+    // resposta de pergunta que não existe.
+    temVerificacao: /^## Verificação/m.test(md),
     gabaritoSeparado: /^## Respostas da verificação/m.test(md),
   };
 }
@@ -122,7 +142,7 @@ function main() {
       falhas.push(`${m.arquivo}: ${m.frasesLongas} frase(s) acima de ${LIMITES.fraseMaxima} palavras`);
     if (!m.temExemplo)
       falhas.push(`${m.arquivo}: sem exemplo trabalhado (bloco de código) no corpo`);
-    if (!m.gabaritoSeparado)
+    if (m.temVerificacao && !m.gabaritoSeparado)
       falhas.push(`${m.arquivo}: gabarito da verificação não está em seção própria`);
   }
 

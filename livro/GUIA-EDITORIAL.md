@@ -29,7 +29,9 @@
 
 > Decidida na [spec 097](../specs/097-reescrita-didatica/spec.md). O v4 **não substitui** o esqueleto v3: a estrutura permanece, a prosa muda.
 
-O v3 acertou a estrutura e deixou a escrita como dossiê — denso, correto e ilegível para quem veio aprender. Medição do corpo dos 18 capítulos antes da spec 097: **22,0 travessões por 1.000 palavras**, frase média de **26,1 palavras**, 51 frases acima de 60 palavras e **zero exemplos trabalhados**, num livro cujo §1 manda "worked examples antes de exercício". Descrever um método pedagógico sem aplicá-lo é a falha que o Princípio I acusa nos outros.
+O v3 acertou a estrutura e deixou a escrita como dossiê: denso, correto e ilegível para quem veio aprender. Medição do corpo dos 18 capítulos antes da spec 097: **22,0 travessões por 1.000 palavras**, frase média de **23,4 palavras**, **24** frases acima de 60 palavras e **zero exemplos trabalhados**, num livro cujo §1 manda "worked examples antes de exercício". Descrever um método pedagógico sem aplicá-lo é a falha que o Princípio I acusa nos outros.
+
+> **Correção de 2026-08-12 (spec 098).** A edição 0.81 publicou "26,1 palavras/frase" e "51 frases longas". Os dois números estavam **inflados** por um defeito do medidor: ele colapsava quebras de linha antes de dividir frases, e portanto colava uma lista inteira numa "frase" de 90 palavras. O número de travessões (22,0) não muda. Corrigido o medidor, o baseline real é o da tabela abaixo.
 
 ### As sete regras de reescrita
 
@@ -48,8 +50,8 @@ O v3 acertou a estrutura e deixou a escrita como dossiê — denso, correto e il
 | Métrica | Limite | Antes da spec 097 |
 |---|---|---|
 | Travessões / 1.000 palavras | ≤ 8 | 22,0 |
-| Frase média | ≤ 20 palavras | 26,1 |
-| Frases acima de 60 palavras | 0 | 51 no livro |
+| Frase média | ≤ 20 palavras | 23,4 |
+| Frases acima de 60 palavras | 0 | 24 no livro |
 | Exemplo trabalhado no corpo | ≥ 1 bloco de código | 0 |
 | Gabarito em seção própria | obrigatório | 0 |
 
