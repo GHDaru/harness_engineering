@@ -22,15 +22,26 @@
 | 09 Planejamento | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 10 Subagentes/Orquestração | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 11 Verificação/Evals | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
-| 12 Extensibilidade | 2026-07 | ✓ | 2026-07-26 |
-| 13 Interfaces | 2026-07 | ✓ | 2026-07-26 |
-| 14 Convergências | 2026-07 | — | 2026-07-28 |
-| 15 Harness Embutido | 2026-07 | — | 2026-07-28 |
-| 16 Auto-melhoria | 2026-07 | — | 2026-07-28 |
+| 12 Extensibilidade | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
+| 13 Interfaces | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
+| 14 Convergências | 2026-07 | — | 2026-08-12 · **camada didática v4** |
+| 15 Harness Embutido | 2026-07 | — | 2026-08-12 · **camada didática v4** |
+| 16 Auto-melhoria | 2026-07 | — | 2026-08-12 · **camada didática v4** |
 | 17 Protocolos | 2026-07 | — | 2026-08-12 · **camada didática v4** |
 | 00 Introdução · 01 Fundamentos | 2026-07 | ✓ (01) | 2026-08-12 · **camada didática v4** |
 
 ## Edições
+
+### Edição 0.86 — 2026-08-12 · a cascata fechou: 18 capítulos, dois idiomas (spec 102)
+
+- **Os 18 capítulos estão na camada didática v4, em PT e EN.** O portão fecha com a linha que o ADR 0011 §5 exigia: `✓ prosa: 36 capítulo(s) v4 dentro dos limites`.
+- **Antes do último lote, corrigi uma infidelidade minha ao ADR**: 09, 10 e 11 estavam declarados `completo` e pertencem à faixa `lacuna`. Cada um ganhou uma **lacuna deliberada** no exemplo. Não era rótulo: sem ela, o livro aplicaria **metade** da lição de Sweller que ensina — *worked-example effect* sem *expertise reversal effect*.
+- **16 ganhou a "Mão na massa" que nunca teve**, apesar de a etapa 12 do harness-zero existir desde sempre. Dívida estrutural apontada pelo especialista de instrução no ADR 0011 e paga aqui.
+- **14, 15 e 16 são `proprio`**: o exemplo trabalhado é o harness que o leitor construiu. No 14 isso é o próprio argumento — confira as oito convergências contra as suas treze etapas, e a tese fica provada no seu repositório, não por citação.
+- **O método roteirizado cobrou de novo, e de um jeito novo.** A leitura por sorteio encontrou **ponto final dentro de parênteses** onde havia ponto e vírgula, em 12 arquivos. Sintaticamente impecável, semanticamente pior, e invisível a qualquer portão.
+- **É a terceira degradação da série encontrada lendo, e nenhuma foi encontrada medindo.** Fica como o achado metodológico da cascata: um portão sintático mede **ausência de defeito de forma**; quem otimiza contra ele produz texto que passa e piora. Foi por isso que a leitura por amostragem entrou no critério de parada como exigência, e não como recomendação.
+- **Critério de parada cumprido**: 36 capítulos v4; zero selos i18n atrasados (com os dois apêndices como dívida declarada); nenhum caminho de evidência perdido; crescimento do corpo de **+29%**, abaixo do teto de +40% da spec 097; e os capítulos **03** e **12** lidos inteiros, sorteados pelo hash do commit base e não escolhidos por mim.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
 
 ### Edição 0.85 — 2026-08-12 · Lote C, e o dia em que o meu próprio método virou o cap. 11 (spec 101)
 

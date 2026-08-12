@@ -1,10 +1,10 @@
-<!-- i18n fonte:livro/capitulos/10-subagentes-orquestracao.md edicao:0.85 hash:5dc448fe -->
+<!-- i18n fonte:livro/capitulos/10-subagentes-orquestracao.md edicao:0.86 hash:6af224d2 -->
 # 10. Subagents and Orchestration
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
 >
 > Didactic layer v4 — see [Editorial Guide §2.1](../editorial-guide.md).
-> scaffold: completo
+> scaffold: lacuna
 >
 > Skeleton v3, body carries the state of the art; per-repository treatment in Appendix A (supplemented online).
 
@@ -103,6 +103,11 @@ And the case where delegating makes things **worse**, which most texts omit:
 ```python
 # BAD: the subtask needs to negotiate decisions back
 task("refactor the payments module however you see fit")
+
+# GAP (step 9): write the guard that refuses to delegate when the description
+# does not converge to a fact. Hint: require a verifiable completion criterion.
+def delegavel(descricao: str) -> bool:
+    ...
 ```
 
 The child will decide on its own, without the context of earlier conversations, and come back with two lines describing choices you would have vetoed. The asymmetry that saves context is the same one that **prevents negotiation**: when the task demands back-and-forth judgment, the narrow channel stops being an advantage and becomes blindness.
@@ -125,13 +130,13 @@ The dimension's decision axis is the Anthropic × Cognition tension. Orchestrato
 
 ### 4. The turn: orchestrating other vendors' harnesses
 
-The frontier round 2 made concrete: the subagent can be *another harness*. OpenClaw orchestrates Claude Code, Gemini CLI, opencode, and Codex as subagents via an **ACP** runtime; OpenHands (Canvas) orchestrates Claude Code, Codex, and Gemini via **ACP** profiles; gemini-cli is an A2A client **and server**. With ACP-IBM (Agent Communication Protocol) converging into A2A under the Linux Foundation, the *agent card* becomes the universal contract for cross-system delegation. Orchestration has stopped being internal to the harness and become interoperability (ch. 17).
+The frontier round 2 made concrete: the subagent can be *another harness*. OpenClaw orchestrates Claude Code, Gemini CLI, opencode, and Codex as subagents via an **ACP** runtime. OpenHands (Canvas) orchestrates Claude Code, Codex, and Gemini via **ACP** profiles; gemini-cli is an A2A client **and server**. With ACP-IBM (Agent Communication Protocol) converging into A2A under the Linux Foundation, the *agent card* becomes the universal contract for cross-system delegation. Orchestration has stopped being internal to the harness and become interoperability (ch. 17).
 
 > **Round ext-1 addendum (2026-07-31): *workspace* isolation became infrastructure.** The corpus isolated the subagent's **context**; [Grok Build](../../../benchmark/avaliacoes/grok-build.md) (in Portuguese; xAI, opened on 2026-07-15) closes the other half, the **filesystem**. Each `spawn_subagent` with isolation active gets its **own git worktree** created by a dedicated crate (`xai-fast-worktree`: parallel CoW, O(1) BTRFS snapshots, overlayfs, metadata with auto-GC), with merge-back as a protocol operation (`x.ai/git/worktree/apply`) and graceful fallback to the shared workspace. The lesson is not "use worktrees" (several harnesses have them); it is the investment in making them **cheap enough for the agent to use without thinking**, parallel subagents that edit stop fighting over the working tree. Confirmed in the code (`agent/subagent/handle_request.rs`), not just the announcement.
 
 ### Executive summary
 
-What's most modern: the subagent as context isolation with an explicit contract. The coordination choice (handoff × tool × supervisor × ledger); guardrails motivated by real failure modes (MAST); cross-vendor delegation via A2A; and (since round ext-1) workspace isolation via cheap worktrees (Grok Build). **What to steal:** give every subagent a contract (objective/format/tools/boundaries) and isolated context. Bound depth and degrade permissions by depth; always compare against a compute-matched single agent; if subagents edit in parallel, isolate the filesystem (worktree), not just the context; and, if you orchestrate across systems, speak A2A.
+What's most modern: the subagent as context isolation with an explicit contract. The coordination choice (handoff × tool × supervisor × ledger). Guardrails motivated by real failure modes (MAST); cross-vendor delegation via A2A; and (since round ext-1) workspace isolation via cheap worktrees (Grok Build). **What to steal:** give every subagent a contract (objective/format/tools/boundaries) and isolated context. Bound depth and degrade permissions by depth. Always compare against a compute-matched single agent; if subagents edit in parallel, isolate the filesystem (worktree), not just the context; and, if you orchestrate across systems, speak A2A.
 
 ## Hands-on, harness-zero, step 9
 
@@ -182,7 +187,7 @@ OpenHands: SDK primitives (`openhands.sdk.subagent`) + per-organization **AgentP
 `agent/subagent/handle_request.rs`: `spawn_subagent` with `capability_mode` **intersected** with the type's toolset (`intersect_capability_modes`), max depth 1, `resume_from`, I/O contracts between personas; isolation via `WorktreeBuilder…worktree_kind(WorktreeKind::Subagent)` over `xai-fast-worktree` (CoW + O(1) BTRFS + auto-GC), merge via `x.ai/git/worktree/apply`; plugin agents forbidden from declaring `mcpServers`/hooks/`bypassPermissions`.
 
 ### Pi (round ext-1) — the documented refusal
-No subagents in the core, by manifesto ("There's many ways to do this. Spawn pi instances via tmux, or build your own"); the first-class example `examples/extensions/subagent/` spawns **full `pi` processes** (real context isolation) with 4 personas and 3 workflows — the feature exists as proof that the extension surface suffices.
+No subagents in the core, by manifesto ("There's many ways to do this; spawn pi instances via tmux, or build your own"); the first-class example `examples/extensions/subagent/` spawns **full `pi` processes** (real context isolation) with 4 personas and 3 workflows — the feature exists as proof that the extension surface suffices.
 
 ### n8n (round 2) — agent as another agent's tool
 **AI Agent Tool** (`AgentTool.node.ts` v3): a full agent as another agent's tool — V3 runs the sub-agent's loop inline (`resolveSubAgentRequest`), with nested HITL forbidden; **ToolWorkflow** (sub-workflows as tools). Visual hierarchical orchestration.

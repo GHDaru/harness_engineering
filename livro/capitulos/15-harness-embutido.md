@@ -1,17 +1,42 @@
-# 15 — O Harness Embutido: agentes dentro de motores de workflow
+# 15. O Harness Embutido: agentes dentro de motores de workflow
 
-> **Estado da arte capturado em 2026-07** · última revisão 2026-07-28 · [histórico e registro de expiração](../HISTORICO.md)
+> **Estado da arte capturado em 2026-07** · última revisão 2026-08-12 · [histórico e registro de expiração](../HISTORICO.md)
+>
+> Camada didática v4, ver [Guia Editorial §2.1](../GUIA-EDITORIAL.md).
+> andaime: proprio
 >
 > Capítulo derivado da avaliação de motores de workflow no benchmark; evidência por repositório no Apêndice A (complementação online, atualizado a cada rodada do benchmark).
 
 ## Objetivos de aprendizagem
 
 Ao final deste capítulo, você deve ser capaz de:
-1. **Explicar** a inversão que define a categoria — o workflow contém o harness, e não o contrário — e por que ela levanta a pergunta "quais dimensões do scaffolding são essenciais, e quais são substituíveis pelo ambiente?";
+1. **Explicar** a inversão que define a categoria (o workflow contém o harness; não o contrário) e por que ela levanta a pergunta "quais dimensões do scaffolding são essenciais, e quais são substituíveis pelo ambiente?";
 2. **Identificar** quais dimensões do scaffolding o ambiente de workflow dispensa (compactação, planejamento, entrega de contexto, permissões granulares) e **justificar** por que cada uma se torna dispensável;
 3. **Analisar** a implementação de um nó de agente real (o AI Agent do n8n, Apêndice A como gabarito) e localizar onde o loop, as tools e as permissões vivem;
-4. **Avaliar** quando usar um harness embutido versus um dedicado, em função da duração e da autonomia da tarefa — e reconhecer o teto da substituição;
+4. **Avaliar** quando usar um harness embutido versus um dedicado, em função da duração e da autonomia da tarefa, e reconhecer o teto da substituição;
 5. **Aplicar** as ideias exportáveis da categoria a um harness dedicado: derivação de tools a partir de superfícies existentes (padrão `$fromAI`) e human-in-the-loop durável.
+
+## Quatro minutos, e nada disso foi resolvido
+
+Alguém arrasta um nó de agente para dentro de um workflow. Liga uma ponta no Postgres, a outra no Slack, escreve três linhas de instrução e publica.
+
+Quatro minutos. Está em produção, respondendo a clientes.
+
+Repare no que essa pessoa **não** fez. Não escreveu montador de contexto, não desenhou política de permissão, não implementou memória, não pensou em compactação. Onze capítulos deste livro não aconteceram, e o agente funciona.
+
+A tentação é concluir que os onze capítulos eram desnecessários. A conclusão certa é outra: **nada disso foi resolvido, tudo isso foi assumido pela plataforma**. O contexto é o que o workflow mapeou. A permissão é a topologia dos nós ligados; a memória é o que o motor persiste entre execuções; e a compactação não existe porque a conversa não deveria crescer.
+
+A pergunta que este capítulo faz é a única que importa: **o que acontece na mensagem 200?**
+
+## Na prática: o mesmo agente, escrito duas vezes
+
+Este capítulo não pede código novo. O exercício é comparar o que você construiu com o que a plataforma entrega, e a comparação cabe numa tabela.
+
+Pegue o agente do cap. 02 (o loop de vinte linhas, com freios, política e trace) e ponha ao lado de três nós de workflow que fazem a mesma coisa. Para cada dimensão do livro, pergunte quem provê: você, a plataforma, ou ninguém.
+
+O resultado tem três colunas, e a terceira é a lição. **Quem provê** diz o que você não precisou fazer. **Como** diz o quanto daquilo é configurável. E **o que você deixou de poder mudar** é o preço, e é a coluna que nenhum material de vendedor tem.
+
+Faça esse quadro para o seu caso antes de decidir. Ele responde a pergunta da mensagem 200 sem que você precise chegar até ela.
 
 ## O problema
 
@@ -27,40 +52,40 @@ A avaliação do representante da categoria (n8n, ver Apêndice A) confirma a te
 
 | Dimensão dispensada | Por que o ambiente dispensa |
 |---|---|
-| Compactação | Execuções acionadas por evento são curtas — o contexto não acumula |
+| Compactação | Execuções acionadas por evento são curtas, o contexto não acumula |
 | Planejamento | O plano *é* o grafo do workflow, desenhado pelo humano no canvas |
 | Entrega de contexto | O contexto vem mapeado das etapas anteriores via expressões |
 | Permissões granulares | A topologia já é a allowlist |
 
-O último ponto merece ênfase: no harness embutido, **a permissão é topologia**. Não há aprovação por chamada dentro do loop — o LLM (Large Language Model) só pode invocar o que o autor plugou no canvas. É allowlist por construção, decidida visualmente por um humano, complementada por human-in-the-loop real: nós que pausam a execução de forma durável aguardando aprovação num canal (Slack/Outlook), em vez do prompt síncrono de aprovação dos CLIs.
+O último ponto merece ênfase: no harness embutido, **a permissão é topologia**. Não há aprovação por chamada dentro do loop, o LLM (Large Language Model) só pode invocar o que o autor plugou no canvas. É allowlist por construção, decidida visualmente por um humano, complementada por human-in-the-loop real: nós que pausam a execução de forma durável aguardando aprovação num canal (Slack/Outlook), em vez do prompt síncrono de aprovação dos CLIs.
 
-E as dimensões fortes são onde o motor tem vantagem estrutural: **ferramentas** (as integrações pré-existentes viram pool de tools), **memória** (backends de banco plugáveis), **interfaces** (chat hospedado, webhooks, widget embarcável), **MCP (Model Context Protocol)** (client *e* server) e **subagentes** (agente-como-tool e sub-workflows). Nenhum harness dedicado tem um pool de tools do tamanho de um ecossistema de integrações convertido — porque nenhum tem um ecossistema pré-existente para converter.
+E as dimensões fortes são onde o motor tem vantagem estrutural: **ferramentas** (as integrações pré-existentes viram pool de tools), **memória** (backends de banco plugáveis), **interfaces** (chat hospedado, webhooks, widget embarcável), **MCP (Model Context Protocol)** (client *e* server) e **subagentes** (agente-como-tool e sub-workflows). Nenhum harness dedicado tem um pool de tools do tamanho de um ecossistema de integrações convertido, porque nenhum tem um ecossistema pré-existente para converter.
 
-### O loop emprestado — e a trajetória de reinternalização
+### O loop emprestado, e a trajetória de reinternalização
 
-O harness embutido tipicamente não escreve o próprio loop: ele o toma emprestado de um framework (no caso observado, LangChain JS). Mas a trajetória medida no benchmark aponta numa direção clara: o motor de workflow começa terceirizando o loop e **reinternaliza a metade que importa para um motor de workflow — o agendamento da execução**. O framework continua decidindo *qual* tool chamar; a *execução* da chamada volta a ser responsabilidade do engine, que agenda os nós e reentra no agente. (Detalhe de código no Apêndice A, achado 1.) A implicação: os motores tendem a absorver cada vez mais o harness, não o contrário.
+O harness embutido tipicamente não escreve o próprio loop: ele o toma emprestado de um framework (no caso observado, LangChain JS). Mas a trajetória medida no benchmark aponta numa direção clara: o motor de workflow começa terceirizando o loop e **reinternaliza a metade que importa para um motor de workflow, o agendamento da execução**. O framework continua decidindo *qual* tool chamar; a *execução* da chamada volta a ser responsabilidade do engine, que agenda os nós e reentra no agente. (Detalhe de código no Apêndice A, achado 1.) A implicação: os motores tendem a absorver cada vez mais o harness, não o contrário.
 
 ### O teto da substituição
 
-Mas a substituição tem teto: **sem compactação nem planejamento, o nó de agente serve automações curtas, não trabalho longo autônomo**. Um agente embutido que precisasse refatorar um repositório por horas colapsaria a janela de contexto sem defesa. As duas camadas não competem — se complementam por duração e autonomia da tarefa: o harness dedicado para trabalho longo e aberto; o embutido para decisões pontuais dentro de processos estruturados.
+Mas a substituição tem teto: **sem compactação nem planejamento, o nó de agente serve automações curtas, não trabalho longo autônomo**. Um agente embutido que precisasse refatorar um repositório por horas colapsaria a janela de contexto sem defesa. As duas camadas não competem, se complementam por duração e autonomia da tarefa: o harness dedicado para trabalho longo e aberto; o embutido para decisões pontuais dentro de processos estruturados.
 
 ### Implicações
 
-1. **Para quem constrói harness dedicado**: o padrão `$fromAI` (Apêndice A, achado 2) mostra como derivar tools de superfícies existentes sem escrever wrappers; o HITL durável (pausar a execução por dias aguardando aprovação num canal) é superior ao prompt síncrono de aprovação dos CLIs.
-2. **Para quem constrói sobre motores de workflow**: as lacunas da categoria (compactação, plan mode) são o roadmap óbvio — e a trajetória de reinternalização do loop sugere que os motores vão absorver cada vez mais o harness, não o contrário.
-3. **Para a taxonomia do livro**: "quanto harness é preciso" é função do *ambiente de execução*, não constante universal. A régua do benchmark mede scaffolding presente; esta categoria lembra que scaffolding ausente-por-design não é lacuna — desde que a classe de tarefa seja respeitada.
+1. **Para quem constrói harness dedicado**: o padrão `$fromAI` (Apêndice A, achado 2) mostra como derivar tools de superfícies existentes sem escrever wrappers. O HITL durável (pausar a execução por dias aguardando aprovação num canal) é superior ao prompt síncrono de aprovação dos CLIs.
+2. **Para quem constrói sobre motores de workflow**: as lacunas da categoria (compactação, plan mode) são o roadmap óbvio. A trajetória de reinternalização do loop sugere que os motores vão absorver cada vez mais o harness, não o contrário.
+3. **Para a taxonomia do livro**: "quanto harness é preciso" é função do *ambiente de execução*, não constante universal. A régua do benchmark mede scaffolding presente; esta categoria lembra que scaffolding ausente-por-design não é lacuna, desde que a classe de tarefa seja respeitada.
 
 ### Leitura executiva
 
-O harness embutido não é um harness dedicado incompleto: é uma categoria em que o ambiente de execução substitui, por construção, metade das dimensões do scaffolding — plano vira grafo, permissão vira topologia, contexto vira expressão mapeada. A substituição vale enquanto a classe de tarefa for respeitada: decisões pontuais dentro de processos estruturados, não trabalho longo autônomo. **O que roubar** hoje: derivação automática de tools a partir de integrações existentes (padrão `$fromAI`) e human-in-the-loop durável em vez de aprovação síncrona.
+O harness embutido não é um harness dedicado incompleto: é uma categoria em que o ambiente de execução substitui, por construção, metade das dimensões do scaffolding, plano vira grafo, permissão vira topologia, contexto vira expressão mapeada. A substituição vale enquanto a classe de tarefa for respeitada: decisões pontuais dentro de processos estruturados, não trabalho longo autônomo. **O que roubar** hoje: derivação automática de tools a partir de integrações existentes (padrão `$fromAI`) e human-in-the-loop durável em vez de aprovação síncrona.
 
-> **Consulte também**: a coleção viva [Awesome Harness Engineering — Production Infrastructure & Operations](https://github.com/GHDaru/awesome-harness-engineering#production-infrastructure--operations) reúne mais recursos consultáveis desta dimensão, curados por problema.
+> **Consulte também**: a coleção viva [Awesome Harness Engineering. Production Infrastructure & Operations](https://github.com/GHDaru/awesome-harness-engineering#production-infrastructure--operations) reúne mais recursos consultáveis desta dimensão, curados por problema.
 
 ## Verificação
 
 1. Enuncie a inversão que define a categoria e explique por que ela transforma "dimensões fracas" do benchmark em "dimensões dispensadas pelo ambiente". (Se precisar, releia "O que o ambiente dispensa".)
-2. Por que a permissão-como-topologia dispensa aprovação por chamada dentro do loop — e qual mecanismo complementa essa allowlist quando uma decisão humana é realmente necessária no meio da execução?
-3. Um time quer usar um nó de agente de motor de workflow para refatorar um repositório por horas. Explique, em termos de compactação e planejamento, por que isso colapsa — e qual seria a divisão correta entre harness embutido e dedicado nessa tarefa.
+2. Por que a permissão-como-topologia dispensa aprovação por chamada dentro do loop, e qual mecanismo complementa essa allowlist quando uma decisão humana é realmente necessária no meio da execução?
+3. Um time quer usar um nó de agente de motor de workflow para refatorar um repositório por horas. Explique, em termos de compactação e planejamento, por que isso colapsa, e qual seria a divisão correta entre harness embutido e dedicado nessa tarefa.
 4. Cite as duas ideias da categoria que valem exportação para um harness dedicado e o que cada uma substitui ou melhora. (Dica: derivação de tools e HITL.)
 
 ---
@@ -86,3 +111,21 @@ As dimensões fracas da avaliação são as que o ambiente dispensa: **compacta�
 E as fortes são onde o motor tem vantagem estrutural: **ferramentas (3)** — as integrações; **memória (3)** — backends de banco plugáveis; **interfaces (3)** — chat hospedado, webhooks, widget embarcável; **MCP (3)** — client **e** server: o `McpTrigger` expõe as tools do n8n a clientes MCP externos; **subagentes (3)** — agente-como-tool e sub-workflows.
 
 *Primos a avaliar em rodadas futuras: Zapier Agents, Make, Dify, Flowise.*
+
+---
+
+## Respostas da verificação
+
+**1.** A inversão é: no harness dedicado o agente **provê** as dimensões; no embutido o ambiente as **assume**. Ela transforma nota baixa em outra coisa porque a régua do benchmark mede o que o sistema implementa, e aqui o que importa é o que o sistema **precisa** implementar. Não há montador de contexto porque o autor do workflow mapeia o contexto à mão; não há política de permissão por chamada porque a permissão já é a topologia. Chamar isso de "dimensão fraca" seria medir um carro pela ausência de remos. O que a régua deve registrar, então, não é a nota, é **quem provê** — e é por isso que a categoria tem arquétipo próprio no cap. 01.
+
+**2.** Porque a allowlist é **estrutural**: o autor do workflow escolheu, no momento do desenho, exatamente quais nós o agente alcança, e nenhum outro existe do ponto de vista dele. Não há o que aprovar em runtime porque não há como pedir o que não está ligado. É o caso mais limpo de política que não depende da obediência do modelo, e ele só funciona porque o conjunto de ações é fechado de antemão — condição que um harness de terminal com shell nunca tem.
+
+O mecanismo que complementa é o **humano no laço com pausa durável**: quando a decisão precisa mesmo de uma pessoa, o workflow suspende a execução, notifica e retoma quando a resposta chega, possivelmente horas depois. É a diferença entre perguntar e **esperar**, e é o que um `input()` bloqueante não faz.
+
+**3.** Colapsa por duas razões que se somam. A conversa cresce sem que ninguém a administre: não há escada de compactação, então a execução ou estoura a janela ou passa a carregar um histórico que degrada a qualidade, que é o *context rot* do cap. 03. E não há planejamento nem lista de tarefas persistida, então uma tarefa de horas perde as restrições enunciadas no começo, que é exatamente o defeito que o cap. 09 ataca.
+
+O sinal para migrar é o mesmo em ambos os casos: **quando a tarefa deixa de caber numa execução**. Agente embutido é excelente para trabalho de mensagem única e disparado por evento, e é a ferramenta errada para trabalho de sessão longa com estado. A escolha não é de qualidade, é de forma da tarefa.
+
+**4.** A primeira é a **derivação de tools a partir de componentes que já existem**: qualquer nó do sistema vira ferramenta do agente, com o schema derivado da definição do nó. Ela substitui o trabalho manual de escrever e manter tool por tool, e é a mesma ideia do schema derivado do cap. 05, subida um nível — em vez de derivar da assinatura da função, deriva da definição do componente.
+
+A segunda é o **humano no laço com pausa durável**, que melhora a aprovação inline do cap. 07 onde ela é mais fraca: aprovação que exige alguém presente agora não sobrevive a trabalho assíncrono. Um harness dedicado que roubasse essa ideia trocaria "bloquear esperando resposta" por "suspender e retomar", e ganharia o modo headless do cap. 13 de graça.

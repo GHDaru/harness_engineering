@@ -1,10 +1,10 @@
-<!-- i18n fonte:livro/capitulos/09-planejamento.md edicao:0.85 hash:ccf699d7 -->
+<!-- i18n fonte:livro/capitulos/09-planejamento.md edicao:0.85 hash:9d748b94 -->
 # 09. Planning
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
 >
 > Didactic layer v4 — see [Editorial Guide §2.1](../editorial-guide.md).
-> scaffold: completo
+> scaffold: lacuna
 >
 > Skeleton v3, body carries the state of the art; per-repository treatment in Appendix A (supplemented online).
 
@@ -116,6 +116,11 @@ And approving means **changing the mode**, not trusting a sentence:
 ```python
 if aprovado_pelo_humano:
     sessao.modo = Modo.EXECUTAR      # the policy changes; the prompt decides nothing
+
+# GAP (step 8): what if the approved plan goes stale? Write the check that
+# invalidates approval when a file listed in PLAN.md changed since then.
+def aprovacao_ainda_vale(plano: Plano, projeto: Path) -> bool:
+    ...
 ```
 
 That is the last consequence of implementing plan mode in the policy. Approval is not the model promising to follow the plan. It is the harness **removing the prohibition** it imposed itself.

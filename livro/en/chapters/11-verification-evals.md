@@ -1,10 +1,10 @@
-<!-- i18n fonte:livro/capitulos/11-verificacao-evals.md edicao:0.84 hash:efa01cc0 -->
+<!-- i18n fonte:livro/capitulos/11-verificacao-evals.md edicao:0.86 hash:5381fc45 -->
 # 11. Verification and Evals
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
 >
 > Didactic layer v4 — see [Editorial Guide §2.1](../editorial-guide.md).
-> scaffold: completo
+> scaffold: lacuna
 >
 > Skeleton v3, body carries the state of the art; per-repository treatment in Appendix A (supplemented online).
 
@@ -114,6 +114,11 @@ def julgar(pergunta, resposta_a, resposta_b, rubrica):
     if v1.vencedor == inverter(v2.vencedor):
         return Veredito(vencedor=v1.vencedor, confianca="high")
     return Veredito(vencedor=None, confianca="tie by inconsistency")
+
+# GAP (step 10): the judge needs a known error rate. Write the calibration
+# against a human-annotated set and return FNR and FPR.
+def calibrar(juiz, gold_set) -> tuple[float, float]:
+    ...
 ```
 
 Running twice with the order flipped costs double and turns an invisible bias into a **number**. Without it, you have a judge that prefers the first option and a report that looks rigorous.
@@ -136,7 +141,7 @@ In round 1, only gemini-cli treated behavior as a regression surface. In round 2
 
 ### 4. The adversary is the agent itself
 
-The most serious turn: verification became **adversarial**. The literature shows agents deleting asserts and patching pytest to "pass". The industry's defense is convergent — **immutable tests** (commit the tests first. The agent does not edit them), **held-out/randomized** (the agent cannot overfit what it does not see), an **anti-mock policy** (opencode's test `AGENTS.md` forbids mocks that lie. The `http-recorder` records real calls), and **snapshots with drift-check** (OpenClaw) for determinism where the judge is expensive. Verification is no longer just measuring correctness, it is preventing cheating.
+The most serious turn: verification became **adversarial**. The literature shows agents deleting asserts and patching pytest to "pass". The industry's defense is convergent — **immutable tests** (commit the tests first; the agent does not edit them), **held-out/randomized** (the agent cannot overfit what it does not see), an **anti-mock policy** (opencode's test `AGENTS.md` forbids mocks that lie; the `http-recorder` records real calls), and **snapshots with drift-check** (OpenClaw) for determinism where the judge is expensive. Verification is no longer just measuring correctness, it is preventing cheating.
 
 > **Addendum (2026-07-31, full text verified): how to evaluate the harness itself, three rules from a methods paper.** The preprint [*Rethinking the Evaluation of Harness Evolution for Agents*](https://arxiv.org/abs/2607.12227) (AI2/UW/indep., 14 Jul 2026) tests the "automatic harness evolution" fashion and finds an uncomfortable result: under a **matched budget** (K=5 for all methods), it "does not consistently outperform simple test-time scaling methods", on Terminal-Bench 2.1 (89 tasks, 3 models), pure parallel sampling took mean pass@1 from 68.2 to 72.3 (Table 1) while evolution actually made GPT-5.4 **worse** (75.3→69.7); with unit tests available, parallel sampling opens up 86.0 versus 75.8 (Table 2); and on held-out tasks evolution's average gain is **+0.6** (Table 3) — "their gains largely stem from making multiple attempts" (§4.3), because "most edits memorize fixes rather than distilling strategies" (§5.1), accumulating "context bloat that can offset the remaining gains". The three rules that remain for anyone evaluating harnesses (including this book): (1) **matched budget**, every gain attributed to design must be reported against a sample-repetition baseline with the same compute; (2) **search/evaluation separation**, held-out is mandatory, or the gain is overfitting to the set; (3) **instrument sensitivity**, the authors themselves suspect that "Terminal-Bench may simply not be very sensitive to harness design" (§5.2): a benchmark good at measuring harnesses needs headroom AND performance that depends on the harness, otherwise the signal is model capability. For this book's method (a 0–3 rubric via code reading), the paper refines without contradicting: the rubric measures the structural property without going through the sampling-contaminated channel, but it inherits the duty of **convergent validity** (high scores should predict held-out performance), the risk of overfitting if the yardstick is calibrated by looking at the systems one wants to score well, and §5.1's warning: penalize memorization and context bloat, not just missing features. This converses with ch. 16: if evolving the harness automatically yields less than resampling, cheap self-improvement lives in **knowledge** (skills/memory), not in **structure**.
 

@@ -3,7 +3,7 @@
 > **Estado da arte capturado em 2026-07** · última revisão 2026-08-12 · [histórico e registro de expiração](../HISTORICO.md)
 >
 > Camada didática v4 — ver [Guia Editorial §2.1](../GUIA-EDITORIAL.md).
-> andaime: completo
+> andaime: lacuna
 >
 > Esqueleto v3, corpo com o estado da arte; tratamento por repositório no Apêndice A (complementação online).
 
@@ -115,6 +115,11 @@ E aprovar é **trocar o modo**, não confiar numa frase:
 ```python
 if aprovado_pelo_humano:
     sessao.modo = Modo.EXECUTAR      # a política muda; o prompt não decide nada
+
+# LACUNA (etapa 8): e se o plano aprovado ficar velho? Escreva a checagem que
+# invalida a aprovação quando um arquivo listado no PLAN.md mudou desde então.
+def aprovacao_ainda_vale(plano: Plano, projeto: Path) -> bool:
+    ...
 ```
 
 Essa é a última consequência da escolha de implementar plan mode na política. A aprovação não é o modelo prometendo que vai seguir o plano. É o harness **removendo a proibição** que ele mesmo impôs.
