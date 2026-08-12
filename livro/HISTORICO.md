@@ -27,10 +27,21 @@
 | 14 Convergências | 2026-07 | — | 2026-07-28 |
 | 15 Harness Embutido | 2026-07 | — | 2026-07-28 |
 | 16 Auto-melhoria | 2026-07 | — | 2026-07-28 |
-| 17 Protocolos | 2026-07 | — | 2026-07-28 |
-| 00 Introdução · 01 Fundamentos | 2026-07 | ✓ (01) | 2026-07-28 |
+| 17 Protocolos | 2026-07 | — | 2026-08-12 · **camada didática v4** |
+| 00 Introdução · 01 Fundamentos | 2026-07 | ✓ (01) | 2026-08-12 · **camada didática v4** |
 
 ## Edições
+
+### Edição 0.82 — 2026-08-12 · a cascata didática, e o medidor errando duas vezes a favor do alarme (spec 098)
+
+- **Três capítulos reescritos** na camada v4 aprovada na 0.81, PT e EN: **00 Introdução**, **01 Fundamentos** e **17 Protocolos** — os dois primeiros porque são onde o leitor decide se continua, o terceiro porque era o pior do livro nas duas métricas (30,0 travessões/1k e frase média de 33,2 pela medição antiga).
+- **A correção mais importante desta edição é contra nós.** A edição 0.81 publicou "frase média de **26,1** palavras" e "**51** frases acima de 60 palavras". Os dois números estavam **inflados por um defeito do medidor**: ele colapsava quebras de linha antes de dividir frases, e portanto colava uma lista de seis itens numa única "frase" de 90 palavras. O baseline real é **23,4** e **24**. A contagem de travessões (22,0) não muda, porque não depende de fronteira de frase. O registro da 0.81 **não foi reescrito**: a correção fica aqui, datada, como manda o livro vivo.
+- **E o mesmo medidor errou uma segunda vez, pela mesma causa.** Ao reescrever o cap. 17 ele acusou 12,2 travessões/1k num texto que tinha três na prosa: estava contando as células `—` de "não se aplica" da **matriz de adoção**. Em ambos os casos o defeito é um só, e vale nomear: **estrutura medida como se fosse prosa**. O medidor agora considera apenas linhas de prosa corrida, e cada linha é fronteira de frase.
+- **Os dois falsos positivos foram achados pelo próprio portão**, não por revisão humana. É a diferença entre um verificador que existe e um que funciona: ele reprovou o capítulo, eu fui ver por quê, e o defeito estava no instrumento. O cap. 11 chama isso de "verificação mede o que alguém decidiu medir" — aqui a decisão estava errada, e foi a reprovação que revelou.
+- **O que cada capítulo ganhou.** O **00** abre com o conselho perfeito que não conserta nada, e traz a mesma pergunta em dois destinos (modelo puro × modelo com harness) num transcript comentado, onde cada linha aponta o capítulo que a explica. O **01** troca a abertura meta ("este capítulo fixa o vocabulário") por três engenheiros dando três definições incompatíveis, e ganha um exemplo trabalhado que **aplica o teste das quatro peças a três sistemas**, com veredito — a definição deixa de ser enunciada e passa a ser usada. O **17** ganha o que faltava a um capítulo sobre protocolos: **as mensagens na rede**, `tools/list`/`tools/call` do MCP contra `session/prompt`/`session/update` do ACP, lado a lado, e daí sai a observação de que o `stopReason` é o rótulo tipado do cap. 02 exposto na fronteira.
+- **Gabaritos separados** nos três (o 00 não tem verificação, e o portão passou a não exigir gabarito de quem não faz pergunta — outra regra que nasceu errada e foi corrigida ao encontrar o primeiro caso legítimo).
+- **Medição final dos quatro capítulos v4**: travessões entre 0,0 e 4,0 por mil (limite 8), frase média entre 13,7 e 17,2 (limite 20), **nenhuma** frase acima de 60 palavras, exemplo trabalhado em todos.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
 
 ### Edição 0.81 — 2026-08-11 · o livro não aplicava a si mesmo o método que ensina (spec 097)
 

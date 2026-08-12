@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/GUIA-EDITORIAL.md edicao:0.81 hash:178f5144 -->
+<!-- i18n fonte:livro/GUIA-EDITORIAL.md edicao:0.82 hash:c03ddbdb -->
 # Editorial Guide — the book's operating rules
 
 > The operational version of the pedagogical guidance. The full report (with rationale) is in [`estudos/2026-07-25-parecer-editorial-plano-pedagogico.md`](../../estudos/2026-07-25-parecer-editorial-plano-pedagogico.md) (in Portuguese). This guide is what you consult **while writing**.
@@ -30,7 +30,9 @@
 
 > Decided in [spec 097](../../specs/097-reescrita-didatica/spec.md). v4 **does not replace** skeleton v3: the structure stays, the prose changes.
 
-v3 got the structure right and left the writing as a dossier: dense, correct and unreadable for anyone who came to learn. Measurement of the body of all 18 chapters before spec 097: **22.0 em dashes per 1,000 words**, an average sentence of **26.1 words**, 51 sentences above 60 words and **zero worked examples**, in a book whose §1 mandates "worked examples before exercises". Describing a pedagogical method without applying it is the failure Principle I accuses others of.
+v3 got the structure right and left the writing as a dossier: dense, correct and unreadable for anyone who came to learn. Measurement of the body of all 18 chapters before spec 097: **22.0 em dashes per 1,000 words**, an average sentence of **23.4 words**, **24** sentences above 60 words and **zero worked examples**, in a book whose §1 mandates "worked examples before exercises". Describing a pedagogical method without applying it is the failure Principle I accuses others of.
+
+> **Correction of 2026-08-12 (spec 098).** Edition 0.81 published "26.1 words per sentence" and "51 long sentences". Both numbers were **inflated** by a defect in the meter: it collapsed line breaks before splitting sentences, and therefore glued a whole list into a single 90-word "sentence". The em dash count (22.0) does not change. With the meter fixed, the real baseline is the one in the table below.
 
 ### The seven rewriting rules
 
@@ -49,8 +51,8 @@ v3 got the structure right and left the writing as a dossier: dense, correct and
 | Metric | Limit | Before spec 097 |
 |---|---|---|
 | Em dashes / 1,000 words | ≤ 8 | 22.0 |
-| Average sentence | ≤ 20 words | 26.1 |
-| Sentences above 60 words | 0 | 51 in the book |
+| Average sentence | ≤ 20 words | 23.4 |
+| Sentences above 60 words | 0 | 24 in the book |
 | Worked example in the body | ≥ 1 code block | 0 |
 | Answer key in its own section | mandatory | 0 |
 
