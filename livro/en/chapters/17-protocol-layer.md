@@ -1,9 +1,10 @@
-<!-- i18n fonte:livro/capitulos/17-protocolos.md edicao:0.82 hash:7c0875bf -->
+<!-- i18n fonte:livro/capitulos/17-protocolos.md edicao:0.82 hash:c4d7fabd -->
 # 17 — The Protocol Layer: the connective tissue between harnesses
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
 >
 > Didactic layer v4 — see [Editorial Guide §2.1](../editorial-guide.md).
+> scaffold: completo
 
 ## Learning objectives
 

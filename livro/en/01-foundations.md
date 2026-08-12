@@ -1,9 +1,10 @@
-<!-- i18n fonte:livro/01-fundamentos.md edicao:0.82 hash:0857461f -->
+<!-- i18n fonte:livro/01-fundamentos.md edicao:0.82 hash:35d4caba -->
 # 01 — Foundations
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
 >
 > Didactic layer v4 — see [Editorial Guide §2.1](editorial-guide.md).
+> scaffold: completo
 
 ## Three things called "agent"
 
