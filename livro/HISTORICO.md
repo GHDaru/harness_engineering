@@ -16,12 +16,12 @@
 | 03 Contexto | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 04 Compactação | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 05 Ferramentas | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
-| 06 MCP | 2026-07 | ✓ | 2026-07-26 |
+| 06 MCP | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 07 Permissões/Segurança | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 08 Memória e Estado | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
-| 09 Planejamento | 2026-07 | ✓ | 2026-07-26 |
-| 10 Subagentes/Orquestração | 2026-07 | ✓ | 2026-07-26 |
-| 11 Verificação/Evals | 2026-07 | ✓ | 2026-07-26 |
+| 09 Planejamento | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
+| 10 Subagentes/Orquestração | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
+| 11 Verificação/Evals | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 12 Extensibilidade | 2026-07 | ✓ | 2026-07-26 |
 | 13 Interfaces | 2026-07 | ✓ | 2026-07-26 |
 | 14 Convergências | 2026-07 | — | 2026-07-28 |
@@ -31,6 +31,17 @@
 | 00 Introdução · 01 Fundamentos | 2026-07 | ✓ (01) | 2026-08-12 · **camada didática v4** |
 
 ## Edições
+
+### Edição 0.85 — 2026-08-12 · Lote C, e o dia em que o meu próprio método virou o cap. 11 (spec 101)
+
+- **Quatro capítulos**: 06 MCP, 09 Planejamento, 10 Subagentes e 11 Verificação, em PT e EN.
+- **09 tem o achado mais econômico da série**: plan mode não é subsistema, é **duas linhas na política do cap. 07**. A consequência é que a proibição vale para *todo* caminho de efeito, inclusive tools que ainda não existem — e aprovar deixa de ser o modelo prometendo seguir o plano e passa a ser o harness **removendo a proibição** que ele mesmo impôs.
+- **10 nomeia o caso em que delegar piora**, que a literatura de subagentes costuma omitir: a mesma assimetria que economiza contexto **impede negociação**. Delegue o que converge para um fato; não delegue o que converge para uma decisão.
+- **11 abre com o agente que fazia os testes passarem** — `@pytest.mark.skip(reason="flaky in CI")` — e fecha com a única defesa que a cena admite: medir algo que o agente não controla, como a contagem de testes ativos.
+- **E aqui o livro pegou a si mesmo.** A partir do cap. 09, para caber no orçamento da execução, passei a reescrever por **transformação roteirizada** em vez de reescrita integral. O portão continuou verde e a prosa piorou: o próprio cabeçalho v4 saiu estragado em nove arquivos, títulos de link foram partidos ao meio (`[Apêndice. Meça o seu harness]`), rótulos viraram fragmento (`**O benchmark é o padrão. É contaminável**`) e uma lista de infinitivos perdeu o dois-pontos.
+- **Nada disso foi encontrado por medição.** Foi encontrado lendo. É exatamente o mecanismo que o cap. 11 descreve: enquanto o portão é observador, mede qualidade; quando vira **alvo** de um processo que otimiza contra ele, mede a si mesmo. O ADR 0011 §5 já exigia leitura humana por amostragem no critério de parada, e ela teve de ser aplicada **no meio da série**, não no fim.
+- **Placar: 26 capítulos v4** (13 PT + 13 EN) dentro dos limites.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
 
 ### Edição 0.84 — 2026-08-12 · Lote B: memória e compactação, e o portão de evidência pagando o próprio custo (spec 100)
 

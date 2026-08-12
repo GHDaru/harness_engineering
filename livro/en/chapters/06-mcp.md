@@ -1,9 +1,9 @@
-<!-- i18n fonte:livro/capitulos/06-mcp.md edicao:0.84 hash:15fa71bf -->
+<!-- i18n fonte:livro/capitulos/06-mcp.md edicao:0.85 hash:fc10b851 -->
 # 06. MCP (Model Context Protocol)
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
 >
-> Didactic layer v4, see [Editorial Guide §2.1](../editorial-guide.md).
+> Didactic layer v4 — see [Editorial Guide §2.1](../editorial-guide.md).
 > scaffold: completo
 >
 > Skeleton v3, body with the state of the art; per-repository treatment in Appendix A (online supplement).
