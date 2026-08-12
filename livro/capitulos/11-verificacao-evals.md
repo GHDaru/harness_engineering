@@ -3,7 +3,7 @@
 > **Estado da arte capturado em 2026-07** · última revisão 2026-08-12 · [histórico e registro de expiração](../HISTORICO.md)
 >
 > Camada didática v4 — ver [Guia Editorial §2.1](../GUIA-EDITORIAL.md).
-> andaime: completo
+> andaime: lacuna
 >
 > Esqueleto v3, corpo com o estado da arte; tratamento por repositório no Apêndice A (complementação online).
 
@@ -56,7 +56,7 @@ A ciência da verificação de agentes tem três mensagens duras, e todas empurr
 
 ## Fontes da indústria
 
-- **O benchmark é o padrão, e é contaminável**: [SWE-bench Verified (OpenAI)](https://openai.com/index/introducing-swe-bench-verified/) é o subconjunto de 500 tarefas *humanamente auditadas*, criado porque o SWE-bench cru tinha specs ambíguas e testes quebrados que reprovavam soluções corretas (audite o verificador antes de confiar nele). Mas o [OpenAI parou de reportar SWE-bench Verified](https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/) por contaminação/memorização, o eval precisa de rotação e held-outs para seguir sendo sinal. O [Terminal-Bench](https://www.tbench.ai/) ([arXiv 2601.11868](https://arxiv.org/abs/2601.11868), repo `harbor-framework/terminal-bench`) leva o rigor ao terminal: cada tarefa embarca **Docker + solução humana + testes de verificação**, gradando o *estado final do ambiente*, não a plausibilidade do transcript.
+- **O benchmark é o padrão. É contaminável**: [SWE-bench Verified (OpenAI)](https://openai.com/index/introducing-swe-bench-verified/) é o subconjunto de 500 tarefas *humanamente auditadas*, criado porque o SWE-bench cru tinha specs ambíguas e testes quebrados que reprovavam soluções corretas (audite o verificador antes de confiar nele). Mas o [OpenAI parou de reportar SWE-bench Verified](https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/) por contaminação/memorização, o eval precisa de rotação e held-outs para seguir sendo sinal. O [Terminal-Bench](https://www.tbench.ai/) ([arXiv 2601.11868](https://arxiv.org/abs/2601.11868), repo `harbor-framework/terminal-bench`) leva o rigor ao terminal: cada tarefa embarca **Docker + solução humana + testes de verificação**, gradando o *estado final do ambiente*, não a plausibilidade do transcript.
 - **Evals como disciplina de engenharia**: [Define success criteria and build evaluations (Claude)](https://docs.anthropic.com/en/docs/test-and-evaluate/develop-tests): defina critérios mensuráveis *antes*, force o juiz a emitir um veredito discreto e a raciocinar antes de pontuar. O [Demystifying evals for AI agents (Anthropic)](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) decompõe o eval em componentes (task · trial · agent harness · eval harness · trace · grader · suite) e insiste: **grade o estado final, não a última mensagem** (uma resposta pode "soar certa" e a tarefa ter falhado). E reporte o [erro-padrão da média](https://www.anthropic.com/research/statistical-approach-to-model-evals) para distinguir regressão real de ruído.
 - **Verificação dentro do loop**: [Effective harnesses for long-running agents (Anthropic)](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents): cada sessão roda os testes, **verifica a feature end-to-end como um usuário faria** (automação de navegador), deixa um log de progresso e commita limpo. E o [Claude Code best practices](https://code.claude.com/docs/en/best-practices) eleva o TDD ao padrão agêntico mais forte: escreva os testes primeiro, confirme que falham, **commite-os como checkpoint. Implemente sem editá-los**, commitar os testes antes é a rede que revela quando o agente trapaceia alterando o teste em vez de corrigir o código.
 - **Ferramental de eval versionado**: [OpenAI Evals](https://github.com/openai/evals), [Inspect (UK AISI)](https://github.com/UKGovernmentBEIS/inspect_ai) (Dataset + Solver + Scorer, com sandbox Docker/K8s, o eval e o sandbox são um só sistema), [promptfoo](https://www.promptfoo.dev/docs/intro/) (um `promptfooconfig.yaml` versionado como gate de CI), [Braintrust](https://www.braintrust.dev/docs/platform/functions/scorers) e [LangSmith](https://docs.langchain.com/langsmith/llm-as-judge) (rubrica como config, correções humanas viram few-shot). Decisão: os checks vivem no controle de versão e rodam no CI como qualquer teste.
@@ -113,6 +113,11 @@ def julgar(pergunta, resposta_a, resposta_b, rubrica):
     if v1.vencedor == inverter(v2.vencedor):
         return Veredito(vencedor=v1.vencedor, confianca="alta")
     return Veredito(vencedor=None, confianca="empate por inconsistência")
+
+# LACUNA (etapa 10): o juiz precisa de taxa de erro conhecida. Escreva a
+# calibração contra um conjunto anotado por humanos e devolva FNR e FPR.
+def calibrar(juiz, gold_set) -> tuple[float, float]:
+    ...
 ```
 
 Rodar duas vezes com a ordem trocada custa o dobro e transforma um viés invisível em **número**. Sem isso, você tem um juiz que prefere a primeira opção e um relatório que parece rigoroso.
@@ -152,7 +157,7 @@ Duas armadilhas, aprendidas medindo o repositório deste livro (o relato complet
 
 ### Leitura executiva
 
-O que está mais moderno: verificação externa ancorada (LSP/testes no loop, verify-on-stop). Eval comportamental como table-stakes e por categoria (Harbor, Personal Agent Benchmark Pack). O juiz LLM usado com controle de viés; a defesa contra reward hacking (testes imutáveis, held-out, anti-mock); as três regras do adendo para quem avalia o próprio harness (orçamento equiparado, held-out, instrumento sensível a design); e o degrau anterior a todos eles — **medir se o repositório é harnessável**, com instrumento determinístico e sem modelo no caminho. **O que roubar:** realimente sinal real ao modelo no mesmo turno (LSP/testes), não confie na auto-conferência. Commite os testes antes e não deixe o agente editá-los. Grade o estado final, não a última mensagem; trate evals comportamentais como regressão de primeira classe; e meça o seu repositório antes de culpar o modelo — **prosa não é sensor**, e ponto ganho por ausência não é ponto.
+O que está mais moderno: verificação externa ancorada (LSP/testes no loop, verify-on-stop). Eval comportamental como table-stakes e por categoria (Harbor, Personal Agent Benchmark Pack). O juiz LLM usado com controle de viés. A defesa contra reward hacking (testes imutáveis, held-out, anti-mock); as três regras do adendo para quem avalia o próprio harness (orçamento equiparado, held-out, instrumento sensível a design); e o degrau anterior a todos eles — **medir se o repositório é harnessável**, com instrumento determinístico e sem modelo no caminho. **O que roubar:** realimente sinal real ao modelo no mesmo turno (LSP/testes), não confie na auto-conferência. Commite os testes antes e não deixe o agente editá-los. Grade o estado final, não a última mensagem. Trate evals comportamentais como regressão de primeira classe; e meça o seu repositório antes de culpar o modelo — **prosa não é sensor**, e ponto ganho por ausência não é ponto.
 
 ## Mão na massa, harness-zero, etapa 10
 
