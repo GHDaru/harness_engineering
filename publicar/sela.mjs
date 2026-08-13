@@ -8,7 +8,7 @@
 //
 // Uso: `node publicar/sela.mjs livro/en/<arquivo>.md ...` — os arquivos que você
 // ACABOU de traduzir, nomeados um a um. `--conferir` lista o que está fora de
-// sincronia, sem escrever nada.
+// sincronia e faz a triagem de cada caso, sem escrever nada.
 //
 // Por que exige nomes explícitos: rodado sem argumentos, na primeira versão,
 // ele reselou também dois apêndices cuja tradução estava atrasada de verdade —
@@ -21,6 +21,7 @@ import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { resolve, dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SO_CONFERIR = process.argv.includes("--conferir");
@@ -40,6 +41,47 @@ function todosOsMd(dir) {
     if (e.isDirectory()) return todosOsMd(p);
     return e.name.endsWith(".md") ? [p] : [];
   });
+}
+
+const git = (...args) =>
+  execFileSync("git", ["-C", RAIZ, ...args], { encoding: "utf8" }).trim();
+
+// Triagem: um selo fora de sincronia é DUAS dívidas diferentes com o mesmo
+// sintoma. Ou a tradução está atrasada (o PT ganhou conteúdo que o EN não tem),
+// ou só o selo está atrasado (alguém editou os dois e esqueceu de regravar o
+// cabeçalho). O portão reprova as duas igual, e é por isso que na spec 099 eu
+// parquei dois apêndices como "tradução atrasada" sem conferir: eram selo.
+//
+// Isto responde a pergunta que eu deveria ter feito. Localiza o commit em que a
+// fonte PT tinha o hash selado e mede o que aconteceu desde então nos dois lados.
+// PT mudando pouco + EN tocado depois = dívida de selo. O contrário = tradução.
+function triagem(fonte, hashSelo, arqEN) {
+  const relEN = relative(RAIZ, arqEN);
+  let commitDoSelo = null;
+  for (const linha of git("log", "--format=%H %ad", "--date=short", "--", fonte).split("\n")) {
+    const [sha, data] = linha.split(" ");
+    if (!sha) continue;
+    const blob = execFileSync("git", ["-C", RAIZ, "show", `${sha}:${fonte}`]);
+    if (createHash("md5").update(blob).digest("hex").slice(0, 8) === hashSelo) {
+      commitDoSelo = { sha, data };
+      break;
+    }
+  }
+  // Sem commit correspondente o selo nunca descreveu uma versão que existiu:
+  // hash escrito à mão, ou fonte reescrita fora do git. Dizer isso é melhor
+  // que estimar um número de linhas a partir de um ponto de partida inventado.
+  if (!commitDoSelo) return "    nenhum commit da fonte casa com o hash selado — selo nunca foi real";
+
+  const linhasPT = git("diff", "--numstat", commitDoSelo.sha, "HEAD", "--", fonte)
+    .split("\t")
+    .slice(0, 2)
+    .reduce((s, n) => s + (Number(n) || 0), 0);
+  const enDepois = git("log", "--format=%H", `${commitDoSelo.sha}..HEAD`, "--", relEN) !== "";
+  return (
+    `    selo em ${commitDoSelo.sha.slice(0, 8)} (${commitDoSelo.data})` +
+    ` · PT: ${linhasPT} linha(s) desde então` +
+    ` · EN tocado depois: ${enDepois ? "sim" : "não"}`
+  );
 }
 
 const edicao = edicaoCorrente();
@@ -74,6 +116,11 @@ for (const arq of alvos) {
 
   if (SO_CONFERIR) {
     console.log(`  ~ ${relative(base, arq)}: ${hashSelo} → ${real} (edição ${edSelo} → ${edicao})`);
+    try {
+      console.log(triagem(fonte, hashSelo, arq));
+    } catch (e) {
+      console.log(`    triagem indisponível (${e.message.split("\n")[0]})`);
+    }
     regravados++;
     continue;
   }

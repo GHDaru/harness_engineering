@@ -27,7 +27,7 @@
 
 ## 2.1 Camada didática v4 (obrigatória; piloto: cap. 02)
 
-> Decidida na [spec 097](../specs/097-reescrita-didatica/spec.md). O v4 **não substitui** o esqueleto v3: a estrutura permanece, a prosa muda.
+> Decidida na spec 097, registrada na edição 0.81 do [Histórico](HISTORICO.md). O v4 **não substitui** o esqueleto v3: a estrutura permanece, a prosa muda.
 
 O v3 acertou a estrutura e deixou a escrita como dossiê: denso, correto e ilegível para quem veio aprender. Medição do corpo dos 18 capítulos antes da spec 097: **22,0 travessões por 1.000 palavras**, frase média de **23,4 palavras**, **24** frases acima de 60 palavras e **zero exemplos trabalhados**, num livro cujo §1 manda "worked examples antes de exercício". Descrever um método pedagógico sem aplicá-lo é a falha que o Princípio I acusa nos outros.
 
