@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/GUIA-EDITORIAL.md edicao:0.82 hash:c03ddbdb -->
+<!-- i18n fonte:livro/GUIA-EDITORIAL.md edicao:0.87 hash:5bd0cbc8 -->
 # Editorial Guide — the book's operating rules
 
 > The operational version of the pedagogical guidance. The full report (with rationale) is in [`estudos/2026-07-25-parecer-editorial-plano-pedagogico.md`](../../estudos/2026-07-25-parecer-editorial-plano-pedagogico.md) (in Portuguese). This guide is what you consult **while writing**.
@@ -28,7 +28,7 @@
 
 ## 2.1 Didactic layer v4 (mandatory; pilot: ch. 02)
 
-> Decided in [spec 097](../../specs/097-reescrita-didatica/spec.md). v4 **does not replace** skeleton v3: the structure stays, the prose changes.
+> Decided in spec 097, recorded in edition 0.81 of the [History](../historico.html) (in Portuguese). v4 **does not replace** skeleton v3: the structure stays, the prose changes.
 
 v3 got the structure right and left the writing as a dossier: dense, correct and unreadable for anyone who came to learn. Measurement of the body of all 18 chapters before spec 097: **22.0 em dashes per 1,000 words**, an average sentence of **23.4 words**, **24** sentences above 60 words and **zero worked examples**, in a book whose §1 mandates "worked examples before exercises". Describing a pedagogical method without applying it is the failure Principle I accuses others of.
 

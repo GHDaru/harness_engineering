@@ -2,7 +2,7 @@
 
 - **Status**: **aceita** (2026-08-12) — decisão delegada pelo editor (*"chame dois especialistas subagentes, concilie suas respostas, registre em um ADR e prossiga"*)
 - **Features**: `099`–`102` (os quatro lotes)
-- **Decorre de**: [spec 097](../specs/097-reescrita-didatica/spec.md) (camada v4) e [spec 098](../specs/098-cascata-didatica/spec.md) (primeiro lote)
+- **Decorre de**: specs `097` (camada v4) e `098` (primeiro lote), registradas nas edições 0.81 e 0.82 do [Histórico](../livro/HISTORICO.md)
 
 ## Contexto
 

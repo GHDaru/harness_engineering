@@ -32,6 +32,18 @@
 
 ## Edições
 
+### Edição 0.87 — 2026-08-13 · a dívida i18n zerada, e ela não era o que estava escrito (spec 103)
+
+- **A dívida acabou, e o registro do que ela era estava errado.** Os dois apêndices EN (`appendix-study`, `appendix-usage`) constavam desde a spec 099 como **tradução atrasada**. Não era. Conferindo os dois: o PT mudou **um link cada** desde o selo — a migração da spec 083, de caminho de repositório para página publicada — e o EN **já trazia a forma nova**. Ninguém regravou o cabeçalho do selo. Era dívida de **selo**, e custou um comando.
+- **Por que ficou três specs assim**: eu li o veredito do portão (*selo aponta para um hash que já não existe*) e não o caso. O portão estava certo, o diagnóstico era meu, e ele entrou no ADR, na spec e no relato ao editor sem uma conferência de dois minutos.
+- **O conserto que interessa não é o selo, é a triagem.** O `sela.mjs --conferir` passa a localizar o commit em que a fonte PT tinha o hash selado e a informar quantas linhas o PT mudou desde então e se o EN foi tocado depois. PT mudando pouco com EN tocado depois é assinatura de dívida de selo; o contrário é tradução atrasada. O portão reprova as duas igual — a diferença agora aparece sem arqueologia de hash.
+- **`DIVIDA_DECLARADA` está vazia.** A lista continua existindo, porque nomear é melhor que tolerar em silêncio, mas com a contrapartida escrita no próprio arquivo: rode a triagem antes de pôr um nome nela, porque só a dívida de tradução justifica a exemção.
+- **Um falso positivo meu, barrado antes de virar commit.** Achei um "resto" no EN: `sync-forks.ps1` linkado pela URL do GitHub, onde o PT usa caminho relativo. Ia igualar. Conferi o HTML gerado primeiro — e o build reescreve o link do PT **exatamente para aquela URL**, porque `scripts/` não é página publicada. Estrutura lida como se fosse conteúdo, quinto caso da série, agora em link em vez de frase.
+- **E um número errado no relatório do portão**: o arquivo exemptado era contado como página "em dia" *e* como dívida, dando `29 em dia (+2)` sobre 29 arquivos. O contador subia antes da comparação de hash.
+- **Dois links de GitHub que a cascata deixou entrar.** A conferência do bloco 6 do checklist achou **11** alvos onde a linha de base é **9**: `specs/097-…/spec.md` e `specs/098-…/spec.md`, vindos de três menções escritas nas specs 097–102 (guia editorial, par EN e cabeçalho do ADR 0011). `specs/` não é página publicada, então o reescritor manda para o GitHub — e com o repositório privado, é porta fechada. As três viraram menção sem link, apontando para a edição do Histórico onde a decisão **está** publicada.
+- **O bloco 6 é conferência manual, e eu não a rodei durante a cascata.** Segundo item desta série que passa por um passo humano do processo tratado como opcional. O primeiro foi a leitura por amostragem, na edição 0.85.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
+
 ### Edição 0.86 — 2026-08-12 · a cascata fechou: 18 capítulos, dois idiomas (spec 102)
 
 - **Os 18 capítulos estão na camada didática v4, em PT e EN.** O portão fecha com a linha que o ADR 0011 §5 exigia: `✓ prosa: 36 capítulo(s) v4 dentro dos limites`.

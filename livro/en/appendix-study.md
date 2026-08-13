@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/apendice-estudo.md edicao:0.61 hash:1a781be9 -->
+<!-- i18n fonte:livro/apendice-estudo.md edicao:0.86 hash:3f4ba7a0 -->
 # Appendix — The study: the harnesses evaluated
 
 This appendix **shows the work**: the full list of harnesses that went through the study, with **where they came from** (upstream repository), **the exact snapshot that was read** (fork/commit/snapshot — the materialization of the method's cutoff date, ch. 01 §6) and the link to the **complete evaluation** of each one. The instrument used in every evaluation is the same: the [`HARNESS_EVAL.md`](../benchmark-template-harness-eval.html) template (and [`FRAMEWORK_EVAL.md`](../benchmark-template-framework-eval.html) for frameworks), applied through systematic code reading following the [benchmark methodology](../benchmark-metodologia.html) (in Portuguese).

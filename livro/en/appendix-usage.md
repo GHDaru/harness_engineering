@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/apendice-uso.md edicao:0.61 hash:fa3fed2c -->
+<!-- i18n fonte:livro/apendice-uso.md edicao:0.86 hash:243b8e4e -->
 # Appendix — Book usage (live)
 
 > **State of the art captured in 2026-07** · last revised 2026-07-29 · [history and expiration log](../historico.html)

@@ -6,9 +6,16 @@
 // build verde — e quando "atrasado" é um estado publicável, ele deixa de ser
 // sinal. Numa série de 14 capítulos traduzidos, é o modo de falha dominante.
 //
-// Baseline nomeada: os dois apêndices já atrasados em 2026-08-12 entram como
-// dívida declarada, no mesmo padrão da lista de páginas transacionais do
-// verifica-canonical.mjs. Dívida nomeada é dívida; dívida anônima é ruído.
+// A lista de dívida declarada nasceu com dois apêndices e está vazia desde a
+// spec 103, quando conferir os dois mostrou que o atraso era do SELO e não da
+// tradução: o PT tinha mudado uma linha de link cada (migração da spec 083), o
+// EN já trazia a forma nova, e ninguém regravou o cabeçalho. Ou seja: a exemção
+// existiu por três specs porque eu li o veredito do portão e não o caso.
+//
+// A lista fica, porque nomear é melhor que tolerar em silêncio. Mas antes de
+// pôr um nome nela, rode `node publicar/sela.mjs --conferir` — ele diz qual das
+// duas dívidas é. Só a de tradução justifica a exemção; a de selo custa um
+// comando.
 
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { resolve, dirname, join, relative } from "node:path";
@@ -17,9 +24,8 @@ import { createHash } from "node:crypto";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-// Atraso conhecido em 2026-08-12. Some da lista quando a tradução for feita;
-// nunca cresce sem uma linha no HISTORICO explicando por quê.
-const DIVIDA_DECLARADA = new Set(["appendix-study.md", "appendix-usage.md"]);
+// Vazia. Nunca cresce sem uma linha no HISTORICO explicando por quê.
+const DIVIDA_DECLARADA = new Set();
 
 const SELO = /^<!--\s*i18n fonte:(\S+)\s+edicao:(\S+)\s+hash:(\w+)\s*-->/;
 
@@ -50,8 +56,10 @@ function main() {
       continue;
     }
     const real = createHash("md5").update(readFileSync(caminhoFonte)).digest("hex").slice(0, 8);
-    conferidos++;
-    if (real === hashSelo) continue;
+    // Conta só o que está de fato em dia. Contando antes da comparação, o
+    // arquivo exemptado entrava no número de "em dia" E no de dívida — o
+    // relatório somava 31 sobre 29 páginas e ninguém notou.
+    if (real === hashSelo) { conferidos++; continue; }
 
     const nomeBase = nome.split("/").pop();
     if (DIVIDA_DECLARADA.has(nomeBase)) continue;
