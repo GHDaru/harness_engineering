@@ -100,11 +100,24 @@ jobs:
       # conectado ao git tentaria construir e nao acharia nada. Aqui o Actions
       # constroi (e onde o Chromium dos PDFs funciona) e o Vercel so distribui.
       # O formato e o Build Output API v3: .vercel/output/static/ + config.json.
+      # spec 104: `set -o pipefail` e o `if !` nao sao estilo, sao o conserto.
+      #
+      # Em 13/ago o `vercel deploy` foi recusado por cota ("more than 100, code:
+      # api-deployments-free-per-day"), o site ficou na versao anterior, e o passo
+      # reportou VERDE. O shell padrao de `run:` e `bash -e`, SEM pipefail: o codigo
+      # de saida de um pipeline e o do ultimo comando, e o ultimo era o `tee`, que
+      # gravou a mensagem de erro com sucesso. Pior, a linha seguinte escrevia
+      # "Publicado no Vercel" no resumo e colava o texto do erro como se fosse a URL.
+      # O `tee` existia para mostrar a URL; acabou transformando uma falha de
+      # publicacao numa afirmacao de publicacao. Quem achou foi o editor, abrindo o
+      # site -- nao o processo.
       - name: Publicar no Vercel
         if: env.VERCEL_TOKEN != ''
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
         run: |
+          set -o pipefail
           npm install -g vercel@latest
           mkdir -p .vercel/output/static
           cp -r docs/. .vercel/output/static/
@@ -112,10 +125,40 @@ jobs:
           # O nome tem hifen: nome de projeto no Vercel nao aceita sublinhado.
           # `link` cria o projeto se ele ainda nao existir -- e assim que ele nasce.
           vercel link --yes --project harness-engineering --token="$VERCEL_TOKEN"
-          vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" | tee /tmp/vercel-url.txt
+          if ! vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" | tee /tmp/vercel-url.txt; then
+            echo "::error::deploy recusado pelo Vercel -- o site SEGUE NA VERSAO ANTERIOR. Se a mensagem for api-deployments-free-per-day, a cota diaria do plano gratuito estourou e o proximo deploy aceito publica o conteudo que ja esta na main."
+            exit 1
+          fi
           echo "### Publicado no Vercel" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "$(tail -1 /tmp/vercel-url.txt)" >> "$GITHUB_STEP_SUMMARY"
+      # O pipefail acima pega o deploy que falha em voz alta. NAO pega o deploy que
+      # "sucede" sem trocar o conteudo -- e a distincao do anti-checklist: build
+      # verde nao e pagina correta. Por isso este passo pergunta a coisa que
+      # interessa: a pagina no ar e a que este build gerou?
+      #
+      # O carimbo comparado e o COMMIT (docs/build.json, escrito por carimbo.mjs),
+      # nao a edicao do HISTORICO. A diferenca decide: um commit do Radar nao muda a
+      # edicao, e a falha de 13/ago foi num commit do Radar -- uma conferencia por
+      # edicao teria passado verde exatamente na falha que a motivou.
+      - name: Conferir que o site publicado e o que se construiu
+        if: env.VERCEL_TOKEN != ''
+        env:
+          SITE_URL: ${{ env.SITE_URL || 'https://harness.ghdaru.com.br' }}
+        shell: bash
+        run: |
+          set -o pipefail
+          echo "commit construido: $GITHUB_SHA"
+          for tentativa in 1 2 3 4 5; do
+            publicado="$(curl -fsS "$SITE_URL/build.json" | grep -oE '[0-9a-f]{40}' | head -1 || true)"
+            echo "tentativa $tentativa -- commit publicado: ${publicado:-<sem resposta>}"
+            if [ "$publicado" = "$GITHUB_SHA" ]; then
+              echo "✓ o site no ar serve o commit deste build"; exit 0
+            fi
+            sleep $((tentativa * 10))
+          done
+          echo "::error::o deploy passou mas o site serve o commit '${publicado:-desconhecido}' e este build gerou '$GITHUB_SHA' -- a publicacao nao trocou o conteudo."
+          exit 1
       # spec 095: os passos do GitHub Pages saíram daqui.
       #
       # O motivo não é preferência de hospedagem — é que havia DUAS cópias vivas e

@@ -5,7 +5,7 @@
   "private": true,
   "description": "Motor de publicação do livro Engenharia de Harness (Markdown -> HTML navegável + PDF).",
   "scripts": {
-    "build": "node build.mjs && LIVRO_LANG=en node build.mjs && node verifica-capitulos.mjs && LIVRO_LANG=en node verifica-capitulos.mjs && node verifica-canonical.mjs && node mede-prosa.mjs && node verifica-selos.mjs",
+    "build": "node build.mjs && LIVRO_LANG=en node build.mjs && node verifica-capitulos.mjs && LIVRO_LANG=en node verifica-capitulos.mjs && node verifica-canonical.mjs && node mede-prosa.mjs && node verifica-selos.mjs && node carimbo.mjs",
     "pdf": "node pdf.mjs && LIVRO_LANG=en node pdf.mjs"
   },
   "dependencies": {

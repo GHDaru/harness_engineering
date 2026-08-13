@@ -157,6 +157,20 @@ grep -rho 'https://github.com/GHDaru/harness_engineering[^"<) ]*' docs --include
 - [ ] `git merge --no-ff NNN-nome` na `main` e `git push -u origin main`.
 - [ ] **CI verde conferido depois do push** — o merge é o que publica; o merge não é o
       fim. Job `build` verde e `deploy` concluído.
+- [ ] **A PÁGINA no ar conferida, não só o job.** Verde do CI não é publicação feita.
+      *(13/ago: a cota diária do Vercel estourou, o deployment foi recusado e o passo
+      reportou verde, porque o `vercel deploy` estava num pipe com `tee` e o código de
+      saída do pipeline é o do último comando. O site ficou nove horas na versão
+      anterior, e quem percebeu foi o editor abrindo o site.)*
+
+```bash
+curl -s https://harness.ghdaru.com.br/build.json   # commit que o site está servindo
+git rev-parse HEAD                                  # commit que você mergeou
+```
+
+      Os dois têm de bater. O workflow faz essa conferência sozinho desde a spec 104;
+      esta linha existe para quando alguém publicar por fora dele — e para lembrar que
+      a pergunta certa é *"a página mudou?"*, não *"o comando deu erro?"*.
 
 ---
 

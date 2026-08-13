@@ -32,6 +32,18 @@
 
 ## Edições
 
+### Edição 0.88 — 2026-08-13 · o deploy falhou e o CI reportou verde (spec 104)
+
+- **O editor abriu o site e disse que não havia novidade. Estava certo.** O Radar de 13/ago tinha sido commitado e o job de publicação rodou com os **15 passos verdes** — e o site continuava na versão das 02:53.
+- **A causa está no log do próprio job**: `Error: Resource is limited - try again in 24 hours (more than 100, code: "api-deployments-free-per-day")`. A cota diária de deploy do plano gratuito estourou; o upload subiu, o deployment foi recusado, e o site ficou onde estava.
+- **O defeito que importa não é a cota, é o verde.** O shell padrão de `run:` no GitHub Actions é `bash -e`, **sem `pipefail`**: o código de saída de um pipeline é o do último comando, e o último era o `tee`. O `vercel` falhou, o `tee` gravou a mensagem de erro com sucesso, e o passo virou verde. A linha seguinte ainda escrevia *"Publicado no Vercel"* no resumo e colava o texto do erro como se fosse a URL. **O `tee` estava ali para mostrar a URL e acabou transformando uma falha de publicação numa afirmação de publicação.**
+- **É o cap. 11 no nosso próprio CI.** Um portão que não consegue reprovar não é portão. E o item 9 do checklist (*"CI verde conferido depois do push"*) foi cumprido ao pé da letra: eu conferi o verde. O verde é que mentia.
+- **Conserto em duas camadas.** `set -o pipefail` com `if !` e mensagem de erro que nomeia o caso da cota — provado em teste local: sem `pipefail` o padrão sai 0, com ele sai 1. E um **carimbo de build** (`publicar/carimbo.mjs` → `docs/build.json`) conferido depois do deploy contra o `GITHUB_SHA`, com cinco tentativas.
+- **O carimbo é o commit, e não a edição, por um motivo específico**: um commit do Radar não muda a edição do HISTORICO — e a falha de hoje foi num commit do Radar. Uma conferência por edição teria passado verde exatamente na falha que a motivou. Escrevi essa versão primeiro e a troquei antes do commit.
+- **Quem achou foi o editor, abrindo o site.** Nenhum passo do processo perguntava se a página tinha mudado; perguntavam se o comando tinha dado erro. O item 9 do checklist passou a exigir as duas coisas.
+- **Fica em aberto**: enquanto a cota não virar, nenhum push publica. O conteúdo já está na `main` e entra no primeiro deploy aceito. Se a cadência de merge continuar assim, isto volta — decisão do editor entre agrupar merges, mudar de plano, ou publicar por agendamento em vez de por push.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
+
 ### Edição 0.87 — 2026-08-13 · a dívida i18n zerada, e ela não era o que estava escrito (spec 103)
 
 - **A dívida acabou, e o registro do que ela era estava errado.** Os dois apêndices EN (`appendix-study`, `appendix-usage`) constavam desde a spec 099 como **tradução atrasada**. Não era. Conferindo os dois: o PT mudou **um link cada** desde o selo — a migração da spec 083, de caminho de repositório para página publicada — e o EN **já trazia a forma nova**. Ninguém regravou o cabeçalho do selo. Era dívida de **selo**, e custou um comando.
