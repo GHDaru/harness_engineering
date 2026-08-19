@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/capitulos/02-loop-do-agente.md edicao:0.82 hash:989d4541 -->
+<!-- i18n fonte:livro/capitulos/02-loop-do-agente.md edicao:0.88 hash:9ec21eee -->
 # 02 — Agent Loop
 
 > **State of the art captured in 2026-07** · last revised 2026-08-11 · [history and expiration log](../historico.html)
@@ -26,7 +26,7 @@ This chapter is about that agreement. The cycle itself fits in twenty lines of c
 
 ## The problem
 
-The loop is the heart of the harness. It sends context to the model, receives a decision, executes what was decided, feeds the result back and repeats.
+The loop sends context to the model, receives a decision, executes what was decided, feeds the result back and repeats.
 
 The model's decision comes in two forms. It can be text, addressed to you. It can be a **tool call**: a structured request for action, in the form "run this tool with these arguments". The second form is what gives the agent arms.
 

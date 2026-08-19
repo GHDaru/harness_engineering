@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/apendice-harness-um.md edicao:0.61 hash:d4a8a42e -->
+<!-- i18n fonte:livro/apendice-harness-um.md edicao:0.88 hash:31ab9873 -->
 # Appendix — harness-um: the reference implementation
 
 > **State of the art captured in 2026-07** · last revised 2026-07-31 · [history and expiration log](../historico.html)
@@ -16,7 +16,7 @@ The name tells the book's progression: the **harness-zero** (Hands-on) builds on
 
 ## The ubiquitous language
 
-The central decision of the harness-um is not technical, it is **linguistic**: the code speaks the book's language — in Portuguese, and the class names are deliberately kept that way. Every term the chapters defined becomes an identical code name — reading the code is rereading the table of contents. The translation into each model API's dialect (today, Anthropic Messages) happens at a single edge (`provedores.py`, the providers module), the **anticorruption layer**: if the provider changes, the domain never even hears about it.
+The central decision of the harness-um is **linguistic**, not technical: the code speaks the book's language — in Portuguese, and the class names are deliberately kept that way. Every term the chapters defined becomes an identical code name — reading the code is rereading the table of contents. The translation into each model API's dialect (today, Anthropic Messages) happens at a single edge (`provedores.py`, the providers module), the **anticorruption layer**: if the provider changes, the domain never even hears about it.
 
 | Book term | In the code | Chapter |
 |---|---|---|

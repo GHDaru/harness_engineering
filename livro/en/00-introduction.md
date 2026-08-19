@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/00-introducao.md edicao:0.82 hash:8df3978c -->
+<!-- i18n fonte:livro/00-introducao.md edicao:0.88 hash:ae8c7a26 -->
 # 00 — Introduction
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
@@ -95,7 +95,7 @@ And there is a detail that is easy to miss: **the model did not know there were 
 
 Between 2024 and 2026, coding-agent harnesses stopped being experiments and became a product category: Claude Code, Codex CLI, Gemini CLI, opencode, Aider, Cline, Goose, OpenHands and dozens of others.
 
-The most remarkable thing is not the quantity, it is the **convergence**. Independent projects, in different languages, with no coordination, arrived at the same solutions: hierarchical context files, layered compaction, plan mode as a permission mode, lifecycle hooks, MCP (Model Context Protocol) as the integration standard.
+The **convergence** matters more than the quantity. Independent projects, in different languages, with no coordination, arrived at the same solutions: hierarchical context files, layered compaction, plan mode as a permission mode, lifecycle hooks, MCP (Model Context Protocol) as the integration standard.
 
 When independent implementations converge, there is a discipline behind them. This book documents that discipline.
 

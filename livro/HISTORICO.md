@@ -32,6 +32,18 @@
 
 ## Edições
 
+### Edição 0.89 — 2026-08-19 · a passada humanizer, e o que ela achou de menos (spec 105)
+
+- **O editor pediu a skill `humanizer` no livro inteiro. A medição mudou o tamanho da tarefa.** Antes de reescrever qualquer linha, varri os 18 capítulos pelos padrões detectáveis: autoridade retórica **0**, sinalização **0**, conclusão genérica **0**, artefato de conversa **0**, disclaimer de corte **0**, vocabulário-IA **2** (um falso positivo), promocional **5** (dois falsos positivos).
+- **A camada didática v4 já tinha feito quase todo esse trabalho.** As specs 097–102 varreram os tiques clássicos como efeito colateral da cena narrativa e do orçamento de travessão. Dizer isso é parte da entrega: o pedido implicava um trabalho maior do que o texto precisava.
+- **O achado real foi o §9, paralelismo negativo** (*"não é X, é Y"*): **19 ocorrências em 10 arquivos**, com aglomeração — quatro só no cap. 09. É a assinatura retórica do livro, e várias são as melhores frases que ele tem (*"um juiz sem taxa de erro conhecida não é instrumento, é opinião com aparência de número"*).
+- **Por isso a passada reduziu densidade em vez de eliminar.** Em cada capítulo ficou a ocorrência em que o contraste **carrega a tese**; as outras mudaram de forma. Placar: **19 → 11, e nenhum capítulo com mais de uma**.
+- **Onde a skill e o livro divergem, a própria skill deu a precedência.** A §14 manda cortar todo travessão; o guia editorial §2.1 diz que em pt-BR ele é pontuação ordinária, com o portão calibrado em ≤8/1.000 desde a edição 0.81. A skill resolve: *"a sample outranks this skill's style rules, including the em dash rule in §14"*. O livro com o guia é esse *sample*. Mesma lógica para o negrito da §15, que na v4 é instrumento didático declarado.
+- **Aforismos e promocional, corrigidos por leitura**: *"o loop é o coração do harness"* virou a frase concreta que já vinha depois; *"os riscos são o espelho das promessas"* virou *"cada promessa tem o risco que lhe corresponde"*; *"política elegante"* virou *"política bem desenhada"*. Preservados como falsos positivos declarados: *"robusto"* em uso técnico e *"aprimoramento da previsão de vendas"* na biografia do autor.
+- **Nada de varredura.** Cada alteração foi substituição exata decidida na leitura do parágrafo, pelo motivo registrado na edição 0.85 — transformação roteirizada degrada prosa sem que o portão perceba.
+- **Instrução permanente em dois lugares**: `CLAUDE.md` ganhou a régua completa (o que se aplica, o que se subordina, o que fica fora); `radar/AGENTE.md` ganhou a fronteira — **a entrada diária do Radar não passa pelo humanizer**, porque é notícia e acervo, vive de citação verbatim e de ⏳, e reescrever registro publicado é adulterar registro. A passada roda **depois** do commit do Radar, quando houver conteúdo de livro em jogo.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
+
 ### Edição 0.88 — 2026-08-13 · o deploy falhou e o CI reportou verde (spec 104)
 
 - **O editor abriu o site e disse que não havia novidade. Estava certo.** O Radar de 13/ago tinha sido commitado e o job de publicação rodou com os **15 passos verdes** — e o site continuava na versão das 02:53.

@@ -15,7 +15,7 @@ O nome conta a progressão do livro: o **harness-zero** (Mão na massa) constró
 
 ## A linguagem ubíqua
 
-A decisão central do harness-um não é técnica, é **linguística**: o código fala a língua do livro. Cada termo que os capítulos definiram vira um nome de código idêntico — ler o código é reler o sumário. A tradução para o dialeto de cada API de modelo (hoje, Anthropic Messages) acontece numa única borda (`provedores.py`), a **camada anticorrupção**: se o provedor mudar, o domínio nem fica sabendo.
+A decisão central do harness-um é **linguística**, e não técnica: o código fala a língua do livro. Cada termo que os capítulos definiram vira um nome de código idêntico — ler o código é reler o sumário. A tradução para o dialeto de cada API de modelo (hoje, Anthropic Messages) acontece numa única borda (`provedores.py`), a **camada anticorrupção**: se o provedor mudar, o domínio nem fica sabendo.
 
 | Termo do livro | No código | Capítulo |
 |---|---|---|

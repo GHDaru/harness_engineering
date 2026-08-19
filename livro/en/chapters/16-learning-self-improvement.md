@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/capitulos/16-aprendizado-auto-evolutivo.md edicao:0.85 hash:bd67b035 -->
+<!-- i18n fonte:livro/capitulos/16-aprendizado-auto-evolutivo.md edicao:0.88 hash:d24f3e51 -->
 # 16. Learning and Self-Improvement: the harness that writes itself
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
@@ -102,7 +102,7 @@ This creates a third path in the taxonomy:
 
 ### The risks: the mirror of the promises
 
-The risks are the mirror of the promises: without anti-patterns, superstition; without curation, entropy; without isolation of the meta-work, contamination; and (pointed out by the IronClaw evaluation (prompt-write safety; cf. ch. 07)) without a protected write boundary, **prompt injection becomes permanent learning**: an attacker who convinces the agent to "learn" a malicious skill persists in procedural memory. A mature dimension 13 will require a mature dimension 6.
+Each promise has its matching risk: without anti-patterns, superstition; without curation, entropy; without isolation of the meta-work, contamination; and (pointed out by the IronClaw evaluation (prompt-write safety; cf. ch. 07)) without a protected write boundary, **prompt injection becomes permanent learning**: an attacker who convinces the agent to "learn" a malicious skill persists in procedural memory. A mature dimension 13 will require a mature dimension 6.
 
 ### Executive summary
 

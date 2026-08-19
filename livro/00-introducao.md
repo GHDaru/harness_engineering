@@ -94,7 +94,7 @@ E há um detalhe fácil de não notar: **o modelo não sabia que havia dois prob
 
 Entre 2024 e 2026, os harnesses de agentes de código deixaram de ser experimentos e viraram categoria de produto: Claude Code, Codex CLI, Gemini CLI, opencode, Aider, Cline, Goose, OpenHands e dezenas de outros.
 
-O mais notável não é a quantidade, é a **convergência**. Projetos independentes, em linguagens diferentes, sem combinar nada, chegaram às mesmas soluções: arquivos de contexto hierárquicos, compactação em camadas, plan mode como modo de permissão, hooks de ciclo de vida, MCP (Model Context Protocol) como padrão de integração.
+A **convergência** importa mais do que a quantidade. Projetos independentes, em linguagens diferentes, sem combinar nada, chegaram às mesmas soluções: arquivos de contexto hierárquicos, compactação em camadas, plan mode como modo de permissão, hooks de ciclo de vida, MCP (Model Context Protocol) como padrão de integração.
 
 Quando implementações independentes convergem, existe uma disciplina por trás. Este livro documenta essa disciplina.
 

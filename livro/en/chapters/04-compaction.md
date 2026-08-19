@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/capitulos/04-compactacao.md edicao:0.83 hash:2e182129 -->
+<!-- i18n fonte:livro/capitulos/04-compactacao.md edicao:0.88 hash:ff70d88a -->
 # 04 — Compaction
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
@@ -90,7 +90,7 @@ def truncar_saidas(h, teto=4_000):
     return out
 ```
 
-Note the `arquivar`. The modern refinement of rung 1 is not cutting better, it is **not discarding**: the full content goes to a referenceable file, and the model can ask for it back if it needs to. Truncation stops being loss and becomes pagination.
+Note the `arquivar`. The modern refinement of rung 1 is **not discarding**, rather than cutting better: the full content goes to a referenceable file, and the model can ask for it back if it needs to. Truncation stops being loss and becomes pagination.
 
 The third rung is where the opening scene happens, and it is where the shape of the summary decides everything:
 
@@ -159,7 +159,7 @@ What changed is **who is in charge**. The compact and status functions (`skills/
 
 The caveat to record is therefore precise: **compaction stops being an involuntary harness event and becomes one mechanism among others, available to the agent**. It also gains a new role, that of a distillation trigger: every compaction becomes an opportunity for the agent to extract learning from what is about to be summarized.
 
-What the ladder did not foresee is not its own obsolescence, it is the **inversion of control**. Until now, the harness compacts *in* the agent; here, the agent compacts *itself*.
+What the ladder did not foresee was the **inversion of control**, rather than its own obsolescence. Until now, the harness compacts *in* the agent; here, the agent compacts *itself*.
 
 And the gap the reading found is revealing. The announcement mentions a subagent acting as the REPL's garbage collector, and **there is nothing of the sort in the code**: searching for `garbage`, `prune` and `evict` across the code directories returns nothing. Context-as-a-variable solves access to the past; it does **not** solve the growth of the namespace it creates.
 

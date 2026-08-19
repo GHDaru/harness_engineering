@@ -147,7 +147,7 @@ Nenhum harness combina os dois plenamente ainda. É a fronteira aberta da dimens
 
 ### 2. Política sem contenção é aposta na obediência do modelo
 
-É a lição transversal do benchmark, e a razão de a seção "Na prática" ter dois blocos em vez de um. Harnesses com política elegante e sem sandbox de sistema estão apostando que o modelo obedece.
+É a lição transversal do benchmark, e a razão de a seção "Na prática" ter dois blocos em vez de um. Harnesses com política bem desenhada e sem sandbox de sistema estão apostando que o modelo obedece.
 
 Três defesas baratas e exportáveis se consolidaram.
 

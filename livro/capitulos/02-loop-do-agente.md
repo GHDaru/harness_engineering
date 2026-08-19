@@ -25,7 +25,7 @@ Este capítulo é sobre essa combinação. O ciclo em si cabe em vinte linhas de
 
 ## O problema
 
-O loop é o coração do harness. Ele envia contexto ao modelo, recebe uma decisão, executa o que foi decidido, realimenta o resultado e repete.
+O loop envia contexto ao modelo, recebe uma decisão, executa o que foi decidido, realimenta o resultado e repete.
 
 A decisão do modelo vem em duas formas. Pode ser texto, dirigido a você. Pode ser uma **tool call**: um pedido estruturado de ação, no formato "execute tal ferramenta com tais argumentos". A segunda forma é o que dá braços ao agente.
 

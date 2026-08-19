@@ -89,7 +89,7 @@ def truncar_saidas(h, teto=4_000):
     return out
 ```
 
-Repare no `arquivar`. O refinamento moderno da camada 1 não é cortar melhor, é **não descartar**: o conteúdo íntegro vai para um arquivo referenciável, e o modelo pode pedi-lo de volta se precisar. Truncar deixa de ser perda e vira paginação.
+Repare no `arquivar`. O refinamento moderno da camada 1 é **não descartar**, em vez de cortar melhor: o conteúdo íntegro vai para um arquivo referenciável, e o modelo pode pedi-lo de volta se precisar. Truncar deixa de ser perda e vira paginação.
 
 O terceiro degrau é onde a cena da abertura acontece, e é onde a forma do resumo decide tudo:
 
@@ -158,7 +158,7 @@ O que mudou é **quem manda**. As funções de compactar e de consultar o estado
 
 A ressalva a registrar é, portanto, precisa: **a compactação deixa de ser um evento involuntário do harness e passa a ser um mecanismo entre outros, disponível ao agente**. Ela ganha ainda um papel novo, o de gatilho de destilação: toda compactação vira oportunidade de o agente extrair aprendizado do que está prestes a ser resumido.
 
-O que a escada não previa não é a própria obsolescência, é a **inversão do controle**. Até aqui, o harness compacta *no* agente; aqui, o agente compacta *a si mesmo*.
+O que a escada não previa foi a **inversão do controle**, e não a própria obsolescência. Até aqui, o harness compacta *no* agente; aqui, o agente compacta *a si mesmo*.
 
 E a lacuna que a leitura encontrou é reveladora. O anúncio menciona um subagente atuando como coletor de lixo do REPL, e **não existe nada disso no código**: a busca por `garbage`, `prune` e `evict` nos diretórios de código não retorna nada. O contexto como variável resolve o acesso ao passado; ele **não** resolve o crescimento do namespace que ele mesmo cria.
 

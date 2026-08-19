@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/capitulos/07-permissoes-sandbox.md edicao:0.82 hash:40868bf4 -->
+<!-- i18n fonte:livro/capitulos/07-permissoes-sandbox.md edicao:0.88 hash:b8a3734d -->
 # 07 — Permissions and Sandboxing
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
@@ -148,7 +148,7 @@ No harness fully combines the two yet. It is the dimension's open frontier.
 
 ### 2. Policy without containment is a bet on the model's obedience
 
-It is the benchmark's cross-cutting lesson, and the reason the "In practice" section has two blocks instead of one. Harnesses with an elegant policy and no OS sandbox are betting that the model complies.
+It is the benchmark's cross-cutting lesson, and the reason the "In practice" section has two blocks instead of one. Harnesses with a well-designed policy and no OS sandbox are betting that the model complies.
 
 Three cheap, exportable defenses have consolidated.
 

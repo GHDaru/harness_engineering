@@ -34,6 +34,29 @@ As skills `/speckit-*` (em `.claude/skills/`) automatizam esses passos; quando n
 
 **Decisões (ADR):** toda decisão relevante (com alternativas e consequências) vira um registro em `adr/` (ver `adr/README.md`): contexto → decisão → alternativas avaliadas → justificativa → consequências. Registra o *porquê*, além do *o quê* (specs/HISTORICO).
 
+## Passada humanizer (obrigatória em conteúdo do livro)
+
+Todo texto novo ou reescrito de **capítulo ou apêndice de conteúdo** passa pela skill `humanizer`
+antes de ir para a `main`. A régua e a decisão de escopo estão na spec 105.
+
+- **Aplicadas integralmente**: §1–§13 e §16–§33 (paralelismo negativo, aforismo, *punchline*
+  fabricado, autoridade retórica, sinalização, vocabulário-IA, promocional, hedging, conclusão
+  genérica, artefato de conversa).
+- **Subordinadas à voz do livro**: §14 (travessão) e §15 (negrito). A skill manda cortar todo
+  travessão; o `GUIA-EDITORIAL.md` §2.1 diz que em pt-BR ele é pontuação ordinária e o portão
+  `mede-prosa.mjs` o limita a **≤8 por 1.000 palavras**. A própria skill dá a precedência:
+  *"a sample outranks this skill's style rules, including the em dash rule in §14"* — e o livro com o
+  guia é esse *sample*. O mesmo vale para o negrito, que na camada v4 é instrumento didático declarado.
+- **Fora do escopo, por decisão do editor**: `livro/HISTORICO.md` (histórico), `radar/**` (notícia),
+  `livro/apendice-estudo.md` (acervo do estudo), `benchmark/**` e o próprio `GUIA-EDITORIAL.md`.
+
+**Nunca por varredura.** A edição 0.85 registrou que transformação roteirizada degrada prosa de um
+jeito que o portão sintático não pega: três rodadas de dano, todas encontradas lendo, nenhuma medindo.
+Cada alteração é uma substituição exata decidida na leitura do parágrafo.
+
+E o critério que evita o zelo excessivo: o contraste que **carrega a tese** de um capítulo fica. O que
+a §9 combate é a fôrma repetida, não o contraste — no máximo uma ocorrência por capítulo.
+
 ## Mapa do repositório
 
 - `livro/` — o livro. `GUIA-EDITORIAL.md` (como escrever), `HISTORICO.md` (edições + expiração), `bibliografia.md`, `capitulos/`.

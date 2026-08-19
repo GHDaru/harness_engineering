@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/14-convergencias.md edicao:0.85 hash:74f80740 -->
+<!-- i18n fonte:livro/14-convergencias.md edicao:0.88 hash:fe7f7bb0 -->
 # 14. Convergences and Trends
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
@@ -49,7 +49,7 @@ The measuring instrument is independent convergence. When teams that do not coor
 
 ### The central finding of the first round: eight convergences
 
-Three harnesses, three stacks (Effect-TS, TypeScript, Python), three origins (independent startup, big tech, academia/teaching gateway), and a remarkable architectural convergence. Without coordination, all three arrived at:
+Three harnesses, three stacks (Effect-TS, TypeScript, Python), three origins (independent startup, big tech, academia/teaching gateway), and an architectural convergence. Without coordination, all three arrived at:
 
 1. **Hierarchical context file at the project root** — `AGENTS.md` / `GEMINI.md` / `CLAUDE.md`: the same artifact under three names (ch. 03).
 2. **Staircase compaction**, truncate tools → prune → summarize via LLM, with automatic threshold-based triggering (ch. 04).

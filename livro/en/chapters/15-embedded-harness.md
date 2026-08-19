@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/capitulos/15-harness-embutido.md edicao:0.85 hash:71cd01dc -->
+<!-- i18n fonte:livro/capitulos/15-harness-embutido.md edicao:0.88 hash:3cb98d4c -->
 # 15. The Embedded Harness: agents inside workflow engines
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
@@ -125,7 +125,7 @@ The complementary mechanism is **human-in-the-loop with durable pause**: when a 
 
 **3.** It collapses for two compounding reasons. The conversation grows with nobody managing it: there is no compaction ladder, so the run either blows the window or starts carrying a history that degrades quality, which is ch. 03's *context rot*. And there is no planning or persisted task list, so a task lasting hours loses the constraints stated at the beginning, which is exactly the defect ch. 09 attacks.
 
-The signal to migrate is the same in both cases: **when the task stops fitting in one run**. An embedded agent is excellent for single-message, event-triggered work, and it is the wrong tool for long, stateful sessions. The choice is not about quality, it is about the shape of the task.
+The signal to migrate is the same in both cases: **when the task stops fitting in one run**. An embedded agent is excellent for single-message, event-triggered work, and it is the wrong tool for long, stateful sessions. The choice is about the shape of the task, not about quality.
 
 **4.** The first is **deriving tools from components that already exist**: any node in the system becomes an agent tool, with the schema derived from the node definition. It replaces the manual work of writing and maintaining tools one by one, and it is the ch. 05 derived-schema idea raised one level — instead of deriving from a function signature, it derives from a component definition.
 

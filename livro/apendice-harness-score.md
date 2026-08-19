@@ -90,7 +90,7 @@ A regra veio antes do trabalho: **cada item precisa se justificar sem olhar o pl
 
 **Um padrão de estilo.** Ruff, um só para os dois projetos Python. Justificativa sem placar: o estilo vivia na cabeça de quem revisava.
 
-**Quatro guarda-corpos**, e estes são o coração da mudança. Três deles convertem em regra imposta o que era regra escrita:
+**Quatro guarda-corpos**, e são eles que sustentam a mudança. Três deles convertem em regra imposta o que era regra escrita:
 
 | Hook | O que impõe | Onde a regra vivia antes |
 |---|---|---|
