@@ -99,7 +99,7 @@ Isso cria uma terceira via na taxonomia:
 2. **Scaffolding de fronteira**, sandbox, permissões, interfaces; não expira (é sobre o mundo).
 3. **Scaffolding auto-gerado**, skills escritas pelo agente; *cresce* com o uso, e sua qualidade depende da engenharia de curadoria, não da capacidade bruta do modelo.
 
-### Os riscos: o espelho das promessas
+### Os riscos, um para cada promessa
 
 Cada promessa tem o risco que lhe corresponde: sem anti-padrões, superstição; sem curadoria, entropia; sem isolamento do meta-trabalho, contaminação; e (apontado pela avaliação do IronClaw (prompt-write safety; cf. cap. 07)) sem fronteira de escrita protegida, **prompt injection vira aprendizado permanente**: um atacante que convence o agente a "aprender" uma skill maliciosa persiste na memória procedural. A dimensão 13 madura exigirá a dimensão 6 madura.
 
