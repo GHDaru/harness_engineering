@@ -124,7 +124,7 @@ O mecanismo que complementa é o **humano no laço com pausa durável**: quando 
 
 **3.** Colapsa por duas razões que se somam. A conversa cresce sem que ninguém a administre: não há escada de compactação, então a execução ou estoura a janela ou passa a carregar um histórico que degrada a qualidade, que é o *context rot* do cap. 03. E não há planejamento nem lista de tarefas persistida, então uma tarefa de horas perde as restrições enunciadas no começo, que é exatamente o defeito que o cap. 09 ataca.
 
-O sinal para migrar é o mesmo em ambos os casos: **quando a tarefa deixa de caber numa execução**. Agente embutido é excelente para trabalho de mensagem única e disparado por evento, e é a ferramenta errada para trabalho de sessão longa com estado. A escolha não é de qualidade, é de forma da tarefa.
+O sinal para migrar é o mesmo em ambos os casos: **quando a tarefa deixa de caber numa execução**. Agente embutido é excelente para trabalho de mensagem única e disparado por evento, e é a ferramenta errada para trabalho de sessão longa com estado. A escolha é de forma da tarefa, não de qualidade.
 
 **4.** A primeira é a **derivação de tools a partir de componentes que já existem**: qualquer nó do sistema vira ferramenta do agente, com o schema derivado da definição do nó. Ela substitui o trabalho manual de escrever e manter tool por tool, e é a mesma ideia do schema derivado do cap. 05, subida um nível — em vez de derivar da assinatura da função, deriva da definição do componente.
 

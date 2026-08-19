@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/apendice-harness-score.md edicao:0.78 hash:b44fb199 -->
+<!-- i18n fonte:livro/apendice-harness-score.md edicao:0.88 hash:f839aade -->
 # Appendix — Measure your harness
 
 > **State of the art captured in 2026-08** · last revised 2026-08-10 · [history and expiry ledger](../historico.html)
@@ -91,7 +91,7 @@ The rule came before the work: **every item has to justify itself without lookin
 
 **A style standard.** Ruff, one configuration for both Python projects. Justification without the score: style lived in the head of whoever reviewed.
 
-**Four guardrails**, and these are the heart of the change. Three of them convert a written rule into an enforced one:
+**Four guardrails**, and they are what holds the change up. Three of them convert a written rule into an enforced one:
 
 | Hook | What it enforces | Where the rule lived before |
 |---|---|---|

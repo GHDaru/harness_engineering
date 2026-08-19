@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/capitulos/05-ferramentas.md edicao:0.82 hash:d90ed571 -->
+<!-- i18n fonte:livro/capitulos/05-ferramentas.md edicao:0.89 hash:7997e26e -->
 # 05 — Tool Design
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
@@ -106,7 +106,7 @@ def _schema_da_funcao(fn) -> dict:
 
 Renaming `glob` now changes the schema along with it, because the schema **is** the signature. The opening scene stops being possible.
 
-And notice where the docstring ended up: it became the description the model reads. That changes what you write in it. It is no longer documentation for whoever maintains the code, it is a **prompt**: example patterns, what the tool ignores, what it does not do. That is the chapter's sentence — a tool's description is prompt engineering, and the docstring is where it lives.
+And notice where the docstring ended up: it became the description the model reads. That changes what you write in it. It stopped being documentation for whoever maintains the code and became a **prompt**: example patterns, what the tool ignores, what it does not do. That is the chapter's sentence — a tool's description is prompt engineering, and the docstring is where it lives.
 
 **Version 3: what goes back to the model is not what the function returns.** Here is the problem that only shows up in a real repository.
 
@@ -239,6 +239,6 @@ Agents SDK (Software Development Kit): `@function_tool` (Pydantic + griffe with 
 
 **2.** **Tool search with deferred loading.** What stays hot is the minimum the agent uses on almost every turn — the tool-search tool itself, plus the three to five local core tools (read file, edit, shell) — and the remaining 200-plus are marked to load on demand. What you are saving is not money in the abstract: it is 55k tokens that would leave the window **before** the first useful work, competing with the code the agent needs to see. If a bulky return accompanies the large catalog, the next regime is code-as-action.
 
-**3.** Training distribution. The model saw a given diff format millions of times during training and has essentially never seen yours. Familiarity outweighs design quality: a worse but known format is applied correctly more often than a better, novel one. The corollary is uncomfortable and true — choosing the editing interface is not the architect's matter of taste, it is a **measurement** per model family, and that is why a dedicated metric for it exists.
+**3.** Training distribution. The model saw a given diff format millions of times during training and has essentially never seen yours. Familiarity outweighs design quality: a worse but known format is applied correctly more often than a better, novel one. The corollary is uncomfortable and true — choosing the editing interface is a **measurement** per model family rather than the architect's matter of taste, and that is why a dedicated metric for it exists.
 
 **4.** Because the two audiences have opposite needs and there is only one return value. The **harness** needs the complete list: to paginate, to filter, to pass to another tool, to display in the interface. The **model** needs the minimum sufficient to decide the next step, and every extra path competes for window space with the code it came to read. Returning only the trimmed list would fix the cost and destroy the information; returning only the whole list preserves the information and blows the context. The separation is what lets you optimize one side without losing the other — and it is why this field has a name of its own in mature harnesses.

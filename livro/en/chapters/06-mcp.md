@@ -1,4 +1,4 @@
-<!-- i18n fonte:livro/capitulos/06-mcp.md edicao:0.85 hash:23f0863f -->
+<!-- i18n fonte:livro/capitulos/06-mcp.md edicao:0.88 hash:6c4a473c -->
 # 06. MCP (Model Context Protocol)
 
 > **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
@@ -193,13 +193,13 @@ Step 7 (`harness-zero/etapas/07-mcp/`) gives harness-zero an **MCP client adapte
 `packages/opencode/src/mcp/` (~1,000 lines in `index.ts`, plus `catalog.ts`, `oauth-provider.ts`, `auth.ts`). Three transports — `StdioClientTransport`, `StreamableHTTPClientTransport` and `SSEClientTransport` with **automatic HTTP→SSE fallback**. Full OAuth: authorization with a local callback server, PKCE, dedicated `opencode mcp auth` command. Covers the wide surface: `ToolListChanged` notifications, logging, roots, prompts, resources and resource templates. Server instructions go into the system prompt (`system.ts:mcp()`) — the server can teach the model how to use it (which is also the injection vector).
 
 ### gemini-cli (round 1) — enterprise-grade OAuth
-`packages/core/src/tools/mcp-client.ts` + `mcp-client-manager.ts`, the same three transports by config. The differential in `packages/core/src/mcp/`: beyond standard OAuth, **Google auth** providers and **service account impersonation** — MCP for corporate GCP. Tools become `DiscoveredMCPTool` with per-server namespacing; MCP prompts exposed; management via `/mcp` and `~/.gemini/settings.json`. Notable: the eval suite includes a **prompt injection via MCP** test (ch. 11) — the only one to treat an MCP server as a tested attack surface.
+`packages/core/src/tools/mcp-client.ts` + `mcp-client-manager.ts`, the same three transports by config. The differential in `packages/core/src/mcp/`: beyond standard OAuth, **Google auth** providers and **service account impersonation** — MCP for corporate GCP. Tools become `DiscoveredMCPTool` with per-server namespacing; MCP prompts exposed; management via `/mcp` and `~/.gemini/settings.json`. The eval suite includes a **prompt injection via MCP** test (ch. 11) — the only one to treat an MCP server as a tested attack surface.
 
 ### OpenHarness (round 1) — pragmatic client
 `src/openharness/mcp/` (`McpClientManager`) on the `mcp>=1.0.0` SDK: **stdio** and **Streamable HTTP** transports (no SSE), with connection status, auto-reconnect and **graceful degradation** when a server dies (`call_tool`/`read_resource` do not take down the session). Resources exposed as its own tools (`list_mcp_resources`, `read_mcp_resource`); `mcp_auth` for authentication. Config via `oh mcp` and `--mcp-config`.
 
 ### Goose (round 2) ⭐ MCP-native — the protocol as backbone
-The extreme case: **every tool is MCP**. The `goose-mcp` built-ins (memory, computercontroller, tutorial…) are real `rmcp::ServerHandler` servers served **in-process over `DuplexStream`** (virtual stdio) and can run standalone (`goose mcp <server>`). Even developer/shell/edit are "platform extensions" speaking `McpClientTrait`. A single abstraction for the entire tool surface — the protocol is not an integration, it is the architecture. (Goose is also one of the founding projects of the Agentic AI Foundation.)
+The extreme case: **every tool is MCP**. The `goose-mcp` built-ins (memory, computercontroller, tutorial…) are real `rmcp::ServerHandler` servers served **in-process over `DuplexStream`** (virtual stdio) and can run standalone (`goose mcp <server>`). Even developer/shell/edit are "platform extensions" speaking `McpClientTrait`. A single abstraction for the entire tool surface — the protocol stops being an integration and becomes the architecture. (Goose is also one of the founding projects of the Agentic AI Foundation.)
 
 ### Codex CLI (round 2) — client **and** server, four transports
 `rmcp-client/` + `mcp-server/` (Codex exposes itself as an MCP server). **Four transports** (stdio, streamable HTTP, in-process, process-executor); **full OAuth** with refresh transactions and store locking; **elicitation**; server prewarm/refresh; per-MCP-tool approval templates. Integrates MCP into containment (per-tool approval).

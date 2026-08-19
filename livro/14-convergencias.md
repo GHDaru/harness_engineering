@@ -48,7 +48,7 @@ O instrumento de medida é a convergência independente. Quando equipes que não
 
 ### O achado central da primeira rodada: oito convergências
 
-Três harnesses, três stacks (Effect-TS, TypeScript, Python), três origens (startup independente, big tech, academia/porta didática), e uma convergência arquitetural notável. Sem coordenação, os três chegaram a:
+Três harnesses, três stacks (Effect-TS, TypeScript, Python), três origens (startup independente, big tech, academia/porta didática), e uma convergência arquitetural. Sem coordenação, os três chegaram a:
 
 1. **Arquivo de contexto hierárquico na raiz do projeto** — `AGENTS.md` / `GEMINI.md` / `CLAUDE.md`: o mesmo artefato com três nomes (cap. 03).
 2. **Compactação em escada**, truncar tools → prune → sumarizar via LLM, com disparo automático por limiar (cap. 04).

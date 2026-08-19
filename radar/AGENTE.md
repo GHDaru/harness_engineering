@@ -42,6 +42,27 @@ Alimentar o livro vivo com um roadmap de auto-atualização priorizado. Você **
 - Falhou a busca/rede? Registre a execução com o que houve — execução vazia também é dado.
 - Orçamento: ~30 min de trabalho; priorize profundidade sobre cobertura quando precisar cortar.
 
+## Passada humanizer (depois de publicar, nunca antes)
+
+A partir da spec 105 o repositório exige a skill `humanizer` em conteúdo do livro. A fronteira aqui é
+específica, e existe porque as duas coisas se contradizem se lidas rápido:
+
+1. **A entrada diária NÃO passa pelo humanizer.** Ela é notícia e é acervo: vive de **citação
+   verbatim**, de link verificado e de ⏳ no que não foi lido. Reescrever a prosa de um registro
+   depois de publicado é adulterar o registro — e a §30 da própria skill isenta texto cujo escopo é
+   versionado. `radar/**` está fora do escopo por decisão do editor.
+
+2. **Depois de commitar `radar: AAAA-MM-DD`**, se a execução do dia levar você a tocar em capítulo ou
+   apêndice de conteúdo (por promoção de achado, correção de ficha, qualquer coisa), esse texto passa
+   pela régua do `CLAUDE.md`: §1–§13 e §16–§33 integrais; §14 e §15 subordinadas ao `GUIA-EDITORIAL.md`
+   e ao limite de ≤8 travessões por 1.000 palavras do `mede-prosa.mjs`.
+
+3. **Nunca por varredura.** Substituição exata, decidida na leitura do parágrafo. O motivo está na
+   edição 0.85: transformação roteirizada degrada prosa sem que o portão sintático perceba.
+
+O Radar continua escrevendo **só** em `radar/`. Tocar em `livro/` segue exigindo spec própria — esta
+seção diz **como** escrever quando a spec existir, não autoriza escrever fora de `radar/`.
+
 ## Formato da tabela do RADAR.md
 
 | Data | Item (com link) | Capítulo | Impacto | Ação sugerida | Status |

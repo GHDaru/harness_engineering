@@ -105,7 +105,7 @@ def _schema_da_funcao(fn) -> dict:
 
 Renomear `glob` agora muda o schema junto, porque o schema **é** a assinatura. A cena da abertura deixa de ser possível.
 
-E note onde a docstring foi parar: ela virou a descrição que o modelo lê. Isso muda o que se escreve nela. Não é mais documentação para quem mantém o código, é **prompt**: exemplos de padrão, o que a tool ignora, o que ela não faz. Essa é a frase do capítulo — a descrição de uma tool é prompt engineering, e a docstring é onde ela mora.
+E note onde a docstring foi parar: ela virou a descrição que o modelo lê. Isso muda o que se escreve nela. Deixou de ser documentação para quem mantém o código e virou **prompt**: exemplos de padrão, o que a tool ignora, o que ela não faz. Essa é a frase do capítulo — a descrição de uma tool é prompt engineering, e a docstring é onde ela mora.
 
 **Versão 3: o que volta ao modelo não é o que a função devolve.** Aqui está o problema que só aparece em repositório de verdade.
 
@@ -238,6 +238,6 @@ Agents SDK (Software Development Kit): `@function_tool` (Pydantic + griffe com a
 
 **2.** **Tool search com carregamento tardio.** Quente fica o mínimo que o agente usa em quase todo turno — a própria ferramenta de busca de tools, mais as três a cinco do núcleo local (ler arquivo, editar, shell) — e as mais de 200 restantes ficam marcadas para carregar sob demanda. O que se está economizando não é dinheiro em abstrato: são 55k tokens que sairiam da janela **antes** do primeiro trabalho útil, e que competem com o código que o agente precisa enxergar. Se além do catálogo grande houver retorno volumoso, o regime seguinte é code-as-action.
 
-**3.** Por distribuição de treino. O modelo viu um determinado formato de diff milhões de vezes durante o treinamento e praticamente nunca viu o seu formato. A qualidade do design importa menos que a familiaridade: um formato pior, mas conhecido, é aplicado corretamente com mais frequência que um formato melhor e inédito. O corolário incomoda e é verdadeiro — a escolha da interface de edição não é uma decisão de gosto do arquiteto, é uma **medição** por família de modelo, e é por isso que existe métrica dedicada a ela.
+**3.** Por distribuição de treino. O modelo viu um determinado formato de diff milhões de vezes durante o treinamento e praticamente nunca viu o seu formato. A qualidade do design importa menos que a familiaridade: um formato pior, mas conhecido, é aplicado corretamente com mais frequência que um formato melhor e inédito. O corolário incomoda e é verdadeiro — a escolha da interface de edição é uma **medição** por família de modelo, não uma decisão de gosto do arquiteto, e é por isso que existe métrica dedicada a ela.
 
 **4.** Porque as duas audiências têm necessidades opostas e o retorno é um só. O **harness** precisa da lista completa: para paginar, para filtrar, para passar a outra ferramenta, para exibir na interface. O **modelo** precisa do mínimo suficiente para decidir o próximo passo, e cada caminho a mais compete por espaço na janela com o código que ele veio ler. Retornar só a lista recortada resolveria o custo e destruiria a informação; retornar só a lista inteira preserva a informação e estoura o contexto. A separação é o que permite otimizar um lado sem perder o outro — e é a razão pela qual esse campo tem nome próprio nos harnesses maduros.

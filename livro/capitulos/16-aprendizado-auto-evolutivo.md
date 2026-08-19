@@ -101,7 +101,7 @@ Isso cria uma terceira via na taxonomia:
 
 ### Os riscos: o espelho das promessas
 
-Os riscos são o espelho das promessas: sem anti-padrões, superstição; sem curadoria, entropia; sem isolamento do meta-trabalho, contaminação; e (apontado pela avaliação do IronClaw (prompt-write safety; cf. cap. 07)) sem fronteira de escrita protegida, **prompt injection vira aprendizado permanente**: um atacante que convence o agente a "aprender" uma skill maliciosa persiste na memória procedural. A dimensão 13 madura exigirá a dimensão 6 madura.
+Cada promessa tem o risco que lhe corresponde: sem anti-padrões, superstição; sem curadoria, entropia; sem isolamento do meta-trabalho, contaminação; e (apontado pela avaliação do IronClaw (prompt-write safety; cf. cap. 07)) sem fronteira de escrita protegida, **prompt injection vira aprendizado permanente**: um atacante que convence o agente a "aprender" uma skill maliciosa persiste na memória procedural. A dimensão 13 madura exigirá a dimensão 6 madura.
 
 ### Leitura executiva
 
