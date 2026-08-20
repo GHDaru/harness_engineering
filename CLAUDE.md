@@ -47,8 +47,12 @@ antes de ir para a `main`. A régua e a decisão de escopo estão na spec 105.
   `mede-prosa.mjs` o limita a **≤8 por 1.000 palavras**. A própria skill dá a precedência:
   *"a sample outranks this skill's style rules, including the em dash rule in §14"* — e o livro com o
   guia é esse *sample*. O mesmo vale para o negrito, que na camada v4 é instrumento didático declarado.
-- **Fora do escopo, por decisão do editor**: `livro/HISTORICO.md` (histórico), `radar/**` (notícia),
-  `livro/apendice-estudo.md` (acervo do estudo), `benchmark/**` e o próprio `GUIA-EDITORIAL.md`.
+- **Fora do escopo, por decisão do editor**: `livro/HISTORICO.md` (histórico),
+  `livro/apendice-estudo.md` (acervo do estudo), `benchmark/**`, o próprio `GUIA-EDITORIAL.md` e as
+  **entradas de Radar já publicadas** (acervo).
+- **Dentro do escopo desde 2026-08-20, por decisão do editor**: a **entrada diária do Radar**, aplicada
+  antes do commit, e **só na prosa de ligação**. Citação verbatim, alvo de link, número, data,
+  identificador, o marcador ⏳ e nome próprio ficam intactos. Contrato em `radar/AGENTE.md`.
 
 **Nunca por varredura.** A edição 0.85 registrou que transformação roteirizada degrada prosa de um
 jeito que o portão sintático não pega: três rodadas de dano, todas encontradas lendo, nenhuma medindo.

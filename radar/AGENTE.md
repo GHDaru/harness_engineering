@@ -42,26 +42,36 @@ Alimentar o livro vivo com um roadmap de auto-atualização priorizado. Você **
 - Falhou a busca/rede? Registre a execução com o que houve — execução vazia também é dado.
 - Orçamento: ~30 min de trabalho; priorize profundidade sobre cobertura quando precisar cortar.
 
-## Passada humanizer (depois de publicar, nunca antes)
+## Passada humanizer na entrada diária (a partir de 2026-08-20)
 
-A partir da spec 105 o repositório exige a skill `humanizer` em conteúdo do livro. A fronteira aqui é
-específica, e existe porque as duas coisas se contradizem se lidas rápido:
+Decisão do editor em 19/ago: **a entrada diária passa pelo humanizer, valendo a partir de amanhã.**
+As entradas já publicadas ficam como estão — são acervo, e reescrever registro publicado é adulterar
+registro.
 
-1. **A entrada diária NÃO passa pelo humanizer.** Ela é notícia e é acervo: vive de **citação
-   verbatim**, de link verificado e de ⏳ no que não foi lido. Reescrever a prosa de um registro
-   depois de publicado é adulterar o registro — e a §30 da própria skill isenta texto cujo escopo é
-   versionado. `radar/**` está fora do escopo por decisão do editor.
+**Quando.** Depois de escrever a entrada e **antes** de commitar. Um commit só, `radar: AAAA-MM-DD`,
+já com o texto tratado. Não republique uma entrada para humanizá-la depois.
 
-2. **Depois de commitar `radar: AAAA-MM-DD`**, se a execução do dia levar você a tocar em capítulo ou
-   apêndice de conteúdo (por promoção de achado, correção de ficha, qualquer coisa), esse texto passa
-   pela régua do `CLAUDE.md`: §1–§13 e §16–§33 integrais; §14 e §15 subordinadas ao `GUIA-EDITORIAL.md`
-   e ao limite de ≤8 travessões por 1.000 palavras do `mede-prosa.mjs`.
+**O que passa.** A prosa de ligação do agente: a nota de ambiente, o texto que explica cada achado, o
+motivo de cada descarte, a fila do dia. Régua completa no `CLAUDE.md`: §1–§13 e §16–§33; §14 e §15
+subordinadas ao `GUIA-EDITORIAL.md`.
 
-3. **Nunca por varredura.** Substituição exata, decidida na leitura do parágrafo. O motivo está na
-   edição 0.85: transformação roteirizada degrada prosa sem que o portão sintático perceba.
+**O que NÃO passa, e isto é inviolável.** O contrato vive de evidência, e evidência não se reescreve:
 
-O Radar continua escrevendo **só** em `radar/`. Tocar em `livro/` segue exigindo spec própria — esta
-seção diz **como** escrever quando a spec existir, não autoriza escrever fora de `radar/`.
+- **citação verbatim** — a skill já isenta (*"do not rewrite watched phrases inside quotations"*), e
+  aqui a isenção é dura: uma linha de changelog ou de README citada entre aspas sai **exatamente** como
+  na fonte, com os tiques que ela tiver;
+- **alvo de link, número, data, identificador** (versão, commit, arXiv, estrela/fork);
+- **o marcador ⏳** e a frase que diz o que falta verificar;
+- **nomes próprios** de sistema, organização e pessoa.
+
+**O padrão que mais importa aqui é o §9.** Paralelismo negativo (*"não é X, é Y"*) é a fôrma em que eu
+mais caio ao explicar achado, e a régua é a mesma do livro: no máximo uma por entrada, e ela fica onde
+o contraste carrega o argumento.
+
+**Nunca por varredura.** Substituição exata, decidida na leitura do parágrafo. Motivo na edição 0.85.
+
+O Radar continua escrevendo **só** em `radar/`. Esta seção diz como escrever a entrada; não autoriza
+tocar em `livro/`.
 
 ## Formato da tabela do RADAR.md
 
