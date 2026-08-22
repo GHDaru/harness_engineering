@@ -32,6 +32,18 @@
 
 ## Edições
 
+### Edição 0.90 — 2026-08-22 · o portão que eu escrevi para pegar publicação silenciosa nunca rodou (spec 106)
+
+- **A conferência pós-deploy da spec 104 saiu `skipped` em toda execução desde que foi criada.** Nove dias. Ela aparecia na lista de passos, o job terminava verde, e nada era verificado.
+- **Em 20/ago eu relatei ao editor que "o passo de verificação da spec 104 aprovou por mérito".** A frase estava errada, e o dado que a desmentia estava no mesmo objeto JSON que eu já tinha consultado: bastava olhar a conclusão do **passo 16** em vez de olhar só a do **job**.
+- **A causa é escopo, não lógica.** O passo carregava `if: env.VERCEL_TOKEN != ''`, copiado do passo de publicação. Mas `VERCEL_TOKEN` só existe no `env:` **daquele** passo; o `env:` do job tem apenas `SITE_URL`. No passo 16 a variável não está no escopo, a condição dá falso, e **passo pulado não reprova job**. A conferência usa o endereço público e o `GITHUB_SHA` — nunca precisou do token. Eu copiei a condição junto com o formato, sem perguntar se ela fazia sentido ali.
+- **É o cap. 11 aplicado ao conserto do cap. 11.** O portão de 13/ago mentia por acidente de shell, quando um `tee` engoliu o código de saída. Este mentia por acidente de escopo. Um portão que não pode reprovar não é portão, e a forma mais silenciosa de não poder reprovar é **não rodar**.
+- **As duas condições saíram.** A publicação agora **falha e diz** que o segredo está ausente, em vez de se ausentar junto; a conferência perdeu a condição por completo.
+- **Isso também desarma uma armadilha para o editor**, que pediu a revogação do token do Vercel: até esta spec, tirar o segredo faria os dois passos sumirem e o job seguir verde — a publicação pararia sem nenhum aviso.
+- **O critério de parada mudou junto**, porque o antigo não teria pego isto: não basta o job terminar verde, é preciso confirmar que **o passo de conferência executou** — conclusão `success`, e não `skipped`.
+- **Como foi encontrado**: o editor mandou abrir a spec do `if:`, e eu fui ler o que a condição avalia hoje antes de reescrevê-la. Nenhuma varredura acharia. Fica como método — ao mexer numa condição, conferir primeiro o que ela decide.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
+
 ### Edição 0.89 — 2026-08-19 · a passada humanizer, e o que ela achou de menos (spec 105)
 
 - **O editor pediu a skill `humanizer` no livro inteiro. A medição mudou o tamanho da tarefa.** Antes de reescrever qualquer linha, varri os 18 capítulos pelos padrões detectáveis: autoridade retórica **0**, sinalização **0**, conclusão genérica **0**, artefato de conversa **0**, disclaimer de corte **0**, vocabulário-IA **2** (um falso positivo), promocional **5** (dois falsos positivos).
