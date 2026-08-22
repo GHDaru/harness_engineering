@@ -93,8 +93,9 @@ jobs:
         run: rm -f docs/_print.html docs/en/_print.html
 
       # spec 090: publicacao no Vercel. Nasceu em paralelo ao Pages durante a
-      # transicao; desde a spec 095 e o unico canal. O passo e INERTE sem o secret
-      # `VERCEL_TOKEN` -- `env.VERCEL_TOKEN` vazio pula o step.
+      # transicao; desde a spec 095 e o unico canal. ATE A SPEC 106 este passo era
+      # INERTE sem o secret `VERCEL_TOKEN`; agora ele REPROVA, porque publicacao
+      # que nao acontece precisa de vermelho e nao de silencio.
       #
       # Por que --prebuilt: docs/ e GERADO e esta no .gitignore. Um projeto
       # conectado ao git tentaria construir e nao acharia nada. Aqui o Actions
@@ -111,13 +112,20 @@ jobs:
       # O `tee` existia para mostrar a URL; acabou transformando uma falha de
       # publicacao numa afirmacao de publicacao. Quem achou foi o editor, abrindo o
       # site -- nao o processo.
+      # spec 106: a condicao `if: env.VERCEL_TOKEN != ''` saiu daqui. Ela fazia o
+      # passo se AUSENTAR quando o segredo faltasse, e passo ausente nao reprova
+      # job -- entao perder o token de publicacao daria verde e o site pararia de
+      # atualizar em silencio. Agora falta de token e vermelho, com a razao dita.
       - name: Publicar no Vercel
-        if: env.VERCEL_TOKEN != ''
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         shell: bash
         run: |
           set -o pipefail
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::error::o segredo VERCEL_TOKEN esta ausente ou vazio -- a publicacao NAO aconteceu e o site segue na versao anterior. Configure o segredo em Settings > Secrets and variables > Actions."
+            exit 1
+          fi
           npm install -g vercel@latest
           mkdir -p .vercel/output/static
           cp -r docs/. .vercel/output/static/
@@ -141,8 +149,15 @@ jobs:
       # nao a edicao do HISTORICO. A diferenca decide: um commit do Radar nao muda a
       # edicao, e a falha de 13/ago foi num commit do Radar -- uma conferencia por
       # edicao teria passado verde exatamente na falha que a motivou.
+      # spec 106: esta conferencia NUNCA RODOU. Ela carregava
+      # `if: env.VERCEL_TOKEN != ''`, copiado do passo de publicacao, mas
+      # VERCEL_TOKEN so existe no `env:` DAQUELE passo -- aqui a variavel nao
+      # esta no escopo, a condicao dava falso, e o passo saia `skipped` em toda
+      # execucao desde a spec 104. Passo pulado nao reprova job, entao o verde
+      # continuou verde e eu cheguei a relatar que ele "aprovou por merito".
+      # A conferencia usa o endereco publico e o GITHUB_SHA; nunca precisou do
+      # token. Sem condicao.
       - name: Conferir que o site publicado e o que se construiu
-        if: env.VERCEL_TOKEN != ''
         env:
           SITE_URL: ${{ env.SITE_URL || 'https://harness.ghdaru.com.br' }}
         shell: bash
