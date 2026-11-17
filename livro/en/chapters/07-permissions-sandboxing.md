@@ -1,7 +1,7 @@
-<!-- i18n fonte:livro/capitulos/07-permissoes-sandbox.md edicao:0.88 hash:b8a3734d -->
+<!-- i18n fonte:livro/capitulos/07-permissoes-sandbox.md edicao:0.91 hash:85e3dfaf -->
 # 07 — Permissions and Sandboxing
 
-> **State of the art captured in 2026-07** · last revised 2026-08-12 · [history and expiration log](../historico.html)
+> **State of the art captured in 2026-07** · last revised 2026-11-17 · [history and expiration log](../historico.html)
 >
 > Didactic layer v4 — see [Editorial Guide §2.1](../editorial-guide.md).
 > scaffold: completo
@@ -12,7 +12,7 @@
 
 By the end of this chapter, you should be able to:
 1. **Distinguish** the two layers of defense: policy (what the agent may ask for) and containment (what the process is able to do);
-2. **Design** permissions along two orthogonal dimensions (sandbox mode × approval policy);
+2. **Design** permissions along two orthogonal dimensions (sandbox mode × approval policy) and **place** an external sandbox on those two dimensions;
 3. **Apply** the "lethal trifecta" and the "rule of two" as checklists for toolset review and session architecture;
 4. **Implement** a `PermissionPolicy` as a pure domain, testable without an LLM (Large Language Model), with non-disableable sensitive paths (step 6);
 5. **Assess** a real harness for its *blast radius*: what leaks if the injection wins?
@@ -62,6 +62,7 @@ And there are two levels that get confused all the time. **Permissions** are pol
 - **[Agents Rule of Two](https://ai.meta.com/blog/practical-ai-agent-security/)** (Meta AI): an agent should not satisfy more than two of three — process untrusted input, access sensitive data, change state or communicate externally — in the same session. It is a *session architecture* criterion, not a substitute for defense in depth.
 - **[The lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/)** (Simon Willison): private data, plus untrusted content, plus external communication, equals exfiltration. Use it as a **toolset checklist**, asking of each new tool which vertex it closes. The same author's [counterpoint](https://simonwillison.net/2025/Nov/2/new-prompt-injection-papers/): announced defenses fall when "the attacker moves last".
 - **[Attacks on OpenClaw](https://thehackernews.com/2026/06/new-attacks-trick-openclaw-ai-agent.html)** (The Hacker News): the real case, with one-click remote code execution (CVE-2026-25253), plaintext credentials and injection planted in an email signature, a calendar invite and an issue. The vector was not the model, it was the **harness**: secrets in the same space as the tools, plus unbounded untrusted input.
+- **[External sandboxes for coding agents](https://blog.primeradiant.com/external-sandboxes-for-coding-agents/)** (Simon Willison, Prime Radiant, 16 Nov 2026): the agent stays on the user's machine and the terminal command goes to an isolated Linux. The contract, revision 1, is in [external-sandbox](https://github.com/prime-radiant-inc/external-sandbox) (`PROTOCOL.md`). These are prototypes, unaudited for sensitive workloads. In Claude Code, reading and editing files stays on the host.
 - **See also**: the living collections [Permissions & Authorization](https://github.com/GHDaru/awesome-harness-engineering#permissions--authorization) and [Security, Sandbox & Permissions](https://github.com/GHDaru/awesome-harness-engineering#security-sandbox--permissions) of Awesome Harness Engineering.
 
 ## In practice: the policy is a pure function, and the sandbox is not it
@@ -168,11 +169,43 @@ In the personal-agent category the third-party vector got its own defense: a mes
 
 And a norm of honesty emerged that is worth recording: publishing the gate's **false-negative rate**, with numbers, instead of asserting binary security.
 
+### 4. The guest can live outside the agent
+
+Approving every command spends attention until it runs out. This chapter's check already describes the outcome: the person approves without reading, and the protection falls away. The way out the corpus settled on is `on-failure`. The sandbox filters, and the human is called only when containment has blocked.
+
+On 16 Nov 2026, Simon Willison published at Prime Radiant another place to put the same guest. The agent stays on the machine of the person using it. That agent may be Claude Code, Codex, or Pi. The terminal command goes to an isolated Linux, which sees only the mounted folders and, with the proxy on, the hosts on the list. The pattern is called an **external sandbox**. External, here, means outside the agent. The two processes can share one machine.
+
+The containment Appendix A records for the Codex CLI and gemini-cli wraps the command in the agent's own environment: Seatbelt, bubblewrap, seccomp, the gemini-cli profiles. In the new pattern the guest is a separate Linux, and the agent talks to it through a localhost service. The post sets aside the opposite design, the one where the whole agent lives inside the sandbox. The example it cites is Fly's Sprites. On the outside, the agent does not rewrite the runtime that contains it, and the boundary fits in a protocol.
+
+The contract is revision 1 of `PROTOCOL.md`, read at commit `0681c98` (16 Nov 2026). It fixes what a client can observe. The server's language and the sandbox technology stay outside the contract, which is why one conformance suite serves the three prototypes. Each publishes in its own repository: Alpine in WebAssembly, via v86; Apple Containers; a QEMU virtual machine, via Microsoft's Quicksand.
+
+The core has four endpoints. Discovery at `GET /health`. A buffered shell at `POST /exec`. A streaming shell on the WebSocket `/exec/ws`. Processes and files on the WebSocket `/codex`, in the experimental exec-server format of Codex CLI 0.164.0, which is also the path of native `apply_patch`. Three profiles exist only if someone asks for them: a browser terminal, host mounts, and a proxy. A fourth, for TLS, extends the proxy with credential substitution. Each shell starts empty. A file written in the guest remains. A host environment variable is not inherited.
+
+The API key stays in the proxy. The policy names a server variable, in the `secretEnv` field. Guest code sends a placeholder, and the proxy replaces the header. The secret is not a field of the document. A host on the list can still transform the value and return it. Redaction catches a literal echo. A deliberate transform gets through. The spec limits the rule to a trusted service, with a narrow method and path.
+
+Network off by default is what the three servers declare, and what the Codex guide repeats. The protocol core is narrower. With the proxy disabled, it promises no network isolation beyond each backend's offline configuration. Whoever needs egress turns the proxy on and writes the list.
+
+What crosses depends on the agent. Where the post and the code diverge, the chapter follows the code.
+
+In Pi, the extension replaces seven tools: `bash`, `read`, `write`, `edit`, `grep`, `find`, and `ls`. The `!` and `!!` shortcuts go with them. If the sandbox does not answer, the tool returns an error, with no fallback to the local machine. `--no-builtin-tools` removes the built-in tools, for the case where the extension fails to load. Model traffic, the session, settings, and skills stay on the computer. Another extension's code stays there too. The block covers a tool call that is not one of the seven, and not the program the extension already is.
+
+In Codex, processes and files go through `/codex`. `danger-full-access` asks the platform not to stack its own sandbox on the guest. The reply carries `sandboxType` equal to `none`. The spec reads that value as the absence of a second sandbox, with execution still in the guest. The Codex interface's `!` shortcut requires a local environment and fails in this configuration. It can close the interface. The post does not record the shortcut. The Codex guide does. The compatibility that was exercised is CLI 0.164.0, and the format is experimental. A later version needs a fresh check.
+
+In Claude Code, the shell crosses the boundary. Reading and editing files stay on the machine, with the permission they already had. `CLAUDE_CODE_SHELL_PREFIX` points at a script that forwards the whole command to `/exec/ws`, and the host does not interpret that text. The post summarizes the reach as the Bash tool's commands. The integration README widens it by one step: the same prefix also covers a shell hook, the status line, and startup of a Model Context Protocol (MCP) server over stdio, because that is how Claude Code applies the variable. **Read and Edit stay out.** A key stored in a file those tools can open remains readable. The mount holds the terminal command. The `read_file` from the opening of this chapter is still the other path to the same file.
+
+The limits that the post and the code state together are these. The backends are prototypes and have not been audited for a workload that holds sensitive data. The conformance suite looks at the protocol from the outside, and `COVERAGE.md` limits a green result to the selected profiles. A proof of isolation and a security certification sit outside what that suite claims. A read-write mount is the real host folder, and the damage arrives immediately. The sources' advice is to keep it in version control, and to prefer read-only where you can. The guest is Linux. A `node_modules` or a `.venv` mounted from macOS may have to be reinstalled inside.
+
+Two details of the scene do not become a contract. The post writes the example as "on your Mac". The prefix client also documents Linux. Apple Containers and Quicksand, in the post, ask for Apple silicon. Ports 8686, 8687, and 8688 are those of the current examples. The protocol treats the port as the implementer's choice.
+
+For the discipline, the chapter's thesis stands whole. Policy decides what gets mounted and what gets asked. Containment decides what the process can reach, now in a Linux the agent does not administer. Approval fatigue gains a way out that does not hand the judgment to another model, beside the `on-failure` the corpus already had. What you copy is the contract, which can change machines without changing agents. The Claude Code hole is the lesson the chapter already taught: containment covers the path that crossed the boundary. The path that stayed on the host remains a matter for policy.
+
 ### Executive summary
 
 What is most modern: the two orthogonal dimensions; the two containment paradigms, by operating system and by authority architecture, with the observation that nobody has combined them; and the migration from "detect injection" to "reduce blast radius".
 
 **What to steal:** non-disableable sensitive paths, evaluated before user rules; `.resolve()` before any path comparison; structural shell parsing; `on-failure`, which approves only after the sandbox blocks; deny-by-default contact pairing; and publishing your gate's false-negative rate.
+
+As of 17 Nov 2026, by the editor's decision, the reading above stands and gains a caveat. The external sandbox, published on 16 Nov 2026, places the guest outside the agent and defines the boundary as a protocol. It does not replace the two dimensions, nor `on-failure`, nor the operating-system containment of the Codex CLI and gemini-cli. The contract between agent and guest joins the list of what to steal. Two limits come with the item: in Claude Code, Read and Edit do not cross, and the three backends are unaudited prototypes.
 
 ## Hands-on — harness-zero, step 6
 
@@ -190,6 +223,7 @@ And ch. 03's debt is paid here: that step's `read_file` now consults the policy 
 2. You are about to add an email-sending tool to an agent that already reads GitHub issues and has access to the private repository. Apply the lethal trifecta.
 3. Why can `on-failure`, which approves only after a block, be better than `on-request`, which approves before every action?
 4. In the `decide` function of the example, why does `.resolve()` come **before** the sensitive-path check, and not after?
+5. An agent's terminal commands go to an external sandbox, and per-action approval has been turned off. What does the chapter's thesis still require, and what in Claude Code stays outside that containment?
 
 ---
 
@@ -233,6 +267,16 @@ Permission is **topological**: the author chooses which nodes sit on the `AiTool
 ### Frameworks (frameworks round) — left open
 LangGraph and CrewAI have no native tool policy (you build it on `interrupt`/HITL); the Agents SDK (Software Development Kit) has guardrails at three levels (agent/run/tool) as a primitive, but containment is left to the adopter.
 
+### External sandbox (outside the corpus, promoted on 2026-11-17)
+Pattern read for section 4. It sits outside the benchmark and receives no score. Commit `0681c98`, 16 Nov 2026, repository `prime-radiant-inc/external-sandbox` (Apache-2.0):
+
+- `PROTOCOL.md`, revision 1: core `/health`, `/exec`, `/exec/ws`, `/codex`. Optional browser, mount, and proxy profiles, plus `proxy-tls`, which extends the proxy. No inheritance of the host environment. `secretEnv` names the variable. `sandboxType: none` keeps execution in the guest. With the proxy off, the core promises no network beyond the backend's configuration.
+- `COVERAGE.md`: a green result covers the selected profiles. A proof of isolation and a certification sit outside that claim.
+- `README.md`: the spec, the suite, and the integrations live here. v86, Apple Containers, Quicksand, and the Pi extension publish in their own repositories.
+- `claude-code/claude-shell-prefix.sh` and `claude-code/README.md`: the prefix forwards the command to `/exec/ws` without evaluating it on the host. *"native file tools such as Read/Edit still access host files."* The same prefix also reaches a shell hook, the status line, and stdio MCP.
+- `codex/README.md`: processes, files, and `apply_patch` in the guest. The interface `!` fails in the remote-only configuration and can close it. Guest networking is off by default in the backends. CLI 0.164.0.
+- `external-sandbox-pi`, `README.md`: `bash`, `read`, `write`, `edit`, `grep`, `find`, `ls`, `!`, and `!!` go to the sandbox. With no answer, the tool errors, with no fallback to the host.
+
 ---
 
 ## Verification answers
@@ -244,3 +288,5 @@ LangGraph and CrewAI have no native tool policy (you build it on `interrupt`/HIT
 **3.** Because the two policies spend the human's attention in different places. `on-request` asks **before every action**, including the hundreds the sandbox would allow with no risk at all, and the predictable outcome is a human approving on autopilot, which nullifies the protection. `on-failure` lets the sandbox filter first and escalates only **what it blocked** — that is, the human is called only when the action has already demonstrably touched a boundary. Less friction, more signal per interruption. The honest trade-off: `on-failure` is only better if a competent sandbox **exists**; without containment it becomes "approve after it already went wrong".
 
 **4.** Because the check operates on the **real** path, not on what was typed. Without `.resolve()`, a symbolic link inside the project pointing at `~/.ssh` produces a path containing none of the sensitive strings — `repo/atalho/id_rsa` passes the list, passes `is_relative_to` (it is inside the project, after all) and returns the key. Resolving first turns the path into its true destination before any judgment. It is the same failure mode as the trailing slash in a deny rule and as the symlink directory escape one of the corpus harnesses had to fix: **file-system policy fails at the edge of path syntax, not in the logic of the rule**.
+
+**5.** The thesis still requires both layers. Choosing the mounted folder and the host list is policy: the radius was decided before the session. The isolated Linux is containment: the command cannot reach the rest of the machine, and the API key stays in the proxy, outside the guest. Turning off the per-action question holds only inside that radius. In Claude Code, Read and Edit stay on the host. A sensitive file those tools open was not covered by the mount, and the policy from the start of the chapter, with non-disableable paths, still applies to that path. The three backends are prototypes. Protocol conformance does not stand in for an isolation audit.
