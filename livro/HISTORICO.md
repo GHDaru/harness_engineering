@@ -17,7 +17,7 @@
 | 04 Compactação | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 05 Ferramentas | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 06 MCP | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
-| 07 Permissões/Segurança | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
+| 07 Permissões/Segurança | 2026-07 | ✓ | 2026-11-17 · **sandbox externo (spec 107)** |
 | 08 Memória e Estado | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 09 Planejamento | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
 | 10 Subagentes/Orquestração | 2026-07 | ✓ | 2026-08-12 · **camada didática v4** |
@@ -31,6 +31,15 @@
 | 00 Introdução · 01 Fundamentos | 2026-07 | ✓ (01) | 2026-08-12 · **camada didática v4** |
 
 ## Edições
+
+### Edição 0.91 — 2026-11-17 · o sandbox externo entra no cap. 07 (spec 107)
+
+- **O editor pediu a promoção.** Em 17/nov/2026, Gilsiley Darú decidiu que o padrão de sandbox externo entra no cap. 07: o post da Prime Radiant de 16/nov/2026 e o repositório `prime-radiant-inc/external-sandbox`. Item do Radar não sobe sozinho (ADR 0008). A tabela de `radar/RADAR.md` registra `promovido (spec 107)`.
+- **A Leitura executiva fica, com ressalva.** As duas dimensões e os dois paradigmas de contenção continuam de pé. O acréscimo é um lugar a mais para o convidado, fora do agente, com contrato próprio. Isso não substitui o `on-failure` nem a contenção por sistema operacional do Codex CLI e do gemini-cli.
+- **O anúncio e o código divergem, e o código ficou no capítulo.** O post abre dizendo que todo comando roda no Linux isolado. No Claude Code, o prefixo reenvia o shell para `/exec/ws`, e Read/Edit continuam no host (`claude-code/README.md`). O núcleo do protocolo não promete rede desligada. Essa frase é dos três backends. O atalho `!` do Codex falha na configuração só remota. O post não diz.
+- **O placar de expiração não muda de estado.** A linha de sandbox/contenção segue 🔴. A evidência nova reforça a previsão: a contenção proposta não depende de um modelo julgar cada ação. A linha de policy engine segue 🔵. Montar pasta e lista de sites continua sendo política, e o caminho de arquivo do Claude Code continua precisando dela.
+- **Fora do corpus.** O repositório do protocolo (Apache-2.0, não arquivado, criado em 2026-10-09) não entra no estudo e não recebe nota. A triagem está na spec 107.
+- **IA (A3)**: agente **Claude Code (Anthropic)**.
 
 ### Edição 0.90 — 2026-08-22 · o portão que eu escrevi para pegar publicação silenciosa nunca rodou (spec 106)
 
@@ -689,7 +698,7 @@
 | Policy engine / aprovações (cap. 07) | modelos não são confiáveis com ações destrutivas | confiabilidade calibrada e verificável | 🔵 aberta | Consenso 2026: injection tratada como não-resolvível; esforço migrou para blast radius, não para confiar no modelo. |
 | Verificação externa (cap. 11) | a auto-correção intrínseca não basta (o modelo não se conserta sozinho) | modelos verificarem o próprio trabalho de forma confiável | 🔵 aberta | Reforçada, não expirando: "LLMs Cannot Self-Correct Reasoning Yet" (2310.01798) e o *reward hacking* (o agente apaga asserts/patcha o pytest) empurraram a indústria para verificador **externo e imutável** (testes held-out, verify-on-stop) — 2026-07. |
 | Aprendizado auto-evolutivo (cap. 16) | — (cláusula invertida) | nunca — o harness *escreve* scaffolding em vez de esperar o modelo | 🔵 aberta | Hermes e gemini-cli fecharam o ciclo (2026-07); é auto-expansão, não expiração. |
-| Sandbox / contenção (cap. 07) | é sobre o mundo, não sobre o modelo | nunca (fronteira, não prótese) | 🔴 não-expira | Confirmado nas 3 rodadas; contenção é o scaffolding que resta quando o modelo melhora. |
+| Sandbox / contenção (cap. 07) | é sobre o mundo, não sobre o modelo | nunca (fronteira, não prótese) | 🔴 não-expira | Confirmado nas 3 rodadas; contenção é o scaffolding que resta quando o modelo melhora. 2026-11-17: o sandbox externo (Willison, Prime Radiant, 16/nov) reforça a linha. A contenção proposta não depende de um modelo julgar cada ação. Estado mantido. Os backends são protótipo sem auditoria, e no Claude Code a contenção não cobre Read/Edit. |
 | Protocolos (MCP/A2A/ACP/AGENTS.md — cap. 17) | interoperabilidade entre sistemas | nunca (fronteira com o mundo) | 🔴 não-expira | MCP, goose e AGENTS.md doados à **Agentic AI Foundation / Linux Foundation** (dez/2025); MCP em 10/11 harnesses e o ACP fundido no A2A sob a LF (ago/2025) — a fronteira se institucionaliza, não desaparece (2026-07). |
 
 *Regra de manutenção: a cada rodada do benchmark e a cada edição, revisar esta tabela — promover 🔵→🟡→🟢 com a evidência datada que justifica. Uma linha que muda de estado é a notícia mais importante que uma nova edição pode trazer.*

@@ -1,11 +1,11 @@
-<!-- i18n fonte:livro/glossario.md edicao:0.61 hash:749ef66d -->
+<!-- i18n fonte:livro/glossario.md edicao:0.91 hash:22af7371 -->
 # Glossary
 
 The acronyms of this book, **spelled out**, with a short explanation and the **context** in which they appear. In the body of the chapters, hovering over an acronym shows its meaning (`abbr`); here is the complete reference. The expansions were checked against the text itself (Principle I).
 
 ## Agents, protocols and orchestration
 
-- **MCP — Model Context Protocol.** Open protocol that standardizes how a harness plugs external tools, data and prompts into the model. *Appears in:* ch. 06 (MCP) and ch. 17 (Protocols).
+- **MCP — Model Context Protocol.** Open protocol that standardizes how a harness plugs external tools, data and prompts into the model. *Appears in:* ch. 06 (MCP), ch. 07 (Permissions) and ch. 17 (Protocols).
 - **ACP — Agent Client Protocol.** Protocol (originated at Zed) for the **agent ↔ editor/client** conversation. Not to be confused with IBM's *Agent Communication Protocol* (also "ACP"), discontinued and merged into A2A. *Appears in:* ch. 13 (Interfaces), ch. 17.
 - **MRTR — Multi Round-Trip Requests.** Pattern from the MCP 2026-07-28 spec that replaces server-initiated requests (sampling/elicitation): the server responds `input_required` and the client retries with the answers. *Appears in:* ch. 06.
 - **DCR — Dynamic Client Registration.** Dynamic registration of OAuth clients; deprecated in the MCP 2026-07-28 spec in favor of CIMD. *Appears in:* ch. 06.
