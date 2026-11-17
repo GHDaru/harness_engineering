@@ -29,4 +29,4 @@
 - [x] T012 Regravar selos i18n com `node publicar/sela.mjs` nos EN traduzidos
 - [x] T013 `cd publicar && npm run build` verde (prosa do cap. 07: 3,5 travessões/1k, 15,0 palavras/frase, 0 frases longas)
 - [x] T014 Regenerar `chat-companion/backend/corpus.json` e conferir que "sandbox externo" é encontrável (`fonte`: o cap. 07)
-- [ ] T015 Abrir pull request em rascunho. Não mergear.
+- [x] T015 Abrir pull request em rascunho. Não mergear. PR: https://github.com/GHDaru/harness_engineering/pull/1
